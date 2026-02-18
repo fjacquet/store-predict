@@ -87,7 +87,7 @@ Plans:
 
 **Goal:** Working upload flow + editable classification table with multi-select workload override.
 
-**Requirements covered:** FR-4.1, FR-4.2, FR-4.3, FR-4.4, FR-4.5, FR-4.6, FR-7.1, FR-7.2, FR-7.3, FR-7.4, FR-7.5
+**Requirements covered:** FR-4.1, FR-4.2, FR-4.3, FR-4.4, FR-4.5, FR-4.6, FR-7.1, FR-7.2, FR-7.3, FR-7.4, FR-7.5, FR-7.6
 
 **Deliverables:**
 
@@ -100,6 +100,7 @@ Plans:
 - [ ] Real-time summary statistics (total VMs, total provisioned, avg DRR)
 - [ ] Navigation between Upload → Review
 - [ ] Tailwind CSS styling (layout, cards, colors)
+- [ ] Dark/light mode toggle with session-persisted preference
 
 **Success criteria:** Upload a LiveOptics file, see classified VMs in table, change workloads, see DRR update.
 
@@ -172,7 +173,7 @@ Phases 2 and 3 can be developed in parallel after Phase 1 completes.
 | FR-4.x (Review UI) | Phase 4 |
 | FR-5.x (Calculation) | Phase 5 |
 | FR-6.x (PDF Report) | Phase 5 |
-| FR-7.x (UI General) | Phase 4 |
+| FR-7.x (UI General, Dark/Light mode) | Phase 4 |
 | NFR-1.x (Deployment) | Phase 1 + 6 |
 | NFR-2.x (Code Quality) | Phase 1 |
 | NFR-3.x (Documentation) | Phase 6 |

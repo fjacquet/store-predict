@@ -58,6 +58,7 @@
 - **FR-7.3:** Navigation between pages (stepper or tabs)
 - **FR-7.4:** Project name input field (used in PDF header)
 - **FR-7.5:** Responsive layout (works on laptop screens)
+- **FR-7.6:** Support dark and light mode with user toggle (persist preference per session)
 
 ## Non-Functional Requirements
 
