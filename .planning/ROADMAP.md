@@ -75,10 +75,17 @@ Plans:
 
 **Requirements covered:** FR-3.1, FR-3.2, FR-3.3, FR-3.4
 
+**Plans:** 2 plans
+
+Plans:
+
+- [ ] 03-01-PLAN.md — Classification engine core: ClassificationRule, RuleRegistry, 25+ default rules, classify_dataframe, unit tests
+- [ ] 03-02-PLAN.md — Integration validation: real sample data classification, DRR consistency checks, coverage report
+
 **Deliverables:**
 
 - [ ] ClassificationRule dataclass with priority, patterns, match mode
-- [ ] Default rule set covering all 30 DRR categories
+- [ ] Default rule set covering all 28 DRR categories
 - [ ] Rule registry: ordered evaluation, first match wins
 - [ ] Substring matching for embedded keywords (CADSRVSQL001 → SQL)
 - [ ] OS-based fallback rules (Windows Server → Virtual Machines)
