@@ -2,8 +2,8 @@
 
 ## Current Phase
 
-Phase 2: File Ingestion Pipeline (IN PROGRESS)
-Plans: 1 of 2 complete
+Phase 2: File Ingestion Pipeline (COMPLETE)
+Plans: 2 of 2 complete
 
 ## Milestone
 
@@ -19,10 +19,11 @@ v1.0 — MVP Sizing Tool
 - [x] Plan 01-01: Project structure, models, DRR table service (14 tests passing)
 - [x] Plan 01-02: NiceGUI app skeleton, Docker deployment (app runs on :8080)
 - [x] Plan 02-01: Core parsers (RVTools, LiveOptics xlsx/csv) with column alias resolution
+- [x] Plan 02-02: Format detection orchestrator, template filtering, 29 ingestion tests
 
 ## Next Action
 
-Execute Plan 02-02 (format detection and ingestion orchestrator).
+Begin Phase 03 (classification engine).
 
 ## Decisions
 
@@ -35,6 +36,8 @@ Execute Plan 02-02 (format detection and ingestion orchestrator).
 - Column alias resolution via dict lookup (not regex) for format normalization
 - Shared _build_liveoptics_df helper avoids code duplication between xlsx/csv parsers
 - pandas TYPE_CHECKING import in columns.py (annotation-only), runtime import in parser modules
+- openpyxl read_only mode for xlsx sheet name detection (no full parse)
+- Template filtering at orchestrator level, parsers remain pure data transformers
 
 ## Performance Metrics
 
@@ -43,6 +46,7 @@ Execute Plan 02-02 (format detection and ingestion orchestrator).
 | 01    | 01   | 11min    | 2     | 13    |
 | 01    | 02   | 5min     | 2     | 5     |
 | 02    | 01   | 5min     | 2     | 5     |
+| 02    | 02   | 4min     | 2     | 5     |
 
 ## Notes
 
@@ -55,8 +59,8 @@ Execute Plan 02-02 (format detection and ingestion orchestrator).
 
 ## Last Session
 
-- **Stopped at:** Completed 02-01-PLAN.md
-- **Timestamp:** 2026-02-18T19:59:02Z
+- **Stopped at:** Completed 02-02-PLAN.md (Phase 02 complete)
+- **Timestamp:** 2026-02-18T20:07:00Z
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
