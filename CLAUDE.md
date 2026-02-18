@@ -16,6 +16,26 @@ StorePredict is a full-Python web tool for Dell pre-sales engineers. It analyzes
 - **Deployment:** Docker Compose (single container)
 - **Documentation:** MkDocs, deployed via GitHub Actions to GitHub Pages
 
+## CRITICAL: Always use RTK prefix
+
+**All shell commands MUST be prefixed with `rtk`** for token optimization. This applies to ALL agents, subagents, and executors — no exceptions.
+
+```bash
+# ✅ Correct
+rtk git status
+rtk pytest
+rtk ruff check .
+rtk mypy src/
+rtk docker compose up --build
+
+# ❌ Wrong (never use bare commands)
+git status
+pytest
+ruff check .
+```
+
+Even in command chains: `rtk git add file && rtk git commit -m "msg"`
+
 ## Commands
 
 ```bash
@@ -25,17 +45,17 @@ pip install -e ".[dev]"
 python -m store_predict.main          # Run the app
 
 # Quality
-ruff check .                          # Lint
-ruff format .                         # Format
-mypy src/                             # Type check
+rtk ruff check .                      # Lint
+rtk ruff format .                     # Format
+rtk mypy src/                         # Type check
 
 # Testing
-pytest                                # All tests
-pytest tests/test_classifier.py -k "test_sql_detection"  # Single test
-pytest --cov=store_predict            # With coverage
+rtk pytest                            # All tests
+rtk pytest tests/test_classifier.py -k "test_sql_detection"  # Single test
+rtk pytest --cov=store_predict        # With coverage
 
 # Docker
-docker compose up --build             # Run in container
+rtk docker compose up --build         # Run in container
 
 # Docs
 mkdocs serve                          # Local docs preview
