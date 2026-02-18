@@ -129,6 +129,8 @@ def build_default_rules() -> list[ClassificationRule]:
     """
     return [
         # === Tier 1: Database (100-199) ===
+        # NOTE: More specific DB rules (PostgreSQL, MySQL) must come BEFORE
+        # generic "SQL" rule because "PGSQL" and "MYSQL" contain "SQL".
         ClassificationRule(
             name="Oracle Database",
             category="Database",
@@ -137,39 +139,39 @@ def build_default_rules() -> list[ClassificationRule]:
             vm_name_patterns=_patterns("ORACLE"),
         ),
         ClassificationRule(
-            name="Microsoft SQL",
-            category="Database",
-            subcategory="Microsoft SQL",
-            priority=101,
-            vm_name_patterns=_patterns("SQL", "MSSQL"),
-        ),
-        ClassificationRule(
             name="MySQL / NoSQL",
             category="Database",
             subcategory="My SQL / NoSQL",
-            priority=102,
+            priority=101,
             vm_name_patterns=_patterns("MYSQL", "NOSQL", "MARIADB"),
+        ),
+        ClassificationRule(
+            name="PostgreSQL",
+            category="Database",
+            subcategory="PostgreSQL",
+            priority=102,
+            vm_name_patterns=_patterns("PGSQL", "POSTGRES", "POSTGRESQL"),
+        ),
+        ClassificationRule(
+            name="Microsoft SQL",
+            category="Database",
+            subcategory="Microsoft SQL",
+            priority=103,
+            vm_name_patterns=_patterns("SQL", "MSSQL"),
         ),
         ClassificationRule(
             name="DB2",
             category="Database",
             subcategory="DB2",
-            priority=103,
+            priority=104,
             vm_name_patterns=_patterns("DB2"),
         ),
         ClassificationRule(
             name="MongoDB",
             category="Database",
             subcategory="MongoDB",
-            priority=104,
-            vm_name_patterns=_patterns("MONGODB", "MONGO"),
-        ),
-        ClassificationRule(
-            name="PostgreSQL",
-            category="Database",
-            subcategory="PostgreSQL",
             priority=105,
-            vm_name_patterns=_patterns("PGSQL", "POSTGRES", "POSTGRESQL"),
+            vm_name_patterns=_patterns("MONGODB", "MONGO"),
         ),
         ClassificationRule(
             name="Prometheus",
