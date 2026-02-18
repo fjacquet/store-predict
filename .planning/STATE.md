@@ -2,8 +2,8 @@
 
 ## Current Phase
 
-Phase 2: File Ingestion Pipeline (COMPLETE)
-Plans: 2 of 2 complete
+Phase 3: Workload Classification Engine (IN PROGRESS)
+Plans: 1 of 2 complete
 
 ## Milestone
 
@@ -20,10 +20,11 @@ v1.0 — MVP Sizing Tool
 - [x] Plan 01-02: NiceGUI app skeleton, Docker deployment (app runs on :8080)
 - [x] Plan 02-01: Core parsers (RVTools, LiveOptics xlsx/csv) with column alias resolution
 - [x] Plan 02-02: Format detection orchestrator, template filtering, 29 ingestion tests
+- [x] Plan 03-01: Classification engine with 29 rules, 28 tests, all 28 DRR subcategories covered
 
 ## Next Action
 
-Begin Phase 03 (classification engine).
+Execute Plan 03-02 (classification integration/advanced features).
 
 ## Decisions
 
@@ -38,6 +39,9 @@ Begin Phase 03 (classification engine).
 - pandas TYPE_CHECKING import in columns.py (annotation-only), runtime import in parser modules
 - openpyxl read_only mode for xlsx sheet name detection (no full parse)
 - Template filtering at orchestrator level, parsers remain pure data transformers
+- Reordered PostgreSQL/MySQL rules before Microsoft SQL to prevent PGSQL matching SQL pattern
+- Used word boundary regex for SAP to avoid GISAPP false positive
+- Included CIT pattern for Citrix (26 genuine Citrix VMs in sample data)
 
 ## Performance Metrics
 
@@ -47,6 +51,7 @@ Begin Phase 03 (classification engine).
 | 01    | 02   | 5min     | 2     | 5     |
 | 02    | 01   | 5min     | 2     | 5     |
 | 02    | 02   | 4min     | 2     | 5     |
+| 03    | 01   | 7min     | 2     | 2     |
 
 ## Notes
 
@@ -59,8 +64,8 @@ Begin Phase 03 (classification engine).
 
 ## Last Session
 
-- **Stopped at:** Completed 02-02-PLAN.md (Phase 02 complete)
-- **Timestamp:** 2026-02-18T20:07:00Z
+- **Stopped at:** Completed 03-01-PLAN.md
+- **Timestamp:** 2026-02-18T21:03:00Z
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
