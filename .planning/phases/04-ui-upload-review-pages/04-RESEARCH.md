@@ -15,12 +15,14 @@ NiceGUI wraps AG Grid (community edition) and Quasar Vue components. The AG Grid
 ## Standard Stack
 
 ### Core (already in pyproject.toml)
+
 | Library | Version | Purpose | Why Standard |
 |---------|---------|---------|--------------|
 | NiceGUI | 3.7.1 | Full UI framework (pages, components, routing) | Already chosen, installed |
 | pandas | >=2.2 | DataFrame for VM data manipulation | Already used by pipeline |
 
 ### NiceGUI Components Used
+
 | Component | Purpose | Key API |
 |-----------|---------|---------|
 | `ui.upload` | File dropzone for .xlsx/.csv | `on_upload`, `.props('accept=".xlsx,.csv"')` |
@@ -35,6 +37,7 @@ NiceGUI wraps AG Grid (community edition) and Quasar Vue components. The AG Grid
 | `app.storage.user` | Per-user preferences | Dark mode persistence |
 
 ### Alternatives Considered
+
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
 | `ui.aggrid` | `ui.table` (Quasar table) | AG Grid has better built-in sorting/filtering/pagination; table needs custom slots for dropdowns |
@@ -44,6 +47,7 @@ NiceGUI wraps AG Grid (community edition) and Quasar Vue components. The AG Grid
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 src/store_predict/
   ui/
@@ -65,9 +69,11 @@ src/store_predict/
 ```
 
 ### Pattern 1: Per-Tab Session State with DataFrame Serialization
+
 **What:** Store uploaded DataFrame and classification results in `app.storage.tab` as JSON-serializable dicts (list of row dicts), not raw DataFrames.
 **When to use:** Always for per-session upload data.
 **Example:**
+
 ```python
 # Source: NiceGUI storage docs + pandas API
 from nicegui import app
@@ -87,9 +93,11 @@ def load_dataframe() -> pd.DataFrame | None:
 ```
 
 ### Pattern 2: AG Grid with Workload Dropdown Editor
+
 **What:** AG Grid column definition using `agSelectCellEditor` for inline workload category selection.
 **When to use:** Single-select workload override per VM (FR-4.2).
 **Example:**
+
 ```python
 # Source: NiceGUI aggrid docs + AG Grid select editor
 from nicegui import ui
@@ -125,9 +133,11 @@ grid = ui.aggrid({
 ```
 
 ### Pattern 3: Awaitable Multi-Select Dialog
+
 **What:** Custom dialog class that returns selected workload types when submitted.
 **When to use:** FR-4.3 multi-workload assignment via row click.
 **Example:**
+
 ```python
 # Source: NiceGUI dialog docs + daelon.dev dialog pattern
 from nicegui import ui
@@ -158,9 +168,11 @@ async def on_row_click(e):
 ```
 
 ### Pattern 4: Dark Mode Toggle with Storage Persistence
+
 **What:** Bind dark mode to `app.storage.user` so preference persists across sessions.
 **When to use:** FR-7.6.
 **Example:**
+
 ```python
 # Source: NiceGUI dark_mode docs + GitHub discussion #5394
 from nicegui import app, ui
@@ -174,9 +186,11 @@ def add_dark_mode_toggle() -> None:
 ```
 
 ### Pattern 5: Upload Handler with Pipeline Integration
+
 **What:** Handle file upload event, save to temp file, run ingestion + classification.
 **When to use:** Upload page (FR-7.1).
 **Example:**
+
 ```python
 # Source: NiceGUI upload docs + existing pipeline modules
 import tempfile
@@ -214,6 +228,7 @@ async def handle_upload(e) -> None:
 ```
 
 ### Anti-Patterns to Avoid
+
 - **Storing pandas DataFrame directly in storage:** NiceGUI storage requires JSON-serializable data. Always use `df.to_dict(orient="records")` and reconstruct with `pd.DataFrame(records)`.
 - **Using `app.storage.user` for upload data:** Multiple tabs would overwrite each other. Use `app.storage.tab` for per-session data.
 - **Modifying `aggrid.options['rowData']` without calling `aggrid.update()`:** After programmatic changes to rowData, call `aggrid.update()` to refresh the grid.
@@ -234,36 +249,42 @@ async def handle_upload(e) -> None:
 ## Common Pitfalls
 
 ### Pitfall 1: DataFrame Not Serializable to Storage
+
 **What goes wrong:** Storing a pandas DataFrame in `app.storage.tab` raises a serialization error.
 **Why it happens:** NiceGUI storage uses JSON serialization. DataFrames, numpy types, and NaN values are not JSON-serializable.
 **How to avoid:** Convert to records with `df.to_dict(orient="records")`. Replace NaN with None: `df.where(df.notna(), None)`.
 **Warning signs:** `TypeError: Object of type DataFrame is not JSON serializable`
 
 ### Pitfall 2: AG Grid Update Not Reflecting
+
 **What goes wrong:** Changing `aggrid.options['rowData']` in Python does not update the grid visually.
 **Why it happens:** AG Grid needs explicit notification of data changes.
 **How to avoid:** Call `aggrid.update()` after modifying options, or reassign `aggrid.options['rowData']` and call update.
 **Warning signs:** Data appears stale after edits.
 
 ### Pitfall 3: Dark Mode Flash on Page Load
+
 **What goes wrong:** Page briefly shows light mode before switching to dark.
 **Why it happens:** `app.storage.user` is only available after client connection; initial render uses default.
 **How to avoid:** Initialize with `app.storage.user.get('dark_mode', False)` early. Accept minor flash as a known NiceGUI limitation.
 **Warning signs:** Brief white flash when navigating to new page in dark mode.
 
 ### Pitfall 4: Multi-Select Dialog Closing Unexpectedly
+
 **What goes wrong:** `ui.select(multiple=True)` inside a dialog can cause the dialog to close when clicking options.
 **Why it happens:** Known issue (#1108 in NiceGUI repo) where select dropdown click propagates to dialog backdrop.
 **How to avoid:** Use `.props('use-chips')` on the select and ensure dialog has `.props('persistent')` to prevent backdrop-close during selection.
 **Warning signs:** Dialog closes when user tries to select second workload.
 
 ### Pitfall 5: Upload File Content Already Consumed
+
 **What goes wrong:** Calling `e.content.read()` twice returns empty bytes the second time.
 **Why it happens:** File-like object cursor is at end after first read.
 **How to avoid:** Read once, store bytes. Or use `e.content.seek(0)` before re-reading.
 **Warning signs:** Empty DataFrame after seemingly successful upload.
 
 ### Pitfall 6: storage_secret Required for User Storage
+
 **What goes wrong:** `app.storage.user` raises error without `storage_secret`.
 **Why it happens:** NiceGUI uses the secret for cookie signing.
 **How to avoid:** Already set in `main.py`: `ui.run(storage_secret="change-me-in-production")`. Good for dev, needs env var for production.
@@ -272,6 +293,7 @@ async def handle_upload(e) -> None:
 ## Code Examples
 
 ### Complete Upload Page Structure
+
 ```python
 # Source: NiceGUI docs + existing layout pattern
 from nicegui import app, ui
@@ -300,6 +322,7 @@ def upload_page() -> None:
 ```
 
 ### AG Grid Column Definitions with All Features
+
 ```python
 # Source: AG Grid docs + NiceGUI aggrid wrapper
 column_defs = [
@@ -368,6 +391,7 @@ column_defs = [
 ```
 
 ### Summary Statistics Binding
+
 ```python
 # Source: NiceGUI reactive binding pattern
 from nicegui import ui
@@ -409,6 +433,7 @@ def build_summary_stats(row_data: list[dict]) -> None:
 | Module-level globals for state | `app.storage.tab` / `app.storage.user` | NiceGUI 1.3+ | Proper multi-user state isolation |
 
 **Deprecated/outdated:**
+
 - `rowSelection: 'single'` string syntax: use `rowSelection: {'mode': 'singleRow'}` dict instead
 - Direct DataFrame in global variables: breaks with multiple concurrent users
 
@@ -432,26 +457,30 @@ def build_summary_stats(row_data: list[dict]) -> None:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - NiceGUI 3.7.1 installed locally - verified version
-- NiceGUI AG Grid docs: https://nicegui.io/documentation/aggrid
-- NiceGUI upload docs: https://nicegui.io/documentation/upload
-- NiceGUI dark_mode docs: https://nicegui.io/documentation/dark_mode
-- NiceGUI storage docs: https://nicegui.io/documentation/storage
-- NiceGUI editable AG Grid example: https://github.com/zauberzeug/nicegui/blob/main/examples/editable_ag_grid/main.py
+- NiceGUI AG Grid docs: <https://nicegui.io/documentation/aggrid>
+- NiceGUI upload docs: <https://nicegui.io/documentation/upload>
+- NiceGUI dark_mode docs: <https://nicegui.io/documentation/dark_mode>
+- NiceGUI storage docs: <https://nicegui.io/documentation/storage>
+- NiceGUI editable AG Grid example: <https://github.com/zauberzeug/nicegui/blob/main/examples/editable_ag_grid/main.py>
 - Existing codebase: main.py, layout.py, upload.py, ingestion.py, classification.py, drr_table.py
 
 ### Secondary (MEDIUM confidence)
-- AG Grid select cell editor: https://github.com/zauberzeug/nicegui/discussions/675 and #2237
-- Dark mode persistence pattern: https://github.com/zauberzeug/nicegui/discussions/5394
-- Awaitable dialog pattern: https://daelon.dev/posts/nicegui_dialogs/
-- Multi-select dialog issue: https://github.com/zauberzeug/nicegui/issues/1108
+
+- AG Grid select cell editor: <https://github.com/zauberzeug/nicegui/discussions/675> and #2237
+- Dark mode persistence pattern: <https://github.com/zauberzeug/nicegui/discussions/5394>
+- Awaitable dialog pattern: <https://daelon.dev/posts/nicegui_dialogs/>
+- Multi-select dialog issue: <https://github.com/zauberzeug/nicegui/issues/1108>
 
 ### Tertiary (LOW confidence)
+
 - AG Grid version in NiceGUI 3.7.1 (unverified, assumed 31+)
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - NiceGUI 3.7.1 verified installed, all components documented
 - Architecture: HIGH - Patterns verified against official examples and existing codebase
 - Pitfalls: MEDIUM - some based on GitHub issues, may be fixed in 3.7.1
