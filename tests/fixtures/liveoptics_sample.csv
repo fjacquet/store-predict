@@ -1,0 +1,9 @@
+VM Name,VM OS,Virtual Disk Size (MiB),Guest VM Disk Used (MiB),Guest VM Disk Capacity (MiB),Template,Power State,Datacenter,Cluster
+WEBSRV01,Microsoft Windows Server 2019,61440,28672,61440,False,poweredOn,DC-Paris,CL-Prod
+SQLDB02,Microsoft Windows Server 2022,102400,78643,102400,False,poweredOn,DC-Paris,CL-Prod
+DVDI-PC01,Microsoft Windows 10,32768,16384,32768,False,poweredOn,DC-Paris,CL-VDI
+LNXAPP03,Red Hat Enterprise Linux 8,51200,12288,51200,False,poweredOn,DC-Lyon,CL-Dev
+MAILSRV01,Microsoft Windows Server 2019,81920,45056,81920,False,poweredOff,DC-Lyon,CL-Dev
+TMPL-WIN10,Microsoft Windows 10,40960,8192,40960,True,poweredOff,DC-Paris,CL-Templates
+ORADB01,Oracle Linux 7,122880,65536,122880,False,poweredOn,DC-Paris,CL-Prod
+SAPAPP01,SUSE Linux Enterprise Server 15,71680,34816,71680,False,poweredOn,DC-Lyon,CL-Prod

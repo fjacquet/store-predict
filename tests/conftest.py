@@ -17,3 +17,21 @@ def sample_drr_path() -> Path:
 def drr_table(sample_drr_path: Path) -> DRRTable:
     """DRRTable loaded from the real DRR.csv."""
     return DRRTable.from_csv(sample_drr_path)
+
+
+@pytest.fixture
+def rvtools_path() -> Path:
+    """Path to the real RVTools xlsx sample file."""
+    return Path(__file__).parent.parent / "samples" / "rvtools.xlsx"
+
+
+@pytest.fixture
+def liveoptics_xlsx_path() -> Path:
+    """Path to the real LiveOptics xlsx sample file."""
+    return Path(__file__).parent.parent / "samples" / "live-optics.xlsx"
+
+
+@pytest.fixture
+def liveoptics_csv_path() -> Path:
+    """Path to the LiveOptics CSV test fixture."""
+    return Path(__file__).parent / "fixtures" / "liveoptics_sample.csv"
