@@ -9,14 +9,15 @@ from .columns import (
     RVTOOLS_ALIASES,
     resolve_columns,
 )
-
-# Parser imports added after parser modules are created (Task 2).
-# from .rvtools import parse_rvtools
-# from .liveoptics import parse_liveoptics_xlsx, parse_liveoptics_csv
+from .liveoptics import parse_liveoptics_csv, parse_liveoptics_xlsx
+from .rvtools import parse_rvtools
 
 __all__ = [
     "CANONICAL_COLUMNS",
     "LIVEOPTICS_ALIASES",
     "RVTOOLS_ALIASES",
+    "parse_liveoptics_csv",
+    "parse_liveoptics_xlsx",
+    "parse_rvtools",
     "resolve_columns",
 ]
