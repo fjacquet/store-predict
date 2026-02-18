@@ -37,7 +37,7 @@ Column "fuzzy matching" as described in FR-1.7 does not require fuzzywuzzy, rapi
 
 ### Recommended Module Structure
 
-```
+```text
 src/store_predict/
 ├── pipeline/
 │   ├── __init__.py

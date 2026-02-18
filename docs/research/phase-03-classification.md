@@ -32,7 +32,7 @@ Classification is pure Python pattern matching. No NLP, fuzzy matching, or ML li
 
 ### Recommended Module Structure
 
-```
+```text
 src/store_predict/
   pipeline/
     classification.py      # ClassificationRule, RuleRegistry, classify_dataframe()
@@ -205,7 +205,7 @@ Using `re.escape()` for literal substrings prevents regex injection from keyword
 
 Based on analysis of 610 real VM names and 40 unique OS values from samples:
 
-```
+```text
 Priority 100: Database/Oracle
   vm_name_patterns: ["ORACLE"]  (avoid "ORA" alone - matches LORADB, LORANETv2)
 

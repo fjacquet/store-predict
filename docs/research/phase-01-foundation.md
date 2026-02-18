@@ -53,7 +53,7 @@ uv pip install "pytest>=8.0" "pytest-cov>=5.0" "ruff>=0.9" "mypy>=1.10" "pandas-
 
 ### Recommended Project Structure
 
-```
+```text
 store-predict/
   src/
     store_predict/
