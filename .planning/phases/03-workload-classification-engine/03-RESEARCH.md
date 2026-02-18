@@ -212,9 +212,11 @@ Priority 100: Database/Oracle
 Priority 101: Database/Microsoft SQL
   vm_name_patterns: ["SQL", "MSSQL"]
   NOTE: SQL is broadly used, catches CADSRVSQL001, CIGES-SQL, CIGES-SQLP, etc.
+  Must be AFTER Oracle (priority 100) so "ORACLESQL" goes to Oracle first.
 
 Priority 102: Database/My SQL / NoSQL
-  vm_name_patterns: ["MYSQL", "NOSQL"]
+  vm_name_patterns: ["MYSQL", "NOSQL", "MARIADB"]
+  NOTE: MariaDB is a MySQL fork, maps to same DRR category.
 
 Priority 103: Database/DB2
   vm_name_patterns: ["DB2"]
@@ -224,41 +226,42 @@ Priority 104: Database/MongoDB
 
 Priority 105: Database/PostgreSQL
   vm_name_patterns: ["PGSQL", "POSTGRES", "POSTGRESQL"]
+  subcategory: "PostgreSQL"  (DRRTable.from_csv() strips the CSV newline)
 
 Priority 106: Database/Prometheus
   vm_name_patterns: ["PROMETHEUS"]
 
 Priority 107: Database/SAP HANA(S4)
-  vm_name_patterns: ["HANA", "S4HANA", "SAP.*HANA"]
+  vm_name_patterns: ["HANA", "S4HANA"]
+  NOTE: Use regex for SAP.*HANA to catch "SAP-HANA-01" etc.
 
 Priority 108: Database/SAP Traditional (R/3 / ECC)
-  vm_name_patterns: ["SAP", "ABAC"]
-  NOTE: Many CIGES VMs contain "ABAC" (Swiss accounting software Abacus),
-  which maps to SAP Traditional. "SAP" alone could match "CONSAPPT"
-  (false positive). Consider more specific patterns.
+  vm_name_patterns: ["SAP"]
+  NOTE: Do NOT include "ABAC" (Swiss Abacus ERP, not SAP). "CONSAPPT"
+  contains "SAP" but this is acceptable (conservative sizing).
 
 Priority 200: HealthCare/EMR/EHR
   vm_name_patterns: ["EPIC", "MCKESSON", "EMR", "EHR"]
 
 Priority 210: Email/Domino/Notes, Exchange, etc.
-  vm_name_patterns: ["EXCHANGE", "DOMINO", "NOTES", "ZIMBRA", "SENDMAIL"]
+  vm_name_patterns: ["EXCHANGE", "DOMINO", "ZIMBRA", "SENDMAIL"]
   NOTE: Avoid "EX" - too short, matches EXTRANET, APEXP, etc.
+  Avoid "NOTES" - too generic.
 
 Priority 220: VDI/Full Clone / MCS (Citrix)
   vm_name_patterns: ["CITRIX", "CIT", "MCS"]
   NOTE: "CIT" matches many CIGES VMs (CITADM, CITAP, CITAPP, CITCLR, etc.)
-  These are likely Citrix infrastructure VMs. 26 matches in sample.
+  These are genuinely Citrix infrastructure VMs. 26 matches in sample.
 
 Priority 221: VDI/Linked Clone / PVS (Citrix)
   vm_name_patterns: ["PVS"]
 
 Priority 222: VDI/Instant Clone
-  vm_name_patterns: ["HORIZON", "INSTANT.?CLONE"]
-  NOTE: HORIZON matches 5 VMs. VMware Horizon uses instant clone technology.
+  vm_name_patterns: ["HORIZON"]
+  NOTE: HORIZON matches 5 VMs. VMware Horizon typically uses instant clone.
 
 Priority 223: VDI/VDI Profiles
   vm_name_patterns: ["VDI.*PROFIL", "PROFIL.*VDI"]
-  os_patterns: []
   NOTE: OIK_VDI-PROFIL matches. Generic "PROFIL" without VDI context
   should not match here.
 
@@ -269,13 +272,13 @@ Priority 300: VM Replication/Veeam, Zerto, RP4VM
 Priority 310: Containers/Kubernetes, OpenShift, Docker, Tanzu
   vm_name_patterns: ["DOCKER", "KUBERNETES", "K8S", "OPENSHIFT", "TANZU"]
 
-Priority 320: Web Servers (Content included)
+Priority 320: Web Servers/Content included
   vm_name_patterns: ["WEB", "WWW", "APACHE", "NGINX", "IIS"]
   NOTE: 15 VMs match WEB/WWW patterns. Default to "Content included" (DRR=5).
 
 Priority 330: File/General Purpose
-  vm_name_patterns: ["FILE", "NAS", "SHARE"]
-  NOTE: OIK_FILE1 matches. MFILES matches too but those are M-Files (document management).
+  vm_name_patterns: ["MFILES", "FILE"]
+  NOTE: Put MFILES before generic FILE pattern. OIK_FILE1 matches.
 
 Priority 340: File/Content Servers (Git, SharePoint)
   vm_name_patterns: ["GIT", "GITLAB", "SHAREPOINT"]
@@ -284,31 +287,32 @@ Priority 350: File/Developer Workspaces (DevOps)
   vm_name_patterns: ["DEVOPS", "JENKINS", "ANSIBLE"]
 
 Priority 360: File/Archive / Backup / Compressed / Encrypted
-  vm_name_patterns: ["ARCHIVE", "BACKUP"]
-  NOTE: Overlaps with VM Replication category. Need priority ordering
-  to ensure Veeam-specific backup VMs go to VM Replication first.
+  vm_name_patterns: ["ARCHIVE"]
+  NOTE: "BACKUP" overlaps with VM Replication (priority 300). Veeam-specific
+  VMs go to VM Replication first due to lower priority number.
 
 Priority 400: Logging - Analytics/FortiNet, Elastic Search, Splunk, ELK
-  vm_name_patterns: ["ELASTIC", "ELK", "SPLUNK", "FORTIANALYZER", "FORTIMANAGER"]
+  vm_name_patterns: ["ELASTIC", "ELK", "SPLUNK", "FORTIANALYZER", "FORTIMANAGER",
+                      "ZABBIX", "CENTREON", "OBSERVIUM", "GRAFANA"]
   os_patterns: ["FORTI"]
   NOTE: OS field catches FortiNet appliances (FAZ, FMG) even when VM name
-  doesn't contain "FORTI".
-
-Priority 410: Logging - Analytics (monitoring tools)
-  vm_name_patterns: ["ZABBIX", "CENTREON", "OBSERVIUM", "GRAFANA", "PROMETHEUS"]
-  NOTE: Prometheus could also be Database/Prometheus. Need to decide priority.
+  doesn't contain "FORTI". Single DRR category covers all logging/analytics.
 
 Priority 500: Boot from SAN
-  vm_name_patterns: ["SAN.?BOOT", "BOOT.?SAN"]
+  vm_name_patterns: ["BOOTSAN", "SANBOOT"]
   NOTE: Likely no matches in sample data. Keep for completeness.
 
 Priority 900: OS Fallback - Windows Server -> Virtual Machines
   os_patterns: ["WINDOWS SERVER"]
   category: Virtual Machines / VMware / Hyper-V / KVM
 
+Priority 905: OS Fallback - Windows Desktop -> Virtual Machines
+  os_patterns: ["WINDOWS 10", "WINDOWS 11", "WINDOWS 7"]
+  category: Virtual Machines / VMware / Hyper-V / KVM
+
 Priority 910: OS Fallback - Linux -> Virtual Machines
   os_patterns: ["LINUX", "UBUNTU", "CENTOS", "DEBIAN", "RED HAT", "SUSE",
-                "ALMA", "ROCKY", "ORACLE LINUX"]
+                "ALMA", "ROCKY", "ORACLE LINUX", "FREEBSD"]
   category: Virtual Machines / VMware / Hyper-V / KVM
 
 Priority 920: OS Fallback - VMware/ESXi -> Virtual Machines
@@ -319,26 +323,65 @@ Priority 999: Default
   Always matches. Unknown (Reducible), DRR=5
 ```
 
+### Verified DRR Subcategory Strings
+
+Verified by running `DRRTable.from_csv()` against actual `samples/DRR.csv`. These are the EXACT subcategory strings that rules must use to match DRR lookups:
+
+| Category | Subcategory (exact string) | DRR |
+|----------|---------------------------|-----|
+| Database | Oracle | 5.0 |
+| Database | Microsoft SQL | 5.0 |
+| Database | My SQL / NoSQL | 5.0 |
+| Database | DB2 | 1.5 |
+| Database | MongoDB | 1.5 |
+| Database | PostgreSQL | 1.5 |
+| Database | Prometheus | 1.5 |
+| Database | SAP HANA(S4) | 2.0 |
+| Database | SAP Traditional (R/3 / ECC) | 5.0 |
+| HealthCare | EMR/EHR (Epic, McKesson) | 3.0 |
+| File | General Purpose | 2.0 |
+| File | Archive / Backup / Compressed / Encrypted / Rich Media / ISO / PACS / CAD | 1.0 |
+| File | Content Servers (Git, Sharepoint) | 2.0 |
+| File | Developer Workspaces (DevOps) | 2.0 |
+| VDI | Full Clone / MCS (Citrix) | 8.0 |
+| VDI | Linked Clone / PVS (Citrix) | 2.0 |
+| VDI | Instant Clone | 1.0 |
+| VDI | VDI Profiles | 2.0 |
+| Logging - Analytics | FortiNet, Elastic Search, Splunk, ELK, etc | 1.5 |
+| Email | Domino/Notes, Exchange, Sendmail, Zimbra, etc | 2.0 |
+| Containers | Kubernetes, OpenShift, Docker, Tanzu, etc | 2.0 |
+| Virtual Machines | VMware / Hyper-V / KVM - No Database, File nor Email | 5.0 |
+| VM Replication | Veeam, Zerto, RP4VM | 1.5 |
+| Boot from SAN | Linux, VMware, Windows - OS Boot | 1.5 |
+| Web Servers | Content included | 5.0 |
+| Web Servers | Content not included | 1.5 |
+| Unknown (Reducible) | Unknown (Reducible) | 5.0 |
+| Custom DRR | Custom DRR | 3.0 |
+
+Note: "PostgreSQL" subcategory is clean (DRRTable.from_csv() strips the embedded newline from the CSV). No special handling needed in rules.
+
 ### False Positive Analysis (from actual sample data)
 
 | Pattern | False Positive Risk | Example | Mitigation |
 |---------|-------------------|---------|------------|
 | "ORA" | HIGH | OIK_LORADB, OIK_LORANETv2, ORAP-COMMUNES | Use "ORACLE" instead of "ORA" |
-| "SAP" | MEDIUM | CIGES-CONSAPPT, CIGES-GISAPP | Use longer patterns or exclude known false positives |
+| "SAP" | MEDIUM | CIGES-CONSAPPT, CIGES-GISAPP | "GISAPP" contains "SAP" at boundary; "CONSAPPT" acceptable |
 | "EX" | HIGH | EXTRANET, APEXP, APEXT | Use "EXCHANGE" not "EX" |
 | "SQL" | LOW | Broadly correct - SQL in VM name almost always means SQL Server | Keep as-is |
 | "CIT" | LOW for Citrix infra | CITADM, CITAPP, etc. are genuinely Citrix | Keep as-is |
 | "DB" | MEDIUM | NESTDB, DPODB, SITDB could be app DBs not specific DB engines | Only use in combination patterns |
-| "ABAC" | MEDIUM | Abacus (Swiss ERP) VMs, not SAP | Consider separate rule or map to general "Virtual Machines" |
-| "FILE" | LOW | OIK_FILE1, MFILES (M-Files doc mgmt) | "MFILES" could be File/Content Servers specifically |
+| "ABAC" | MEDIUM | Abacus (Swiss ERP) VMs, not SAP | Do NOT use as SAP pattern |
+| "FILE" | LOW | OIK_FILE1, MFILES (M-Files doc mgmt) | MFILES matches File/General Purpose (acceptable) |
+| "BACKUP" | LOW | BACKUP-DC1, BACKUP-DC2 are backup-related | Place Veeam/Zerto rules (priority 300) before generic backup (360) |
+| "GIT" | LOW | CIGES-GIT, OIK_GITLAB genuinely Git servers | Keep as-is |
 
 ### Special Cases in Sample Data
 
-1. **vCLS VMs (6 matches):** VMware Cluster Services VMs. Should be classified as "Virtual Machines" infrastructure, not user workload.
-2. **VxRail Manager VMs (3 matches):** Dell VxRail management. Infrastructure, classify as "Virtual Machines."
-3. **Template VMs (17 matches):** Should already be filtered out by ingestion (Phase 2). But "Template" in name without is_template=True flag could slip through. Add defensive check.
+1. **vCLS VMs (6 matches):** VMware Cluster Services VMs. OS field "VMware Photon CRX" catches them via OS fallback -> Virtual Machines.
+2. **VxRail Manager VMs (3 matches):** Dell VxRail management. Falls through to OS fallback -> Virtual Machines.
+3. **Template VMs (17 matches):** Should already be filtered out by ingestion (Phase 2, is_template flag). VMs with "Template" in name but is_template=False should be classified normally.
 4. **TODELETE VMs (17 matches):** Marked for deletion. Still active VMs that should be classified normally.
-5. **AZURE VMs (15 matches):** Azure AD Connect or Azure-related appliances. Generic infrastructure, classify as "Virtual Machines."
+5. **AZURE VMs (15 matches):** Azure AD Connect or Azure-related appliances. Falls through to OS fallback -> Virtual Machines.
 
 ## Don't Hand-Roll
 
@@ -371,21 +414,21 @@ Priority 999: Default
 
 **What goes wrong:** "cadsrvsql001" (lowercase) doesn't match "SQL" pattern.
 **Why it happens:** Forgot `re.IGNORECASE` flag, or used `str.find()` without `.upper()`.
-**How to avoid:** Always compile patterns with `re.IGNORECASE`. Test with mixed-case VM names from real data.
+**How to avoid:** Always compile patterns with `re.IGNORECASE`. Test with mixed-case VM names from real data (sample has: "cig-cent-int-p-01", "ciges-phenix", "ciges-poller3", "ciges-TST2-07").
 **Warning signs:** VMs with lowercase names get classified as "Unknown."
 
 ### Pitfall 4: NaN/Empty OS Field
 
 **What goes wrong:** OS-based fallback rules crash or don't match when OS field is NaN or empty string.
 **Why it happens:** Some VMs (especially in RVTools) have NaN OS field when VMware Tools is not installed.
-**How to avoid:** Convert NaN to empty string before classification: `str(row["os_name"])` handles this, but verify `re.search(pattern, "nan")` doesn't accidentally match.
-**Warning signs:** VMs with no OS getting classified incorrectly.
+**How to avoid:** Convert NaN to empty string before classification. Beware that `str(float('nan'))` produces "nan" which could accidentally match patterns. Use explicit check: `os_name if pd.notna(os_name) else ""`.
+**Warning signs:** VMs with no OS getting classified incorrectly, or "nan" string matching patterns.
 
 ### Pitfall 5: Abacus (ABAC) vs SAP Confusion
 
 **What goes wrong:** Swiss accounting software Abacus VMs (30+ in sample) get classified as SAP.
 **Why it happens:** "ABAC" is a common prefix in Swiss IT for Abacus ERP, not SAP's ABAP.
-**How to avoid:** Do NOT use "ABAC" as a SAP pattern. Only match "SAP", "HANA", "S4HANA", "R3", "ECC" for SAP categories. ABAC VMs without further signals should fall through to "Virtual Machines."
+**How to avoid:** Do NOT use "ABAC" as a SAP pattern. Only match "SAP", "HANA", "S4HANA", "R3", "ECC" for SAP categories. ABAC VMs should fall through to OS fallback (Virtual Machines, DRR=5).
 **Warning signs:** Large number of VMs classified as SAP when the customer is not a SAP shop.
 
 ### Pitfall 6: Regex vs Literal Substring Confusion
@@ -394,6 +437,13 @@ Priority 999: Default
 **Why it happens:** Mixing literal substrings with regex patterns.
 **How to avoid:** Use `re.escape()` for literal keywords. Only use raw regex when features like alternation or character classes are needed.
 **Warning signs:** Patterns silently fail to match or match unexpected strings.
+
+### Pitfall 7: Subcategory String Mismatch with DRRTable
+
+**What goes wrong:** Classification assigns a subcategory that does not exist in DRRTable, causing lookup to return default 5.0 instead of correct ratio.
+**Why it happens:** Typo in subcategory string, or mismatch between rule and DRR.csv.
+**How to avoid:** Use the exact strings from the Verified DRR Subcategory Strings table above. Add a test that verifies every rule's (category, subcategory) exists in DRRTable.
+**Warning signs:** DRR ratios not matching expected values for certain categories.
 
 ## Code Examples
 
@@ -430,7 +480,7 @@ def build_default_rules() -> list[ClassificationRule]:
         ClassificationRule(
             name="PostgreSQL",
             category="Database",
-            subcategory="\nPostgreSQL",  # Note: DRR.csv has embedded newline
+            subcategory="PostgreSQL",  # DRRTable strips CSV newline
             priority=105,
             vm_name_patterns=_patterns("PGSQL", "POSTGRES", "POSTGRESQL"),
         ),
@@ -488,19 +538,21 @@ classified_df = classify_dataframe(df, registry)
 # + workload_category, workload_subcategory, classification_rule, classification_confidence
 ```
 
-### DRR.csv PostgreSQL Entry (Watch Out)
+### Testing Pattern: Rule-DRRTable Consistency
 
 ```python
-# The DRR.csv has an embedded newline in the PostgreSQL subcategory:
-# Database;"\nPostgreSQL";1.5
-#
-# DRRTable.from_csv() already handles this (verified in Phase 1).
-# Classification rules must use the EXACT subcategory string that
-# DRRTable expects for lookup. Verify with:
-#   drr_table.get_ratio("Database", "\nPostgreSQL")
-#
-# Alternative: strip the newline in DRRTable loading (cleaner).
-# Check what DRRTable.from_csv() actually produces.
+# Test that every rule's category/subcategory exists in DRRTable
+def test_rule_categories_exist_in_drr(drr_table: DRRTable) -> None:
+    """Every rule must reference a valid DRR category/subcategory."""
+    drr_categories = {
+        (e.category, e.subcategory) for e in drr_table.entries
+    }
+    for rule in build_default_rules():
+        key = (rule.category, rule.subcategory)
+        assert key in drr_categories, (
+            f"Rule '{rule.name}' references ({rule.category}, {rule.subcategory}) "
+            f"which does not exist in DRR table"
+        )
 ```
 
 ### Testing Pattern: Rule Coverage Test
@@ -549,6 +601,46 @@ def test_classify_liveoptics_sample(liveoptics_xlsx_path: Path) -> None:
     assert (sql_vms["workload_category"] == "Database").all()
 ```
 
+### Testing Pattern: Specific Rule Tests (per project convention: real objects, no mocks)
+
+```python
+def test_sql_substring_match() -> None:
+    """FR-3.3: CADSRVSQL001 must match SQL rule via substring."""
+    registry = RuleRegistry(build_default_rules())
+    result = registry.classify("CADSRVSQL001", "Microsoft Windows Server 2019 (64-bit)")
+    assert result.category == "Database"
+    assert result.subcategory == "Microsoft SQL"
+    assert result.confidence == "rule_match"
+
+
+def test_fortinet_os_match() -> None:
+    """FortiNet appliances detected via OS field."""
+    registry = RuleRegistry(build_default_rules())
+    result = registry.classify(
+        "CIGES-FAZ",
+        "FortiAnalyzer-VM64 v7.4.10-build2778 260126 (GA.M)",
+    )
+    assert result.category == "Logging - Analytics"
+
+
+def test_windows_server_fallback() -> None:
+    """Generic Windows Server VM falls to OS fallback, not Unknown."""
+    registry = RuleRegistry(build_default_rules())
+    result = registry.classify(
+        "CIGES-SERVICES",
+        "Microsoft Windows Server 2022 (64-bit)",
+    )
+    assert result.category == "Virtual Machines"
+    assert result.confidence == "os_fallback"
+
+
+def test_oracle_not_lora() -> None:
+    """OIK_LORADB should NOT match Oracle (uses 'ORACLE' not 'ORA')."""
+    registry = RuleRegistry(build_default_rules())
+    result = registry.classify("OIK_LORADB", "Oracle Linux 9 (64-bit)")
+    assert result.category != "Database" or result.subcategory != "Oracle"
+```
+
 ## State of the Art
 
 | Old Approach | Current Approach | When Changed | Impact |
@@ -565,25 +657,25 @@ def test_classify_liveoptics_sample(liveoptics_xlsx_path: Path) -> None:
 
 ## Open Questions
 
-1. **PostgreSQL subcategory newline**
-   - What we know: DRR.csv has `"\nPostgreSQL"` as subcategory due to embedded newline
-   - What's unclear: Does `DRRTable.from_csv()` strip this or preserve it?
-   - Recommendation: Check actual DRRTable behavior. If it strips, use "PostgreSQL". If it preserves, use "\nPostgreSQL" in rules. Better yet: fix DRRTable to strip leading/trailing whitespace from subcategories.
-
-2. **Abacus (ABAC) classification**
+1. **Abacus (ABAC) classification**
    - What we know: ~30 CIGES VMs contain "ABAC" which is Swiss Abacus ERP software
    - What's unclear: Whether customer considers Abacus similar to SAP for DRR purposes
    - Recommendation: Do NOT map ABAC to SAP. Let these fall through to OS-based fallback (Virtual Machines, DRR=5). Users can override in Phase 4's review UI.
 
-3. **Citrix VMs: Full Clone vs Linked Clone**
+2. **Citrix VMs: Full Clone vs Linked Clone**
    - What we know: 26 VMs match "CIT" patterns. DRR has separate entries for Full Clone (DRR=8) and Linked Clone (DRR=2).
    - What's unclear: Cannot determine clone type from VM name or OS field alone.
    - Recommendation: Default Citrix VMs to "VDI/Full Clone / MCS (Citrix)" (DRR=8, optimistic). User can override specific VMs to Linked Clone in review UI.
 
-4. **MariaDB classification**
+3. **MariaDB classification**
    - What we know: OIK_MARIADB3, OIK_MARIADB4 exist in sample. DRR.csv has "My SQL / NoSQL" category.
    - What's unclear: Whether MariaDB should map to "My SQL / NoSQL" (DRR=5) or be separate.
    - Recommendation: Map MariaDB to "My SQL / NoSQL" since MariaDB is a MySQL fork. Add "MARIADB" to that rule's patterns.
+
+4. **Web Servers: Content included vs not included**
+   - What we know: DRR has two subcategories: "Content included" (DRR=5) and "Content not included" (DRR=1.5).
+   - What's unclear: Cannot determine content inclusion from VM name alone.
+   - Recommendation: Default to "Content included" (DRR=5, more conservative for sizing). User can override.
 
 ## Sources
 
@@ -593,7 +685,8 @@ def test_classify_liveoptics_sample(liveoptics_xlsx_path: Path) -> None:
   - `samples/live-optics.xlsx`: 610 VMs, 40 unique OS values, pattern frequency analysis
   - `samples/rvtools.xlsx`: 24 VMs, 20 with OS data
   - `samples/DRR.csv`: 28 valid entries across 13 top-level categories
-- **Existing codebase**: `pipeline/models.py`, `services/drr_table.py`, `pipeline/ingestion.py`
+- **DRRTable.from_csv() output** verified at runtime: all 28 subcategory strings confirmed exact (PostgreSQL is clean, no newline)
+- **Existing codebase**: `pipeline/models.py`, `services/drr_table.py`, `pipeline/ingestion.py`, `pipeline/parsers/columns.py`
 - **ARCHITECTURE.md**: Rule Registry pattern (Pattern 2), classification pipeline design
 - **REQUIREMENTS.md**: FR-3.1 through FR-3.4 specifications
 
@@ -613,6 +706,7 @@ def test_classify_liveoptics_sample(liveoptics_xlsx_path: Path) -> None:
 - Standard stack: HIGH - no new dependencies, uses stdlib re + existing pandas/dataclasses
 - Architecture: HIGH - follows established patterns from ARCHITECTURE.md, verified against real data
 - Rule design: HIGH - patterns derived from actual 610-VM sample analysis with false positive verification
+- DRR subcategories: HIGH - verified by running DRRTable.from_csv() and inspecting actual output
 - Pitfalls: HIGH - false positive patterns verified with real VM names from sample data
 - Coverage estimate: MEDIUM - >80% target based on pattern analysis, needs validation with actual classification run
 
