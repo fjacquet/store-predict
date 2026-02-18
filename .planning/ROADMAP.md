@@ -23,18 +23,18 @@ graph LR
 
 Plans:
 
-- [ ] 01-01-PLAN.md — Project structure, data models, DRR table service, and test suite
-- [ ] 01-02-PLAN.md — NiceGUI app skeleton, page routing, Dockerfile, docker-compose
+- [x] 01-01-PLAN.md — Project structure, data models, DRR table service, and test suite
+- [x] 01-02-PLAN.md — NiceGUI app skeleton, page routing, Dockerfile, docker-compose
 
 **Deliverables:**
 
-- [ ] Python project structure (src/store_predict/, tests/, pyproject.toml)
-- [ ] NiceGUI app skeleton (main.py with basic page routing)
-- [ ] DRR table service: load CSV, handle edge cases, lookup by category
-- [ ] Data models (VM dataclass, FileFormat enum, WorkloadCategory)
-- [ ] ruff + mypy configuration
-- [ ] pytest setup with conftest.py and DRR table tests
-- [ ] Dockerfile + docker-compose.yml (basic)
+- [x] Python project structure (src/store_predict/, tests/, pyproject.toml)
+- [x] NiceGUI app skeleton (main.py with basic page routing)
+- [x] DRR table service: load CSV, handle edge cases, lookup by category
+- [x] Data models (VM dataclass, FileFormat enum, WorkloadCategory)
+- [x] ruff + mypy configuration
+- [x] pytest setup with conftest.py and DRR table tests
+- [x] Dockerfile + docker-compose.yml (basic)
 
 **Success criteria:** `pytest` passes, `python -m store_predict.main` shows a page, `docker compose up` works.
 
@@ -45,6 +45,13 @@ Plans:
 **Goal:** Parse RVTools and LiveOptics files into a normalized DataFrame.
 
 **Requirements covered:** FR-1.1, FR-1.2, FR-1.3, FR-1.4, FR-1.5, FR-1.6, FR-1.7, FR-1.8
+
+**Plans:** 2 plans
+
+Plans:
+
+- [ ] 02-01-PLAN.md — Core parsers (RVTools, LiveOptics xlsx/csv), column alias resolution, IngestionError
+- [ ] 02-02-PLAN.md — Format detection, ingestion orchestrator, CSV fixture, comprehensive test suite
 
 **Deliverables:**
 
