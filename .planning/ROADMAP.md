@@ -19,7 +19,14 @@ graph LR
 
 **Requirements covered:** FR-2.1, FR-2.2, FR-2.3, FR-2.4, NFR-2.1, NFR-2.2, NFR-2.3, NFR-2.4
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Project structure, data models, DRR table service, and test suite
+- [ ] 01-02-PLAN.md — NiceGUI app skeleton, page routing, Dockerfile, docker-compose
+
 **Deliverables:**
+
 - [ ] Python project structure (src/store_predict/, tests/, pyproject.toml)
 - [ ] NiceGUI app skeleton (main.py with basic page routing)
 - [ ] DRR table service: load CSV, handle edge cases, lookup by category
@@ -39,6 +46,7 @@ graph LR
 **Requirements covered:** FR-1.1, FR-1.2, FR-1.3, FR-1.4, FR-1.5, FR-1.6, FR-1.7, FR-1.8
 
 **Deliverables:**
+
 - [ ] Format detection (RVTools vs LiveOptics based on sheet names/columns)
 - [ ] RVTools parser: vInfo tab → normalized DataFrame (VM, OS, Provisioned MB, In Use MB)
 - [ ] LiveOptics xlsx parser: VMs tab → normalized DataFrame
@@ -60,6 +68,7 @@ graph LR
 **Requirements covered:** FR-3.1, FR-3.2, FR-3.3, FR-3.4
 
 **Deliverables:**
+
 - [ ] ClassificationRule dataclass with priority, patterns, match mode
 - [ ] Default rule set covering all 30 DRR categories
 - [ ] Rule registry: ordered evaluation, first match wins
@@ -80,6 +89,7 @@ graph LR
 **Requirements covered:** FR-4.1, FR-4.2, FR-4.3, FR-4.4, FR-4.5, FR-4.6, FR-7.1, FR-7.2, FR-7.3, FR-7.4, FR-7.5
 
 **Deliverables:**
+
 - [ ] Upload page: file dropzone, format auto-detection, project name input
 - [ ] Per-session state management (uploaded DataFrame, classifications, overrides)
 - [ ] Review page: AG Grid table with VM data + detected workload + DRR
@@ -101,6 +111,7 @@ graph LR
 **Requirements covered:** FR-5.1, FR-5.2, FR-5.3, FR-5.4, FR-6.1, FR-6.2, FR-6.3, FR-6.4, FR-6.5
 
 **Deliverables:**
+
 - [ ] Calculation service: per-VM required capacity, totals, workload grouping
 - [ ] Report page: summary cards + workload breakdown table
 - [ ] PDF generation with ReportLab: one-page layout, StorePredict branding
@@ -121,6 +132,7 @@ graph LR
 **Requirements covered:** NFR-1.1, NFR-1.2, NFR-1.3, NFR-3.1, NFR-3.2, NFR-3.3, NFR-4.1, NFR-4.2, NFR-5.1, NFR-5.2, NFR-5.3
 
 **Deliverables:**
+
 - [ ] Docker Compose production config (port, storage secret, restart policy)
 - [ ] File upload validation (type check, size limit)
 - [ ] Session data isolation verification
