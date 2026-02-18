@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "store-predict"
+version = "0.1.0"
+description = "Dell PowerStore DRR sizing tool"
+requires-python = ">=3.12"
+dependencies = [
+    "nicegui>=3.4,<4.0",
+    "pandas>=2.2,<4.0",
+    "openpyxl>=3.1.2",
+    "reportlab>=4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.9",
+    "mypy>=1.10",
+    "pandas-stubs>=2.2",
+]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 99
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "RUF",  # ruff-specific
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["store_predict"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+plugins = []
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "nicegui.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "reportlab.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=store_predict --cov-report=term-missing"
