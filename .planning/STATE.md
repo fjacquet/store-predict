@@ -2,8 +2,8 @@
 
 ## Current Phase
 
-Phase 1: Project Foundation & DRR Table (COMPLETE)
-Plans: 2 of 2 complete
+Phase 2: File Ingestion Pipeline (IN PROGRESS)
+Plans: 1 of 2 complete
 
 ## Milestone
 
@@ -18,10 +18,11 @@ v1.0 — MVP Sizing Tool
 - [x] CLAUDE.md created
 - [x] Plan 01-01: Project structure, models, DRR table service (14 tests passing)
 - [x] Plan 01-02: NiceGUI app skeleton, Docker deployment (app runs on :8080)
+- [x] Plan 02-01: Core parsers (RVTools, LiveOptics xlsx/csv) with column alias resolution
 
 ## Next Action
 
-Plan Phase 2 (Ingestion pipeline).
+Execute Plan 02-02 (format detection and ingestion orchestrator).
 
 ## Decisions
 
@@ -31,6 +32,9 @@ Plan Phase 2 (Ingestion pipeline).
 - Context manager layout pattern for NiceGUI shared header/nav
 - Page routes registered via module import side-effect (NiceGUI convention)
 - Docker not runtime-tested (daemon not running) but files validated structurally
+- Column alias resolution via dict lookup (not regex) for format normalization
+- Shared _build_liveoptics_df helper avoids code duplication between xlsx/csv parsers
+- pandas TYPE_CHECKING import in columns.py (annotation-only), runtime import in parser modules
 
 ## Performance Metrics
 
@@ -38,6 +42,7 @@ Plan Phase 2 (Ingestion pipeline).
 |-------|------|----------|-------|-------|
 | 01    | 01   | 11min    | 2     | 13    |
 | 01    | 02   | 5min     | 2     | 5     |
+| 02    | 01   | 5min     | 2     | 5     |
 
 ## Notes
 
@@ -50,8 +55,8 @@ Plan Phase 2 (Ingestion pipeline).
 
 ## Last Session
 
-- **Stopped at:** Completed 01-02-PLAN.md (Phase 1 complete)
-- **Timestamp:** 2026-02-18T19:14:02Z
+- **Stopped at:** Completed 02-01-PLAN.md
+- **Timestamp:** 2026-02-18T19:59:02Z
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
