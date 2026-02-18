@@ -2,8 +2,8 @@
 
 ## Current Phase
 
-Phase 1: Project Foundation & DRR Table (in progress)
-Current Plan: 2 of 2
+Phase 1: Project Foundation & DRR Table (COMPLETE)
+Plans: 2 of 2 complete
 
 ## Milestone
 
@@ -17,22 +17,27 @@ v1.0 — MVP Sizing Tool
 - [x] ROADMAP.md written (6 phases)
 - [x] CLAUDE.md created
 - [x] Plan 01-01: Project structure, models, DRR table service (14 tests passing)
+- [x] Plan 01-02: NiceGUI app skeleton, Docker deployment (app runs on :8080)
 
 ## Next Action
 
-Execute Plan 01-02 (NiceGUI app skeleton, Docker).
+Plan Phase 2 (Ingestion pipeline).
 
 ## Decisions
 
 - Used setuptools.build_meta instead of _legacy backend (not available in current setuptools)
 - DRR.csv has 28 valid entries, not 30 as estimated in research
 - Path import moved to TYPE_CHECKING block per ruff TCH003 rule
+- Context manager layout pattern for NiceGUI shared header/nav
+- Page routes registered via module import side-effect (NiceGUI convention)
+- Docker not runtime-tested (daemon not running) but files validated structurally
 
 ## Performance Metrics
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 01    | 01   | 11min    | 2     | 13    |
+| 01    | 02   | 5min     | 2     | 5     |
 
 ## Notes
 
@@ -45,8 +50,8 @@ Execute Plan 01-02 (NiceGUI app skeleton, Docker).
 
 ## Last Session
 
-- **Stopped at:** Completed 01-01-PLAN.md
-- **Timestamp:** 2026-02-18T19:05:00Z
+- **Stopped at:** Completed 01-02-PLAN.md (Phase 1 complete)
+- **Timestamp:** 2026-02-18T19:14:02Z
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
