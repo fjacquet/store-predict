@@ -41,7 +41,7 @@ re_verification: false
 |----------|----------|--------|---------|
 | `pyproject.toml` | Project metadata, deps, tool config | VERIFIED | Contains nicegui>=3.4, ruff, mypy, pytest sections; 76 lines |
 | `src/store_predict/pipeline/models.py` | VMRecord dataclass, FileFormat enum | VERIFIED | Both exported, frozen dataclass, 3-value enum |
-| `src/store_predict/services/drr_table.py` | DRREntry dataclass, DRRTable service | VERIFIED | Full implementation with from_csv, get_ratio, get_conservative_ratio, categories, entries, __len__ |
+| `src/store_predict/services/drr_table.py` | DRREntry dataclass, DRRTable service | VERIFIED | Full implementation with from_csv, get_ratio, get_conservative_ratio, categories, entries, **len** |
 | `src/store_predict/config.py` | Project paths and defaults | VERIFIED | DRR_CSV_PATH, DEFAULT_DRR, APP_TITLE, APP_PORT all present |
 | `src/store_predict/main.py` | NiceGUI app entry point | VERIFIED | ui.run() present, landing page defined, upload route registered |
 | `src/store_predict/ui/layout.py` | Shared layout with header/nav | VERIFIED | Context manager `layout()` with ui.header() and nav links |

@@ -95,6 +95,7 @@ def detect_format(path: Path) -> FileFormat:
 ```
 
 **Evidence from sample files:**
+
 - RVTools sheets: `['vInfo', 'vCPU', 'vMemory', 'vDisk', ...]` (25 sheets)
 - LiveOptics sheets: `['Details', 'ESX Hosts', ..., 'VMs', ...]` (11 sheets)
 - Sheet name overlap: None between the two formats. Detection is unambiguous.
@@ -438,6 +439,7 @@ def liveoptics_xlsx_path() -> Path:
 ### CSV Test Data
 
 No LiveOptics CSV sample file exists in the repo. Options:
+
 1. Export from the xlsx sample during test setup (using pandas)
 2. Create a small hand-written CSV fixture in tests/fixtures/
 
@@ -483,6 +485,7 @@ Recommendation: Create a small CSV fixture file (5-10 rows) rather than dependin
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH - already installed and verified in Phase 1
 - Architecture: HIGH - patterns derived from actual file inspection, not speculation
 - Pitfalls: HIGH - NaN Template and MB/MiB issues verified against real sample data
