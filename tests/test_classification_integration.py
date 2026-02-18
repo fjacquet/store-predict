@@ -6,9 +6,8 @@ and verifies rule-DRR table consistency. Uses real objects only -- NO mocks.
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-import pandas as pd
 import pytest
 
 from store_predict.pipeline.classification import (
@@ -17,8 +16,11 @@ from store_predict.pipeline.classification import (
     classify_dataframe,
 )
 from store_predict.pipeline.ingestion import ingest_file
-from store_predict.services.drr_table import DRRTable
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from store_predict.services.drr_table import DRRTable
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -244,3 +246,67 @@ class TestEndToEndPipeline:
                 f"({row['workload_category']!r}, {row['workload_subcategory']!r}) "
                 f"has DRR ratio {ratio} (expected > 0)"
             )
+
+
+# ---------------------------------------------------------------------------
+# 5. Classification coverage report
+# ---------------------------------------------------------------------------
+
+def test_classification_coverage_report(liveoptics_xlsx_path: Path) -> None:
+    """Print a human-readable classification coverage report.
+
+    Shows: category, count, percentage, sample VM names (first 2 per category).
+    Also verifies confidence breakdown is reasonable.
+    """
+    df = ingest_file(liveoptics_xlsx_path)
+    result = classify_dataframe(df, _registry())
+
+    total = len(result)
+    assert total > 0, "No VMs in result"
+
+    # --- Coverage summary table ---
+    print("\n" + "=" * 80)
+    print("CLASSIFICATION COVERAGE REPORT")
+    print("=" * 80)
+    print(f"{'Category':<42} {'Count':>5} {'Pct':>6}  Sample VMs")
+    print("-" * 80)
+
+    for cat, group in result.groupby("workload_category", sort=False):
+        count = len(group)
+        pct = count / total * 100
+        samples = group["vm_name"].head(2).tolist()
+        sample_str = ", ".join(str(s) for s in samples)
+        print(f"  {cat:<40} {count:5d} {pct:5.1f}%  {sample_str}")
+
+    print("-" * 80)
+    print(f"  {'TOTAL':<40} {total:5d}")
+    print("=" * 80)
+
+    # --- Verify no VMs lost ---
+    assert result["workload_category"].notna().all()
+    assert len(result) == total, "VMs lost during classification"
+
+    # --- Confidence breakdown ---
+    confidence_counts = result["classification_confidence"].value_counts()
+    print("\n--- Confidence Breakdown ---")
+    for conf, count in confidence_counts.items():
+        pct = count / total * 100
+        print(f"  {conf:<20} {count:5d} ({pct:5.1f}%)")
+
+    # rule_match should be present (VMs matched by specific rules)
+    assert "rule_match" in confidence_counts.index, (
+        "No VMs matched by specific rules (rule_match missing)"
+    )
+
+    # os_fallback should be present (generic VMs caught by OS)
+    assert "os_fallback" in confidence_counts.index, (
+        "No VMs matched by OS fallback (os_fallback missing)"
+    )
+
+    # default should be minimal (<5%)
+    default_count = confidence_counts.get("default", 0)
+    default_pct = default_count / total
+    assert default_pct < 0.05, (
+        f"Default confidence is {default_pct:.1%} ({default_count}/{total})"
+        f" -- should be < 5%"
+    )
