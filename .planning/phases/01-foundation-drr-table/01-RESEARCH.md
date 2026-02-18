@@ -15,6 +15,7 @@ Phase 1 establishes the project skeleton: Python package structure, NiceGUI app 
 ## Standard Stack
 
 ### Core
+
 | Library | Version | Purpose | Why Standard |
 |---------|---------|---------|--------------|
 | nicegui | >=3.4,<4.0 | Web UI framework | Current stable, Tailwind 4, Python-first web UIs |
@@ -23,6 +24,7 @@ Phase 1 establishes the project skeleton: Python package structure, NiceGUI app 
 | reportlab | >=4.0 | PDF generation | Lightweight, no system deps, precise layout control |
 
 ### Supporting
+
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
 | pytest | >=8.0 | Test framework | All testing |
@@ -32,6 +34,7 @@ Phase 1 establishes the project skeleton: Python package structure, NiceGUI app 
 | pandas-stubs | >=2.2 | Type stubs for pandas | mypy compatibility with pandas |
 
 ### Alternatives Considered
+
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
 | NiceGUI 2.x | NiceGUI 3.x | 3.x is current; 2.x is unmaintained. Use 3.x. |
@@ -39,6 +42,7 @@ Phase 1 establishes the project skeleton: Python package structure, NiceGUI app 
 | csv stdlib | pandas read_csv | pandas handles quoting/newlines better and we need DataFrames anyway |
 
 ### Installation
+
 ```bash
 pip install "nicegui>=3.4,<4.0" "pandas>=2.2,<4.0" "openpyxl>=3.1.2" "reportlab>=4.0"
 pip install "pytest>=8.0" "pytest-cov>=5.0" "ruff>=0.9" "mypy>=1.10" "pandas-stubs>=2.2"
@@ -47,6 +51,7 @@ pip install "pytest>=8.0" "pytest-cov>=5.0" "ruff>=0.9" "mypy>=1.10" "pandas-stu
 ## Architecture Patterns
 
 ### Recommended Project Structure
+
 ```
 store-predict/
   src/
@@ -86,9 +91,11 @@ store-predict/
 ```
 
 ### Pattern 1: DRR Table as Immutable Service
+
 **What:** Load DRR.csv once at startup, expose as an immutable lookup service.
 **When to use:** Always -- DRR data is reference data, not user-mutable per session.
 **Example:**
+
 ```python
 # services/drr_table.py
 from __future__ import annotations
@@ -166,9 +173,11 @@ class DRRTable:
 ```
 
 ### Pattern 2: Typed Data Models
+
 **What:** Use frozen dataclasses and enums for all pipeline data structures.
 **When to use:** All data flowing through the pipeline.
 **Example:**
+
 ```python
 # pipeline/models.py
 from __future__ import annotations
@@ -198,9 +207,11 @@ class VMRecord:
 ```
 
 ### Pattern 3: NiceGUI 3.x App Skeleton
+
 **What:** Minimal NiceGUI app using `@ui.page` decorator and `ui.run()`.
 **When to use:** The main.py entry point.
 **Example:**
+
 ```python
 # main.py
 from nicegui import ui
@@ -226,6 +237,7 @@ if __name__ == "__main__":
 ```
 
 **NiceGUI 3.x notes:**
+
 - `@ui.page('/')` decorator still works as before
 - `.classes()` uses Tailwind CSS 4 syntax (mostly backward-compatible but borders/spacing may differ)
 - `ui.run()` invoked from `python -m store_predict.main` works fine
@@ -233,6 +245,7 @@ if __name__ == "__main__":
 - Upload events now return `FileUpload` objects with `.read()`, `.text()`, `.save()` methods
 
 ### Anti-Patterns to Avoid
+
 - **Business logic in UI handlers:** Pipeline code must live in pipeline/ or services/, never in ui/
 - **Global mutable state:** Use per-session dicts, not module-level globals for user data
 - **Hardcoded DRR values:** Always load from CSV via DRRTable service
@@ -252,36 +265,42 @@ if __name__ == "__main__":
 ## Common Pitfalls
 
 ### Pitfall 1: DRR.csv Embedded Newline in PostgreSQL Entry
+
 **What goes wrong:** Lines 7-8 of DRR.csv contain a newline inside a quoted field (`"\nPostgreSQL"`). Naive line-by-line reading splits this into two broken records.
 **Why it happens:** The CSV was likely edited in Excel which inserted a line break inside a cell.
 **How to avoid:** Use `pd.read_csv()` with `quoting=csv.QUOTE_ALL` and `engine="python"`. Verify loaded entry count equals 30 (the expected number of workload categories).
 **Warning signs:** Getting 29 or 31 entries instead of 30; PostgreSQL entry missing or malformed.
 
 ### Pitfall 2: DRR.csv Trailing Junk Rows
+
 **What goes wrong:** Lines 31-35 contain empty rows and a partial entry ("Unknown (Reducible);;"). These become NaN rows in the DataFrame.
 **Why it happens:** Spreadsheet artifacts when CSV was exported.
 **How to avoid:** `df.dropna(subset=["category"])` followed by `df.dropna(subset=["ratio"])`. The stray row on line 35 has category but no ratio, so the ratio dropna catches it.
 **Warning signs:** Entry count > 30; entries with NaN ratios.
 
 ### Pitfall 3: NiceGUI 3.x Tailwind CSS 4 Changes
+
 **What goes wrong:** Tailwind 4 changed default border and line-height behavior. Elements may look different than Tailwind 3 examples.
 **Why it happens:** NiceGUI 3.0 upgraded from Tailwind 3 to 4.
 **How to avoid:** For Phase 1, keep styling minimal. Test visual output in browser. Note that `border` utility now requires explicit `border-solid` in some cases.
 **Warning signs:** Missing borders, unexpected spacing.
 
 ### Pitfall 4: NiceGUI Upload Event API Changed in 3.0
+
 **What goes wrong:** Code written for NiceGUI 2.x `UploadEventArguments.content` (bytes) breaks. In 3.x, upload events provide a `FileUpload` object with `.read()`, `.text()`, `.save()` methods.
 **Why it happens:** Breaking API change in NiceGUI 3.0.
 **How to avoid:** Use the new `FileUpload` API: `e.file.read()` to get bytes.
 **Warning signs:** AttributeError on upload event handling.
 
 ### Pitfall 5: mypy Strict Mode with pandas
+
 **What goes wrong:** pandas operations return `Any` types without stubs; mypy strict rejects them.
 **Why it happens:** pandas is complex; stubs don't cover everything.
 **How to avoid:** Install `pandas-stubs`. For uncovered cases, use targeted `# type: ignore[...]` with specific error codes. Add mypy overrides for test files.
 **Warning signs:** Hundreds of mypy errors from pandas usage.
 
 ### Pitfall 6: Python 3.12 vs System Python
+
 **What goes wrong:** System may have Python 3.14 (as detected on this machine), but Docker and CI should target 3.12.
 **Why it happens:** Dev machine Python version differs from deployment target.
 **How to avoid:** Pin `requires-python = ">=3.12"` in pyproject.toml. Use `python:3.12-slim` in Dockerfile. Consider using `uv` or `pyenv` for local version management.
@@ -290,6 +309,7 @@ if __name__ == "__main__":
 ## Code Examples
 
 ### pyproject.toml (Complete for Phase 1)
+
 ```toml
 [build-system]
 requires = ["setuptools>=75.0"]
@@ -369,6 +389,7 @@ addopts = "--cov=store_predict --cov-report=term-missing"
 ```
 
 ### Dockerfile (Phase 1 Minimal)
+
 ```dockerfile
 FROM python:3.12-slim
 
@@ -386,6 +407,7 @@ CMD ["python", "-m", "store_predict.main"]
 ```
 
 ### docker-compose.yml
+
 ```yaml
 services:
   app:
@@ -398,6 +420,7 @@ services:
 ```
 
 ### conftest.py (Test Fixtures)
+
 ```python
 # tests/conftest.py
 from pathlib import Path
@@ -418,6 +441,7 @@ def drr_table(sample_drr_path: Path) -> DRRTable:
 ```
 
 ### DRR Table Test Examples
+
 ```python
 # tests/test_drr_table.py
 from store_predict.services.drr_table import DRRTable
@@ -477,6 +501,7 @@ def test_all_ratios_positive(drr_table: DRRTable) -> None:
 | setup.py/setup.cfg | pyproject.toml | Standard since 2023 | All config in one file |
 
 **Deprecated/outdated:**
+
 - NiceGUI `ui.open()` -- removed in 3.0, use `ui.navigate.to()` instead
 - NiceGUI `ui.element.tailwind` API -- removed in 3.0, use `.classes()` with Tailwind utilities
 - NiceGUI `UploadEventArguments.content` (bytes) -- replaced with `FileUpload` object
@@ -502,6 +527,7 @@ def test_all_ratios_positive(drr_table: DRRTable) -> None:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - DRR.csv direct inspection -- verified 35 lines, embedded newline, trailing junk
 - [NiceGUI 3.0.0 release notes](https://github.com/zauberzeug/nicegui/releases/tag/v3.0.0) -- all breaking changes documented
 - [NiceGUI PyPI](https://pypi.org/project/nicegui/) -- current version 3.4.x confirmed
@@ -510,16 +536,19 @@ def test_all_ratios_positive(drr_table: DRRTable) -> None:
 - Project `.planning/research/` files -- ARCHITECTURE.md, STACK.md, PITFALLS.md, FEATURES.md
 
 ### Secondary (MEDIUM confidence)
+
 - [NiceGUI upload docs](https://nicegui.io/documentation/upload) -- current API reference
 - [NiceGUI entry point issue #5411](https://github.com/zauberzeug/nicegui/issues/5411) -- `[project.scripts]` bug confirmed
 - [pandas read_csv docs](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html) -- quoting/delimiter options
 
 ### Tertiary (LOW confidence)
+
 - NiceGUI 3.x upload event argument exact structure -- verified from release notes but not from live code testing
 
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH -- versions verified against PyPI, breaking changes documented
 - Architecture: HIGH -- project structure validated against prior research and NiceGUI patterns
 - Pitfalls: HIGH -- DRR.csv issues verified by direct file inspection; NiceGUI 3.0 changes from release notes
