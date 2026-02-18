@@ -50,6 +50,10 @@ Thumbs.db
 # MkDocs build
 site/
 
+# Runtime
+.store-predict.pid
+.store-predict.log
+
 # Samples (customer data)
 samples/
 

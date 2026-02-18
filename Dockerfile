@@ -1,8 +1,15 @@
 FROM python:3.12-slim
+
 WORKDIR /app
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 COPY pyproject.toml .
 COPY src/ src/
 COPY samples/DRR.csv samples/DRR.csv
-RUN pip install --no-cache-dir .
+
+RUN uv venv .venv && . .venv/bin/activate && uv pip install --no-cache .
+
 EXPOSE 8080
-CMD ["python", "-m", "store_predict.main"]
+
+CMD [".venv/bin/python", "-m", "store_predict.main"]

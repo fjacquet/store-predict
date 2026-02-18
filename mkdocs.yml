@@ -1,0 +1,51 @@
+site_name: StorePredict
+site_description: Pre-sales sizing tool for PowerStore DRR prediction
+repo_url: https://github.com/fjacquet/store-predict
+repo_name: fjacquet/store-predict
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - admonition
+  - tables
+
+nav:
+  - Home: index.md
+  - User Guide:
+    - Overview: user-guide/index.md
+  - Research:
+    - Overview: research/index.md
+    - Phase 1 - Foundation: research/phase-01-foundation.md
+    - Phase 2 - Ingestion: research/phase-02-ingestion.md
+    - Phase 3 - Classification: research/phase-03-classification.md
+  - ADR:
+    - Overview: adr/index.md
+    - 001 - NiceGUI Framework: adr/001-nicegui-framework.md
+    - 002 - DRR CSV Reference: adr/002-drr-csv-reference.md
+    - 003 - Alias Not Fuzzy Matching: adr/003-alias-not-fuzzy-matching.md
+    - 004 - DataFrame Pipeline Format: adr/004-dataframe-not-dataclass.md
+    - 005 - Conservative DRR: adr/005-conservative-drr.md
+    - 006 - No Mocks Testing: adr/006-no-mocks-testing.md

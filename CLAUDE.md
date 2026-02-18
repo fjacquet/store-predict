@@ -40,8 +40,8 @@ Even in command chains: `rtk git add file && rtk git commit -m "msg"`
 
 ```bash
 # Development
-python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
+uv venv .venv && source .venv/bin/activate
+uv pip install -e ".[dev]"
 python -m store_predict.main          # Run the app
 
 # Quality
