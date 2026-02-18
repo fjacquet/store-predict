@@ -36,6 +36,7 @@ ui.button('Upload', on_click=handle_upload).classes('bg-blue-500 hover:bg-blue-7
 ```
 
 Key patterns:
+
 - File upload: `ui.upload(on_upload=handler)` — returns UploadEventArguments with .content (bytes)
 - Data tables: `ui.aggrid()` wraps AG Grid — ideal for editable VM classification table
 - Multi-select: `ui.select(options, multiple=True)`

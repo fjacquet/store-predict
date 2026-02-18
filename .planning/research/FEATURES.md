@@ -7,7 +7,9 @@
 **Source:** `samples/live-optics.xlsx` — 11 sheets, 610 VMs in sample
 
 ### VMs Tab (Primary — 38 columns)
+
 Key columns for ingestion:
+
 - **VM Name** (col B) — e.g., "3000-GPO-TEST", "CADSRVSQL001", "ANSIBLE-01-T"
 - **VM OS** (col F) — e.g., "Microsoft Windows Server 2019 (64-bit)", "Oracle Linux 9 (64-bit)"
 - **Guest VM Disk Capacity (MiB)** (col P) — total guest-visible disk
@@ -19,17 +21,21 @@ Key columns for ingestion:
 - **Datacenter** (col Y), **Cluster** (col AA)
 
 ### VM Performance Tab (35 columns — Phase 3 enrichment)
+
 - Peak/Avg IOPS, KB/sec, read/write latency
 - VM IO Classification (Standard/High/etc.)
 - Useful for future ML classification enhancement
 
 ### Other Tabs Available
+
 - ESX Hosts, ESX Performance, Host Devices, VM Disks, Custom Attributes, ESX Licenses, Host Disks, Host Network Adapters
 
 ## RVTools .xlsx Structure (Verified from samples/rvtools.xlsx)
 
 ### vInfo Tab (71 columns — verified)
+
 Key columns for ingestion:
+
 - **VM** (col A) — VM display name (NOT "VM Name")
 - **Powerstate** (col B) — "poweredOn"/"poweredOff"
 - **Template** (col C) — "True"/"False" (filter out templates)
@@ -40,6 +46,7 @@ Key columns for ingestion:
 - **Datacenter** (col 61), **Cluster** (col 62), **Host** (col 63)
 
 **Confirmed differences from LiveOptics:**
+
 - Column "VM" not "VM Name"
 - Units are "MB" not "MiB"
 - OS column is "OS according to the VMware Tools" (verbose)
@@ -51,12 +58,14 @@ Key columns for ingestion:
 **Source:** `samples/DRR.csv` — semicolon-delimited, 30 workload categories
 
 Issues discovered:
+
 1. **Embedded newline** in line 7-8: PostgreSQL entry has a line break in the "Application/Use case" field
 2. **Trailing empty rows** after the data
 3. **Stray entry** on line 35 (partial/empty data)
 4. **No header row** explicitly marked — first row is data, needs manual column names
 
 **Parsing strategy:**
+
 ```python
 df = pd.read_csv(path, sep=';', names=['category', 'subcategory', 'ratio'],
                  skiprows=1, quoting=csv.QUOTE_ALL)
@@ -68,13 +77,16 @@ df = df.dropna(subset=['ratio'])
 ## Classification Patterns (Verified from 610 real VMs)
 
 ### VM Naming Conventions Observed
+
 - **SITE-FUNCTION-NUM:** `CADSRVSQL001`, `ARBAZ-AADC`, `OIK_CADSRVSQL002`
 - **Descriptive:** `Backup-VeeamOne`, `3000-prj-Mfiles`
 - **Product names:** `ANSIBLE-01-T`, `ZABBIX-02-P`
 - **Site prefixes:** `ARCHIAD-DC1`, `CIGES-WSUS`
 
 ### Key Classification Insight
+
 **Embedded keywords** are common — "CADSRVSQL001" contains "SQL" without word boundaries. Pattern matching must use substring search, not whole-word:
+
 ```python
 # ✅ Correct: substring match
 re.compile(r"(?i)SQL")  # matches "CADSRVSQL001"
@@ -84,6 +96,7 @@ re.compile(r"(?i)\bSQL\b")  # misses "CADSRVSQL001"
 ```
 
 ### Classification Rule Priority (from DRR.csv categories)
+
 1. **Database keywords** (highest priority): SQL, MSSQL, Oracle, ORA, PostgreSQL, MySQL, SAP, HANA, MongoDB
 2. **Application keywords**: Exchange, SharePoint, Citrix, VDI, Desktop, Veeam, Backup
 3. **Infrastructure keywords**: DC, AADC (Active Directory), DNS, DHCP, WSUS
@@ -93,12 +106,15 @@ re.compile(r"(?i)\bSQL\b")  # misses "CADSRVSQL001"
 ## Editable VM Table (NiceGUI AG Grid)
 
 ### AG Grid Community in NiceGUI
+
 - `ui.aggrid()` wraps AG Grid Community edition
 - Supports: sorting, filtering, pagination, inline cell editing
 - Column definitions with `editable: True` for cell-level editing
 
 ### Multi-Select Workload Pattern
+
 AG Grid Community doesn't natively support multi-select dropdowns in cells. Recommended approach:
+
 1. **Primary column:** Single-select dropdown showing detected workload
 2. **Action button:** "Edit" button per row opens a `ui.dialog()` with `ui.select(multiple=True)`
 3. **Display:** Multi-select values shown as comma-separated in the cell
@@ -116,6 +132,7 @@ column_defs = [
 ```
 
 ### Multi-Select Dialog Pattern
+
 ```python
 async def edit_workloads(vm_name: str, current_workloads: list[str]):
     with ui.dialog() as dialog, ui.card():
@@ -129,6 +146,7 @@ async def edit_workloads(vm_name: str, current_workloads: list[str]):
 ## PDF Report Layout (One Page)
 
 ### Recommended Structure
+
 ```
 +--------------------------------------------------+
 |  [StorePredict Logo]     Sizing Report            |
@@ -152,6 +170,7 @@ async def edit_workloads(vm_name: str, current_workloads: list[str]):
 ```
 
 ### ReportLab Implementation
+
 - Use `SimpleDocTemplate` with A4/Letter page size
 - `Table` + `TableStyle` for workload breakdown
 - Register Unicode font (DejaVu Sans) for French characters

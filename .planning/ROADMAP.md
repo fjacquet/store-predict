@@ -22,6 +22,7 @@ graph LR
 **Plans:** 2 plans
 
 Plans:
+
 - [ ] 01-01-PLAN.md — Project structure, data models, DRR table service, and test suite
 - [ ] 01-02-PLAN.md — NiceGUI app skeleton, page routing, Dockerfile, docker-compose
 
