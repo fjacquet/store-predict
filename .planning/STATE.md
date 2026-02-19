@@ -3,7 +3,7 @@
 ## Current Phase
 
 Phase 7: UI Bug Fixes & Report Enhancements (IN PROGRESS)
-Plans: 3 of 5 complete
+Plans: 4 of 5 complete
 
 ## Milestone
 
@@ -35,7 +35,7 @@ v1.0 — MVP Sizing Tool
 
 ## Next Action
 
-Execute Phase 7 Plan 02 (classification improvements).
+Execute Phase 7 Plan 05 (remaining UI/report enhancements).
 
 ## Decisions
 
@@ -82,6 +82,7 @@ Execute Phase 7 Plan 02 (classification improvements).
 - [Phase 07]: Throughput KB/s to MB/s conversion at parser level for early normalization
 - [Phase 07]: Fire-and-forget setFilterModel/paginationGoToPage to avoid JS timeout
 - [Phase 07]: enableClickSelection: False so row clicks open dialog, checkboxes handle selection
+- [Phase 07]: Two-pass classify: direct vm_name matches first, description fallback second to preserve priority semantics
 - [Phase 07]: Performance fields extracted with NaN-safe helper (math.isnan check, default 0.0)
 - [Phase 07]: VM Statistics always in PDF; Performance Summary conditional on has_performance_data
 
@@ -106,6 +107,7 @@ Execute Phase 7 Plan 02 (classification improvements).
 | Phase 06 P05 | 1min | 2 tasks | 2 files |
 | 06    | 04   | 2min     | 2     | 5     |
 | 07    | 01   | 3min     | 2     | 5     |
+| 07    | 02   | 3min     | 2     | 2     |
 | Phase 07 P03 | 2min | 2 tasks | 2 files |
 | Phase 07 P04 | 3min | 2 tasks | 4 files |
 
