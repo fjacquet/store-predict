@@ -169,13 +169,14 @@ async def _handle_bulk_update(
     # Refresh grid and stats
     grid.options["rowData"] = row_data
     grid.update()
+    await grid.run_grid_method("setRowData", row_data)
     _rebuild_stats(stats_container, row_data)
 
     # Restore filter/page state
     if filter_model:
-        grid.run_grid_method("setFilterModel", filter_model)
+        await grid.run_grid_method("setFilterModel", filter_model)
     if current_page is not None and current_page > 0:
-        grid.run_grid_method("paginationGoToPage", current_page)
+        await grid.run_grid_method("paginationGoToPage", current_page)
 
     # Persist to session
     save_session_data(pd.DataFrame(row_data), get_project_name())
@@ -231,13 +232,14 @@ async def _handle_cell_change(
     # Refresh grid and stats
     grid.options["rowData"] = row_data
     grid.update()
+    await grid.run_grid_method("setRowData", row_data)
     _rebuild_stats(stats_container, row_data)
 
-    # Restore filter/page state after update (fire-and-forget, no await)
+    # Restore filter/page state after update
     if filter_model:
-        grid.run_grid_method("setFilterModel", filter_model)
+        await grid.run_grid_method("setFilterModel", filter_model)
     if current_page is not None and current_page > 0:
-        grid.run_grid_method("paginationGoToPage", current_page)
+        await grid.run_grid_method("paginationGoToPage", current_page)
 
     # Persist to session
     save_session_data(pd.DataFrame(row_data), get_project_name())
@@ -307,13 +309,14 @@ async def _handle_row_click(
     # Refresh grid and stats
     grid.options["rowData"] = row_data
     grid.update()
+    await grid.run_grid_method("setRowData", row_data)
     _rebuild_stats(stats_container, row_data)
 
-    # Restore filter/page state after update (fire-and-forget, no await)
+    # Restore filter/page state after update
     if filter_model:
-        grid.run_grid_method("setFilterModel", filter_model)
+        await grid.run_grid_method("setFilterModel", filter_model)
     if current_page is not None and current_page > 0:
-        grid.run_grid_method("paginationGoToPage", current_page)
+        await grid.run_grid_method("paginationGoToPage", current_page)
 
     # Persist to session
     save_session_data(pd.DataFrame(row_data), get_project_name())
