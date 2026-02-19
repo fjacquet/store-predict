@@ -63,19 +63,16 @@ async def review_page() -> None:
         grid = create_vm_table(
             row_data,
             categories,
-            on_cell_changed=lambda e: _handle_cell_change(
-                e, row_data, drr_table, grid, stats_container
-            ),
-            on_row_clicked=lambda e: _handle_row_click(
-                e, row_data, drr_table, workload_options, grid, stats_container
-            ),
+            on_cell_changed=lambda e: _handle_cell_change(e, row_data, drr_table, grid, stats_container),
+            on_row_clicked=lambda e: _handle_row_click(e, row_data, drr_table, workload_options, grid, stats_container),
         )
 
         # Navigation to report
-        ui.button(
-            "Generate Report",
-            on_click=lambda: ui.navigate.to("/report"),
-        ).classes("bg-blue-700 text-white")
+        with ui.row().classes("w-full justify-end mt-4"):
+            ui.button(
+                "Generate Report",
+                on_click=lambda: ui.navigate.to("/report"),
+            ).classes("bg-blue-700 text-white")
 
 
 def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -> None:
@@ -177,9 +174,7 @@ async def _handle_row_click(
     conservative_drr = drr_table.get_conservative_ratio(workload_tuples)
 
     # Update the row
-    display_category = (
-        first_category if len(workload_tuples) == 1 else ", ".join(t[0] for t in workload_tuples)
-    )
+    display_category = first_category if len(workload_tuples) == 1 else ", ".join(t[0] for t in workload_tuples)
     for r in row_data:
         if r.get("vm_name") == vm_name:
             r["workload_category"] = display_category

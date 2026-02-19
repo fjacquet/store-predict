@@ -102,9 +102,8 @@ def create_vm_table(
             "paginationPageSize": 50,
             "rowSelection": {"mode": "singleRow"},
             "stopEditingWhenCellsLoseFocus": True,
-            "domLayout": "autoHeight",
         }
-    ).classes("w-full")
+    ).classes("w-full").style("height: 600px")
 
     if on_cell_changed:
         grid.on("cellValueChanged", on_cell_changed)
