@@ -151,7 +151,11 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
     # --- VM Statistics section ---------------------------------------------
     story.append(Paragraph("VM Statistics", heading_style))
     vm_stats_lines = [
-        f"<b>Average VM Size:</b> {format_storage(summary.avg_vm_size_mib)}",
+        f"<b>Total vCPUs:</b> {summary.total_cpus:,}",
+        f"<b>Avg vCPUs / VM:</b> {summary.avg_vm_cpus:.1f}",
+        f"<b>Total Memory:</b> {format_storage(summary.total_memory_mib)}",
+        f"<b>Avg Memory / VM:</b> {format_storage(summary.avg_vm_memory_mib)}",
+        f"<b>Avg Storage / VM:</b> {format_storage(summary.avg_vm_size_mib)}",
         f"<b>Largest VM:</b> {summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})",
     ]
     for line in vm_stats_lines:
