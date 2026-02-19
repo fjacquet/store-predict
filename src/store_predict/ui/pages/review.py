@@ -88,8 +88,15 @@ async def review_page() -> None:
             has_performance_data=has_perf,
         )
 
-        # Navigation to report
-        with ui.row().classes("w-full justify-end mt-4"):
+        # Bulk actions + navigation
+        with ui.row().classes("w-full justify-between mt-4"):
+            ui.button(
+                "Bulk Update Workload",
+                on_click=lambda: _handle_bulk_update(
+                    row_data, drr_table, workload_options, grid, stats_container,
+                ),
+                icon="edit",
+            ).classes("bg-orange-700 text-white")
             ui.button(
                 "Generate Report",
                 on_click=lambda: ui.navigate.to("/report"),
@@ -101,6 +108,74 @@ def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -
     stats_container.clear()
     with stats_container:
         build_summary_stats(row_data)
+
+
+async def _handle_bulk_update(
+    row_data: list[dict[str, Any]],
+    drr_table: DRRTable,
+    workload_options: list[dict[str, Any]],
+    grid: ui.aggrid,
+    stats_container: ui.column,
+) -> None:
+    """Apply a workload category to all selected rows."""
+    selected = await grid.get_selected_rows()
+    if not selected:
+        ui.notify("No rows selected. Use checkboxes to select VMs first.", type="warning")
+        return
+
+    # Build options for the dialog
+    options_list = [{"label": opt["label"], "value": opt["label"]} for opt in workload_options]
+    dialog = WorkloadDialog(
+        f"{len(selected)} selected VMs",
+        [],
+        options_list,
+    )
+    result = await dialog
+
+    if result is None or len(result) == 0:
+        return
+
+    # Resolve selected label to category/subcategory
+    selected_label = result[0]
+    new_category = ""
+    new_subcategory = ""
+    for opt in workload_options:
+        if opt["label"] == selected_label:
+            new_category = str(opt["category"])
+            new_subcategory = str(opt["subcategory"])
+            break
+
+    if not new_category:
+        return
+
+    new_drr = drr_table.get_ratio(new_category, new_subcategory)
+    selected_names = {r["vm_name"] for r in selected}
+
+    # Update all selected rows
+    for row in row_data:
+        if row.get("vm_name") in selected_names:
+            row["workload_category"] = new_category
+            row["workload_subcategory"] = new_subcategory
+            row["drr"] = new_drr
+
+    # Capture filter/page state before update
+    filter_model = await grid.run_grid_method("getFilterModel")
+    current_page = await grid.run_grid_method("paginationGetCurrentPage")
+
+    # Refresh grid and stats
+    grid.options["rowData"] = row_data
+    grid.update()
+    _rebuild_stats(stats_container, row_data)
+
+    # Restore filter/page state
+    if filter_model:
+        grid.run_grid_method("setFilterModel", filter_model)
+    if current_page is not None and current_page > 0:
+        grid.run_grid_method("paginationGoToPage", current_page)
+
+    # Persist to session
+    save_session_data(pd.DataFrame(row_data), get_project_name())
+    ui.notify(f"Updated {len(selected_names)} VMs to {new_category} / {new_subcategory}", type="positive")
 
 
 async def _handle_cell_change(
