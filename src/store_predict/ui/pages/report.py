@@ -46,25 +46,24 @@ async def report_page() -> None:
             if project_name:
                 ui.label(f"Project: {project_name}").classes("text-lg text-gray-500")
 
-        # VM overview cards
-        ui.label("VM Overview").classes("text-xl font-semibold")
+        # Totals cards
+        ui.label("Totals").classes("text-xl font-semibold")
         with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
             _summary_card("Total VMs", str(summary.total_vms))
             _summary_card("Total vCPUs", f"{summary.total_cpus:,}")
-            _summary_card("Avg vCPUs / VM", f"{summary.avg_vm_cpus:.1f}")
             _summary_card("Total Memory", format_storage(summary.total_memory_mib))
-            _summary_card("Avg Memory / VM", format_storage(summary.avg_vm_memory_mib))
-            _summary_card("Largest VM", f"{summary.largest_vm_name}")
-
-        # Storage summary cards
-        ui.label("Storage Summary").classes("text-xl font-semibold")
-        with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
             _summary_card("Total Provisioned", format_storage(summary.total_provisioned_mib))
             _summary_card("Total In Use", format_storage(summary.total_in_use_mib))
-            _summary_card("Avg VM Storage", format_storage(summary.avg_vm_size_mib))
-            _summary_card("Largest VM Size", format_storage(summary.largest_vm_provisioned_mib))
-            _summary_card("Weighted Avg DRR", f"{summary.weighted_avg_drr:.1f}x")
             _summary_card("Required Capacity", format_storage(summary.total_required_mib))
+
+        # Averages cards
+        ui.label("Averages").classes("text-xl font-semibold")
+        with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
+            _summary_card("Avg vCPUs / VM", f"{summary.avg_vm_cpus:.1f}")
+            _summary_card("Avg Memory / VM", format_storage(summary.avg_vm_memory_mib))
+            _summary_card("Avg Storage / VM", format_storage(summary.avg_vm_size_mib))
+            _summary_card("Weighted Avg DRR", f"{summary.weighted_avg_drr:.1f}x")
+            _summary_card("Largest VM", f"{summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})")
 
         # Performance summary cards (only when LiveOptics data available)
         if summary.has_performance_data:

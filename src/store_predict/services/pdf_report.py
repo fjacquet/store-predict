@@ -135,30 +135,30 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
 
     story: list[object] = []
 
-    # --- Summary section ---------------------------------------------------
-    story.append(Paragraph("Summary", heading_style))
-    summary_lines = [
+    # --- Totals section ----------------------------------------------------
+    story.append(Paragraph("Totals", heading_style))
+    totals_lines = [
         f"<b>Total VMs:</b> {summary.total_vms}",
-        f"<b>Provisioned:</b> {format_storage(summary.total_provisioned_mib)}",
-        f"<b>In Use:</b> {format_storage(summary.total_in_use_mib)}",
-        f"<b>Weighted Avg DRR:</b> {summary.weighted_avg_drr:.2f}",
+        f"<b>Total vCPUs:</b> {summary.total_cpus:,}",
+        f"<b>Total Memory:</b> {format_storage(summary.total_memory_mib)}",
+        f"<b>Total Provisioned:</b> {format_storage(summary.total_provisioned_mib)}",
+        f"<b>Total In Use:</b> {format_storage(summary.total_in_use_mib)}",
         f"<b>Required Capacity:</b> {format_storage(summary.total_required_mib)}",
     ]
-    for line in summary_lines:
+    for line in totals_lines:
         story.append(Paragraph(line, body_style))
     story.append(Spacer(1, 10))
 
-    # --- VM Statistics section ---------------------------------------------
-    story.append(Paragraph("VM Statistics", heading_style))
-    vm_stats_lines = [
-        f"<b>Total vCPUs:</b> {summary.total_cpus:,}",
+    # --- Averages section --------------------------------------------------
+    story.append(Paragraph("Averages", heading_style))
+    avg_lines = [
         f"<b>Avg vCPUs / VM:</b> {summary.avg_vm_cpus:.1f}",
-        f"<b>Total Memory:</b> {format_storage(summary.total_memory_mib)}",
         f"<b>Avg Memory / VM:</b> {format_storage(summary.avg_vm_memory_mib)}",
         f"<b>Avg Storage / VM:</b> {format_storage(summary.avg_vm_size_mib)}",
+        f"<b>Weighted Avg DRR:</b> {summary.weighted_avg_drr:.2f}",
         f"<b>Largest VM:</b> {summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})",
     ]
-    for line in vm_stats_lines:
+    for line in avg_lines:
         story.append(Paragraph(line, body_style))
     story.append(Spacer(1, 10))
 
