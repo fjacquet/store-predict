@@ -2,8 +2,8 @@
 
 ## Current Phase
 
-Phase 6: Polish, Docs & Deployment (IN PROGRESS)
-Plans: 5 of 5 complete
+Phase 7: UI Bug Fixes & Report Enhancements (IN PROGRESS)
+Plans: 1 of 5 complete
 
 ## Milestone
 
@@ -35,7 +35,7 @@ v1.0 — MVP Sizing Tool
 
 ## Next Action
 
-Execute Phase 6 Plan 05 (remaining polish).
+Execute Phase 7 Plan 02 (classification improvements).
 
 ## Decisions
 
@@ -77,6 +77,9 @@ Execute Phase 6 Plan 05 (remaining polish).
 - [Phase 06]: README links to GitHub Pages docs site
 - [Phase 06]: validate_upload() runs before temp file write to reject bad files early
 - [Phase 06]: Session isolation verified architecturally via source code inspection of app.storage.tab
+- [Phase 07]: Performance columns default to NaN (not 0) for clean downstream aggregation
+- [Phase 07]: 8K equivalent IOPS = avg_iops + (avg_throughput_kbs / 8.0) per research formula
+- [Phase 07]: Throughput KB/s to MB/s conversion at parser level for early normalization
 - [Phase 07]: Fire-and-forget setFilterModel/paginationGoToPage to avoid JS timeout
 - [Phase 07]: enableClickSelection: False so row clicks open dialog, checkboxes handle selection
 
@@ -100,6 +103,7 @@ Execute Phase 6 Plan 05 (remaining polish).
 | Phase 06 P03 | 2min | 1 tasks | 1 files |
 | Phase 06 P05 | 1min | 2 tasks | 2 files |
 | 06    | 04   | 2min     | 2     | 5     |
+| 07    | 01   | 3min     | 2     | 5     |
 | Phase 07 P03 | 2min | 2 tasks | 2 files |
 
 ## Roadmap Evolution
@@ -117,8 +121,8 @@ Execute Phase 6 Plan 05 (remaining polish).
 
 ## Last Session
 
-- **Stopped at:** Completed 07-03-PLAN.md
-- **Timestamp:** 2026-02-19T06:07:21Z
+- **Stopped at:** Completed 07-01-PLAN.md
+- **Timestamp:** 2026-02-19T12:40:21Z
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
