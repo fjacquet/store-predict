@@ -5,6 +5,7 @@ Pure pipeline module with zero UI imports.
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
@@ -27,6 +28,10 @@ class VMCalculation:
     in_use_mib: float
     drr: float
     required_mib: float
+    peak_iops: float = 0.0
+    avg_iops: float = 0.0
+    peak_throughput_mbs: float = 0.0
+    iops_8k_equivalent: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -52,6 +57,14 @@ class CalculationSummary:
     total_in_use_mib: float
     total_required_mib: float
     weighted_avg_drr: float
+    avg_vm_size_mib: float = 0.0
+    largest_vm_name: str = ""
+    largest_vm_provisioned_mib: float = 0.0
+    total_peak_iops: float = 0.0
+    total_avg_iops: float = 0.0
+    peak_throughput_mbs: float = 0.0
+    total_iops_8k_equivalent: float = 0.0
+    has_performance_data: bool = False
 
 
 def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
@@ -75,6 +88,16 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
             weighted_avg_drr=0.0,
         )
 
+    def _safe_float(val: object) -> float:
+        """Convert value to float, returning 0.0 for None/NaN/non-numeric."""
+        if val is None:
+            return 0.0
+        try:
+            f = float(val)
+            return 0.0 if math.isnan(f) else f
+        except (TypeError, ValueError):
+            return 0.0
+
     # Per-VM calculations
     vm_calcs: list[VMCalculation] = []
     for row in row_data:
@@ -85,6 +108,11 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
         drr = max(float(row.get("drr", 5.0)), 0.1)
         required_mib = provisioned_mib / drr
 
+        peak_iops = _safe_float(row.get("peak_iops"))
+        avg_iops = _safe_float(row.get("avg_iops"))
+        peak_throughput_mbs = _safe_float(row.get("peak_throughput_mbs"))
+        iops_8k_equivalent = _safe_float(row.get("iops_8k_equivalent"))
+
         vm_calcs.append(
             VMCalculation(
                 vm_name=vm_name,
@@ -93,6 +121,10 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
                 in_use_mib=in_use_mib,
                 drr=drr,
                 required_mib=required_mib,
+                peak_iops=peak_iops,
+                avg_iops=avg_iops,
+                peak_throughput_mbs=peak_throughput_mbs,
+                iops_8k_equivalent=iops_8k_equivalent,
             )
         )
 
@@ -126,12 +158,36 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
     total_required = sum(v.required_mib for v in vm_calcs)
     weighted_avg_drr = total_provisioned / total_required if total_required > 0 else 0.0
 
+    # VM statistics
+    total_vms = len(vm_calcs)
+    avg_vm_size_mib = total_provisioned / total_vms if total_vms > 0 else 0.0
+
+    # Largest VM by provisioned size
+    largest_vm = max(vm_calcs, key=lambda v: v.provisioned_mib)
+    largest_vm_name = largest_vm.vm_name
+    largest_vm_provisioned_mib = largest_vm.provisioned_mib
+
+    # Performance totals
+    has_performance_data = any(v.peak_iops > 0 for v in vm_calcs)
+    total_peak_iops = sum(v.peak_iops for v in vm_calcs)
+    total_avg_iops = sum(v.avg_iops for v in vm_calcs)
+    peak_throughput_mbs = max((v.peak_throughput_mbs for v in vm_calcs), default=0.0)
+    total_iops_8k_equivalent = sum(v.iops_8k_equivalent for v in vm_calcs)
+
     return CalculationSummary(
         vm_calculations=vm_calcs,
         workload_groups=workload_groups,
-        total_vms=len(vm_calcs),
+        total_vms=total_vms,
         total_provisioned_mib=total_provisioned,
         total_in_use_mib=total_in_use,
         total_required_mib=total_required,
         weighted_avg_drr=weighted_avg_drr,
+        avg_vm_size_mib=avg_vm_size_mib,
+        largest_vm_name=largest_vm_name,
+        largest_vm_provisioned_mib=largest_vm_provisioned_mib,
+        total_peak_iops=total_peak_iops,
+        total_avg_iops=total_avg_iops,
+        peak_throughput_mbs=peak_throughput_mbs,
+        total_iops_8k_equivalent=total_iops_8k_equivalent,
+        has_performance_data=has_performance_data,
     )
