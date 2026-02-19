@@ -72,7 +72,7 @@ async def review_page() -> None:
             if val is None or val == "":
                 return False
             try:
-                return float(val) > 0
+                return float(val) > 0  # type: ignore[arg-type]
             except (TypeError, ValueError):
                 return False
 

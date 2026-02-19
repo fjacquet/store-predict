@@ -63,7 +63,9 @@ async def report_page() -> None:
             _summary_card("Avg Memory / VM", format_storage(summary.avg_vm_memory_mib))
             _summary_card("Avg Storage / VM", format_storage(summary.avg_vm_size_mib))
             _summary_card("Weighted Avg DRR", f"{summary.weighted_avg_drr:.1f}x")
-            _summary_card("Largest VM", f"{summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})")
+            _summary_card(
+                "Largest VM", f"{summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})"
+            )
 
         # Performance summary cards (only when LiveOptics data available)
         if summary.has_performance_data:

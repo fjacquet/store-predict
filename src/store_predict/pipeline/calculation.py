@@ -98,7 +98,7 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
         if val is None:
             return 0.0
         try:
-            f = float(val)
+            f = float(val)  # type: ignore[arg-type]
             return 0.0 if math.isnan(f) else f
         except (TypeError, ValueError):
             return 0.0
