@@ -73,7 +73,8 @@ class TestCalculationPerformance:
         summary = calculate(rows)
 
         assert summary.has_performance_data is True
-        assert summary.total_peak_iops == pytest.approx(800.0)
+        assert summary.max_vm_peak_iops == pytest.approx(500.0)
+        assert summary.max_vm_peak_iops_name == "Perf-VM-1"
         assert summary.total_avg_iops == pytest.approx(350.0)
         assert summary.peak_throughput_mbs == pytest.approx(100.0)  # max, not sum
         assert summary.total_iops_8k_equivalent == pytest.approx(430.0)
@@ -84,7 +85,7 @@ class TestCalculationPerformance:
         summary = calculate(rows)
 
         assert summary.has_performance_data is False
-        assert summary.total_peak_iops == pytest.approx(0.0)
+        assert summary.max_vm_peak_iops == pytest.approx(0.0)
         assert summary.total_avg_iops == pytest.approx(0.0)
 
     def test_calculation_empty_data(self) -> None:
@@ -96,5 +97,5 @@ class TestCalculationPerformance:
         assert summary.largest_vm_name == ""
         assert summary.largest_vm_provisioned_mib == pytest.approx(0.0)
         assert summary.has_performance_data is False
-        assert summary.total_peak_iops == pytest.approx(0.0)
+        assert summary.max_vm_peak_iops == pytest.approx(0.0)
         assert summary.peak_throughput_mbs == pytest.approx(0.0)

@@ -166,8 +166,8 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
     if summary.has_performance_data:
         story.append(Paragraph("Performance Summary", heading_style))
         perf_lines = [
-            f"<b>Total Peak IOPS:</b> {summary.total_peak_iops:,.0f}",
             f"<b>Total Average IOPS:</b> {summary.total_avg_iops:,.0f}",
+            f"<b>Hottest VM Peak IOPS:</b> {summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})",
             f"<b>Peak Throughput:</b> {summary.peak_throughput_mbs:,.1f} MB/s",
             f"<b>Total 8K Equivalent IOPS:</b> {summary.total_iops_8k_equivalent:,.0f}",
         ]

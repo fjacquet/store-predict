@@ -70,8 +70,8 @@ async def report_page() -> None:
         if summary.has_performance_data:
             ui.label("Performance Summary").classes("text-xl font-semibold")
             with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
-                _summary_card("Total Peak IOPS", f"{summary.total_peak_iops:,.0f}")
                 _summary_card("Total Avg IOPS", f"{summary.total_avg_iops:,.0f}")
+                _summary_card("Hottest VM Peak", f"{summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})")
                 _summary_card("Peak Throughput", f"{summary.peak_throughput_mbs:,.1f} MB/s")
                 _summary_card("8K Eq. IOPS", f"{summary.total_iops_8k_equivalent:,.0f}")
 

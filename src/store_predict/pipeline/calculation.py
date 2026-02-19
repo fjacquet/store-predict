@@ -64,8 +64,9 @@ class CalculationSummary:
     total_memory_mib: float = 0.0
     largest_vm_name: str = ""
     largest_vm_provisioned_mib: float = 0.0
-    total_peak_iops: float = 0.0
     total_avg_iops: float = 0.0
+    max_vm_peak_iops: float = 0.0
+    max_vm_peak_iops_name: str = ""
     peak_throughput_mbs: float = 0.0
     total_iops_8k_equivalent: float = 0.0
     has_performance_data: bool = False
@@ -179,8 +180,10 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
 
     # Performance totals
     has_performance_data = any(v.peak_iops > 0 for v in vm_calcs)
-    total_peak_iops = sum(v.peak_iops for v in vm_calcs)
     total_avg_iops = sum(v.avg_iops for v in vm_calcs)
+    hottest_vm = max(vm_calcs, key=lambda v: v.peak_iops)
+    max_vm_peak_iops = hottest_vm.peak_iops
+    max_vm_peak_iops_name = hottest_vm.vm_name
     peak_throughput_mbs = max((v.peak_throughput_mbs for v in vm_calcs), default=0.0)
     total_iops_8k_equivalent = sum(v.iops_8k_equivalent for v in vm_calcs)
 
@@ -199,8 +202,9 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
         total_memory_mib=total_memory_mib,
         largest_vm_name=largest_vm_name,
         largest_vm_provisioned_mib=largest_vm_provisioned_mib,
-        total_peak_iops=total_peak_iops,
         total_avg_iops=total_avg_iops,
+        max_vm_peak_iops=max_vm_peak_iops,
+        max_vm_peak_iops_name=max_vm_peak_iops_name,
         peak_throughput_mbs=peak_throughput_mbs,
         total_iops_8k_equivalent=total_iops_8k_equivalent,
         has_performance_data=has_performance_data,

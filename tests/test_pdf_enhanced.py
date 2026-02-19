@@ -23,7 +23,8 @@ def _make_summary(
     largest_vm_name: str = "Big-VM",
     largest_vm_provisioned_mib: float = 20000.0,
     has_performance_data: bool = False,
-    total_peak_iops: float = 0.0,
+    max_vm_peak_iops: float = 0.0,
+    max_vm_peak_iops_name: str = "",
     total_avg_iops: float = 0.0,
     peak_throughput_mbs: float = 0.0,
     total_iops_8k_equivalent: float = 0.0,
@@ -62,7 +63,8 @@ def _make_summary(
         largest_vm_name=largest_vm_name,
         largest_vm_provisioned_mib=largest_vm_provisioned_mib,
         has_performance_data=has_performance_data,
-        total_peak_iops=total_peak_iops,
+        max_vm_peak_iops=max_vm_peak_iops,
+        max_vm_peak_iops_name=max_vm_peak_iops_name,
         total_avg_iops=total_avg_iops,
         peak_throughput_mbs=peak_throughput_mbs,
         total_iops_8k_equivalent=total_iops_8k_equivalent,
@@ -100,7 +102,7 @@ class TestPDFPerformanceSection:
         """PDF with performance data is larger than without (extra section)."""
         summary_with = _make_summary(
             has_performance_data=True,
-            total_peak_iops=1500.0,
+            max_vm_peak_iops=1500.0,
             total_avg_iops=800.0,
             peak_throughput_mbs=200.0,
             total_iops_8k_equivalent=1000.0,
