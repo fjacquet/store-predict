@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-StorePredict is a full-Python web tool for Dell pre-sales engineers. It analyzes VMware workload exports (RVTools .xlsx, LiveOptics .xlsx/.csv) to predict Data Reduction Ratios (DRR) on Dell PowerStore arrays. Users upload a file, review auto-classified VMs, adjust workload types, and export a one-page PDF sizing report.
+StorePredict is a full-Python web tool for  pre-sales engineers. It analyzes VMware workload exports (RVTools .xlsx, LiveOptics .xlsx/.csv) to predict Data Reduction Ratios (DRR) on Dell PowerStore arrays. Users upload a file, review auto-classified VMs, adjust workload types, and export a one-page PDF sizing report.
 
 ## Tech Stack
 

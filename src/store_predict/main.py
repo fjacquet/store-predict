@@ -17,7 +17,7 @@ def index_page() -> None:
 
     with layout(), ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"):
         ui.label(APP_TITLE).classes("text-4xl font-bold text-blue-900")
-        ui.label("Dell PowerStore DRR Sizing Tool").classes("text-xl text-gray-600")
+        ui.label(" PowerStore DRR Sizing Tool").classes("text-xl text-gray-600")
         ui.label(
             "Analyze VMware workload exports (RVTools, LiveOptics) to predict "
             "Data Reduction Ratios on Dell PowerStore arrays."

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A web-based tool for Dell pre-sales engineers that analyzes VMware workload exports (RVTools .xlsx, LiveOptics .xlsx/.csv) to predict Data Reduction Ratios (DRR) on Dell PowerStore arrays. It classifies VMs by workload type, applies the appropriate DRR coefficient, and generates a one-page PDF sizing report for customer proposals.
+A web-based tool for pre-sales engineers that analyzes VMware workload exports (RVTools .xlsx, LiveOptics .xlsx/.csv) to predict Data Reduction Ratios (DRR) on Dell PowerStore arrays. It classifies VMs by workload type, applies the appropriate DRR coefficient, and generates a one-page PDF sizing report for customer proposals.
 
 ## Core Value
 
