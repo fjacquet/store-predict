@@ -1,0 +1,29 @@
+﻿Workload Category;Application/Use case;Data Reduction Ratio
+Database;Oracle;5
+Database;Microsoft SQL;5
+Database;My SQL / NoSQL;5
+Database;DB2;1.5
+Database;MongoDB;1.5
+Database;PostgreSQL;1.5
+Database;Prometheus;1.5
+Database;SAP HANA(S4);2
+Database;SAP Traditional (R/3 / ECC);5
+HealthCare;EMR/EHR (Epic, McKesson);3
+File;General Purpose;2
+File;Archive / Backup / Compressed / Encrypted / Rich Media / ISO / PACS / CAD;1
+File;Content Servers (Git, Sharepoint);2
+File;Developer Workspaces (DevOps);2
+VDI;Full Clone / MCS (Citrix);8
+VDI;Linked Clone / PVS (Citrix);2
+VDI;Instant Clone;1
+VDI;VDI Profiles;2
+Logging - Analytics;FortiNet, Elastic Search, Splunk, ELK, etc;1.5
+Email;Domino/Notes, Exchange, Sendmail, Zimbra, etc;2
+Containers;Kubernetes, OpenShift, Docker, Tanzu, etc;2
+Virtual Machines;VMware / Hyper-V / KVM - No Database, File nor Email;5
+VM Replication;Veeam, Zerto, RP4VM;1.5
+Boot from SAN;Linux, VMware, Windows - OS Boot;1.5
+Web Servers;Content included;1.5
+Web Servers;Content not included;5
+Unknown (Reducible);Unknown (Reducible);5
+Custom DRR;Custom DRR;3
