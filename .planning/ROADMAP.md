@@ -107,22 +107,22 @@ Plans:
 
 Plans:
 
-- [ ] 04-01-PLAN.md — Session state module and upload page with pipeline integration
-- [ ] 04-02-PLAN.md — UI components: AG Grid table, workload dialog, summary stats
-- [ ] 04-03-PLAN.md — Review page assembly, dark mode toggle, navigation wiring
+- [x] 04-01-PLAN.md — Session state module and upload page with pipeline integration
+- [x] 04-02-PLAN.md — UI components: AG Grid table, workload dialog, summary stats
+- [x] 04-03-PLAN.md — Review page assembly, dark mode toggle, navigation wiring
 
 **Deliverables:**
 
-- [ ] Upload page: file dropzone, format auto-detection, project name input
-- [ ] Per-session state management (uploaded DataFrame, classifications, overrides)
-- [ ] Review page: AG Grid table with VM data + detected workload + DRR
-- [ ] Single-select workload dropdown in table cells
-- [ ] Multi-select workload dialog (click row → dialog with multi-select)
-- [ ] Conservative DRR recalculation on workload change
-- [ ] Real-time summary statistics (total VMs, total provisioned, avg DRR)
-- [ ] Navigation between Upload → Review
-- [ ] Tailwind CSS styling (layout, cards, colors)
-- [ ] Dark/light mode toggle with session-persisted preference
+- [x] Upload page: file dropzone, format auto-detection, project name input
+- [x] Per-session state management (uploaded DataFrame, classifications, overrides)
+- [x] Review page: AG Grid table with VM data + detected workload + DRR
+- [x] Single-select workload dropdown in table cells
+- [x] Multi-select workload dialog (click row → dialog with multi-select)
+- [x] Conservative DRR recalculation on workload change
+- [x] Real-time summary statistics (total VMs, total provisioned, avg DRR)
+- [x] Navigation between Upload → Review
+- [x] Tailwind CSS styling (layout, cards, colors)
+- [x] Dark/light mode toggle with session-persisted preference
 
 **Success criteria:** Upload a LiveOptics file, see classified VMs in table, change workloads, see DRR update.
 

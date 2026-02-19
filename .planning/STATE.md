@@ -2,8 +2,8 @@
 
 ## Current Phase
 
-Phase 4: UI Upload & Review Pages (IN PROGRESS)
-Plans: 2 of 3 complete
+Phase 4: UI Upload & Review Pages (COMPLETE)
+Plans: 3 of 3 complete
 
 ## Milestone
 
@@ -25,9 +25,11 @@ v1.0 — MVP Sizing Tool
 - [x] Plan 04-01: Upload page with pipeline integration, session state, dark mode toggle
 - [x] Plan 04-02: UI components (AG Grid VM table, workload dialog, summary stats)
 
+- [x] Plan 04-03: Review page assembly, dark mode toggle, navigation wiring
+
 ## Next Action
 
-Execute Plan 04-03 (Review page wiring components together).
+Execute Phase 5 (Calculation & PDF Report).
 
 ## Decisions
 
@@ -51,6 +53,9 @@ Execute Plan 04-03 (Review page wiring components together).
 - Used agSelectCellEditor for inline single-workload dropdown (AG Grid community)
 - WorkloadDialog uses persistent prop and use-chips to prevent accidental close
 - Summary stats use get() with defaults for robustness with incomplete data
+- Stats container clear+rebuild pattern for real-time updates after workload changes
+- Dark mode bound to app.storage.user (not tab) for cross-page persistence
+- Row click: multi-select dialog; cell edit: inline dropdown -- both update DRR conservatively
 
 ## Performance Metrics
 
@@ -64,6 +69,7 @@ Execute Plan 04-03 (Review page wiring components together).
 | 03    | 02   | 4min     | 2     | 1     |
 | 04    | 01   | 5min     | 2     | 4     |
 | 04    | 02   | 4min     | 2     | 4     |
+| 04    | 03   | 6min     | 1     | 6     |
 
 ## Notes
 
@@ -76,8 +82,8 @@ Execute Plan 04-03 (Review page wiring components together).
 
 ## Last Session
 
-- **Stopped at:** Re-executed 04-01-PLAN.md (upload page + session state)
-- **Timestamp:** 2026-02-18T22:10:00Z
+- **Stopped at:** Completed 04-03-PLAN.md (review page assembly, Phase 4 complete)
+- **Timestamp:** 2026-02-19T03:59:00Z
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
