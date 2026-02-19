@@ -9,6 +9,7 @@ graph LR
     P3 --> P4[Phase 4: UI Review]
     P4 --> P5[Phase 5: Calculation & Report]
     P5 --> P6[Phase 6: Polish & Deploy]
+    P5 --> P7[Phase 7: UI Fixes & Report]
 ```
 
 ---
@@ -187,14 +188,46 @@ Plans:
 
 **Success criteria:** `docker compose up` serves the app, docs deployed to GitHub Pages, CI green.
 
-### Phase 7: UI bug fixes and report enhancements
+## Phase 7: UI Bug Fixes & Report Enhancements
 
-**Goal:** [To be planned]
-**Depends on:** Phase 6
+**Goal:** Fix AG Grid interaction bugs, enrich report with VM statistics, add storage performance sizing from LiveOptics, and improve classification accuracy by filtering company name prefixes.
+
+**Depends on:** Phase 5
+
 **Plans:** 0 plans
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 7 to break down)
+
+**Deliverables:**
+
+*UI Bug Fixes:*
+- [ ] Fix multi-row selection in AG Grid (currently broken)
+- [ ] Preserve active filters after workload modification
+- [ ] Preserve current page position after workload modification
+- [ ] Display VM characteristics in review table (including Description field)
+
+*Report Enhancements:*
+- [ ] Add to PDF report: total number of VMs
+- [ ] Add to PDF report: average VM size
+- [ ] Add to PDF report: largest VM details
+
+*Storage Performance Sizing (LiveOptics only):*
+- [ ] Parse VM Performance sheet (IOPS, throughput, latency) and join with VMs sheet
+- [ ] Add performance columns to canonical DataFrame (Peak/Avg IOPS, Peak/Avg MB/s, Peak/Avg Latency)
+- [ ] Display performance metrics in review table
+- [ ] Include performance summary in PDF report (total IOPS, peak throughput)
+- [ ] Compute normalized 8K equivalent IOPS per VM (from IOPS + throughput → single comparable metric)
+- [ ] Display 8K equivalent IOPS in review table and PDF report as primary performance indicator
+- [ ] Graceful fallback when performance data unavailable (RVTools, LiveOptics CSV)
+
+*Classification Improvement:*
+- [ ] Detect and strip company name prefix from VM names before pattern matching
+- [ ] Configurable company name patterns (e.g. "ACME-", "CORP") to ignore during classification
+- [ ] Use VM Description and Notes fields for classification matching (currently only vm_name + os_name)
+- [ ] Parse Description/Notes columns from RVTools (vInfo has "Annotation") and LiveOptics
+
+**Success criteria:** Multi-select works, filters/page survive edits, PDF report includes VM count/avg/largest/performance stats, LiveOptics performance data parsed and displayed, company name prefixes excluded from classification matching.
 
 ---
 
@@ -208,6 +241,7 @@ graph TD
     P3 --> P4
     P4 --> P5[Phase 5: Calc & PDF]
     P5 --> P6[Phase 6: Polish & Deploy]
+    P5 --> P7[Phase 7: UI Fixes & Report]
 ```
 
 Phases 2 and 3 can be developed in parallel after Phase 1 completes.
