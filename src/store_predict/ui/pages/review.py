@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import math
 from typing import Any
 
 import pandas as pd
@@ -41,8 +40,9 @@ async def review_page() -> None:
     workload_options = get_workload_options()
     categories = drr_table.categories
 
-    # Prepare row data for AG Grid
-    row_data: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
+    # Prepare row data for AG Grid — replace NaN with None for JSON serialization
+    df_clean = df.where(df.notna(), other=None)
+    row_data: list[dict[str, Any]] = df_clean.to_dict(orient="records")  # type: ignore[assignment]
 
     with (
         layout("StorePredict - Review"),
@@ -61,15 +61,11 @@ async def review_page() -> None:
             build_summary_stats(row_data)
 
         # Build "Category / Subcategory" labels for inline dropdown
-        subcategory_labels = [
-            f"{opt['category']} / {opt['subcategory']}" for opt in workload_options
-        ]
+        subcategory_labels = [f"{opt['category']} / {opt['subcategory']}" for opt in workload_options]
 
-        # Detect performance data availability
+        # Detect performance data availability (NaN already replaced with None)
         has_perf = any(
-            r.get("peak_iops") is not None
-            and not (isinstance(r.get("peak_iops"), float) and math.isnan(r["peak_iops"]))
-            and float(r.get("peak_iops", 0)) > 0
+            r.get("peak_iops") is not None and float(r["peak_iops"]) > 0
             for r in row_data
         )
 
