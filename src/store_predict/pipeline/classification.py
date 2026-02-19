@@ -120,12 +120,22 @@ class RuleRegistry:
 
         Company prefixes are stripped from *vm_name* before matching
         (configured via :data:`~store_predict.config.COMPANY_PREFIX_PATTERNS`).
-        The optional *description* parameter is passed through to rule matching
-        as a fallback signal.
+
+        A two-pass approach ensures direct vm_name/os_name matches always
+        take priority over description-based fallback matches:
+
+        1. First pass: match without description (direct matches only).
+        2. Second pass: match with description as fallback signal.
         """
         vm_name = strip_company_prefix(vm_name, COMPANY_PREFIX_PATTERNS)
+
+        # Pass 1: direct matches (no description fallback)
+        # When description is available, skip the catch-all default rule so
+        # that pass 2 gets a chance to find a better match via description.
         for rule in self._rules:
-            if rule.matches(vm_name, os_name, description):
+            if description and rule.priority >= 999:
+                continue
+            if rule.matches(vm_name, os_name):
                 if rule.priority < 900:
                     confidence = "rule_match"
                 elif rule.priority <= 998:
@@ -138,6 +148,23 @@ class RuleRegistry:
                     rule_name=rule.name,
                     confidence=confidence,
                 )
+
+        # Pass 2: try again with description as fallback signal
+        if description:
+            for rule in self._rules:
+                if rule.matches(vm_name, os_name, description):
+                    if rule.priority < 900:
+                        confidence = "rule_match"
+                    elif rule.priority <= 998:
+                        confidence = "os_fallback"
+                    else:
+                        confidence = "default"
+                    return ClassificationResult(
+                        category=rule.category,
+                        subcategory=rule.subcategory,
+                        rule_name=rule.name,
+                        confidence=confidence,
+                    )
         # Fallback (should never reach here if default rule exists)
         return ClassificationResult(
             category="Unknown (Reducible)",
