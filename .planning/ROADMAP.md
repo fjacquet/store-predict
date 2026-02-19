@@ -134,6 +134,14 @@ Plans:
 
 **Requirements covered:** FR-5.1, FR-5.2, FR-5.3, FR-5.4, FR-6.1, FR-6.2, FR-6.3, FR-6.4, FR-6.5
 
+**Plans:** 3 plans
+
+Plans:
+
+- [ ] 05-01-PLAN.md — Calculation service TDD: per-VM required capacity, totals, workload grouping
+- [ ] 05-02-PLAN.md — PDF report generator with ReportLab Platypus, Vera fonts, and tests
+- [ ] 05-03-PLAN.md — Report page UI, PDF download button, navigation wiring
+
 **Deliverables:**
 
 - [ ] Calculation service: per-VM required capacity, totals, workload grouping
