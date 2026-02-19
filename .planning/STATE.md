@@ -3,7 +3,7 @@
 ## Current Phase
 
 Phase 6: Polish, Docs & Deployment (IN PROGRESS)
-Plans: 1 of 5 complete
+Plans: 5 of 5 complete
 
 ## Milestone
 
@@ -75,6 +75,8 @@ Execute Phase 6 Plan 05 (remaining polish).
 - [Phase 06]: HEALTHCHECK uses stdlib urllib.request (no extra deps)
 - [Phase 06]: 3 Mermaid diagrams for architecture docs (pipeline, data flow, session model)
 - [Phase 06]: README links to GitHub Pages docs site
+- [Phase 06]: validate_upload() runs before temp file write to reject bad files early
+- [Phase 06]: Session isolation verified architecturally via source code inspection of app.storage.tab
 
 ## Performance Metrics
 
@@ -112,7 +114,7 @@ Execute Phase 6 Plan 05 (remaining polish).
 
 ## Last Session
 
-- **Stopped at:** Completed 06-04-PLAN.md
+- **Stopped at:** Completed 06-02-PLAN.md
 - **Timestamp:** 2026-02-19T06:07:21Z
 
 <!-- rtk-instructions v2 -->
