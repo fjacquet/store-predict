@@ -2,8 +2,8 @@
 
 ## Current Phase
 
-Phase 4: UI Upload & Review Pages (COMPLETE)
-Plans: 3 of 3 complete
+Phase 5: Calculation & PDF Report (IN PROGRESS)
+Plans: 1 of 3 complete
 
 ## Milestone
 
@@ -56,6 +56,8 @@ Execute Phase 5 (Calculation & PDF Report).
 - Stats container clear+rebuild pattern for real-time updates after workload changes
 - Dark mode bound to app.storage.user (not tab) for cross-page persistence
 - Row click: multi-select dialog; cell edit: inline dropdown -- both update DRR conservatively
+- [Phase 05]: DRR guard uses max(drr, 0.1) to prevent division by zero
+- [Phase 05]: Weighted avg DRR = total_provisioned / total_required (not simple average)
 
 ## Performance Metrics
 
@@ -70,6 +72,7 @@ Execute Phase 5 (Calculation & PDF Report).
 | 04    | 01   | 5min     | 2     | 4     |
 | 04    | 02   | 4min     | 2     | 4     |
 | 04    | 03   | 6min     | 1     | 6     |
+| Phase 05 P01 | 3min | 2 tasks | 3 files |
 
 ## Notes
 
@@ -82,7 +85,7 @@ Execute Phase 5 (Calculation & PDF Report).
 
 ## Last Session
 
-- **Stopped at:** Completed 04-03-PLAN.md (review page assembly, Phase 4 complete)
+- **Stopped at:** Completed 05-01-PLAN.md
 - **Timestamp:** 2026-02-19T03:59:00Z
 
 <!-- rtk-instructions v2 -->
