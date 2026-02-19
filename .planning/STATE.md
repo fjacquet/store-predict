@@ -3,7 +3,7 @@
 ## Current Phase
 
 Phase 5: Calculation & PDF Report (IN PROGRESS)
-Plans: 1 of 3 complete
+Plans: 2 of 3 complete
 
 ## Milestone
 
@@ -58,6 +58,8 @@ Execute Phase 5 (Calculation & PDF Report).
 - Row click: multi-select dialog; cell edit: inline dropdown -- both update DRR conservatively
 - [Phase 05]: DRR guard uses max(drr, 0.1) to prevent division by zero
 - [Phase 05]: Weighted avg DRR = total_provisioned / total_required (not simple average)
+- [Phase 05]: Canvas type in TYPE_CHECKING block for ReportLab PDF generation
+- [Phase 05]: Vera/VeraBd fonts registered at module level for French character support
 
 ## Performance Metrics
 
@@ -73,6 +75,7 @@ Execute Phase 5 (Calculation & PDF Report).
 | 04    | 02   | 4min     | 2     | 4     |
 | 04    | 03   | 6min     | 1     | 6     |
 | Phase 05 P01 | 3min | 2 tasks | 3 files |
+| 05    | 02   | 5min     | 2     | 2     |
 
 ## Notes
 
@@ -85,8 +88,8 @@ Execute Phase 5 (Calculation & PDF Report).
 
 ## Last Session
 
-- **Stopped at:** Completed 05-01-PLAN.md
-- **Timestamp:** 2026-02-19T03:59:00Z
+- **Stopped at:** Completed 05-02-PLAN.md
+- **Timestamp:** 2026-02-19T05:25:50Z
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
