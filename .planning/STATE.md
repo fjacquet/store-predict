@@ -34,7 +34,7 @@ v1.1 — i18n, Branding & Intelligence
 
 ## Next Action
 
-Define requirements for v1.1 milestone, then create roadmap.
+Plan Phase 8 (i18n Foundation) — run `/gsd:plan-phase 8`
 
 ## Project Reference
 
@@ -134,7 +134,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** v1.1 milestone initialization
+- **Stopped at:** v1.1 roadmap and requirements complete, ready for Phase 8
 - **Timestamp:** 2026-02-19
 
 <!-- rtk-instructions v2 -->
