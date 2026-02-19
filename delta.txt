@@ -1,0 +1,8 @@
+- multi selectionn n'est pas possible
+- filter perdu apres une modification
+- page courante perdu apres une modification
+- affichage des caracterisques d'une vm (y compris la description)
+- ajout dans le rapport
+  - du nombre de vm
+  - de la dimension de la VM moyenne
+  - de la plus grosse VM
