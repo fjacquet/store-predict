@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _registry() -> RuleRegistry:
     """Build a registry with the full default rule set."""
     return RuleRegistry(build_default_rules())
@@ -34,6 +35,7 @@ def _registry() -> RuleRegistry:
 # ---------------------------------------------------------------------------
 # 1. DRR table consistency tests
 # ---------------------------------------------------------------------------
+
 
 class TestDRRTableConsistency:
     """Verify that classification rules and DRR table are in sync."""
@@ -54,32 +56,28 @@ class TestDRRTableConsistency:
 
         Exception: ("Custom DRR", "Custom DRR") is user-assigned only.
         """
-        rule_categories = {
-            (r.category, r.subcategory) for r in build_default_rules()
-        }
-        drr_categories = {
-            (e.category, e.subcategory) for e in drr_table.entries
-        }
+        rule_categories = {(r.category, r.subcategory) for r in build_default_rules()}
+        drr_categories = {(e.category, e.subcategory) for e in drr_table.entries}
         uncovered = drr_categories - rule_categories
         # Custom DRR is user-assigned only, not auto-classified
         uncovered.discard(("Custom DRR", "Custom DRR"))
         # "Content not included" is a user override -- cannot detect from
         # VM name/OS alone; default is "Content included" (conservative)
         uncovered.discard(("Web Servers", "Content not included"))
-        assert uncovered == set(), (
-            f"DRR categories without matching rules: {sorted(uncovered)}"
-        )
+        assert uncovered == set(), f"DRR categories without matching rules: {sorted(uncovered)}"
 
 
 # ---------------------------------------------------------------------------
 # 2. LiveOptics sample classification tests
 # ---------------------------------------------------------------------------
 
+
 class TestLiveOpticsSampleClassification:
     """Integration tests using the real 610-VM LiveOptics sample."""
 
     def test_classify_liveoptics_sample_no_nulls(
-        self, liveoptics_xlsx_path: Path,
+        self,
+        liveoptics_xlsx_path: Path,
     ) -> None:
         """All 4 classification columns must be non-null for every row."""
         df = ingest_file(liveoptics_xlsx_path)
@@ -92,12 +90,11 @@ class TestLiveOpticsSampleClassification:
             "classification_confidence",
         ]:
             null_count = result[col].isna().sum()
-            assert null_count == 0, (
-                f"Column {col!r} has {null_count} null values"
-            )
+            assert null_count == 0, f"Column {col!r} has {null_count} null values"
 
     def test_classify_liveoptics_sample_unknown_under_20pct(
-        self, liveoptics_xlsx_path: Path,
+        self,
+        liveoptics_xlsx_path: Path,
     ) -> None:
         """Unknown (Reducible) must be < 20% of total VMs.
 
@@ -107,18 +104,16 @@ class TestLiveOpticsSampleClassification:
         result = classify_dataframe(df, _registry())
 
         total = len(result)
-        unknown_count = (
-            result["workload_category"] == "Unknown (Reducible)"
-        ).sum()
+        unknown_count = (result["workload_category"] == "Unknown (Reducible)").sum()
         unknown_pct = unknown_count / total
 
         assert unknown_pct < 0.20, (
-            f"Unknown (Reducible) is {unknown_pct:.1%} ({unknown_count}/{total})"
-            f" -- must be < 20%"
+            f"Unknown (Reducible) is {unknown_pct:.1%} ({unknown_count}/{total}) -- must be < 20%"
         )
 
     def test_classify_liveoptics_sample_distribution(
-        self, liveoptics_xlsx_path: Path,
+        self,
+        liveoptics_xlsx_path: Path,
     ) -> None:
         """At least 5 distinct categories present in the classification."""
         df = ingest_file(liveoptics_xlsx_path)
@@ -134,12 +129,12 @@ class TestLiveOpticsSampleClassification:
 
         distinct_categories = len(category_counts)
         assert distinct_categories >= 5, (
-            f"Only {distinct_categories} distinct categories found: "
-            f"{list(category_counts.index)}"
+            f"Only {distinct_categories} distinct categories found: {list(category_counts.index)}"
         )
 
     def test_classify_liveoptics_sql_vms(
-        self, liveoptics_xlsx_path: Path,
+        self,
+        liveoptics_xlsx_path: Path,
     ) -> None:
         """VMs with 'SQL' in name should all be classified as Database."""
         df = ingest_file(liveoptics_xlsx_path)
@@ -151,12 +146,12 @@ class TestLiveOpticsSampleClassification:
 
         non_db = sql_vms[sql_vms["workload_category"] != "Database"]
         assert len(non_db) == 0, (
-            f"{len(non_db)} SQL VMs not classified as Database: "
-            f"{list(non_db['vm_name'])}"
+            f"{len(non_db)} SQL VMs not classified as Database: {list(non_db['vm_name'])}"
         )
 
     def test_classify_liveoptics_citrix_vms(
-        self, liveoptics_xlsx_path: Path,
+        self,
+        liveoptics_xlsx_path: Path,
     ) -> None:
         """VMs with 'CIT' in name should all be classified as VDI."""
         df = ingest_file(liveoptics_xlsx_path)
@@ -168,26 +163,22 @@ class TestLiveOpticsSampleClassification:
 
         non_vdi = cit_vms[cit_vms["workload_category"] != "VDI"]
         assert len(non_vdi) == 0, (
-            f"{len(non_vdi)} Citrix VMs not classified as VDI: "
-            f"{list(non_vdi['vm_name'])}"
+            f"{len(non_vdi)} Citrix VMs not classified as VDI: {list(non_vdi['vm_name'])}"
         )
 
     def test_classify_liveoptics_fortinet_vms(
-        self, liveoptics_xlsx_path: Path,
+        self,
+        liveoptics_xlsx_path: Path,
     ) -> None:
         """VMs with FortiNet OS should be Logging-Analytics."""
         df = ingest_file(liveoptics_xlsx_path)
         result = classify_dataframe(df, _registry())
 
-        forti_vms = result[
-            result["os_name"].str.contains("Forti", case=False, na=False)
-        ]
+        forti_vms = result[result["os_name"].str.contains("Forti", case=False, na=False)]
         if len(forti_vms) == 0:
             pytest.skip("No VMs with FortiNet OS found in sample")
 
-        non_logging = forti_vms[
-            forti_vms["workload_category"] != "Logging - Analytics"
-        ]
+        non_logging = forti_vms[forti_vms["workload_category"] != "Logging - Analytics"]
         assert len(non_logging) == 0, (
             f"{len(non_logging)} FortiNet VMs not classified as "
             f"Logging - Analytics: {list(non_logging['vm_name'])}"
@@ -198,11 +189,13 @@ class TestLiveOpticsSampleClassification:
 # 3. RVTools sample classification tests
 # ---------------------------------------------------------------------------
 
+
 class TestRVToolsSampleClassification:
     """Integration tests using the real RVTools sample."""
 
     def test_classify_rvtools_sample_no_nulls(
-        self, rvtools_path: Path,
+        self,
+        rvtools_path: Path,
     ) -> None:
         """All 4 classification columns must be non-null for every row."""
         df = ingest_file(rvtools_path)
@@ -215,14 +208,13 @@ class TestRVToolsSampleClassification:
             "classification_confidence",
         ]:
             null_count = result[col].isna().sum()
-            assert null_count == 0, (
-                f"Column {col!r} has {null_count} null values"
-            )
+            assert null_count == 0, f"Column {col!r} has {null_count} null values"
 
 
 # ---------------------------------------------------------------------------
 # 4. End-to-end pipeline test
 # ---------------------------------------------------------------------------
+
 
 class TestEndToEndPipeline:
     """Full pipeline: ingest -> classify -> DRR lookup."""
@@ -251,6 +243,7 @@ class TestEndToEndPipeline:
 # ---------------------------------------------------------------------------
 # 5. Classification coverage report
 # ---------------------------------------------------------------------------
+
 
 def test_classification_coverage_report(liveoptics_xlsx_path: Path) -> None:
     """Print a human-readable classification coverage report.
@@ -307,6 +300,5 @@ def test_classification_coverage_report(liveoptics_xlsx_path: Path) -> None:
     default_count = confidence_counts.get("default", 0)
     default_pct = default_count / total
     assert default_pct < 0.05, (
-        f"Default confidence is {default_pct:.1%} ({default_count}/{total})"
-        f" -- should be < 5%"
+        f"Default confidence is {default_pct:.1%} ({default_count}/{total}) -- should be < 5%"
     )

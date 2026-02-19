@@ -19,6 +19,7 @@ import pandas as pd
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _patterns(*keywords: str) -> tuple[re.Pattern[str], ...]:
     """Compile case-insensitive literal substring patterns.
 
@@ -35,6 +36,7 @@ def _regex_patterns(*expressions: str) -> tuple[re.Pattern[str], ...]:
 # ---------------------------------------------------------------------------
 # Data classes
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class ClassificationRule:
@@ -80,6 +82,7 @@ class ClassificationResult:
 # Rule registry
 # ---------------------------------------------------------------------------
 
+
 class RuleRegistry:
     """Ordered collection of classification rules (first match wins)."""
 
@@ -114,6 +117,7 @@ class RuleRegistry:
 # ---------------------------------------------------------------------------
 # Default rule set (~25 rules covering all 28 DRR subcategories)
 # ---------------------------------------------------------------------------
+
 
 def build_default_rules() -> list[ClassificationRule]:
     """Build the default classification rule set covering all DRR categories.
@@ -196,7 +200,6 @@ def build_default_rules() -> list[ClassificationRule]:
             # Also match "SAP-xxx" and "SAP_xxx" naming conventions.
             vm_name_patterns=(*_patterns("SAP-", "SAP_"), *_regex_patterns(r"\bSAP\b")),
         ),
-
         # === Tier 2: Application-specific (200-299) ===
         ClassificationRule(
             name="HealthCare EMR/EHR",
@@ -240,7 +243,6 @@ def build_default_rules() -> list[ClassificationRule]:
             priority=223,
             vm_name_patterns=_regex_patterns(r"VDI.*PROFIL|PROFIL.*VDI"),
         ),
-
         # === Tier 3: Infrastructure (300-399) ===
         ClassificationRule(
             name="VM Replication",
@@ -288,13 +290,11 @@ def build_default_rules() -> list[ClassificationRule]:
             name="File Archive",
             category="File",
             subcategory=(
-                "Archive / Backup / Compressed / Encrypted"
-                " / Rich Media / ISO / PACS / CAD"
+                "Archive / Backup / Compressed / Encrypted / Rich Media / ISO / PACS / CAD"
             ),
             priority=360,
             vm_name_patterns=_patterns("ARCHIVE"),
         ),
-
         # === Tier 4: Logging / Analytics (400-499) ===
         ClassificationRule(
             name="Logging Analytics",
@@ -302,13 +302,18 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory="FortiNet, Elastic Search, Splunk, ELK, etc",
             priority=400,
             vm_name_patterns=_patterns(
-                "ELASTIC", "ELK", "SPLUNK",
-                "FORTIANALYZER", "FORTIMANAGER",
-                "ZABBIX", "CENTREON", "OBSERVIUM", "GRAFANA",
+                "ELASTIC",
+                "ELK",
+                "SPLUNK",
+                "FORTIANALYZER",
+                "FORTIMANAGER",
+                "ZABBIX",
+                "CENTREON",
+                "OBSERVIUM",
+                "GRAFANA",
             ),
             os_patterns=_patterns("FORTI"),
         ),
-
         # === Tier 5: Boot from SAN (500-599) ===
         ClassificationRule(
             name="Boot from SAN",
@@ -317,7 +322,6 @@ def build_default_rules() -> list[ClassificationRule]:
             priority=500,
             vm_name_patterns=_patterns("BOOTSAN", "SANBOOT"),
         ),
-
         # === Tier 6: OS-based fallback (900-949) ===
         ClassificationRule(
             name="Windows Server (OS fallback)",
@@ -349,7 +353,6 @@ def build_default_rules() -> list[ClassificationRule]:
             priority=920,
             os_patterns=_regex_patterns(r"vmware|esxi|photon"),
         ),
-
         # === Tier 7: Default (999) ===
         ClassificationRule(
             name="default",
@@ -364,6 +367,7 @@ def build_default_rules() -> list[ClassificationRule]:
 # ---------------------------------------------------------------------------
 # DataFrame-level classification
 # ---------------------------------------------------------------------------
+
 
 def classify_dataframe(
     df: pd.DataFrame,

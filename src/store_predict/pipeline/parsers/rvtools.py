@@ -37,8 +37,7 @@ def parse_rvtools(path: Path) -> pd.DataFrame:
         df = pd.read_excel(path, sheet_name="vInfo", engine="openpyxl")
     except (KeyError, ValueError) as exc:
         raise IngestionError(
-            f"Cannot read RVTools file: {path.name}. "
-            "Expected an xlsx file with a 'vInfo' sheet.",
+            f"Cannot read RVTools file: {path.name}. Expected an xlsx file with a 'vInfo' sheet.",
             details=str(exc),
         ) from exc
     except Exception as exc:
@@ -59,9 +58,7 @@ def parse_rvtools(path: Path) -> pd.DataFrame:
     result["provisioned_mib"] = pd.to_numeric(
         df[col_map["provisioned_mib"]], errors="coerce"
     ).fillna(0.0)
-    result["in_use_mib"] = pd.to_numeric(
-        df[col_map["in_use_mib"]], errors="coerce"
-    ).fillna(0.0)
+    result["in_use_mib"] = pd.to_numeric(df[col_map["in_use_mib"]], errors="coerce").fillna(0.0)
 
     # Optional columns
     if col_map.get("datacenter"):

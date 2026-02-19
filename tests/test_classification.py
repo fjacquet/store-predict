@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _registry() -> RuleRegistry:
     """Convenience: build a registry with the full default rule set."""
     return RuleRegistry(build_default_rules())
@@ -30,6 +31,7 @@ def _registry() -> RuleRegistry:
 # ---------------------------------------------------------------------------
 # 1. Rule matching tests (individual patterns)
 # ---------------------------------------------------------------------------
+
 
 class TestRuleMatching:
     """Individual pattern matching tests."""
@@ -59,21 +61,24 @@ class TestRuleMatching:
     def test_sap_not_abac(self) -> None:
         """CIGES-ABAC01 is Abacus ERP, NOT SAP."""
         result = _registry().classify(
-            "CIGES-ABAC01", "Microsoft Windows Server 2022 (64-bit)",
+            "CIGES-ABAC01",
+            "Microsoft Windows Server 2022 (64-bit)",
         )
         assert result.category == "Virtual Machines"
 
     def test_sap_not_gisapp(self) -> None:
         """GISAPP contains 'SAP' as substring but is a GIS application server."""
         result = _registry().classify(
-            "CIGES-GISAPP", "Microsoft Windows Server 2022 (64-bit)",
+            "CIGES-GISAPP",
+            "Microsoft Windows Server 2022 (64-bit)",
         )
         assert result.category != "Database" or "SAP" not in result.subcategory
 
     def test_exchange_not_ex(self) -> None:
         """CIGES-EXTRANET must NOT match Email (uses 'EXCHANGE', not 'EX')."""
         result = _registry().classify(
-            "CIGES-EXTRANET", "Microsoft Windows Server 2022 (64-bit)",
+            "CIGES-EXTRANET",
+            "Microsoft Windows Server 2022 (64-bit)",
         )
         assert result.category != "Email"
 
@@ -94,7 +99,8 @@ class TestRuleMatching:
     def test_fortinet_os_match(self) -> None:
         """FortiNet appliances detected via OS field."""
         result = _registry().classify(
-            "CIGES-FAZ", "FortiAnalyzer-VM64 v7.4.10-build2778 260126 (GA.M)",
+            "CIGES-FAZ",
+            "FortiAnalyzer-VM64 v7.4.10-build2778 260126 (GA.M)",
         )
         assert result.category == "Logging - Analytics"
 
@@ -121,13 +127,15 @@ class TestRuleMatching:
 # 2. Priority ordering tests
 # ---------------------------------------------------------------------------
 
+
 class TestPriorityOrdering:
     """Verify specific rules beat generic ones."""
 
     def test_database_before_os_fallback(self) -> None:
         """SQL VM with Windows Server OS -> Database, not Virtual Machines."""
         result = _registry().classify(
-            "SQLSERVER-01", "Microsoft Windows Server 2022 (64-bit)",
+            "SQLSERVER-01",
+            "Microsoft Windows Server 2022 (64-bit)",
         )
         assert result.category == "Database"
         assert result.subcategory == "Microsoft SQL"
@@ -136,9 +144,7 @@ class TestPriorityOrdering:
         """DB rule (priority 101) beats OS fallback (priority 900)."""
         rules = build_default_rules()
         sql_priority = next(r.priority for r in rules if r.name == "Microsoft SQL")
-        os_priority = next(
-            r.priority for r in rules if r.name == "Windows Server (OS fallback)"
-        )
+        os_priority = next(r.priority for r in rules if r.name == "Windows Server (OS fallback)")
         assert sql_priority < os_priority
 
 
@@ -146,11 +152,12 @@ class TestPriorityOrdering:
 # 3. OS fallback tests
 # ---------------------------------------------------------------------------
 
-class TestOSFallback:
 
+class TestOSFallback:
     def test_windows_server_fallback(self) -> None:
         result = _registry().classify(
-            "GENERIC-SERVER", "Microsoft Windows Server 2022 (64-bit)",
+            "GENERIC-SERVER",
+            "Microsoft Windows Server 2022 (64-bit)",
         )
         assert result.category == "Virtual Machines"
         assert result.confidence == "os_fallback"
@@ -170,6 +177,7 @@ class TestOSFallback:
 # 4. Default rule test
 # ---------------------------------------------------------------------------
 
+
 def test_default_unknown() -> None:
     """Unmatched VM with empty OS -> Unknown (Reducible), confidence=default."""
     result = _registry().classify("UNKNOWN-VM-001", "")
@@ -182,6 +190,7 @@ def test_default_unknown() -> None:
 # 5. Case insensitivity
 # ---------------------------------------------------------------------------
 
+
 def test_case_insensitive() -> None:
     """Lowercase VM name still matches SQL rule."""
     result = _registry().classify("cadsrvsql001", "windows server 2019")
@@ -193,18 +202,20 @@ def test_case_insensitive() -> None:
 # 6. classify_dataframe tests
 # ---------------------------------------------------------------------------
 
-class TestClassifyDataFrame:
 
+class TestClassifyDataFrame:
     def test_classify_dataframe_adds_columns(self) -> None:
         """classify_dataframe adds 4 new columns with correct values."""
-        df = pd.DataFrame({
-            "vm_name": ["CADSRVSQL001", "GENERIC-SVR", "UNKNOWN-001"],
-            "os_name": [
-                "Microsoft Windows Server 2019 (64-bit)",
-                "Microsoft Windows Server 2022 (64-bit)",
-                "",
-            ],
-        })
+        df = pd.DataFrame(
+            {
+                "vm_name": ["CADSRVSQL001", "GENERIC-SVR", "UNKNOWN-001"],
+                "os_name": [
+                    "Microsoft Windows Server 2019 (64-bit)",
+                    "Microsoft Windows Server 2022 (64-bit)",
+                    "",
+                ],
+            }
+        )
         result = classify_dataframe(df, _registry())
 
         # Original unchanged
@@ -227,19 +238,23 @@ class TestClassifyDataFrame:
 
     def test_classify_dataframe_handles_nan_os(self) -> None:
         """NaN os_name does not crash and classifies to default or OS fallback."""
-        df = pd.DataFrame({
-            "vm_name": ["SOME-VM"],
-            "os_name": [None],
-        })
+        df = pd.DataFrame(
+            {
+                "vm_name": ["SOME-VM"],
+                "os_name": [None],
+            }
+        )
         result = classify_dataframe(df, _registry())
         assert result.iloc[0]["workload_category"] is not None
 
     def test_classify_dataframe_does_not_mutate_input(self) -> None:
         """Input DataFrame must not be modified."""
-        df = pd.DataFrame({
-            "vm_name": ["SQL-01"],
-            "os_name": ["Windows Server 2022"],
-        })
+        df = pd.DataFrame(
+            {
+                "vm_name": ["SQL-01"],
+                "os_name": ["Windows Server 2022"],
+            }
+        )
         original_cols = list(df.columns)
         _ = classify_dataframe(df, _registry())
         assert list(df.columns) == original_cols
@@ -248,6 +263,7 @@ class TestClassifyDataFrame:
 # ---------------------------------------------------------------------------
 # 7. Rule consistency tests
 # ---------------------------------------------------------------------------
+
 
 def test_all_rules_have_unique_names() -> None:
     """No duplicate rule names in default rules."""

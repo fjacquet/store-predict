@@ -40,9 +40,7 @@ def _build_liveoptics_df(
     result["provisioned_mib"] = pd.to_numeric(
         df[col_map["provisioned_mib"]], errors="coerce"
     ).fillna(0.0)
-    result["in_use_mib"] = pd.to_numeric(
-        df[col_map["in_use_mib"]], errors="coerce"
-    ).fillna(0.0)
+    result["in_use_mib"] = pd.to_numeric(df[col_map["in_use_mib"]], errors="coerce").fillna(0.0)
 
     # Optional columns
     if col_map.get("datacenter"):
@@ -90,8 +88,7 @@ def parse_liveoptics_xlsx(path: Path) -> pd.DataFrame:
         df = pd.read_excel(path, sheet_name="VMs", engine="openpyxl")
     except (KeyError, ValueError) as exc:
         raise IngestionError(
-            f"Cannot read LiveOptics file: {path.name}. "
-            "Expected an xlsx file with a 'VMs' sheet.",
+            f"Cannot read LiveOptics file: {path.name}. Expected an xlsx file with a 'VMs' sheet.",
             details=str(exc),
         ) from exc
     except Exception as exc:
@@ -134,9 +131,7 @@ def parse_liveoptics_csv(path: Path) -> pd.DataFrame:
             ) from exc
 
     if df is None:
-        raise IngestionError(
-            "Cannot decode CSV file. Tried UTF-8 and Latin-1 encodings."
-        )
+        raise IngestionError("Cannot decode CSV file. Tried UTF-8 and Latin-1 encodings.")
 
     df.columns = df.columns.str.strip()
     return _build_liveoptics_df(df, FileFormat.LIVEOPTICS_CSV.value)
