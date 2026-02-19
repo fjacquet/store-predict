@@ -4,6 +4,8 @@ StorePredict is a pre-sales sizing tool that analyzes VMware workload exports (R
 
 ## Sections
 
+- [Getting Started](getting-started.md) — Installation and quickstart guide
+- [Architecture](architecture.md) — System design with Mermaid diagrams
 - [User Guide](user-guide/index.md) — How to use StorePredict
 - [Research](research/index.md) — Technical research and analysis
 - [Architecture Decision Records](adr/index.md) — Key design decisions
