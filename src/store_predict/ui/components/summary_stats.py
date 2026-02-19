@@ -23,20 +23,11 @@ def build_summary_stats(row_data: list[dict]) -> ui.row:
     """
     total_vms = len(row_data)
 
-    total_provisioned = sum(
-        r.get("provisioned_mib", 0) for r in row_data
-    )
+    total_provisioned = sum(r.get("provisioned_mib", 0) for r in row_data)
 
-    avg_drr = (
-        sum(r.get("drr", 5.0) for r in row_data) / total_vms
-        if total_vms > 0
-        else 0.0
-    )
+    avg_drr = sum(r.get("drr", 5.0) for r in row_data) / total_vms if total_vms > 0 else 0.0
 
-    total_effective = sum(
-        r.get("provisioned_mib", 0) / r.get("drr", 5.0)
-        for r in row_data
-    )
+    total_effective = sum(r.get("provisioned_mib", 0) / r.get("drr", 5.0) for r in row_data)
 
     stats = [
         ("Total VMs", str(total_vms)),
@@ -49,9 +40,7 @@ def build_summary_stats(row_data: list[dict]) -> ui.row:
     with row:
         for label, value in stats:
             with ui.card().classes("flex-1 p-4"):
-                ui.label(label).classes(
-                    "text-sm text-gray-500 dark:text-gray-400"
-                )
+                ui.label(label).classes("text-sm text-gray-500 dark:text-gray-400")
                 ui.label(value).classes("text-2xl font-bold")
 
     return row

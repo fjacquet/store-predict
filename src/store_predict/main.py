@@ -5,6 +5,7 @@ from __future__ import annotations
 from nicegui import ui
 
 # Import pages to register their routes with NiceGUI
+import store_predict.ui.pages.review  # noqa: F401
 import store_predict.ui.pages.upload  # noqa: F401
 from store_predict.config import APP_PORT, APP_TITLE
 
