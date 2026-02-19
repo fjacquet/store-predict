@@ -15,9 +15,24 @@ from dataclasses import dataclass
 
 import pandas as pd
 
+from store_predict.config import COMPANY_PREFIX_PATTERNS
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def strip_company_prefix(vm_name: str, patterns: list[str]) -> str:
+    """Strip a company prefix from *vm_name* using the first matching pattern.
+
+    Each pattern is a regex string (typically start-anchored, e.g. ``r"^ACME[-_]"``).
+    Matching is case-insensitive.  Only the first matching pattern is applied.
+    """
+    for pattern in patterns:
+        stripped = re.sub(pattern, "", vm_name, count=1, flags=re.IGNORECASE)
+        if stripped != vm_name:
+            return stripped
+    return vm_name
 
 
 def _patterns(*keywords: str) -> tuple[re.Pattern[str], ...]:
@@ -50,10 +65,21 @@ class ClassificationRule:
     os_patterns: tuple[re.Pattern[str], ...] = ()
     match_mode: str = "any"  # "any" = OR, "all" = AND
 
-    def matches(self, vm_name: str, os_name: str) -> bool:
-        """Return *True* if this rule matches the given VM name / OS."""
+    def matches(self, vm_name: str, os_name: str, description: str = "") -> bool:
+        """Return *True* if this rule matches the given VM name / OS.
+
+        When *description* is non-empty and no ``vm_name_patterns`` match
+        against *vm_name*, the patterns are also checked against *description*
+        as a fallback signal.  ``os_patterns`` are never tested against
+        description (it is not an OS field).
+        """
         vm_match = any(p.search(vm_name) for p in self.vm_name_patterns)
         os_match = any(p.search(os_name) for p in self.os_patterns)
+
+        # If vm_name didn't match but description is available, try description
+        # as a fallback for vm_name_patterns only.
+        if not vm_match and description and self.vm_name_patterns:
+            vm_match = any(p.search(description) for p in self.vm_name_patterns)
 
         if self.match_mode == "all":
             return vm_match and os_match
@@ -89,10 +115,17 @@ class RuleRegistry:
     def __init__(self, rules: list[ClassificationRule]) -> None:
         self._rules = sorted(rules, key=lambda r: r.priority)
 
-    def classify(self, vm_name: str, os_name: str) -> ClassificationResult:
-        """Classify a VM by evaluating rules in priority order."""
+    def classify(self, vm_name: str, os_name: str, description: str = "") -> ClassificationResult:
+        """Classify a VM by evaluating rules in priority order.
+
+        Company prefixes are stripped from *vm_name* before matching
+        (configured via :data:`~store_predict.config.COMPANY_PREFIX_PATTERNS`).
+        The optional *description* parameter is passed through to rule matching
+        as a fallback signal.
+        """
+        vm_name = strip_company_prefix(vm_name, COMPANY_PREFIX_PATTERNS)
         for rule in self._rules:
-            if rule.matches(vm_name, os_name):
+            if rule.matches(vm_name, os_name, description):
                 if rule.priority < 900:
                     confidence = "rule_match"
                 elif rule.priority <= 998:
@@ -381,11 +414,18 @@ def classify_dataframe(
     """
     result = df.copy()
 
+    has_description = "vm_description" in df.columns
+
     classifications = []
     for _, row in df.iterrows():
         vm_name = str(row["vm_name"]) if pd.notna(row["vm_name"]) else ""
         os_name = str(row["os_name"]) if pd.notna(row["os_name"]) else ""
-        classifications.append(registry.classify(vm_name, os_name))
+        description = (
+            str(row["vm_description"])
+            if has_description and pd.notna(row.get("vm_description"))
+            else ""
+        )
+        classifications.append(registry.classify(vm_name, os_name, description))
 
     result["workload_category"] = [c.category for c in classifications]
     result["workload_subcategory"] = [c.subcategory for c in classifications]
