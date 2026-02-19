@@ -50,20 +50,20 @@ Plans:
 
 Plans:
 
-- [ ] 02-01-PLAN.md — Core parsers (RVTools, LiveOptics xlsx/csv), column alias resolution, IngestionError
-- [ ] 02-02-PLAN.md — Format detection, ingestion orchestrator, CSV fixture, comprehensive test suite
+- [x] 02-01-PLAN.md — Core parsers (RVTools, LiveOptics xlsx/csv), column alias resolution, IngestionError
+- [x] 02-02-PLAN.md — Format detection, ingestion orchestrator, CSV fixture, comprehensive test suite
 
 **Deliverables:**
 
-- [ ] Format detection (RVTools vs LiveOptics based on sheet names/columns)
-- [ ] RVTools parser: vInfo tab → normalized DataFrame (VM, OS, Provisioned MB, In Use MB)
-- [ ] LiveOptics xlsx parser: VMs tab → normalized DataFrame
-- [ ] LiveOptics csv parser: same normalization
-- [ ] Column fuzzy matching with aliases
-- [ ] Template VM filtering
-- [ ] Unit conversion: MB → MiB normalization
-- [ ] Error handling with clear user messages
-- [ ] Tests with real sample files (fixtures from samples/)
+- [x] Format detection (RVTools vs LiveOptics based on sheet names/columns)
+- [x] RVTools parser: vInfo tab → normalized DataFrame (VM, OS, Provisioned MB, In Use MB)
+- [x] LiveOptics xlsx parser: VMs tab → normalized DataFrame
+- [x] LiveOptics csv parser: same normalization
+- [x] Column fuzzy matching with aliases
+- [x] Template VM filtering
+- [x] Unit conversion: MB → MiB normalization
+- [x] Error handling with clear user messages
+- [x] Tests with real sample files (fixtures from samples/)
 
 **Success criteria:** All 3 parsers produce identical DataFrame schema from sample files. Tests pass with edge cases.
 
@@ -79,19 +79,19 @@ Plans:
 
 Plans:
 
-- [ ] 03-01-PLAN.md — Classification engine core: ClassificationRule, RuleRegistry, 25+ default rules, classify_dataframe, unit tests
-- [ ] 03-02-PLAN.md — Integration validation: real sample data classification, DRR consistency checks, coverage report
+- [x] 03-01-PLAN.md — Classification engine core: ClassificationRule, RuleRegistry, 25+ default rules, classify_dataframe, unit tests
+- [x] 03-02-PLAN.md — Integration validation: real sample data classification, DRR consistency checks, coverage report
 
 **Deliverables:**
 
-- [ ] ClassificationRule dataclass with priority, patterns, match mode
-- [ ] Default rule set covering all 28 DRR categories
-- [ ] Rule registry: ordered evaluation, first match wins
-- [ ] Substring matching for embedded keywords (CADSRVSQL001 → SQL)
-- [ ] OS-based fallback rules (Windows Server → Virtual Machines)
-- [ ] Default rule: Unknown (Reducible) DRR=5
-- [ ] Classification confidence/rule name tracking
-- [ ] Tests for each rule against real VM name patterns from samples
+- [x] ClassificationRule dataclass with priority, patterns, match mode
+- [x] Default rule set covering all 28 DRR categories
+- [x] Rule registry: ordered evaluation, first match wins
+- [x] Substring matching for embedded keywords (CADSRVSQL001 → SQL)
+- [x] OS-based fallback rules (Windows Server → Virtual Machines)
+- [x] Default rule: Unknown (Reducible) DRR=5
+- [x] Classification confidence/rule name tracking
+- [x] Tests for each rule against real VM name patterns from samples
 
 **Success criteria:** Classify sample LiveOptics 610 VMs with >80% reasonable matches. Each DRR category has at least one matching rule.
 
@@ -102,6 +102,14 @@ Plans:
 **Goal:** Working upload flow + editable classification table with multi-select workload override.
 
 **Requirements covered:** FR-4.1, FR-4.2, FR-4.3, FR-4.4, FR-4.5, FR-4.6, FR-7.1, FR-7.2, FR-7.3, FR-7.4, FR-7.5, FR-7.6
+
+**Plans:** 3 plans
+
+Plans:
+
+- [ ] 04-01-PLAN.md — Session state module and upload page with pipeline integration
+- [ ] 04-02-PLAN.md — UI components: AG Grid table, workload dialog, summary stats
+- [ ] 04-03-PLAN.md — Review page assembly, dark mode toggle, navigation wiring
 
 **Deliverables:**
 
