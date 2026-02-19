@@ -67,8 +67,9 @@ async def _handle_upload(e: object) -> None:
 
 
 @ui.page("/upload")
-def upload_page() -> None:
+async def upload_page() -> None:
     """Upload page -- accept RVTools/LiveOptics files and run the sizing pipeline."""
+    await ui.context.client.connected()
     with (
         layout("StorePredict - Upload"),
         ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6"),

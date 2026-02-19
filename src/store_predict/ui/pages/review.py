@@ -24,6 +24,7 @@ from store_predict.ui.state import (
 @ui.page("/review")
 async def review_page() -> None:
     """Review classified VMs with editable workload assignments."""
+    await ui.context.client.connected()
     df = load_session_data()
     if df is None:
         with (
