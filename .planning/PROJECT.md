@@ -29,18 +29,32 @@ Accurately predict real-world PowerStore DRR per workload instead of relying on 
 
 ### Active
 
-(None — planning next milestone)
+- [ ] i18n framework — Extensible translation system with FR + EN switchable at runtime
+- [ ] PDF branding — Dell partner logo by default + custom company logo upload
+- [ ] Excel export — Export VM table with DRR calculations as .xlsx
+- [ ] LLM classification fallback — Configurable provider (OpenAI/Claude/Ollama) for unknown VMs
+- [ ] UX polish — Navigation flow, loading/progress states, error handling improvements
+
+## Current Milestone: v1.1 — i18n, Branding & Intelligence
+
+**Goal:** Internationalize the UI, add branding to PDF reports, enable Excel export, introduce LLM-based fallback classification for unmatched VMs, and polish the user experience.
+
+**Target features:**
+- i18n framework with FR/EN toggle (extensible for future languages)
+- PDF reports with Dell partner logo + optional custom company logo
+- Excel export of VM table with calculations
+- LLM fallback for VMs the rules engine can't classify (configurable provider)
+- UX improvements: navigation, loading states, error messages
 
 ### Out of Scope
 
-- ML-based classification — rules-based covers 100% of sample VMs, ML deferred
 - Multi-page detailed PDF report — one-page synthesis sufficient for pre-sales
-- Co-branding (Dell partner logos) — neutral StorePredict branding
 - SIOKit (.siokit) binary format — focus on xlsx/csv exports
-- PowerStore model recommendation — capacity-only sizing in v1
+- PowerStore model recommendation — capacity-only sizing, defer to v2
 - Real-time data collection — tool works with exported files only
 - User authentication — internal tool, single-user sessions
 - Data persistence between sessions — in-memory per tab
+- LLM as primary classifier — rules remain primary, LLM is fallback only
 
 ## Context
 
@@ -76,4 +90,4 @@ UAT: 9/10 tests passed, 1 skipped (description-based classification fallback).
 | Totals/Averages report layout | Clearer grouping for pre-sales readability | Good |
 
 ---
-*Last updated: 2026-02-19 after v1.0 milestone*
+*Last updated: 2026-02-19 after v1.1 milestone start*
