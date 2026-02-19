@@ -31,10 +31,11 @@ v1.0 — MVP Sizing Tool
 - [x] Plan 05-03: Report page UI with summary cards, breakdown table, PDF download, navigation
 
 - [x] Plan 06-01: Docker deployment hardening (.dockerignore, HEALTHCHECK, env-var secret)
+- [x] Plan 06-04: MkDocs documentation with architecture Mermaid diagrams, getting-started guide, README
 
 ## Next Action
 
-Execute Phase 6 Plan 02.
+Execute Phase 6 Plan 05 (remaining polish).
 
 ## Decisions
 
@@ -69,6 +70,9 @@ Execute Phase 6 Plan 02.
 - [Phase 05]: ui.download uses positional src arg per NiceGUI API
 - [Phase 06]: Used time.perf_counter() for high-resolution performance benchmarks
 - [Phase 06]: CI triggers on push and PR to main; docs triggers on push only
+- [Phase 06]: STORAGE_SECRET uses os.environ.get with dev-only fallback
+- [Phase 06]: Docker Compose variable substitution for secret injection
+- [Phase 06]: HEALTHCHECK uses stdlib urllib.request (no extra deps)
 
 ## Performance Metrics
 
