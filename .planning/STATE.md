@@ -2,8 +2,8 @@
 
 ## Current Phase
 
-Phase 5: Calculation & PDF Report (IN PROGRESS)
-Plans: 2 of 3 complete
+Phase 5: Calculation & PDF Report (COMPLETE)
+Plans: 3 of 3 complete
 
 ## Milestone
 
@@ -26,10 +26,13 @@ v1.0 — MVP Sizing Tool
 - [x] Plan 04-02: UI components (AG Grid VM table, workload dialog, summary stats)
 
 - [x] Plan 04-03: Review page assembly, dark mode toggle, navigation wiring
+- [x] Plan 05-01: Calculation engine with per-VM and grouped results
+- [x] Plan 05-02: PDF report generator with branded layout
+- [x] Plan 05-03: Report page UI with summary cards, breakdown table, PDF download, navigation
 
 ## Next Action
 
-Execute Phase 5 (Calculation & PDF Report).
+Execute Phase 6 (Polish & Deployment).
 
 ## Decisions
 
@@ -60,6 +63,8 @@ Execute Phase 5 (Calculation & PDF Report).
 - [Phase 05]: Weighted avg DRR = total_provisioned / total_required (not simple average)
 - [Phase 05]: Canvas type in TYPE_CHECKING block for ReportLab PDF generation
 - [Phase 05]: Vera/VeraBd fonts registered at module level for French character support
+- [Phase 05]: ui.table (not AG Grid) for read-only workload breakdown display
+- [Phase 05]: ui.download uses positional src arg per NiceGUI API
 
 ## Performance Metrics
 
@@ -76,6 +81,7 @@ Execute Phase 5 (Calculation & PDF Report).
 | 04    | 03   | 6min     | 1     | 6     |
 | Phase 05 P01 | 3min | 2 tasks | 3 files |
 | 05    | 02   | 5min     | 2     | 2     |
+| 05    | 03   | 2min     | 2     | 4     |
 
 ## Notes
 
@@ -88,8 +94,8 @@ Execute Phase 5 (Calculation & PDF Report).
 
 ## Last Session
 
-- **Stopped at:** Completed 05-02-PLAN.md
-- **Timestamp:** 2026-02-19T05:25:50Z
+- **Stopped at:** Completed 05-03-PLAN.md (Phase 05 complete)
+- **Timestamp:** 2026-02-19T05:30:50Z
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
