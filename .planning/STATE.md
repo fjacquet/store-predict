@@ -77,6 +77,8 @@ Execute Phase 6 Plan 05 (remaining polish).
 - [Phase 06]: README links to GitHub Pages docs site
 - [Phase 06]: validate_upload() runs before temp file write to reject bad files early
 - [Phase 06]: Session isolation verified architecturally via source code inspection of app.storage.tab
+- [Phase 07]: Fire-and-forget setFilterModel/paginationGoToPage to avoid JS timeout
+- [Phase 07]: enableClickSelection: False so row clicks open dialog, checkboxes handle selection
 
 ## Performance Metrics
 
@@ -98,6 +100,7 @@ Execute Phase 6 Plan 05 (remaining polish).
 | Phase 06 P03 | 2min | 1 tasks | 1 files |
 | Phase 06 P05 | 1min | 2 tasks | 2 files |
 | 06    | 04   | 2min     | 2     | 5     |
+| Phase 07 P03 | 2min | 2 tasks | 2 files |
 
 ## Roadmap Evolution
 
@@ -114,7 +117,7 @@ Execute Phase 6 Plan 05 (remaining polish).
 
 ## Last Session
 
-- **Stopped at:** Completed 06-02-PLAN.md
+- **Stopped at:** Completed 07-03-PLAN.md
 - **Timestamp:** 2026-02-19T06:07:21Z
 
 <!-- rtk-instructions v2 -->
