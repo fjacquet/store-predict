@@ -10,7 +10,7 @@ StorePredict is a full-Python web tool for  pre-sales engineers. It analyzes VMw
 
 - **UI:** NiceGUI with Tailwind CSS
 - **Data processing:** pandas, openpyxl
-- **PDF generation:** ReportLab or WeasyPrint
+- **PDF generation:** ReportLab (Platypus + Vera fonts)
 - **Testing:** pytest
 - **Linting/Formatting:** ruff, mypy
 - **Deployment:** Docker Compose (single container)
@@ -53,6 +53,7 @@ rtk mypy src/                         # Type check
 rtk pytest                            # All tests
 rtk pytest tests/test_classifier.py -k "test_sql_detection"  # Single test
 rtk pytest --cov=store_predict        # With coverage
+# 121+ tests across: ingestion, classification, calculation, PDF, validation, performance, log sanitization
 
 # Docker
 rtk docker compose up --build         # Run in container
@@ -69,6 +70,26 @@ mkdocs build                          # Build docs
 1. **Ingestion** — Parse uploaded file, detect format (RVTools vs LiveOptics), extract VM list with storage metrics
 2. **Classification** — Match each VM to a workload category using rules-based pattern matching on VM Name + OS field
 3. **Calculation** — Apply DRR coefficients, compute `Required Capacity = Provisioned / DRR`
+
+### Security & Validation
+
+- `pipeline/validation.py` — Server-side file validation (extension + magic bytes)
+- `logging_config.py` — Logger setup; NEVER log DataFrame contents or VM names
+- Session isolation via `app.storage.tab` (tab-scoped, not global)
+
+### Documentation
+
+- MkDocs site: `docs/` with Material theme, Mermaid diagrams via `pymdownx.superfences`
+- CHANGELOG.md at project root, symlinked into `docs/changelog.md` for MkDocs
+- Research pages in `docs/research/` (one per phase)
+- 9 ADRs in `docs/adr/`
+- GitHub Actions: `.github/workflows/ci.yml` (lint/test), `.github/workflows/docs.yml` (Pages deploy)
+
+### Docker Production
+
+- `STORAGE_SECRET` read from env var (`os.environ.get`), not hardcoded
+- `.dockerignore` excludes `.venv/`, `.git/`, `tests/`, `docs/`
+- `HEALTHCHECK` directive on port 8080
 
 ### Key Data Formats
 
