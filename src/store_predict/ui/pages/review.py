@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import pandas as pd
 from nicegui import ui
 
@@ -38,7 +40,7 @@ async def review_page() -> None:
     categories = drr_table.categories
 
     # Prepare row data for AG Grid
-    row_data = df.to_dict(orient="records")
+    row_data: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
 
     with (
         layout("StorePredict - Review"),
@@ -69,7 +71,7 @@ async def review_page() -> None:
         )
 
 
-def _rebuild_stats(stats_container: ui.column, row_data: list[dict]) -> None:
+def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -> None:
     """Clear and rebuild the summary stats in the container."""
     stats_container.clear()
     with stats_container:
@@ -78,7 +80,7 @@ def _rebuild_stats(stats_container: ui.column, row_data: list[dict]) -> None:
 
 def _handle_cell_change(
     e: object,
-    row_data: list[dict],
+    row_data: list[dict[str, Any]],
     drr_table: DRRTable,
     grid: ui.aggrid,
     stats_container: ui.column,
@@ -121,9 +123,9 @@ def _handle_cell_change(
 
 async def _handle_row_click(
     e: object,
-    row_data: list[dict],
+    row_data: list[dict[str, Any]],
     drr_table: DRRTable,
-    workload_options: list[dict],
+    workload_options: list[dict[str, Any]],
     grid: ui.aggrid,
     stats_container: ui.column,
 ) -> None:

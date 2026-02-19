@@ -22,7 +22,7 @@ class WorkloadDialog(ui.dialog):
         self,
         vm_name: str,
         current_workloads: list[str],
-        all_options: list[dict],
+        all_options: list[dict[str, object]],
     ) -> None:
         super().__init__()
         self.props("persistent")

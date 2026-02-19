@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from nicegui import ui
 
 
-def build_summary_stats(row_data: list[dict]) -> ui.row:
+def build_summary_stats(row_data: list[dict[str, Any]]) -> ui.row:
     """Build a row of 4 summary statistic cards from VM row data.
 
     Cards displayed:

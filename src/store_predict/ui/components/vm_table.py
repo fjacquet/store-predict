@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from nicegui import ui
 
@@ -11,10 +11,10 @@ if TYPE_CHECKING:
 
 
 def create_vm_table(
-    row_data: list[dict],
+    row_data: list[dict[str, Any]],
     workload_categories: list[str],
-    on_cell_changed: Callable | None = None,
-    on_row_clicked: Callable | None = None,
+    on_cell_changed: Callable[..., Any] | None = None,
+    on_row_clicked: Callable[..., Any] | None = None,
 ) -> ui.aggrid:
     """Create an AG Grid table for VM data with inline workload editing.
 

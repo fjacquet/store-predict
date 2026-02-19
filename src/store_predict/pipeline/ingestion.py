@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import openpyxl
+import openpyxl  # type: ignore[import-untyped]
 import pandas as pd
 
 from store_predict.pipeline.errors import IngestionError

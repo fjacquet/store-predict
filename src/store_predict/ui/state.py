@@ -31,7 +31,7 @@ def load_session_data() -> pd.DataFrame | None:
 
 def get_project_name() -> str:
     """Return the current project name from session storage."""
-    return app.storage.tab.get("project_name", "")
+    return str(app.storage.tab.get("project_name", ""))
 
 
 def set_project_name(name: str) -> None:
