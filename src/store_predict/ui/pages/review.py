@@ -190,40 +190,48 @@ async def _handle_cell_change(
     grid: ui.aggrid,
     stats_container: ui.column,
 ) -> None:
-    """Handle inline cell edit (workload category dropdown change).
+    """Handle inline cell edit (workload dropdown or DRR manual edit).
 
     Parses "Category / Subcategory" labels and preserves filter/page state.
+    Allows direct DRR editing for custom overrides.
     """
     args = e.args  # type: ignore[attr-defined]
     col_id = args.get("colId", "")
-    if col_id not in ("workload_category", "workload_subcategory"):
-        return
-
     changed_data = args.get("data", {})
     vm_name = changed_data.get("vm_name", "")
     new_value = args.get("newValue", "")
 
-    # Parse "Category / Subcategory" label format
-    if " / " in new_value:
-        new_category, subcategory = new_value.split(" / ", 1)
-    else:
-        # Fallback: bare category, find first subcategory
-        new_category = new_value
-        subcategory = ""
-        for entry in drr_table.entries:
-            if entry.category == new_category:
-                subcategory = entry.subcategory
+    if col_id == "drr":
+        # Direct DRR edit — user overrides the ratio manually
+        try:
+            custom_drr = max(float(new_value), 0.1)
+        except (TypeError, ValueError):
+            return
+        for row in row_data:
+            if row.get("vm_name") == vm_name:
+                row["drr"] = custom_drr
                 break
+    elif col_id in ("workload_category", "workload_subcategory"):
+        # Parse "Category / Subcategory" label format
+        if " / " in new_value:
+            new_category, subcategory = new_value.split(" / ", 1)
+        else:
+            new_category = new_value
+            subcategory = ""
+            for entry in drr_table.entries:
+                if entry.category == new_category:
+                    subcategory = entry.subcategory
+                    break
 
-    new_drr = drr_table.get_ratio(new_category, subcategory)
-
-    # Update the row in row_data
-    for row in row_data:
-        if row.get("vm_name") == vm_name:
-            row["workload_category"] = new_category
-            row["workload_subcategory"] = subcategory
-            row["drr"] = new_drr
-            break
+        new_drr = drr_table.get_ratio(new_category, subcategory)
+        for row in row_data:
+            if row.get("vm_name") == vm_name:
+                row["workload_category"] = new_category
+                row["workload_subcategory"] = subcategory
+                row["drr"] = new_drr
+                break
+    else:
+        return
 
     # Capture filter/page state before update
     filter_model = await grid.run_grid_method("getFilterModel")

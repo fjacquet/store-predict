@@ -91,6 +91,8 @@ def create_vm_table(
         {
             "field": "drr",
             "headerName": "DRR",
+            "editable": True,
+            "singleClickEdit": True,
             "sortable": True,
             "filter": "agNumberColumnFilter",
             "floatingFilter": True,
