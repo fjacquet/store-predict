@@ -206,6 +206,7 @@ Plans:
 - [ ] Preserve active filters after workload modification
 - [ ] Preserve current page position after workload modification
 - [ ] Display VM characteristics in review table (including Description field)
+- [ ] Allow subcategory selection when changing workload category (currently only category is selectable)
 
 *Report Enhancements:*
 - [ ] Add to PDF report: total number of VMs
