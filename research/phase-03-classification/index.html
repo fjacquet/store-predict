@@ -1,0 +1,3107 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Pre-sales sizing tool for PowerStore DRR prediction">
+      
+      
+      
+      
+        <link rel="prev" href="../phase-02-ingestion/">
+      
+      
+        <link rel="next" href="../phase-04-ui/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Phase 3 - Classification - StorePredict</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#phase-3-workload-classification-engine-research" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="StorePredict" class="md-header__button md-logo" aria-label="StorePredict" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            StorePredict
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Phase 3 - Classification
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fjacquet/store-predict" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fjacquet/store-predict
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="StorePredict" class="md-nav__button md-logo" aria-label="StorePredict" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    StorePredict
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fjacquet/store-predict" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fjacquet/store-predict
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-01-foundation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 - Foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-02-ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 2 - Ingestion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 3 - Classification
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 3 - Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Stack
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard Stack">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-already-installed-no-new-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core (already installed, no new dependencies)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-new-dependencies-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No New Dependencies Needed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recommended-module-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Module Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-classificationrule-dataclass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1: ClassificationRule Dataclass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-rule-registry-with-priority-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 2: Rule Registry with Priority Ordering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-3-dataframe-level-classification-pure-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 3: DataFrame-Level Classification (Pure Function)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-4-helper-for-building-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 4: Helper for Building Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anti-patterns-to-avoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Patterns to Avoid
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-rule-set-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Rule Set Design
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Default Rule Set Design">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#priority-tiers-from-architecturemd-database-application-infrastructure-os-fallback-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Tiers (from ARCHITECTURE.md: Database &gt; Application &gt; Infrastructure &gt; OS fallback &gt; Default)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-rules-28-drr-categories-to-cover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Rules (28 DRR categories to cover)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verified-drr-subcategory-strings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verified DRR Subcategory Strings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#false-positive-analysis-from-actual-sample-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        False Positive Analysis (from actual sample data)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#special-cases-in-sample-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special Cases in Sample Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dont-hand-roll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Don't Hand-Roll
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Pitfalls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Pitfalls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-1-overly-short-patterns-causing-false-positives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 1: Overly Short Patterns Causing False Positives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-2-priority-order-bugs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 2: Priority Order Bugs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-3-case-sensitivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 3: Case Sensitivity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-4-nanempty-os-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 4: NaN/Empty OS Field
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-5-abacus-abac-vs-sap-confusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 5: Abacus (ABAC) vs SAP Confusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-6-regex-vs-literal-substring-confusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 6: Regex vs Literal Substring Confusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-7-subcategory-string-mismatch-with-drrtable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 7: Subcategory String Mismatch with DRRTable
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#building-the-default-rule-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building the Default Rule Set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-with-ingestion-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration with Ingestion Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-pattern-rule-drrtable-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Pattern: Rule-DRRTable Consistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-pattern-rule-coverage-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Pattern: Rule Coverage Test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-pattern-sample-data-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Pattern: Sample Data Classification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-pattern-specific-rule-tests-per-project-convention-real-objects-no-mocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Pattern: Specific Rule Tests (per project convention: real objects, no mocks)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-of-the-art" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State of the Art
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sources
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#primary-high-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary (HIGH confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secondary-medium-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secondary (MEDIUM confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tertiary-low-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tertiary (LOW confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-04-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 4 - UI Upload & Review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-05-calculation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 5 - Calculation & PDF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-06-polish/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 6 - Polish & Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-07-ui-enhancements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 7 - UI Enhancements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ADR
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/001-nicegui-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    001 - NiceGUI Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/002-drr-csv-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    002 - DRR CSV Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/003-alias-not-fuzzy-matching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    003 - Alias Not Fuzzy Matching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/004-dataframe-not-dataclass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    004 - DataFrame Pipeline Format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/005-conservative-drr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    005 - Conservative DRR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/006-no-mocks-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    006 - No Mocks Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/007-aggrid-vm-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    007 - AG Grid VM Table
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/008-session-storage-split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    008 - Session Storage Split
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/009-dialog-multi-workload/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    009 - Dialog Multi Workload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Stack
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard Stack">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-already-installed-no-new-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core (already installed, no new dependencies)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-new-dependencies-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No New Dependencies Needed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recommended-module-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Module Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-classificationrule-dataclass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1: ClassificationRule Dataclass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-rule-registry-with-priority-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 2: Rule Registry with Priority Ordering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-3-dataframe-level-classification-pure-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 3: DataFrame-Level Classification (Pure Function)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-4-helper-for-building-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 4: Helper for Building Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anti-patterns-to-avoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Patterns to Avoid
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-rule-set-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Rule Set Design
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Default Rule Set Design">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#priority-tiers-from-architecturemd-database-application-infrastructure-os-fallback-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority Tiers (from ARCHITECTURE.md: Database &gt; Application &gt; Infrastructure &gt; OS fallback &gt; Default)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-rules-28-drr-categories-to-cover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Rules (28 DRR categories to cover)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verified-drr-subcategory-strings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verified DRR Subcategory Strings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#false-positive-analysis-from-actual-sample-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        False Positive Analysis (from actual sample data)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#special-cases-in-sample-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Special Cases in Sample Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dont-hand-roll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Don't Hand-Roll
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Pitfalls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Pitfalls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-1-overly-short-patterns-causing-false-positives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 1: Overly Short Patterns Causing False Positives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-2-priority-order-bugs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 2: Priority Order Bugs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-3-case-sensitivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 3: Case Sensitivity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-4-nanempty-os-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 4: NaN/Empty OS Field
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-5-abacus-abac-vs-sap-confusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 5: Abacus (ABAC) vs SAP Confusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-6-regex-vs-literal-substring-confusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 6: Regex vs Literal Substring Confusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-7-subcategory-string-mismatch-with-drrtable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 7: Subcategory String Mismatch with DRRTable
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#building-the-default-rule-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building the Default Rule Set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-with-ingestion-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration with Ingestion Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-pattern-rule-drrtable-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Pattern: Rule-DRRTable Consistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-pattern-rule-coverage-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Pattern: Rule Coverage Test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-pattern-sample-data-classification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Pattern: Sample Data Classification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-pattern-specific-rule-tests-per-project-convention-real-objects-no-mocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Pattern: Specific Rule Tests (per project convention: real objects, no mocks)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-of-the-art" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State of the Art
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sources
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#primary-high-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary (HIGH confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secondary-medium-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secondary (MEDIUM confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tertiary-low-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tertiary (LOW confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="phase-3-workload-classification-engine-research">Phase 3: Workload Classification Engine - Research</h1>
+<p><strong>Researched:</strong> 2026-02-18
+<strong>Domain:</strong> Rules-based pattern matching, VM name parsing, workload categorization
+<strong>Confidence:</strong> HIGH</p>
+<h2 id="summary">Summary</h2>
+<p>Phase 3 implements a rules-based classification engine that assigns each VM to a DRR workload category by matching against its VM name and OS field. The engine uses an ordered list of <code>ClassificationRule</code> dataclasses evaluated in priority order (first match wins), with substring matching for embedded keywords (e.g., "CADSRVSQL001" must match "SQL").</p>
+<p>Analysis of the actual sample data (610 LiveOptics VMs + 24 RVTools VMs) reveals several important patterns: (1) VM names follow corporate naming conventions with embedded functional keywords (SQL, CIT, DC, etc.), (2) some keywords create false positives ("GISAPP" contains "SAP", "LORADB" contains "ORA"), (3) FortiNet appliances are identifiable via OS field rather than VM name, (4) a significant number of VMs (~60%) have generic names that will fall through to OS-based or default classification. The DRR.csv has 28 valid entries across categories: Database (9), File (4), VDI (4), HealthCare (1), Logging-Analytics (1), Email (1), Containers (1), Virtual Machines (1), VM Replication (1), Boot from SAN (1), Web Servers (2), Unknown (1), Custom (1).</p>
+<p>The architecture follows the pattern already established in ARCHITECTURE.md: a rule registry with ordered evaluation, creating <code>pipeline/classification.py</code> as a pure function (DataFrame in, enriched DataFrame out) with zero UI imports.</p>
+<p><strong>Primary recommendation:</strong> Build a <code>ClassificationRule</code> dataclass with case-insensitive substring matching on VM name and OS field. Use compiled <code>re.Pattern</code> objects for patterns. Priority ordering: specific application patterns (Database, VDI, Email) first, then infrastructure patterns (Backup, Containers, Web), then OS-based fallback (Windows Server -&gt; Virtual Machines), then default (Unknown Reducible, DRR=5). Be careful with short/ambiguous patterns (ORA, EX, SAP) that produce false positives.</p>
+<h2 id="standard-stack">Standard Stack</h2>
+<h3 id="core-already-installed-no-new-dependencies">Core (already installed, no new dependencies)</h3>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>Why Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>re (stdlib)</td>
+<td>N/A</td>
+<td>Compiled regex patterns for substring matching</td>
+<td>Standard library, zero dependencies, sufficient for case-insensitive substring search</td>
+</tr>
+<tr>
+<td>dataclasses (stdlib)</td>
+<td>N/A</td>
+<td>ClassificationRule and ClassificationResult dataclasses</td>
+<td>Already used throughout project (VMRecord, DRREntry)</td>
+</tr>
+<tr>
+<td>pandas</td>
+<td>&gt;=2.2</td>
+<td>DataFrame operations for bulk classification</td>
+<td>Already in project, vectorized operations for 5000+ VMs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="no-new-dependencies-needed">No New Dependencies Needed</h3>
+<p>Classification is pure Python pattern matching. No NLP, fuzzy matching, or ML libraries are needed for v1. The patterns are well-defined substrings (SQL, ORACLE, VDI, etc.) matched case-insensitively against VM name and OS fields.</p>
+<h2 id="architecture-patterns">Architecture Patterns</h2>
+<h3 id="recommended-module-structure">Recommended Module Structure</h3>
+<div class="highlight"><pre><span></span><code>src/store_predict/
+  pipeline/
+    classification.py      # ClassificationRule, RuleRegistry, classify_dataframe()
+    models.py              # Add ClassificationResult dataclass (or keep in classification.py)
+</code></pre></div>
+<h3 id="pattern-1-classificationrule-dataclass">Pattern 1: ClassificationRule Dataclass</h3>
+<p><strong>What:</strong> Immutable dataclass defining a single classification rule with priority, patterns, and match mode.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClassificationRule</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A single classification rule for matching VMs to workload categories.&quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>                          <span class="c1"># Human-readable rule name, e.g., &quot;Microsoft SQL&quot;</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>                      <span class="c1"># DRR category, e.g., &quot;Database&quot;</span>
+    <span class="n">subcategory</span><span class="p">:</span> <span class="nb">str</span>                   <span class="c1"># DRR subcategory, e.g., &quot;Microsoft SQL&quot;</span>
+    <span class="n">priority</span><span class="p">:</span> <span class="nb">int</span>                      <span class="c1"># Lower = higher priority (evaluated first)</span>
+    <span class="n">vm_name_patterns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>  <span class="c1"># Match against VM name</span>
+    <span class="n">os_patterns</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>       <span class="c1"># Match against OS field</span>
+    <span class="n">match_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;any&quot;</span>            <span class="c1"># &quot;any&quot; = vm_name OR os, &quot;all&quot; = both required</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vm_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">os_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if this rule matches the given VM name and OS.&quot;&quot;&quot;</span>
+        <span class="n">vm_match</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">vm_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vm_name_patterns</span><span class="p">)</span>
+        <span class="n">os_match</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">os_name</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">os_patterns</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_mode</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">vm_match</span> <span class="ow">and</span> <span class="n">os_match</span>
+        <span class="c1"># &quot;any&quot; mode: at least one pattern type must be defined and match</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vm_name_patterns</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">os_patterns</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">vm_match</span> <span class="ow">or</span> <span class="n">os_match</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">vm_name_patterns</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">vm_match</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">os_patterns</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">os_match</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+<p><strong>Key design choices:</strong></p>
+<ul>
+<li><code>frozen=True</code> for immutability (rules never change at runtime)</li>
+<li><code>tuple</code> for patterns (hashable, immutable)</li>
+<li>Compiled <code>re.Pattern</code> with <code>re.IGNORECASE</code> for case-insensitive substring matching</li>
+<li><code>match_mode</code> supports "any" (OR logic) and "all" (AND logic) for flexible matching</li>
+</ul>
+<h3 id="pattern-2-rule-registry-with-priority-ordering">Pattern 2: Rule Registry with Priority Ordering</h3>
+<p><strong>What:</strong> Ordered collection of rules evaluated sequentially. First match wins.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClassificationResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Result of classifying a single VM.&quot;&quot;&quot;</span>
+
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">subcategory</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">rule_name</span><span class="p">:</span> <span class="nb">str</span>          <span class="c1"># Which rule matched (for FR-3.4 confidence indicator)</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">str</span>         <span class="c1"># &quot;rule_match&quot; | &quot;os_fallback&quot; | &quot;default&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RuleRegistry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ordered collection of classification rules.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rules</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ClassificationRule</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Sort by priority (lower number = higher priority)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rules</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">priority</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vm_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">os_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ClassificationResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Classify a VM by evaluating rules in priority order.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rule</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">vm_name</span><span class="p">,</span> <span class="n">os_name</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">ClassificationResult</span><span class="p">(</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">rule</span><span class="o">.</span><span class="n">category</span><span class="p">,</span>
+                    <span class="n">subcategory</span><span class="o">=</span><span class="n">rule</span><span class="o">.</span><span class="n">subcategory</span><span class="p">,</span>
+                    <span class="n">rule_name</span><span class="o">=</span><span class="n">rule</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">confidence</span><span class="o">=</span><span class="s2">&quot;rule_match&quot;</span> <span class="k">if</span> <span class="n">rule</span><span class="o">.</span><span class="n">priority</span> <span class="o">&lt;</span> <span class="mi">900</span> <span class="k">else</span>
+                               <span class="s2">&quot;os_fallback&quot;</span> <span class="k">if</span> <span class="n">rule</span><span class="o">.</span><span class="n">priority</span> <span class="o">&lt;</span> <span class="mi">1000</span> <span class="k">else</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="c1"># Should never reach here if default rule exists</span>
+        <span class="k">return</span> <span class="n">ClassificationResult</span><span class="p">(</span>
+            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;Unknown (Reducible)&quot;</span><span class="p">,</span>
+            <span class="n">subcategory</span><span class="o">=</span><span class="s2">&quot;Unknown (Reducible)&quot;</span><span class="p">,</span>
+            <span class="n">rule_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+            <span class="n">confidence</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+<h3 id="pattern-3-dataframe-level-classification-pure-function">Pattern 3: DataFrame-Level Classification (Pure Function)</h3>
+<p><strong>What:</strong> Bulk classify all VMs in a DataFrame, adding classification columns.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">classify_dataframe</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">registry</span><span class="p">:</span> <span class="n">RuleRegistry</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Classify all VMs in the DataFrame.</span>
+
+<span class="sd">    Adds columns: workload_category, workload_subcategory, classification_rule, classification_confidence</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df: DataFrame with vm_name and os_name columns (from ingestion).</span>
+<span class="sd">        registry: Rule registry to use for classification.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Copy of DataFrame with classification columns added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">classifications</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">registry</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;vm_name&quot;</span><span class="p">]),</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;os_name&quot;</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()</span>
+    <span class="p">]</span>
+    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;workload_category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">category</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classifications</span><span class="p">]</span>
+    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;workload_subcategory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">subcategory</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classifications</span><span class="p">]</span>
+    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;classification_rule&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">rule_name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classifications</span><span class="p">]</span>
+    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;classification_confidence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">confidence</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classifications</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div>
+<p><strong>Note on performance:</strong> For 610 VMs with ~40 rules, iterrows is fast enough (&lt;100ms). For 5000+ VMs (NFR-4.1), this is still under 1 second. Vectorized approach with <code>df.apply()</code> is an option but adds complexity without meaningful benefit at this scale.</p>
+<h3 id="pattern-4-helper-for-building-patterns">Pattern 4: Helper for Building Patterns</h3>
+<p><strong>What:</strong> Convenience function to create compiled case-insensitive regex patterns.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_patterns</span><span class="p">(</span><span class="o">*</span><span class="n">keywords</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create case-insensitive substring-matching patterns.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">kw</span><span class="p">),</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span> <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="n">keywords</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_regex_patterns</span><span class="p">(</span><span class="o">*</span><span class="n">expressions</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create case-insensitive regex patterns (for non-literal matching).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span> <span class="k">for</span> <span class="n">expr</span> <span class="ow">in</span> <span class="n">expressions</span><span class="p">)</span>
+</code></pre></div>
+<p>Using <code>re.escape()</code> for literal substrings prevents regex injection from keywords like "C++" or "C#". Use <code>_regex_patterns()</code> only when actual regex features are needed (e.g., word boundaries, alternation).</p>
+<h3 id="anti-patterns-to-avoid">Anti-Patterns to Avoid</h3>
+<ul>
+<li><strong>Regex word boundaries for VM names:</strong> FR-3.3 explicitly requires substring matching. <code>\bSQL\b</code> would miss "CADSRVSQL001". Use <code>re.search()</code> without word boundaries.</li>
+<li><strong>Hardcoded DRR ratios in rules:</strong> Rules should reference category/subcategory pairs, NOT embed DRR values. The DRRTable service provides the ratio lookup. Rules and ratios change independently.</li>
+<li><strong>Mutation of input DataFrame:</strong> Always return a copy. The ingestion DataFrame may be reused if the user re-classifies.</li>
+<li><strong>Complex regex when simple substring suffices:</strong> Most patterns are literal substrings ("SQL", "ORACLE"). Only use regex for patterns that genuinely need it (e.g., "MSSQL|MS-SQL").</li>
+</ul>
+<h2 id="default-rule-set-design">Default Rule Set Design</h2>
+<h3 id="priority-tiers-from-architecturemd-database-application-infrastructure-os-fallback-default">Priority Tiers (from ARCHITECTURE.md: Database &gt; Application &gt; Infrastructure &gt; OS fallback &gt; Default)</h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Priority Range</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1: Database</td>
+<td>100-199</td>
+<td>SQL, Oracle, MongoDB, PostgreSQL, SAP, DB2</td>
+</tr>
+<tr>
+<td>2: Application-specific</td>
+<td>200-299</td>
+<td>Healthcare (EMR/EHR), Email (Exchange), VDI (Citrix/Horizon)</td>
+</tr>
+<tr>
+<td>3: Infrastructure services</td>
+<td>300-399</td>
+<td>Backup (Veeam), Containers (Docker/K8s), Web Servers, File Servers</td>
+</tr>
+<tr>
+<td>4: Logging/Analytics</td>
+<td>400-499</td>
+<td>FortiNet, Elastic, Splunk, Zabbix, Centreon</td>
+</tr>
+<tr>
+<td>5: OS-based fallback</td>
+<td>900-949</td>
+<td>Windows Server -&gt; Virtual Machines, Linux -&gt; Virtual Machines</td>
+</tr>
+<tr>
+<td>6: Default</td>
+<td>999</td>
+<td>Unknown (Reducible) DRR=5</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommended-rules-28-drr-categories-to-cover">Recommended Rules (28 DRR categories to cover)</h3>
+<p>Based on analysis of 610 real VM names and 40 unique OS values from samples:</p>
+<div class="highlight"><pre><span></span><code>Priority 100: Database/Oracle
+  vm_name_patterns: [&quot;ORACLE&quot;]  (avoid &quot;ORA&quot; alone - matches LORADB, LORANETv2)
+
+Priority 101: Database/Microsoft SQL
+  vm_name_patterns: [&quot;SQL&quot;, &quot;MSSQL&quot;]
+  NOTE: SQL is broadly used, catches CADSRVSQL001, CIGES-SQL, CIGES-SQLP, etc.
+  Must be AFTER Oracle (priority 100) so &quot;ORACLESQL&quot; goes to Oracle first.
+
+Priority 102: Database/My SQL / NoSQL
+  vm_name_patterns: [&quot;MYSQL&quot;, &quot;NOSQL&quot;, &quot;MARIADB&quot;]
+  NOTE: MariaDB is a MySQL fork, maps to same DRR category.
+
+Priority 103: Database/DB2
+  vm_name_patterns: [&quot;DB2&quot;]
+
+Priority 104: Database/MongoDB
+  vm_name_patterns: [&quot;MONGODB&quot;, &quot;MONGO&quot;]
+
+Priority 105: Database/PostgreSQL
+  vm_name_patterns: [&quot;PGSQL&quot;, &quot;POSTGRES&quot;, &quot;POSTGRESQL&quot;]
+  subcategory: &quot;PostgreSQL&quot;  (DRRTable.from_csv() strips the CSV newline)
+
+Priority 106: Database/Prometheus
+  vm_name_patterns: [&quot;PROMETHEUS&quot;]
+
+Priority 107: Database/SAP HANA(S4)
+  vm_name_patterns: [&quot;HANA&quot;, &quot;S4HANA&quot;]
+  NOTE: Use regex for SAP.*HANA to catch &quot;SAP-HANA-01&quot; etc.
+
+Priority 108: Database/SAP Traditional (R/3 / ECC)
+  vm_name_patterns: [&quot;SAP&quot;]
+  NOTE: Do NOT include &quot;ABAC&quot; (Swiss Abacus ERP, not SAP). &quot;CONSAPPT&quot;
+  contains &quot;SAP&quot; but this is acceptable (conservative sizing).
+
+Priority 200: HealthCare/EMR/EHR
+  vm_name_patterns: [&quot;EPIC&quot;, &quot;MCKESSON&quot;, &quot;EMR&quot;, &quot;EHR&quot;]
+
+Priority 210: Email/Domino/Notes, Exchange, etc.
+  vm_name_patterns: [&quot;EXCHANGE&quot;, &quot;DOMINO&quot;, &quot;ZIMBRA&quot;, &quot;SENDMAIL&quot;]
+  NOTE: Avoid &quot;EX&quot; - too short, matches EXTRANET, APEXP, etc.
+  Avoid &quot;NOTES&quot; - too generic.
+
+Priority 220: VDI/Full Clone / MCS (Citrix)
+  vm_name_patterns: [&quot;CITRIX&quot;, &quot;CIT&quot;, &quot;MCS&quot;]
+  NOTE: &quot;CIT&quot; matches many CIGES VMs (CITADM, CITAP, CITAPP, CITCLR, etc.)
+  These are genuinely Citrix infrastructure VMs. 26 matches in sample.
+
+Priority 221: VDI/Linked Clone / PVS (Citrix)
+  vm_name_patterns: [&quot;PVS&quot;]
+
+Priority 222: VDI/Instant Clone
+  vm_name_patterns: [&quot;HORIZON&quot;]
+  NOTE: HORIZON matches 5 VMs. VMware Horizon typically uses instant clone.
+
+Priority 223: VDI/VDI Profiles
+  vm_name_patterns: [&quot;VDI.*PROFIL&quot;, &quot;PROFIL.*VDI&quot;]
+  NOTE: OIK_VDI-PROFIL matches. Generic &quot;PROFIL&quot; without VDI context
+  should not match here.
+
+Priority 300: VM Replication/Veeam, Zerto, RP4VM
+  vm_name_patterns: [&quot;VEEAM&quot;, &quot;VBR&quot;, &quot;ZERTO&quot;, &quot;RP4VM&quot;]
+  NOTE: 28 VMs match backup-related patterns. vbr-* VMs are Veeam proxies.
+
+Priority 310: Containers/Kubernetes, OpenShift, Docker, Tanzu
+  vm_name_patterns: [&quot;DOCKER&quot;, &quot;KUBERNETES&quot;, &quot;K8S&quot;, &quot;OPENSHIFT&quot;, &quot;TANZU&quot;]
+
+Priority 320: Web Servers/Content included
+  vm_name_patterns: [&quot;WEB&quot;, &quot;WWW&quot;, &quot;APACHE&quot;, &quot;NGINX&quot;, &quot;IIS&quot;]
+  NOTE: 15 VMs match WEB/WWW patterns. Default to &quot;Content included&quot; (DRR=5).
+
+Priority 330: File/General Purpose
+  vm_name_patterns: [&quot;MFILES&quot;, &quot;FILE&quot;]
+  NOTE: Put MFILES before generic FILE pattern. OIK_FILE1 matches.
+
+Priority 340: File/Content Servers (Git, SharePoint)
+  vm_name_patterns: [&quot;GIT&quot;, &quot;GITLAB&quot;, &quot;SHAREPOINT&quot;]
+
+Priority 350: File/Developer Workspaces (DevOps)
+  vm_name_patterns: [&quot;DEVOPS&quot;, &quot;JENKINS&quot;, &quot;ANSIBLE&quot;]
+
+Priority 360: File/Archive / Backup / Compressed / Encrypted
+  vm_name_patterns: [&quot;ARCHIVE&quot;]
+  NOTE: &quot;BACKUP&quot; overlaps with VM Replication (priority 300). Veeam-specific
+  VMs go to VM Replication first due to lower priority number.
+
+Priority 400: Logging - Analytics/FortiNet, Elastic Search, Splunk, ELK
+  vm_name_patterns: [&quot;ELASTIC&quot;, &quot;ELK&quot;, &quot;SPLUNK&quot;, &quot;FORTIANALYZER&quot;, &quot;FORTIMANAGER&quot;,
+                      &quot;ZABBIX&quot;, &quot;CENTREON&quot;, &quot;OBSERVIUM&quot;, &quot;GRAFANA&quot;]
+  os_patterns: [&quot;FORTI&quot;]
+  NOTE: OS field catches FortiNet appliances (FAZ, FMG) even when VM name
+  doesn&#39;t contain &quot;FORTI&quot;. Single DRR category covers all logging/analytics.
+
+Priority 500: Boot from SAN
+  vm_name_patterns: [&quot;BOOTSAN&quot;, &quot;SANBOOT&quot;]
+  NOTE: Likely no matches in sample data. Keep for completeness.
+
+Priority 900: OS Fallback - Windows Server -&gt; Virtual Machines
+  os_patterns: [&quot;WINDOWS SERVER&quot;]
+  category: Virtual Machines / VMware / Hyper-V / KVM
+
+Priority 905: OS Fallback - Windows Desktop -&gt; Virtual Machines
+  os_patterns: [&quot;WINDOWS 10&quot;, &quot;WINDOWS 11&quot;, &quot;WINDOWS 7&quot;]
+  category: Virtual Machines / VMware / Hyper-V / KVM
+
+Priority 910: OS Fallback - Linux -&gt; Virtual Machines
+  os_patterns: [&quot;LINUX&quot;, &quot;UBUNTU&quot;, &quot;CENTOS&quot;, &quot;DEBIAN&quot;, &quot;RED HAT&quot;, &quot;SUSE&quot;,
+                &quot;ALMA&quot;, &quot;ROCKY&quot;, &quot;ORACLE LINUX&quot;, &quot;FREEBSD&quot;]
+  category: Virtual Machines / VMware / Hyper-V / KVM
+
+Priority 920: OS Fallback - VMware/ESXi -&gt; Virtual Machines
+  os_patterns: [&quot;VMWARE&quot;, &quot;ESXI&quot;, &quot;PHOTON&quot;]
+  category: Virtual Machines / VMware / Hyper-V / KVM
+
+Priority 999: Default
+  Always matches. Unknown (Reducible), DRR=5
+</code></pre></div>
+<h3 id="verified-drr-subcategory-strings">Verified DRR Subcategory Strings</h3>
+<p>Verified by running <code>DRRTable.from_csv()</code> against actual <code>samples/DRR.csv</code>. These are the EXACT subcategory strings that rules must use to match DRR lookups:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Subcategory (exact string)</th>
+<th>DRR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Database</td>
+<td>Oracle</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>Microsoft SQL</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>My SQL / NoSQL</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>DB2</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>MongoDB</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>PostgreSQL</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>Prometheus</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>SAP HANA(S4)</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>SAP Traditional (R/3 / ECC)</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td>HealthCare</td>
+<td>EMR/EHR (Epic, McKesson)</td>
+<td>3.0</td>
+</tr>
+<tr>
+<td>File</td>
+<td>General Purpose</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>File</td>
+<td>Archive / Backup / Compressed / Encrypted / Rich Media / ISO / PACS / CAD</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>File</td>
+<td>Content Servers (Git, Sharepoint)</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>File</td>
+<td>Developer Workspaces (DevOps)</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>VDI</td>
+<td>Full Clone / MCS (Citrix)</td>
+<td>8.0</td>
+</tr>
+<tr>
+<td>VDI</td>
+<td>Linked Clone / PVS (Citrix)</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>VDI</td>
+<td>Instant Clone</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td>VDI</td>
+<td>VDI Profiles</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>Logging - Analytics</td>
+<td>FortiNet, Elastic Search, Splunk, ELK, etc</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Email</td>
+<td>Domino/Notes, Exchange, Sendmail, Zimbra, etc</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>Containers</td>
+<td>Kubernetes, OpenShift, Docker, Tanzu, etc</td>
+<td>2.0</td>
+</tr>
+<tr>
+<td>Virtual Machines</td>
+<td>VMware / Hyper-V / KVM - No Database, File nor Email</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td>VM Replication</td>
+<td>Veeam, Zerto, RP4VM</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Boot from SAN</td>
+<td>Linux, VMware, Windows - OS Boot</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Web Servers</td>
+<td>Content included</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td>Web Servers</td>
+<td>Content not included</td>
+<td>1.5</td>
+</tr>
+<tr>
+<td>Unknown (Reducible)</td>
+<td>Unknown (Reducible)</td>
+<td>5.0</td>
+</tr>
+<tr>
+<td>Custom DRR</td>
+<td>Custom DRR</td>
+<td>3.0</td>
+</tr>
+</tbody>
+</table>
+<p>Note: "PostgreSQL" subcategory is clean (DRRTable.from_csv() strips the embedded newline from the CSV). No special handling needed in rules.</p>
+<h3 id="false-positive-analysis-from-actual-sample-data">False Positive Analysis (from actual sample data)</h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>False Positive Risk</th>
+<th>Example</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"ORA"</td>
+<td>HIGH</td>
+<td>OIK_LORADB, OIK_LORANETv2, ORAP-COMMUNES</td>
+<td>Use "ORACLE" instead of "ORA"</td>
+</tr>
+<tr>
+<td>"SAP"</td>
+<td>MEDIUM</td>
+<td>CIGES-CONSAPPT, CIGES-GISAPP</td>
+<td>"GISAPP" contains "SAP" at boundary; "CONSAPPT" acceptable</td>
+</tr>
+<tr>
+<td>"EX"</td>
+<td>HIGH</td>
+<td>EXTRANET, APEXP, APEXT</td>
+<td>Use "EXCHANGE" not "EX"</td>
+</tr>
+<tr>
+<td>"SQL"</td>
+<td>LOW</td>
+<td>Broadly correct - SQL in VM name almost always means SQL Server</td>
+<td>Keep as-is</td>
+</tr>
+<tr>
+<td>"CIT"</td>
+<td>LOW for Citrix infra</td>
+<td>CITADM, CITAPP, etc. are genuinely Citrix</td>
+<td>Keep as-is</td>
+</tr>
+<tr>
+<td>"DB"</td>
+<td>MEDIUM</td>
+<td>NESTDB, DPODB, SITDB could be app DBs not specific DB engines</td>
+<td>Only use in combination patterns</td>
+</tr>
+<tr>
+<td>"ABAC"</td>
+<td>MEDIUM</td>
+<td>Abacus (Swiss ERP) VMs, not SAP</td>
+<td>Do NOT use as SAP pattern</td>
+</tr>
+<tr>
+<td>"FILE"</td>
+<td>LOW</td>
+<td>OIK_FILE1, MFILES (M-Files doc mgmt)</td>
+<td>MFILES matches File/General Purpose (acceptable)</td>
+</tr>
+<tr>
+<td>"BACKUP"</td>
+<td>LOW</td>
+<td>BACKUP-DC1, BACKUP-DC2 are backup-related</td>
+<td>Place Veeam/Zerto rules (priority 300) before generic backup (360)</td>
+</tr>
+<tr>
+<td>"GIT"</td>
+<td>LOW</td>
+<td>CIGES-GIT, OIK_GITLAB genuinely Git servers</td>
+<td>Keep as-is</td>
+</tr>
+</tbody>
+</table>
+<h3 id="special-cases-in-sample-data">Special Cases in Sample Data</h3>
+<ol>
+<li><strong>vCLS VMs (6 matches):</strong> VMware Cluster Services VMs. OS field "VMware Photon CRX" catches them via OS fallback -&gt; Virtual Machines.</li>
+<li><strong>VxRail Manager VMs (3 matches):</strong> VxRail management appliances. Falls through to OS fallback -&gt; Virtual Machines.</li>
+<li><strong>Template VMs (17 matches):</strong> Should already be filtered out by ingestion (Phase 2, is_template flag). VMs with "Template" in name but is_template=False should be classified normally.</li>
+<li><strong>TODELETE VMs (17 matches):</strong> Marked for deletion. Still active VMs that should be classified normally.</li>
+<li><strong>AZURE VMs (15 matches):</strong> Azure AD Connect or Azure-related appliances. Falls through to OS fallback -&gt; Virtual Machines.</li>
+</ol>
+<h2 id="dont-hand-roll">Don't Hand-Roll</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Don't Build</th>
+<th>Use Instead</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pattern matching</td>
+<td>Custom substring search loops</td>
+<td>Compiled <code>re.Pattern</code> with <code>re.IGNORECASE</code></td>
+<td>Handles case-insensitive matching in one call, well-tested</td>
+</tr>
+<tr>
+<td>DRR ratio lookup</td>
+<td>Embed ratios in rules</td>
+<td><code>DRRTable.get_ratio(category, subcategory)</code></td>
+<td>Ratios change independently of rules</td>
+</tr>
+<tr>
+<td>Rule ordering</td>
+<td>Manual index management</td>
+<td><code>sorted(rules, key=lambda r: r.priority)</code> + first-match-wins</td>
+<td>Clean, maintainable, easy to reorder</td>
+</tr>
+<tr>
+<td>Classification results</td>
+<td>Ad-hoc dict/tuple</td>
+<td><code>ClassificationResult</code> dataclass</td>
+<td>Type-safe, self-documenting</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key insight:</strong> Rules define WHAT category a VM belongs to. DRRTable defines WHAT ratio that category gets. These are separate concerns. Never embed DRR values in classification rules.</p>
+<h2 id="common-pitfalls">Common Pitfalls</h2>
+<h3 id="pitfall-1-overly-short-patterns-causing-false-positives">Pitfall 1: Overly Short Patterns Causing False Positives</h3>
+<p><strong>What goes wrong:</strong> Using "ORA" to match Oracle catches "LORADB", "ORAP-COMMUNES". Using "EX" for Exchange catches "EXTRANET", "APEXP".
+<strong>Why it happens:</strong> VM naming conventions embed short keywords within longer names.
+<strong>How to avoid:</strong> Use longer, more specific patterns ("ORACLE" not "ORA", "EXCHANGE" not "EX"). Test every rule against the full 610-VM dataset.
+<strong>Warning signs:</strong> Unexpectedly high match count for a category.</p>
+<h3 id="pitfall-2-priority-order-bugs">Pitfall 2: Priority Order Bugs</h3>
+<p><strong>What goes wrong:</strong> A generic rule (e.g., OS fallback "Windows Server") matches before a specific rule (e.g., "SQL Server" on Windows).
+<strong>Why it happens:</strong> Rules not properly sorted by priority, or priority values not carefully assigned.
+<strong>How to avoid:</strong> Test with VMs that should match specific rules AND have Windows Server OS. Verify the specific rule wins.
+<strong>Warning signs:</strong> Too many VMs classified as "Virtual Machines" when they should be Database/Application.</p>
+<h3 id="pitfall-3-case-sensitivity">Pitfall 3: Case Sensitivity</h3>
+<p><strong>What goes wrong:</strong> "cadsrvsql001" (lowercase) doesn't match "SQL" pattern.
+<strong>Why it happens:</strong> Forgot <code>re.IGNORECASE</code> flag, or used <code>str.find()</code> without <code>.upper()</code>.
+<strong>How to avoid:</strong> Always compile patterns with <code>re.IGNORECASE</code>. Test with mixed-case VM names from real data (sample has: "cig-cent-int-p-01", "ciges-phenix", "ciges-poller3", "ciges-TST2-07").
+<strong>Warning signs:</strong> VMs with lowercase names get classified as "Unknown."</p>
+<h3 id="pitfall-4-nanempty-os-field">Pitfall 4: NaN/Empty OS Field</h3>
+<p><strong>What goes wrong:</strong> OS-based fallback rules crash or don't match when OS field is NaN or empty string.
+<strong>Why it happens:</strong> Some VMs (especially in RVTools) have NaN OS field when VMware Tools is not installed.
+<strong>How to avoid:</strong> Convert NaN to empty string before classification. Beware that <code>str(float('nan'))</code> produces "nan" which could accidentally match patterns. Use explicit check: <code>os_name if pd.notna(os_name) else ""</code>.
+<strong>Warning signs:</strong> VMs with no OS getting classified incorrectly, or "nan" string matching patterns.</p>
+<h3 id="pitfall-5-abacus-abac-vs-sap-confusion">Pitfall 5: Abacus (ABAC) vs SAP Confusion</h3>
+<p><strong>What goes wrong:</strong> Swiss accounting software Abacus VMs (30+ in sample) get classified as SAP.
+<strong>Why it happens:</strong> "ABAC" is a common prefix in Swiss IT for Abacus ERP, not SAP's ABAP.
+<strong>How to avoid:</strong> Do NOT use "ABAC" as a SAP pattern. Only match "SAP", "HANA", "S4HANA", "R3", "ECC" for SAP categories. ABAC VMs should fall through to OS fallback (Virtual Machines, DRR=5).
+<strong>Warning signs:</strong> Large number of VMs classified as SAP when the customer is not a SAP shop.</p>
+<h3 id="pitfall-6-regex-vs-literal-substring-confusion">Pitfall 6: Regex vs Literal Substring Confusion</h3>
+<p><strong>What goes wrong:</strong> Using <code>re.compile("C++")</code> which interprets <code>+</code> as regex quantifier.
+<strong>Why it happens:</strong> Mixing literal substrings with regex patterns.
+<strong>How to avoid:</strong> Use <code>re.escape()</code> for literal keywords. Only use raw regex when features like alternation or character classes are needed.
+<strong>Warning signs:</strong> Patterns silently fail to match or match unexpected strings.</p>
+<h3 id="pitfall-7-subcategory-string-mismatch-with-drrtable">Pitfall 7: Subcategory String Mismatch with DRRTable</h3>
+<p><strong>What goes wrong:</strong> Classification assigns a subcategory that does not exist in DRRTable, causing lookup to return default 5.0 instead of correct ratio.
+<strong>Why it happens:</strong> Typo in subcategory string, or mismatch between rule and DRR.csv.
+<strong>How to avoid:</strong> Use the exact strings from the Verified DRR Subcategory Strings table above. Add a test that verifies every rule's (category, subcategory) exists in DRRTable.
+<strong>Warning signs:</strong> DRR ratios not matching expected values for certain categories.</p>
+<h2 id="code-examples">Code Examples</h2>
+<h3 id="building-the-default-rule-set">Building the Default Rule Set</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Source: derived from samples/DRR.csv categories + analysis of 610 sample VMs</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_default_rules</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ClassificationRule</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the default classification rule set covering all DRR categories.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="c1"># === Tier 1: Database (priority 100-199) ===</span>
+        <span class="n">ClassificationRule</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Oracle Database&quot;</span><span class="p">,</span>
+            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;Database&quot;</span><span class="p">,</span>
+            <span class="n">subcategory</span><span class="o">=</span><span class="s2">&quot;Oracle&quot;</span><span class="p">,</span>
+            <span class="n">priority</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">vm_name_patterns</span><span class="o">=</span><span class="n">_patterns</span><span class="p">(</span><span class="s2">&quot;ORACLE&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">ClassificationRule</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Microsoft SQL&quot;</span><span class="p">,</span>
+            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;Database&quot;</span><span class="p">,</span>
+            <span class="n">subcategory</span><span class="o">=</span><span class="s2">&quot;Microsoft SQL&quot;</span><span class="p">,</span>
+            <span class="n">priority</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+            <span class="n">vm_name_patterns</span><span class="o">=</span><span class="n">_patterns</span><span class="p">(</span><span class="s2">&quot;SQL&quot;</span><span class="p">,</span> <span class="s2">&quot;MSSQL&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">ClassificationRule</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MongoDB&quot;</span><span class="p">,</span>
+            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;Database&quot;</span><span class="p">,</span>
+            <span class="n">subcategory</span><span class="o">=</span><span class="s2">&quot;MongoDB&quot;</span><span class="p">,</span>
+            <span class="n">priority</span><span class="o">=</span><span class="mi">104</span><span class="p">,</span>
+            <span class="n">vm_name_patterns</span><span class="o">=</span><span class="n">_patterns</span><span class="p">(</span><span class="s2">&quot;MONGODB&quot;</span><span class="p">,</span> <span class="s2">&quot;MONGO&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">ClassificationRule</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PostgreSQL&quot;</span><span class="p">,</span>
+            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;Database&quot;</span><span class="p">,</span>
+            <span class="n">subcategory</span><span class="o">=</span><span class="s2">&quot;PostgreSQL&quot;</span><span class="p">,</span>  <span class="c1"># DRRTable strips CSV newline</span>
+            <span class="n">priority</span><span class="o">=</span><span class="mi">105</span><span class="p">,</span>
+            <span class="n">vm_name_patterns</span><span class="o">=</span><span class="n">_patterns</span><span class="p">(</span><span class="s2">&quot;PGSQL&quot;</span><span class="p">,</span> <span class="s2">&quot;POSTGRES&quot;</span><span class="p">,</span> <span class="s2">&quot;POSTGRESQL&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="c1"># ... (continue for all 28 categories)</span>
+
+        <span class="c1"># === Tier 5: OS Fallback (priority 900-949) ===</span>
+        <span class="n">ClassificationRule</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Windows Server (OS fallback)&quot;</span><span class="p">,</span>
+            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;Virtual Machines&quot;</span><span class="p">,</span>
+            <span class="n">subcategory</span><span class="o">=</span><span class="s2">&quot;VMware / Hyper-V / KVM - No Database, File nor Email&quot;</span><span class="p">,</span>
+            <span class="n">priority</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span>
+            <span class="n">os_patterns</span><span class="o">=</span><span class="n">_regex_patterns</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;windows server&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">ClassificationRule</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Linux (OS fallback)&quot;</span><span class="p">,</span>
+            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;Virtual Machines&quot;</span><span class="p">,</span>
+            <span class="n">subcategory</span><span class="o">=</span><span class="s2">&quot;VMware / Hyper-V / KVM - No Database, File nor Email&quot;</span><span class="p">,</span>
+            <span class="n">priority</span><span class="o">=</span><span class="mi">910</span><span class="p">,</span>
+            <span class="n">os_patterns</span><span class="o">=</span><span class="n">_regex_patterns</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s2">&quot;linux|ubuntu|centos|debian|red hat|suse|alma|rocky|oracle linux&quot;</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+
+        <span class="c1"># === Tier 6: Default (priority 999) ===</span>
+        <span class="n">ClassificationRule</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;Unknown (Reducible)&quot;</span><span class="p">,</span>
+            <span class="n">subcategory</span><span class="o">=</span><span class="s2">&quot;Unknown (Reducible)&quot;</span><span class="p">,</span>
+            <span class="n">priority</span><span class="o">=</span><span class="mi">999</span><span class="p">,</span>
+            <span class="n">vm_name_patterns</span><span class="o">=</span><span class="n">_regex_patterns</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*&quot;</span><span class="p">),</span>  <span class="c1"># Matches everything</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+</code></pre></div>
+<h3 id="integration-with-ingestion-pipeline">Integration with Ingestion Pipeline</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Typical usage in the session controller:</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">store_predict.pipeline.ingestion</span><span class="w"> </span><span class="kn">import</span> <span class="n">ingest_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">store_predict.pipeline.classification</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RuleRegistry</span><span class="p">,</span>
+    <span class="n">build_default_rules</span><span class="p">,</span>
+    <span class="n">classify_dataframe</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># After file upload:</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">ingest_file</span><span class="p">(</span><span class="n">uploaded_path</span><span class="p">)</span>
+
+<span class="c1"># Classification:</span>
+<span class="n">registry</span> <span class="o">=</span> <span class="n">RuleRegistry</span><span class="p">(</span><span class="n">build_default_rules</span><span class="p">())</span>
+<span class="n">classified_df</span> <span class="o">=</span> <span class="n">classify_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">registry</span><span class="p">)</span>
+
+<span class="c1"># classified_df now has columns:</span>
+<span class="c1"># vm_name, os_name, provisioned_mib, in_use_mib, ...</span>
+<span class="c1"># + workload_category, workload_subcategory, classification_rule, classification_confidence</span>
+</code></pre></div>
+<h3 id="testing-pattern-rule-drrtable-consistency">Testing Pattern: Rule-DRRTable Consistency</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Test that every rule&#39;s category/subcategory exists in DRRTable</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_rule_categories_exist_in_drr</span><span class="p">(</span><span class="n">drr_table</span><span class="p">:</span> <span class="n">DRRTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Every rule must reference a valid DRR category/subcategory.&quot;&quot;&quot;</span>
+    <span class="n">drr_categories</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">subcategory</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">drr_table</span><span class="o">.</span><span class="n">entries</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">rule</span> <span class="ow">in</span> <span class="n">build_default_rules</span><span class="p">():</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="n">rule</span><span class="o">.</span><span class="n">subcategory</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">drr_categories</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Rule &#39;</span><span class="si">{</span><span class="n">rule</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; references (</span><span class="si">{</span><span class="n">rule</span><span class="o">.</span><span class="n">category</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">rule</span><span class="o">.</span><span class="n">subcategory</span><span class="si">}</span><span class="s2">) &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;which does not exist in DRR table&quot;</span>
+        <span class="p">)</span>
+</code></pre></div>
+<h3 id="testing-pattern-rule-coverage-test">Testing Pattern: Rule Coverage Test</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Test that every DRR category has at least one matching rule</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_all_drr_categories_covered</span><span class="p">(</span><span class="n">drr_table</span><span class="p">:</span> <span class="n">DRRTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Every DRR category/subcategory must have at least one rule.&quot;&quot;&quot;</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">RuleRegistry</span><span class="p">(</span><span class="n">build_default_rules</span><span class="p">())</span>
+    <span class="n">rule_categories</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">subcategory</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">registry</span><span class="o">.</span><span class="n">_rules</span>
+    <span class="p">}</span>
+    <span class="n">drr_categories</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">subcategory</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">drr_table</span><span class="o">.</span><span class="n">entries</span>
+    <span class="p">}</span>
+    <span class="n">uncovered</span> <span class="o">=</span> <span class="n">drr_categories</span> <span class="o">-</span> <span class="n">rule_categories</span>
+    <span class="c1"># Allow &quot;Custom DRR&quot; to be uncovered (user-assigned only)</span>
+    <span class="n">uncovered</span><span class="o">.</span><span class="n">discard</span><span class="p">((</span><span class="s2">&quot;Custom DRR&quot;</span><span class="p">,</span> <span class="s2">&quot;Custom DRR&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">uncovered</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;DRR categories without rules: </span><span class="si">{</span><span class="n">uncovered</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<h3 id="testing-pattern-sample-data-classification">Testing Pattern: Sample Data Classification</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Test classification against real 610-VM sample</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_classify_liveoptics_sample</span><span class="p">(</span><span class="n">liveoptics_xlsx_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Classify all 610 VMs and verify &gt;80% reasonable matches.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">store_predict.pipeline.ingestion</span><span class="w"> </span><span class="kn">import</span> <span class="n">ingest_file</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">ingest_file</span><span class="p">(</span><span class="n">liveoptics_xlsx_path</span><span class="p">)</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">RuleRegistry</span><span class="p">(</span><span class="n">build_default_rules</span><span class="p">())</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">classify_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">registry</span><span class="p">)</span>
+
+    <span class="c1"># Check no VMs are unclassified (all should have a category)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;workload_category&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="c1"># Check distribution is reasonable</span>
+    <span class="n">category_counts</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;workload_category&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+
+    <span class="c1"># &quot;Unknown (Reducible)&quot; should be less than 20% of total</span>
+    <span class="n">unknown_pct</span> <span class="o">=</span> <span class="n">category_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Unknown (Reducible)&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">unknown_pct</span> <span class="o">&lt;</span> <span class="mf">0.20</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Too many unknown: </span><span class="si">{</span><span class="n">unknown_pct</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># Specific known VMs should classify correctly</span>
+    <span class="n">sql_vms</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;vm_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;SQL&quot;</span><span class="p">)]</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">sql_vms</span><span class="p">[</span><span class="s2">&quot;workload_category&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Database&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="testing-pattern-specific-rule-tests-per-project-convention-real-objects-no-mocks">Testing Pattern: Specific Rule Tests (per project convention: real objects, no mocks)</h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_sql_substring_match</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;FR-3.3: CADSRVSQL001 must match SQL rule via substring.&quot;&quot;&quot;</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">RuleRegistry</span><span class="p">(</span><span class="n">build_default_rules</span><span class="p">())</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;CADSRVSQL001&quot;</span><span class="p">,</span> <span class="s2">&quot;Microsoft Windows Server 2019 (64-bit)&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;Database&quot;</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">subcategory</span> <span class="o">==</span> <span class="s2">&quot;Microsoft SQL&quot;</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">confidence</span> <span class="o">==</span> <span class="s2">&quot;rule_match&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_fortinet_os_match</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;FortiNet appliances detected via OS field.&quot;&quot;&quot;</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">RuleRegistry</span><span class="p">(</span><span class="n">build_default_rules</span><span class="p">())</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span>
+        <span class="s2">&quot;CIGES-FAZ&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;FortiAnalyzer-VM64 v7.4.10-build2778 260126 (GA.M)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;Logging - Analytics&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_windows_server_fallback</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic Windows Server VM falls to OS fallback, not Unknown.&quot;&quot;&quot;</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">RuleRegistry</span><span class="p">(</span><span class="n">build_default_rules</span><span class="p">())</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span>
+        <span class="s2">&quot;CIGES-SERVICES&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Microsoft Windows Server 2022 (64-bit)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;Virtual Machines&quot;</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">confidence</span> <span class="o">==</span> <span class="s2">&quot;os_fallback&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_oracle_not_lora</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OIK_LORADB should NOT match Oracle (uses &#39;ORACLE&#39; not &#39;ORA&#39;).&quot;&quot;&quot;</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">RuleRegistry</span><span class="p">(</span><span class="n">build_default_rules</span><span class="p">())</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="s2">&quot;OIK_LORADB&quot;</span><span class="p">,</span> <span class="s2">&quot;Oracle Linux 9 (64-bit)&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">category</span> <span class="o">!=</span> <span class="s2">&quot;Database&quot;</span> <span class="ow">or</span> <span class="n">result</span><span class="o">.</span><span class="n">subcategory</span> <span class="o">!=</span> <span class="s2">&quot;Oracle&quot;</span>
+</code></pre></div>
+<h2 id="state-of-the-art">State of the Art</h2>
+<table>
+<thead>
+<tr>
+<th>Old Approach</th>
+<th>Current Approach</th>
+<th>When Changed</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ML-based classification</td>
+<td>Rules-based pattern matching</td>
+<td>v1 design decision</td>
+<td>Simpler, faster, sufficient for 80%+ accuracy</td>
+</tr>
+<tr>
+<td>Exact word boundary matching</td>
+<td>Substring matching</td>
+<td>FR-3.3 requirement</td>
+<td>Catches embedded keywords in naming conventions</td>
+</tr>
+<tr>
+<td>Flat pattern list</td>
+<td>Priority-ordered rule registry</td>
+<td>Architecture decision</td>
+<td>Prevents ambiguous classifications</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Out of scope for v1:</strong></p>
+<ul>
+<li>ML-based classification (deferred to v2 per PROJECT.md)</li>
+<li>Fuzzy/approximate matching (not needed - patterns are well-defined)</li>
+<li>User-defined custom rules (Phase 4 handles user overrides per-VM)</li>
+</ul>
+<h2 id="open-questions">Open Questions</h2>
+<ol>
+<li><strong>Abacus (ABAC) classification</strong></li>
+<li>What we know: ~30 CIGES VMs contain "ABAC" which is Swiss Abacus ERP software</li>
+<li>What's unclear: Whether customer considers Abacus similar to SAP for DRR purposes</li>
+<li>
+<p>Recommendation: Do NOT map ABAC to SAP. Let these fall through to OS-based fallback (Virtual Machines, DRR=5). Users can override in Phase 4's review UI.</p>
+</li>
+<li>
+<p><strong>Citrix VMs: Full Clone vs Linked Clone</strong></p>
+</li>
+<li>What we know: 26 VMs match "CIT" patterns. DRR has separate entries for Full Clone (DRR=8) and Linked Clone (DRR=2).</li>
+<li>What's unclear: Cannot determine clone type from VM name or OS field alone.</li>
+<li>
+<p>Recommendation: Default Citrix VMs to "VDI/Full Clone / MCS (Citrix)" (DRR=8, optimistic). User can override specific VMs to Linked Clone in review UI.</p>
+</li>
+<li>
+<p><strong>MariaDB classification</strong></p>
+</li>
+<li>What we know: OIK_MARIADB3, OIK_MARIADB4 exist in sample. DRR.csv has "My SQL / NoSQL" category.</li>
+<li>What's unclear: Whether MariaDB should map to "My SQL / NoSQL" (DRR=5) or be separate.</li>
+<li>
+<p>Recommendation: Map MariaDB to "My SQL / NoSQL" since MariaDB is a MySQL fork. Add "MARIADB" to that rule's patterns.</p>
+</li>
+<li>
+<p><strong>Web Servers: Content included vs not included</strong></p>
+</li>
+<li>What we know: DRR has two subcategories: "Content included" (DRR=5) and "Content not included" (DRR=1.5).</li>
+<li>What's unclear: Cannot determine content inclusion from VM name alone.</li>
+<li>Recommendation: Default to "Content included" (DRR=5, more conservative for sizing). User can override.</li>
+</ol>
+<h2 id="sources">Sources</h2>
+<h3 id="primary-high-confidence">Primary (HIGH confidence)</h3>
+<ul>
+<li><strong>Actual sample data</strong> analyzed with pandas:</li>
+<li><code>samples/live-optics.xlsx</code>: 610 VMs, 40 unique OS values, pattern frequency analysis</li>
+<li><code>samples/rvtools.xlsx</code>: 24 VMs, 20 with OS data</li>
+<li><code>samples/DRR.csv</code>: 28 valid entries across 13 top-level categories</li>
+<li><strong>DRRTable.from_csv() output</strong> verified at runtime: all 28 subcategory strings confirmed exact (PostgreSQL is clean, no newline)</li>
+<li><strong>Existing codebase</strong>: <code>pipeline/models.py</code>, <code>services/drr_table.py</code>, <code>pipeline/ingestion.py</code>, <code>pipeline/parsers/columns.py</code></li>
+<li><strong>ARCHITECTURE.md</strong>: Rule Registry pattern (Pattern 2), classification pipeline design</li>
+<li><strong>REQUIREMENTS.md</strong>: FR-3.1 through FR-3.4 specifications</li>
+</ul>
+<h3 id="secondary-medium-confidence">Secondary (MEDIUM confidence)</h3>
+<ul>
+<li><strong>Python re module</strong> documentation: <code>re.compile()</code>, <code>re.IGNORECASE</code>, <code>re.search()</code> API (stable stdlib, HIGH confidence)</li>
+<li><strong>Phase 2 RESEARCH.md</strong>: DataFrame schema, canonical columns, ingestion pipeline output format</li>
+</ul>
+<h3 id="tertiary-low-confidence">Tertiary (LOW confidence)</h3>
+<ul>
+<li>None. All findings verified against actual sample files and existing code.</li>
+</ul>
+<h2 id="metadata">Metadata</h2>
+<p><strong>Confidence breakdown:</strong></p>
+<ul>
+<li>Standard stack: HIGH - no new dependencies, uses stdlib re + existing pandas/dataclasses</li>
+<li>Architecture: HIGH - follows established patterns from ARCHITECTURE.md, verified against real data</li>
+<li>Rule design: HIGH - patterns derived from actual 610-VM sample analysis with false positive verification</li>
+<li>DRR subcategories: HIGH - verified by running DRRTable.from_csv() and inspecting actual output</li>
+<li>Pitfalls: HIGH - false positive patterns verified with real VM names from sample data</li>
+<li>Coverage estimate: MEDIUM - &gt;80% target based on pattern analysis, needs validation with actual classification run</li>
+</ul>
+<p><strong>Research date:</strong> 2026-02-18
+<strong>Valid until:</strong> 2026-04-18 (stable domain, pattern matching doesn't evolve rapidly)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

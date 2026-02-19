@@ -1,0 +1,2657 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Pre-sales sizing tool for PowerStore DRR prediction">
+      
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../phase-02-ingestion/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Phase 1 - Foundation - StorePredict</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#phase-1-project-foundation-drr-table-research" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="StorePredict" class="md-header__button md-logo" aria-label="StorePredict" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            StorePredict
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Phase 1 - Foundation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fjacquet/store-predict" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fjacquet/store-predict
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="StorePredict" class="md-nav__button md-logo" aria-label="StorePredict" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    StorePredict
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fjacquet/store-predict" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fjacquet/store-predict
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 - Foundation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 1 - Foundation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Stack
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard Stack">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supporting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supporting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternatives-considered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives Considered
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recommended-project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Project Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-drr-table-as-immutable-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1: DRR Table as Immutable Service
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-typed-data-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 2: Typed Data Models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-3-nicegui-3x-app-skeleton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 3: NiceGUI 3.x App Skeleton
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anti-patterns-to-avoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Patterns to Avoid
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dont-hand-roll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Don't Hand-Roll
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Pitfalls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Pitfalls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-1-drrcsv-embedded-newline-in-postgresql-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 1: DRR.csv Embedded Newline in PostgreSQL Entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-2-drrcsv-trailing-junk-rows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 2: DRR.csv Trailing Junk Rows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-3-nicegui-3x-tailwind-css-4-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 3: NiceGUI 3.x Tailwind CSS 4 Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-4-nicegui-upload-event-api-changed-in-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 4: NiceGUI Upload Event API Changed in 3.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-5-mypy-strict-mode-with-pandas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 5: mypy Strict Mode with pandas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-6-python-312-vs-system-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 6: Python 3.12 vs System Python
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyprojecttoml-complete-for-phase-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pyproject.toml (Complete for Phase 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dockerfile-phase-1-minimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dockerfile (Phase 1 Minimal)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-composeyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        docker-compose.yml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conftestpy-test-fixtures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        conftest.py (Test Fixtures)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#drr-table-test-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DRR Table Test Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-of-the-art" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State of the Art
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sources
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#primary-high-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary (HIGH confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secondary-medium-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secondary (MEDIUM confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tertiary-low-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tertiary (LOW confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-02-ingestion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 2 - Ingestion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-03-classification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 3 - Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-04-ui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 4 - UI Upload & Review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-05-calculation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 5 - Calculation & PDF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-06-polish/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 6 - Polish & Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../phase-07-ui-enhancements/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Phase 7 - UI Enhancements
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ADR
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    ADR
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/001-nicegui-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    001 - NiceGUI Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/002-drr-csv-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    002 - DRR CSV Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/003-alias-not-fuzzy-matching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    003 - Alias Not Fuzzy Matching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/004-dataframe-not-dataclass/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    004 - DataFrame Pipeline Format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/005-conservative-drr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    005 - Conservative DRR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/006-no-mocks-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    006 - No Mocks Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/007-aggrid-vm-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    007 - AG Grid VM Table
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/008-session-storage-split/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    008 - Session Storage Split
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/009-dialog-multi-workload/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    009 - Dialog Multi Workload
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#standard-stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standard Stack
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Standard Stack">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supporting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supporting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternatives-considered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives Considered
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recommended-project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Project Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-1-drr-table-as-immutable-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 1: DRR Table as Immutable Service
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-2-typed-data-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 2: Typed Data Models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-3-nicegui-3x-app-skeleton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern 3: NiceGUI 3.x App Skeleton
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anti-patterns-to-avoid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Patterns to Avoid
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dont-hand-roll" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Don't Hand-Roll
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Pitfalls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Pitfalls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-1-drrcsv-embedded-newline-in-postgresql-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 1: DRR.csv Embedded Newline in PostgreSQL Entry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-2-drrcsv-trailing-junk-rows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 2: DRR.csv Trailing Junk Rows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-3-nicegui-3x-tailwind-css-4-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 3: NiceGUI 3.x Tailwind CSS 4 Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-4-nicegui-upload-event-api-changed-in-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 4: NiceGUI Upload Event API Changed in 3.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-5-mypy-strict-mode-with-pandas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 5: mypy Strict Mode with pandas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pitfall-6-python-312-vs-system-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pitfall 6: Python 3.12 vs System Python
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyprojecttoml-complete-for-phase-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pyproject.toml (Complete for Phase 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dockerfile-phase-1-minimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dockerfile (Phase 1 Minimal)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker-composeyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        docker-compose.yml
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conftestpy-test-fixtures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        conftest.py (Test Fixtures)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#drr-table-test-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DRR Table Test Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-of-the-art" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State of the Art
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sources
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#primary-high-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Primary (HIGH confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secondary-medium-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secondary (MEDIUM confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tertiary-low-confidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tertiary (LOW confidence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="phase-1-project-foundation-drr-table-research">Phase 1: Project Foundation &amp; DRR Table - Research</h1>
+<p><strong>Researched:</strong> 2026-02-18
+<strong>Domain:</strong> Python project scaffolding, NiceGUI web framework, CSV parsing, data models
+<strong>Confidence:</strong> HIGH</p>
+<h2 id="summary">Summary</h2>
+<p>Phase 1 establishes the project skeleton: Python package structure, NiceGUI app entry point, DRR reference data service, typed data models, and tooling (ruff, mypy, pytest, Docker). The project starts from an empty codebase -- no Python files exist yet.</p>
+<p><strong>Critical finding:</strong> NiceGUI is now at version 3.x (latest 3.4.x as of Feb 2026), NOT 2.x as referenced in CLAUDE.md. NiceGUI 3.0 introduced breaking changes including Tailwind CSS 4 upgrade, removal of the auto-index client, and restructured upload event arguments. The project MUST target NiceGUI 3.x to use current, maintained code. Additionally, pandas 3.0 is now current.</p>
+<p><strong>Primary recommendation:</strong> Use NiceGUI &gt;=3.4, pandas &gt;=2.2 (pin &lt;4.0 for stability), Python 3.12+. Structure the project with clean pipeline/services/ui separation from day one. Load DRR.csv with careful handling of embedded newlines and junk rows.</p>
+<h2 id="standard-stack">Standard Stack</h2>
+<h3 id="core">Core</h3>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>Why Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nicegui</td>
+<td>&gt;=3.4,&lt;4.0</td>
+<td>Web UI framework</td>
+<td>Current stable, Tailwind 4, Python-first web UIs</td>
+</tr>
+<tr>
+<td>pandas</td>
+<td>&gt;=2.2,&lt;4.0</td>
+<td>DataFrame operations, CSV parsing</td>
+<td>Industry standard for tabular data</td>
+</tr>
+<tr>
+<td>openpyxl</td>
+<td>&gt;=3.1.2</td>
+<td>XLSX file reading</td>
+<td>Required by pandas for xlsx, well-maintained</td>
+</tr>
+<tr>
+<td>reportlab</td>
+<td>&gt;=4.0</td>
+<td>PDF generation</td>
+<td>Lightweight, no system deps, precise layout control</td>
+</tr>
+</tbody>
+</table>
+<h3 id="supporting">Supporting</h3>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>When to Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pytest</td>
+<td>&gt;=8.0</td>
+<td>Test framework</td>
+<td>All testing</td>
+</tr>
+<tr>
+<td>pytest-cov</td>
+<td>&gt;=5.0</td>
+<td>Coverage reporting</td>
+<td>Enforce &gt;80% coverage on pipeline/services</td>
+</tr>
+<tr>
+<td>ruff</td>
+<td>&gt;=0.9</td>
+<td>Linting + formatting</td>
+<td>All code quality checks</td>
+</tr>
+<tr>
+<td>mypy</td>
+<td>&gt;=1.10</td>
+<td>Static type checking</td>
+<td>Strict mode for all src/</td>
+</tr>
+<tr>
+<td>pandas-stubs</td>
+<td>&gt;=2.2</td>
+<td>Type stubs for pandas</td>
+<td>mypy compatibility with pandas</td>
+</tr>
+</tbody>
+</table>
+<h3 id="alternatives-considered">Alternatives Considered</h3>
+<table>
+<thead>
+<tr>
+<th>Instead of</th>
+<th>Could Use</th>
+<th>Tradeoff</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NiceGUI 2.x</td>
+<td>NiceGUI 3.x</td>
+<td>3.x is current; 2.x is unmaintained. Use 3.x.</td>
+</tr>
+<tr>
+<td>WeasyPrint</td>
+<td>ReportLab</td>
+<td>WeasyPrint adds 200-400MB Docker deps. ReportLab is 5MB.</td>
+</tr>
+<tr>
+<td>csv stdlib</td>
+<td>pandas read_csv</td>
+<td>pandas handles quoting/newlines better and we need DataFrames anyway</td>
+</tr>
+</tbody>
+</table>
+<h3 id="installation">Installation</h3>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>venv<span class="w"> </span>.venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;nicegui&gt;=3.4,&lt;4.0&quot;</span><span class="w"> </span><span class="s2">&quot;pandas&gt;=2.2,&lt;4.0&quot;</span><span class="w"> </span><span class="s2">&quot;openpyxl&gt;=3.1.2&quot;</span><span class="w"> </span><span class="s2">&quot;reportlab&gt;=4.0&quot;</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;pytest&gt;=8.0&quot;</span><span class="w"> </span><span class="s2">&quot;pytest-cov&gt;=5.0&quot;</span><span class="w"> </span><span class="s2">&quot;ruff&gt;=0.9&quot;</span><span class="w"> </span><span class="s2">&quot;mypy&gt;=1.10&quot;</span><span class="w"> </span><span class="s2">&quot;pandas-stubs&gt;=2.2&quot;</span>
+</code></pre></div>
+<h2 id="architecture-patterns">Architecture Patterns</h2>
+<h3 id="recommended-project-structure">Recommended Project Structure</h3>
+<div class="highlight"><pre><span></span><code>store-predict/
+  src/
+    store_predict/
+      __init__.py              # Package version
+      main.py                  # NiceGUI app entry point
+      config.py                # Settings (paths, defaults)
+
+      pipeline/                # Pure business logic (NO UI imports)
+        __init__.py
+        models.py              # VM dataclass, FileFormat enum, WorkloadCategory
+
+      services/                # Stateful services
+        __init__.py
+        drr_table.py           # Load/cache DRR reference data from CSV
+
+      ui/                      # NiceGUI pages and components
+        __init__.py
+        pages/
+          __init__.py
+          upload.py            # Placeholder upload page (Phase 1: just skeleton)
+        layout.py              # Shared layout (header, nav)
+
+  tests/
+    __init__.py
+    conftest.py                # Shared fixtures
+    test_drr_table.py          # DRR service tests
+    test_models.py             # Data model tests
+
+  samples/
+    DRR.csv                    # Reference data (already exists)
+
+  pyproject.toml
+  Dockerfile
+  docker-compose.yml
+  CLAUDE.md
+</code></pre></div>
+<h3 id="pattern-1-drr-table-as-immutable-service">Pattern 1: DRR Table as Immutable Service</h3>
+<p><strong>What:</strong> Load DRR.csv once at startup, expose as an immutable lookup service.
+<strong>When to use:</strong> Always -- DRR data is reference data, not user-mutable per session.
+<strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># services/drr_table.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DRREntry</span><span class="p">:</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">subcategory</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">ratio</span><span class="p">:</span> <span class="nb">float</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DRRTable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Immutable DRR reference data loaded from CSV.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DRREntry</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_entries</span> <span class="o">=</span> <span class="n">entries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">subcategory</span><span class="p">):</span> <span class="n">e</span><span class="o">.</span><span class="n">ratio</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span>
+        <span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_csv</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DRRTable</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">path</span><span class="p">,</span>
+            <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">,</span>
+            <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="s2">&quot;subcategory&quot;</span><span class="p">,</span> <span class="s2">&quot;ratio&quot;</span><span class="p">],</span>
+            <span class="n">skiprows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Skip header row</span>
+            <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_ALL</span><span class="p">,</span>
+            <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Drop rows with missing category or ratio</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">])</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">])</span>
+        <span class="c1"># Strip whitespace from string fields</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;subcategory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;subcategory&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="n">entries</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">DRREntry</span><span class="p">(</span>
+                <span class="n">category</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">],</span>
+                <span class="n">subcategory</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;subcategory&quot;</span><span class="p">],</span>
+                <span class="n">ratio</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">]),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subcategory</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">category</span><span class="p">,</span> <span class="n">subcategory</span><span class="p">),</span> <span class="mf">5.0</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_conservative_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workloads</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the minimum (most conservative) DRR for multiple workloads.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">workloads</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">5.0</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_ratio</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">workloads</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">category</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">entries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">DRREntry</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_entries</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="pattern-2-typed-data-models">Pattern 2: Typed Data Models</h3>
+<p><strong>What:</strong> Use frozen dataclasses and enums for all pipeline data structures.
+<strong>When to use:</strong> All data flowing through the pipeline.
+<strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># pipeline/models.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FileFormat</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">RVTOOLS</span> <span class="o">=</span> <span class="s2">&quot;rvtools&quot;</span>
+    <span class="n">LIVEOPTICS_XLSX</span> <span class="o">=</span> <span class="s2">&quot;liveoptics_xlsx&quot;</span>
+    <span class="n">LIVEOPTICS_CSV</span> <span class="o">=</span> <span class="s2">&quot;liveoptics_csv&quot;</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VMRecord</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalized VM record from any input format.&quot;&quot;&quot;</span>
+    <span class="n">vm_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">os_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">provisioned_mib</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">in_use_mib</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">source_format</span><span class="p">:</span> <span class="n">FileFormat</span>
+    <span class="n">datacenter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">cluster</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">is_template</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">is_powered_on</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div>
+<h3 id="pattern-3-nicegui-3x-app-skeleton">Pattern 3: NiceGUI 3.x App Skeleton</h3>
+<p><strong>What:</strong> Minimal NiceGUI app using <code>@ui.page</code> decorator and <code>ui.run()</code>.
+<strong>When to use:</strong> The main.py entry point.
+<strong>Example:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># main.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nicegui</span><span class="w"> </span><span class="kn">import</span> <span class="n">ui</span>
+
+
+<span class="nd">@ui</span><span class="o">.</span><span class="n">page</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">index</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">ui</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;StorePredict&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">classes</span><span class="p">(</span><span class="s2">&quot;text-3xl font-bold&quot;</span><span class="p">)</span>
+    <span class="n">ui</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s2">&quot;Upload RVTools or LiveOptics export to begin.&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">ui</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;StorePredict&quot;</span><span class="p">,</span>
+        <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">,</span>
+        <span class="n">storage_secret</span><span class="o">=</span><span class="s2">&quot;change-me-in-production&quot;</span><span class="p">,</span>
+        <span class="n">reload</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+<p><strong>NiceGUI 3.x notes:</strong></p>
+<ul>
+<li><code>@ui.page('/')</code> decorator still works as before</li>
+<li><code>.classes()</code> uses Tailwind CSS 4 syntax (mostly backward-compatible but borders/spacing may differ)</li>
+<li><code>ui.run()</code> invoked from <code>python -m store_predict.main</code> works fine</li>
+<li>Do NOT use <code>[project.scripts]</code> entry points -- known bug in NiceGUI 3.0+</li>
+<li>Upload events now return <code>FileUpload</code> objects with <code>.read()</code>, <code>.text()</code>, <code>.save()</code> methods</li>
+</ul>
+<h3 id="anti-patterns-to-avoid">Anti-Patterns to Avoid</h3>
+<ul>
+<li><strong>Business logic in UI handlers:</strong> Pipeline code must live in pipeline/ or services/, never in ui/</li>
+<li><strong>Global mutable state:</strong> Use per-session dicts, not module-level globals for user data</li>
+<li><strong>Hardcoded DRR values:</strong> Always load from CSV via DRRTable service</li>
+<li><strong>Importing ui in pipeline/:</strong> The pipeline/ package must have zero imports from ui/ (NFR-2.4)</li>
+</ul>
+<h2 id="dont-hand-roll">Don't Hand-Roll</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Don't Build</th>
+<th>Use Instead</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CSV parsing with embedded newlines</td>
+<td>Custom line-by-line parser</td>
+<td><code>pandas.read_csv(quoting=csv.QUOTE_ALL, engine="python")</code></td>
+<td>Handles quoting, encoding, edge cases</td>
+</tr>
+<tr>
+<td>Type checking for DataFrames</td>
+<td>Manual type assertions</td>
+<td><code>pandas-stubs</code> + mypy</td>
+<td>Community-maintained stubs, catches real bugs</td>
+</tr>
+<tr>
+<td>Dev tooling config</td>
+<td>Separate config files</td>
+<td>Single <code>pyproject.toml</code></td>
+<td>ruff, mypy, pytest all read from pyproject.toml</td>
+</tr>
+<tr>
+<td>Docker Python setup</td>
+<td>Manual venv in Docker</td>
+<td><code>python:3.12-slim</code> + <code>uv pip install</code></td>
+<td>Standard pattern, minimal image</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key insight:</strong> The DRR.csv has exactly the kind of edge cases (embedded newlines, junk rows) that hand-rolled parsers get wrong. Use pandas with proper quoting configuration.</p>
+<h2 id="common-pitfalls">Common Pitfalls</h2>
+<h3 id="pitfall-1-drrcsv-embedded-newline-in-postgresql-entry">Pitfall 1: DRR.csv Embedded Newline in PostgreSQL Entry</h3>
+<p><strong>What goes wrong:</strong> Lines 7-8 of DRR.csv contain a newline inside a quoted field (<code>"\nPostgreSQL"</code>). Naive line-by-line reading splits this into two broken records.
+<strong>Why it happens:</strong> The CSV was likely edited in Excel which inserted a line break inside a cell.
+<strong>How to avoid:</strong> Use <code>pd.read_csv()</code> with <code>quoting=csv.QUOTE_ALL</code> and <code>engine="python"</code>. Verify loaded entry count equals 30 (the expected number of workload categories).
+<strong>Warning signs:</strong> Getting 29 or 31 entries instead of 30; PostgreSQL entry missing or malformed.</p>
+<h3 id="pitfall-2-drrcsv-trailing-junk-rows">Pitfall 2: DRR.csv Trailing Junk Rows</h3>
+<p><strong>What goes wrong:</strong> Lines 31-35 contain empty rows and a partial entry ("Unknown (Reducible);;"). These become NaN rows in the DataFrame.
+<strong>Why it happens:</strong> Spreadsheet artifacts when CSV was exported.
+<strong>How to avoid:</strong> <code>df.dropna(subset=["category"])</code> followed by <code>df.dropna(subset=["ratio"])</code>. The stray row on line 35 has category but no ratio, so the ratio dropna catches it.
+<strong>Warning signs:</strong> Entry count &gt; 30; entries with NaN ratios.</p>
+<h3 id="pitfall-3-nicegui-3x-tailwind-css-4-changes">Pitfall 3: NiceGUI 3.x Tailwind CSS 4 Changes</h3>
+<p><strong>What goes wrong:</strong> Tailwind 4 changed default border and line-height behavior. Elements may look different than Tailwind 3 examples.
+<strong>Why it happens:</strong> NiceGUI 3.0 upgraded from Tailwind 3 to 4.
+<strong>How to avoid:</strong> For Phase 1, keep styling minimal. Test visual output in browser. Note that <code>border</code> utility now requires explicit <code>border-solid</code> in some cases.
+<strong>Warning signs:</strong> Missing borders, unexpected spacing.</p>
+<h3 id="pitfall-4-nicegui-upload-event-api-changed-in-30">Pitfall 4: NiceGUI Upload Event API Changed in 3.0</h3>
+<p><strong>What goes wrong:</strong> Code written for NiceGUI 2.x <code>UploadEventArguments.content</code> (bytes) breaks. In 3.x, upload events provide a <code>FileUpload</code> object with <code>.read()</code>, <code>.text()</code>, <code>.save()</code> methods.
+<strong>Why it happens:</strong> Breaking API change in NiceGUI 3.0.
+<strong>How to avoid:</strong> Use the new <code>FileUpload</code> API: <code>e.file.read()</code> to get bytes.
+<strong>Warning signs:</strong> AttributeError on upload event handling.</p>
+<h3 id="pitfall-5-mypy-strict-mode-with-pandas">Pitfall 5: mypy Strict Mode with pandas</h3>
+<p><strong>What goes wrong:</strong> pandas operations return <code>Any</code> types without stubs; mypy strict rejects them.
+<strong>Why it happens:</strong> pandas is complex; stubs don't cover everything.
+<strong>How to avoid:</strong> Install <code>pandas-stubs</code>. For uncovered cases, use targeted <code># type: ignore[...]</code> with specific error codes. Add mypy overrides for test files.
+<strong>Warning signs:</strong> Hundreds of mypy errors from pandas usage.</p>
+<h3 id="pitfall-6-python-312-vs-system-python">Pitfall 6: Python 3.12 vs System Python</h3>
+<p><strong>What goes wrong:</strong> System may have Python 3.14 (as detected on this machine), but Docker and CI should target 3.12.
+<strong>Why it happens:</strong> Dev machine Python version differs from deployment target.
+<strong>How to avoid:</strong> Pin <code>requires-python = "&gt;=3.12"</code> in pyproject.toml. Use <code>python:3.12-slim</code> in Dockerfile. Use <code>uv</code> for local virtual environment and package management (fast, handles Python version pinning).
+<strong>Warning signs:</strong> Code works locally but fails in Docker due to version differences.</p>
+<h2 id="code-examples">Code Examples</h2>
+<h3 id="pyprojecttoml-complete-for-phase-1">pyproject.toml (Complete for Phase 1)</h3>
+<div class="highlight"><pre><span></span><code><span class="k">[build-system]</span>
+<span class="n">requires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;setuptools&gt;=75.0&quot;</span><span class="p">]</span>
+<span class="n">build-backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;setuptools.backends._legacy:_Backend&quot;</span>
+
+<span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;store-predict&quot;</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;PowerStore DRR sizing pre-sales tool&quot;</span>
+<span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&gt;=3.12&quot;</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;nicegui&gt;=3.4,&lt;4.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pandas&gt;=2.2,&lt;4.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;openpyxl&gt;=3.1.2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;reportlab&gt;=4.0&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[project.optional-dependencies]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pytest&gt;=8.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-cov&gt;=5.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;ruff&gt;=0.9&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;mypy&gt;=1.10&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pandas-stubs&gt;=2.2&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">docs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;mkdocs&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;mkdocs-material&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[tool.setuptools.packages.find]</span>
+<span class="n">where</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src&quot;</span><span class="p">]</span>
+
+<span class="k">[tool.ruff]</span>
+<span class="n">target-version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;py312&quot;</span>
+<span class="n">line-length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">99</span>
+
+<span class="k">[tool.ruff.lint]</span>
+<span class="n">select</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;E&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1"># pycodestyle errors</span>
+<span class="w">    </span><span class="s2">&quot;W&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1"># pycodestyle warnings</span>
+<span class="w">    </span><span class="s2">&quot;F&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1"># pyflakes</span>
+<span class="w">    </span><span class="s2">&quot;I&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1"># isort</span>
+<span class="w">    </span><span class="s2">&quot;N&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1"># pep8-naming</span>
+<span class="w">    </span><span class="s2">&quot;UP&quot;</span><span class="p">,</span><span class="w">   </span><span class="c1"># pyupgrade</span>
+<span class="w">    </span><span class="s2">&quot;B&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1"># flake8-bugbear</span>
+<span class="w">    </span><span class="s2">&quot;SIM&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1"># flake8-simplify</span>
+<span class="w">    </span><span class="s2">&quot;TCH&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1"># flake8-type-checking</span>
+<span class="w">    </span><span class="s2">&quot;RUF&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1"># ruff-specific</span>
+<span class="p">]</span>
+
+<span class="k">[tool.ruff.lint.isort]</span>
+<span class="n">known-first-party</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;store_predict&quot;</span><span class="p">]</span>
+
+<span class="k">[tool.mypy]</span>
+<span class="n">strict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;3.12&quot;</span>
+<span class="n">warn_return_any</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">warn_unused_configs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests.*&quot;</span>
+<span class="n">disallow_untyped_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;nicegui.*&quot;</span>
+<span class="n">ignore_missing_imports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;reportlab.*&quot;</span>
+<span class="n">ignore_missing_imports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="k">[tool.pytest.ini_options]</span>
+<span class="n">testpaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+<span class="n">addopts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;--cov=store_predict --cov-report=term-missing&quot;</span>
+</code></pre></div>
+<h3 id="dockerfile-phase-1-minimal">Dockerfile (Phase 1 Minimal)</h3>
+<div class="highlight"><pre><span></span><code><span class="k">FROM</span><span class="w"> </span><span class="s">python:3.12-slim</span>
+
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
+
+<span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>ghcr.io/astral-sh/uv:latest<span class="w"> </span>/uv<span class="w"> </span>/usr/local/bin/uv
+
+<span class="k">COPY</span><span class="w"> </span>pyproject.toml<span class="w"> </span>.
+<span class="k">COPY</span><span class="w"> </span>src/<span class="w"> </span>src/
+<span class="k">COPY</span><span class="w"> </span>samples/DRR.csv<span class="w"> </span>samples/DRR.csv
+
+<span class="k">RUN</span><span class="w"> </span>uv<span class="w"> </span>venv<span class="w"> </span>.venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>.<span class="w"> </span>.venv/bin/activate<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache<span class="w"> </span>.
+
+<span class="k">EXPOSE</span><span class="w"> </span><span class="s">8080</span>
+
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;.venv/bin/python&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;store_predict.main&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="docker-composeyml">docker-compose.yml</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">app</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8080:8080&quot;</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STORAGE_SECRET=change-me-in-production</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
+</code></pre></div>
+<h3 id="conftestpy-test-fixtures">conftest.py (Test Fixtures)</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/conftest.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">store_predict.services.drr_table</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRRTable</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_drr_path</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;samples&quot;</span> <span class="o">/</span> <span class="s2">&quot;DRR.csv&quot;</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">drr_table</span><span class="p">(</span><span class="n">sample_drr_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DRRTable</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">DRRTable</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">sample_drr_path</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="drr-table-test-examples">DRR Table Test Examples</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/test_drr_table.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">store_predict.services.drr_table</span><span class="w"> </span><span class="kn">import</span> <span class="n">DRRTable</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_drr_table_loads_30_entries</span><span class="p">(</span><span class="n">drr_table</span><span class="p">:</span> <span class="n">DRRTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;DRR.csv should produce exactly 30 workload categories.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">drr_table</span><span class="p">)</span> <span class="o">==</span> <span class="mi">30</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_postgresql_entry_parsed_correctly</span><span class="p">(</span><span class="n">drr_table</span><span class="p">:</span> <span class="n">DRRTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;PostgreSQL entry has embedded newline in CSV -- must parse correctly.&quot;&quot;&quot;</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="n">drr_table</span><span class="o">.</span><span class="n">get_ratio</span><span class="p">(</span><span class="s2">&quot;Database&quot;</span><span class="p">,</span> <span class="s2">&quot;PostgreSQL&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ratio</span> <span class="o">==</span> <span class="mf">1.5</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_reducible_default</span><span class="p">(</span><span class="n">drr_table</span><span class="p">:</span> <span class="n">DRRTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unknown (Reducible) has DRR = 5.&quot;&quot;&quot;</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="n">drr_table</span><span class="o">.</span><span class="n">get_ratio</span><span class="p">(</span><span class="s2">&quot;Unknown (Reducible)&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown (Reducible)&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ratio</span> <span class="o">==</span> <span class="mf">5.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_missing_category_returns_default</span><span class="p">(</span><span class="n">drr_table</span><span class="p">:</span> <span class="n">DRRTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unknown category/subcategory returns default DRR of 5.0.&quot;&quot;&quot;</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="n">drr_table</span><span class="o">.</span><span class="n">get_ratio</span><span class="p">(</span><span class="s2">&quot;NonExistent&quot;</span><span class="p">,</span> <span class="s2">&quot;Nothing&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ratio</span> <span class="o">==</span> <span class="mf">5.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_conservative_ratio_returns_minimum</span><span class="p">(</span><span class="n">drr_table</span><span class="p">:</span> <span class="n">DRRTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Multi-workload uses the lowest (most conservative) DRR.&quot;&quot;&quot;</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="n">drr_table</span><span class="o">.</span><span class="n">get_conservative_ratio</span><span class="p">([</span>
+        <span class="p">(</span><span class="s2">&quot;Database&quot;</span><span class="p">,</span> <span class="s2">&quot;Oracle&quot;</span><span class="p">),</span>       <span class="c1"># DRR = 5</span>
+        <span class="p">(</span><span class="s2">&quot;Database&quot;</span><span class="p">,</span> <span class="s2">&quot;DB2&quot;</span><span class="p">),</span>          <span class="c1"># DRR = 1.5</span>
+    <span class="p">])</span>
+    <span class="k">assert</span> <span class="n">ratio</span> <span class="o">==</span> <span class="mf">1.5</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_conservative_ratio_empty_returns_default</span><span class="p">(</span><span class="n">drr_table</span><span class="p">:</span> <span class="n">DRRTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Empty workload list returns default DRR = 5.0.&quot;&quot;&quot;</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="n">drr_table</span><span class="o">.</span><span class="n">get_conservative_ratio</span><span class="p">([])</span>
+    <span class="k">assert</span> <span class="n">ratio</span> <span class="o">==</span> <span class="mf">5.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_all_ratios_positive</span><span class="p">(</span><span class="n">drr_table</span><span class="p">:</span> <span class="n">DRRTable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;All DRR values must be &gt; 0 (prevent division by zero).&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">drr_table</span><span class="o">.</span><span class="n">entries</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">entry</span><span class="o">.</span><span class="n">ratio</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">entry</span><span class="o">.</span><span class="n">category</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">entry</span><span class="o">.</span><span class="n">subcategory</span><span class="si">}</span><span class="s2"> has ratio </span><span class="si">{</span><span class="n">entry</span><span class="o">.</span><span class="n">ratio</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<h2 id="state-of-the-art">State of the Art</h2>
+<table>
+<thead>
+<tr>
+<th>Old Approach</th>
+<th>Current Approach</th>
+<th>When Changed</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NiceGUI 2.x</td>
+<td>NiceGUI 3.x (3.4+)</td>
+<td>Oct 2025</td>
+<td>Tailwind 4, new upload API, no auto-index</td>
+</tr>
+<tr>
+<td>Tailwind CSS 3</td>
+<td>Tailwind CSS 4 (via NiceGUI 3)</td>
+<td>Oct 2025</td>
+<td>Border/spacing defaults changed</td>
+</tr>
+<tr>
+<td>pandas 2.x</td>
+<td>pandas 3.0 available</td>
+<td>2025</td>
+<td>API stable; pin &gt;=2.2,&lt;4.0 for safety</td>
+</tr>
+<tr>
+<td>setup.py/setup.cfg</td>
+<td>pyproject.toml</td>
+<td>Standard since 2023</td>
+<td>All config in one file</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Deprecated/outdated:</strong></p>
+<ul>
+<li>NiceGUI <code>ui.open()</code> -- removed in 3.0, use <code>ui.navigate.to()</code> instead</li>
+<li>NiceGUI <code>ui.element.tailwind</code> API -- removed in 3.0, use <code>.classes()</code> with Tailwind utilities</li>
+<li>NiceGUI <code>UploadEventArguments.content</code> (bytes) -- replaced with <code>FileUpload</code> object</li>
+<li>NiceGUI <code>nicegui.testing.conftest</code> import -- use <code>pytest_plugins = ["nicegui.testing.plugin"]</code></li>
+</ul>
+<h2 id="open-questions">Open Questions</h2>
+<ol>
+<li><strong>NiceGUI 3.x upload event exact API</strong></li>
+<li>What we know: <code>FileUpload</code> object with <code>.read()</code>, <code>.text()</code>, <code>.save()</code>, <code>.size()</code> methods</li>
+<li>What's unclear: Exact import path and event argument structure for single-file upload</li>
+<li>
+<p>Recommendation: Phase 1 only needs skeleton page; verify upload API in Phase 2 when implementing ingestion</p>
+</li>
+<li>
+<p><strong>pandas-stubs coverage for 3.0</strong></p>
+</li>
+<li>What we know: pandas-stubs exists for 2.x; pandas 3.0 is new</li>
+<li>What's unclear: Whether pandas-stubs fully covers pandas 3.0</li>
+<li>
+<p>Recommendation: Pin pandas &gt;=2.2,&lt;4.0 to allow either; use pandas-stubs &gt;=2.2</p>
+</li>
+<li>
+<p><strong>DRR.csv PostgreSQL field exact content</strong></p>
+</li>
+<li>What we know: Lines 7-8 show <code>"</code> then <code>PostgreSQL"</code> with embedded newline</li>
+<li>What's unclear: Whether the leading newline is intentional or artifact</li>
+<li>Recommendation: Strip whitespace from subcategory field after loading; test for "PostgreSQL" match</li>
+</ol>
+<h2 id="sources">Sources</h2>
+<h3 id="primary-high-confidence">Primary (HIGH confidence)</h3>
+<ul>
+<li>DRR.csv direct inspection -- verified 35 lines, embedded newline, trailing junk</li>
+<li><a href="https://github.com/zauberzeug/nicegui/releases/tag/v3.0.0">NiceGUI 3.0.0 release notes</a> -- all breaking changes documented</li>
+<li><a href="https://pypi.org/project/nicegui/">NiceGUI PyPI</a> -- current version 3.4.x confirmed</li>
+<li><a href="https://mypy.readthedocs.io/en/stable/config_file.html">mypy configuration docs</a> -- strict mode flags</li>
+<li><a href="https://docs.astral.sh/ruff/configuration/">Ruff configuration docs</a> -- pyproject.toml format</li>
+<li>Project <code>.planning/research/</code> files -- ARCHITECTURE.md, STACK.md, PITFALLS.md, FEATURES.md</li>
+</ul>
+<h3 id="secondary-medium-confidence">Secondary (MEDIUM confidence)</h3>
+<ul>
+<li><a href="https://nicegui.io/documentation/upload">NiceGUI upload docs</a> -- current API reference</li>
+<li><a href="https://github.com/zauberzeug/nicegui/issues/5411">NiceGUI entry point issue #5411</a> -- <code>[project.scripts]</code> bug confirmed</li>
+<li><a href="https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html">pandas read_csv docs</a> -- quoting/delimiter options</li>
+</ul>
+<h3 id="tertiary-low-confidence">Tertiary (LOW confidence)</h3>
+<ul>
+<li>NiceGUI 3.x upload event argument exact structure -- verified from release notes but not from live code testing</li>
+</ul>
+<h2 id="metadata">Metadata</h2>
+<p><strong>Confidence breakdown:</strong></p>
+<ul>
+<li>Standard stack: HIGH -- versions verified against PyPI, breaking changes documented</li>
+<li>Architecture: HIGH -- project structure validated against prior research and NiceGUI patterns</li>
+<li>Pitfalls: HIGH -- DRR.csv issues verified by direct file inspection; NiceGUI 3.0 changes from release notes</li>
+<li>Code examples: MEDIUM -- based on documented APIs but not runtime-tested</li>
+</ul>
+<p><strong>Research date:</strong> 2026-02-18
+<strong>Valid until:</strong> 2026-03-18 (stable domain, 30 days)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
