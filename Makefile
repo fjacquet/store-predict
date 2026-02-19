@@ -72,8 +72,13 @@ restart: stop start ## Restart the app
 lint: ## Run ruff linter
 	ruff check .
 
+lint-fix: ## Auto-fix ruff lint issues
+	ruff check --fix .
+
 format: ## Format code with ruff
 	ruff format .
+
+fix: lint-fix format ## Auto-fix lint + format in one shot
 
 typecheck: ## Run mypy type checker
 	mypy src/

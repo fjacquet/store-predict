@@ -5,8 +5,8 @@ from __future__ import annotations
 from nicegui import ui
 
 # Import pages to register their routes with NiceGUI
-import store_predict.ui.pages.review as _review_routes  # noqa: F401
-import store_predict.ui.pages.upload as _upload_routes  # noqa: F401
+import store_predict.ui.pages.review
+import store_predict.ui.pages.upload  # noqa: F401
 from store_predict.config import APP_PORT, APP_TITLE
 
 
@@ -17,9 +17,7 @@ def index_page() -> None:
 
     with layout(), ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"):
         ui.label(APP_TITLE).classes("text-4xl font-bold text-blue-900")
-        ui.label("Dell PowerStore DRR Sizing Tool").classes(
-            "text-xl text-gray-600"
-        )
+        ui.label("Dell PowerStore DRR Sizing Tool").classes("text-xl text-gray-600")
         ui.label(
             "Analyze VMware workload exports (RVTools, LiveOptics) to predict "
             "Data Reduction Ratios on Dell PowerStore arrays."
