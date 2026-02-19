@@ -123,8 +123,8 @@ async def _handle_bulk_update(
         ui.notify("No rows selected. Use checkboxes to select VMs first.", type="warning")
         return
 
-    # Build options for the dialog
-    options_list = [{"label": opt["label"], "value": opt["label"]} for opt in workload_options]
+    # Build options for the dialog (plain string labels)
+    options_list = [str(opt["label"]) for opt in workload_options]
     dialog = WorkloadDialog(
         f"{len(selected)} selected VMs",
         [],
@@ -253,14 +253,14 @@ async def _handle_row_click(
     vm_name = row.get("vm_name", "")
     current_category = row.get("workload_category", "")
 
-    # Build options list for dialog (label/value pairs)
-    options_list = [{"label": opt["label"], "value": opt["label"]} for opt in workload_options]
+    # Build options list for dialog (plain string labels)
+    options_list = [str(opt["label"]) for opt in workload_options]
 
     # Current selection as list of labels
     current_labels = []
     for opt in workload_options:
         if opt["category"] == current_category:
-            current_labels.append(opt["label"])
+            current_labels.append(str(opt["label"]))
             break
 
     dialog = WorkloadDialog(vm_name, current_labels, options_list)
