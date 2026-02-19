@@ -29,10 +29,10 @@ async def _handle_upload(e: object) -> None:
     try:
         # Write uploaded content to a temp file
         with tempfile.NamedTemporaryFile(
-            suffix=Path(e.name).suffix,  # type: ignore[attr-defined]
+            suffix=Path(e.file.name).suffix,  # type: ignore[attr-defined]
             delete=False,
         ) as tmp:
-            content = e.content.read()  # type: ignore[attr-defined]
+            content = e.file.read()  # type: ignore[attr-defined]
             tmp.write(content)
             tmp_path = Path(tmp.name)
 
