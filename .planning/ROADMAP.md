@@ -138,20 +138,20 @@ Plans:
 
 Plans:
 
-- [ ] 05-01-PLAN.md — Calculation service TDD: per-VM required capacity, totals, workload grouping
-- [ ] 05-02-PLAN.md — PDF report generator with ReportLab Platypus, Vera fonts, and tests
-- [ ] 05-03-PLAN.md — Report page UI, PDF download button, navigation wiring
+- [x] 05-01-PLAN.md — Calculation service TDD: per-VM required capacity, totals, workload grouping
+- [x] 05-02-PLAN.md — PDF report generator with ReportLab Platypus, Vera fonts, and tests
+- [x] 05-03-PLAN.md — Report page UI, PDF download button, navigation wiring
 
 **Deliverables:**
 
-- [ ] Calculation service: per-VM required capacity, totals, workload grouping
-- [ ] Report page: summary cards + workload breakdown table
-- [ ] PDF generation with ReportLab: one-page layout, StorePredict branding
-- [ ] Unicode font support (DejaVu Sans for French characters)
-- [ ] PDF download button
-- [ ] Navigation: Review → Report
-- [ ] Tests for calculation edge cases (zero storage, single VM, 5000 VMs)
-- [ ] Tests for PDF generation (file created, non-empty, expected sections)
+- [x] Calculation service: per-VM required capacity, totals, workload grouping
+- [x] Report page: summary cards + workload breakdown table
+- [x] PDF generation with ReportLab: one-page layout, StorePredict branding
+- [x] Unicode font support (Vera fonts for French characters)
+- [x] PDF download button
+- [x] Navigation: Review → Report
+- [x] Tests for calculation edge cases (zero storage, single VM, 5000 VMs)
+- [x] Tests for PDF generation (file created, non-empty, expected sections)
 
 **Success criteria:** End-to-end flow: upload file → classify → review → calculate → download PDF.
 
