@@ -46,6 +46,7 @@ nav:
     - Phase 4 - UI Upload & Review: research/phase-04-ui.md
     - Phase 5 - Calculation & PDF: research/phase-05-calculation.md
     - Phase 6 - Polish & Deployment: research/phase-06-polish.md
+    - Phase 7 - UI Enhancements: research/phase-07-ui-enhancements.md
   - Changelog: changelog.md
   - ADR:
     - Overview: adr/index.md

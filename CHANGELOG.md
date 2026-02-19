@@ -4,6 +4,23 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+### Phase 7: UI Bug Fixes & Report Enhancements (COMPLETE)
+
+- Fixed AG Grid "No Rows To Show" — NiceGUI requires `:` prefix for JS function properties
+- Fixed NaN serialization chain: `NaN → None` (not empty string) for JSON compatibility
+- NiceGUI auto-reload with `__mp_main__` guard for multiprocessing
+- LiveOptics performance columns: Peak IOPS, 8K Eq. IOPS, Peak MB/s (conditional on data)
+- 8K IOPS normalization fix: `throughput_KB/s / 8` (was double-counting with avg_iops)
+- Editable DRR column for custom overrides (min 0.1)
+- Bulk workload update: select multiple VMs via checkboxes, mass-assign workload category
+- Workload dropdown popup (`cellEditorPopup: True`) for readable category labels
+- Filtered select-all: header checkbox selects only visible (filtered) rows
+- CPU/memory metrics: `num_cpus` and `memory_mib` in parsers, calculation, report, and PDF
+- Report reorganized into Totals and Averages sections (web + PDF)
+- Replaced misleading "Total Peak IOPS" with "Hottest VM Peak IOPS" (single VM max)
+- WorkloadDialog fixed to accept plain strings (not dicts) for NiceGUI ui.select
+- 145 tests passing, 1 skipped
+
 ### Phase 6: Polish, Docs & Deployment (COMPLETE)
 
 - Docker hardening: `.dockerignore`, `HEALTHCHECK` directive, env-var `STORAGE_SECRET`
