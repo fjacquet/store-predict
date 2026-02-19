@@ -71,6 +71,12 @@ async def review_page() -> None:
             ),
         )
 
+        # Navigation to report
+        ui.button(
+            "Generate Report",
+            on_click=lambda: ui.navigate.to("/report"),
+        ).classes("bg-blue-700 text-white")
+
 
 def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -> None:
     """Clear and rebuild the summary stats in the container."""

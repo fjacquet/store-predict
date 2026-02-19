@@ -22,5 +22,6 @@ def layout(title: str = "StorePredict") -> Iterator[None]:
             ui.link("Home", "/").classes("text-white no-underline hover:underline")
             ui.link("Upload", "/upload").classes("text-white no-underline hover:underline")
             ui.link("Review", "/review").classes("text-white no-underline hover:underline")
+            ui.link("Report", "/report").classes("text-white no-underline hover:underline")
             add_dark_mode_toggle()
     yield
