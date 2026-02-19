@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 import pandas as pd
@@ -64,6 +65,14 @@ async def review_page() -> None:
             f"{opt['category']} / {opt['subcategory']}" for opt in workload_options
         ]
 
+        # Detect performance data availability
+        has_perf = any(
+            r.get("peak_iops") is not None
+            and not (isinstance(r.get("peak_iops"), float) and math.isnan(r["peak_iops"]))
+            and float(r.get("peak_iops", 0)) > 0
+            for r in row_data
+        )
+
         # AG Grid table
         grid = create_vm_table(
             row_data,
@@ -71,6 +80,7 @@ async def review_page() -> None:
             on_cell_changed=lambda e: _handle_cell_change(e, row_data, drr_table, grid, stats_container),
             on_row_clicked=lambda e: _handle_row_click(e, row_data, drr_table, workload_options, grid, stats_container),
             subcategory_labels=subcategory_labels,
+            has_performance_data=has_perf,
         )
 
         # Navigation to report

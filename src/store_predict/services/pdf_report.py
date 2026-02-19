@@ -148,6 +148,29 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
         story.append(Paragraph(line, body_style))
     story.append(Spacer(1, 10))
 
+    # --- VM Statistics section ---------------------------------------------
+    story.append(Paragraph("VM Statistics", heading_style))
+    vm_stats_lines = [
+        f"<b>Average VM Size:</b> {format_storage(summary.avg_vm_size_mib)}",
+        f"<b>Largest VM:</b> {summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})",
+    ]
+    for line in vm_stats_lines:
+        story.append(Paragraph(line, body_style))
+    story.append(Spacer(1, 10))
+
+    # --- Performance Summary section (only if data available) --------------
+    if summary.has_performance_data:
+        story.append(Paragraph("Performance Summary", heading_style))
+        perf_lines = [
+            f"<b>Total Peak IOPS:</b> {summary.total_peak_iops:,.0f}",
+            f"<b>Total Average IOPS:</b> {summary.total_avg_iops:,.0f}",
+            f"<b>Peak Throughput:</b> {summary.peak_throughput_mbs:,.1f} MB/s",
+            f"<b>Total 8K Equivalent IOPS:</b> {summary.total_iops_8k_equivalent:,.0f}",
+        ]
+        for line in perf_lines:
+            story.append(Paragraph(line, body_style))
+        story.append(Spacer(1, 10))
+
     # --- Workload breakdown table ------------------------------------------
     story.append(Paragraph("Workload Breakdown", heading_style))
 

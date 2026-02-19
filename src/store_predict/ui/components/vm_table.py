@@ -16,6 +16,7 @@ def create_vm_table(
     on_cell_changed: Callable[..., Any] | None = None,
     on_row_clicked: Callable[..., Any] | None = None,
     subcategory_labels: list[str] | None = None,
+    has_performance_data: bool = False,
 ) -> ui.aggrid:
     """Create an AG Grid table for VM data with inline workload editing.
 
@@ -52,6 +53,14 @@ def create_vm_table(
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
+        },
+        {
+            "field": "vm_description",
+            "headerName": "Description",
+            "sortable": True,
+            "filter": "agTextColumnFilter",
+            "floatingFilter": True,
+            "minWidth": 150,
         },
         {
             "field": "workload_category",
@@ -104,6 +113,34 @@ def create_vm_table(
             "filter": "agTextColumnFilter",
         },
     ]
+
+    # Insert performance columns before classification_confidence when data available
+    if has_performance_data:
+        perf_cols = [
+            {
+                "field": "peak_iops",
+                "headerName": "Peak IOPS",
+                "sortable": True,
+                "filter": "agNumberColumnFilter",
+                "valueFormatter": "value ? Math.round(value).toLocaleString() : ''",
+            },
+            {
+                "field": "iops_8k_equivalent",
+                "headerName": "8K Eq. IOPS",
+                "sortable": True,
+                "filter": "agNumberColumnFilter",
+                "valueFormatter": "value ? Math.round(value).toLocaleString() : ''",
+            },
+            {
+                "field": "peak_throughput_mbs",
+                "headerName": "Peak MB/s",
+                "sortable": True,
+                "filter": "agNumberColumnFilter",
+                "valueFormatter": "value ? value.toFixed(1) : ''",
+            },
+        ]
+        # Insert before the last column (classification_confidence)
+        column_defs = column_defs[:-1] + perf_cols + column_defs[-1:]
 
     grid = ui.aggrid(
         {
