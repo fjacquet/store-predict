@@ -41,8 +41,12 @@ async def review_page() -> None:
     categories = drr_table.categories
 
     # Prepare row data for AG Grid — replace NaN with None for JSON serialization
-    df_clean = df.where(df.notna(), other=None)
-    row_data: list[dict[str, Any]] = df_clean.to_dict(orient="records")  # type: ignore[assignment]
+    # pandas where() won't convert NaN to None in numeric columns, so post-process dicts
+    row_data: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
+    for row in row_data:
+        for key, val in row.items():
+            if isinstance(val, float) and val != val:  # NaN check (NaN != NaN)
+                row[key] = None
 
     with (
         layout("StorePredict - Review"),
