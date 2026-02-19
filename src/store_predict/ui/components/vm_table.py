@@ -69,9 +69,11 @@ def create_vm_table(
             "singleClickEdit": True,
             "cellEditor": "agSelectCellEditor",
             "cellEditorParams": {"values": dropdown_values},
+            "cellEditorPopup": True,
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
+            "minWidth": 250,
         },
         {
             "field": "workload_subcategory",
@@ -80,9 +82,11 @@ def create_vm_table(
             "singleClickEdit": True,
             "cellEditor": "agSelectCellEditor",
             "cellEditorParams": {"values": dropdown_values},
+            "cellEditorPopup": True,
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
+            "minWidth": 250,
         },
         {
             "field": "drr",
@@ -152,6 +156,7 @@ def create_vm_table(
                 "rowSelection": {
                     "mode": "multiRow",
                     "headerCheckbox": True,
+                    "selectAll": "filtered",
                     "enableClickSelection": False,
                 },
                 ":getRowId": "params => params.data.vm_name",
