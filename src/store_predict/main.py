@@ -38,9 +38,9 @@ def main() -> None:
         title=APP_TITLE,
         port=APP_PORT,
         storage_secret=storage_secret,
-        reload=False,
+        reload=True,
     )
 
 
-if __name__ == "__main__":
+if __name__ in {"__main__", "__mp_main__"}:
     main()

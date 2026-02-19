@@ -447,11 +447,7 @@ def classify_dataframe(
     for _, row in df.iterrows():
         vm_name = str(row["vm_name"]) if pd.notna(row["vm_name"]) else ""
         os_name = str(row["os_name"]) if pd.notna(row["os_name"]) else ""
-        description = (
-            str(row["vm_description"])
-            if has_description and pd.notna(row.get("vm_description"))
-            else ""
-        )
+        description = str(row["vm_description"]) if has_description and pd.notna(row.get("vm_description")) else ""
         classifications.append(registry.classify(vm_name, os_name, description))
 
     result["workload_category"] = [c.category for c in classifications]

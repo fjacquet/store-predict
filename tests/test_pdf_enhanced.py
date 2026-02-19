@@ -113,9 +113,7 @@ class TestPDFPerformanceSection:
         assert len(pdf_with) > 0
         assert len(pdf_without) > 0
         # Performance section adds IOPS, throughput, 8K equivalent lines
-        assert len(pdf_with) > len(pdf_without), (
-            "PDF with performance data should be larger than without"
-        )
+        assert len(pdf_with) > len(pdf_without), "PDF with performance data should be larger than without"
 
     def test_pdf_without_performance_section(self) -> None:
         """PDF without performance data is valid and smaller."""

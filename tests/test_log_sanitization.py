@@ -28,20 +28,12 @@ def test_pipeline_modules_do_not_log_dataframes() -> None:
         source = source_path.read_text()
         for pattern in _FORBIDDEN_PATTERNS:
             matches = pattern.findall(source)
-            assert not matches, (
-                f"Forbidden DataFrame logging in {module_name}: "
-                f"found pattern {pattern.pattern}"
-            )
+            assert not matches, f"Forbidden DataFrame logging in {module_name}: found pattern {pattern.pattern}"
 
 
 def test_logging_config_has_sanitization_docstring() -> None:
     """logging_config.py must include a sanitization warning in its docstring."""
-    config_path = (
-        Path(__file__).resolve().parent.parent
-        / "src"
-        / "store_predict"
-        / "logging_config.py"
-    )
+    config_path = Path(__file__).resolve().parent.parent / "src" / "store_predict" / "logging_config.py"
     source = config_path.read_text()
     assert "NEVER log DataFrame" in source, (
         "logging_config.py must contain sanitization warning about DataFrame logging"
@@ -53,17 +45,9 @@ def test_logging_config_has_sanitization_docstring() -> None:
 
 def test_session_state_uses_tab_storage() -> None:
     """state.py must use app.storage.tab for per-session isolation (NFR-5.3)."""
-    state_path = (
-        Path(__file__).resolve().parent.parent
-        / "src"
-        / "store_predict"
-        / "ui"
-        / "state.py"
-    )
+    state_path = Path(__file__).resolve().parent.parent / "src" / "store_predict" / "ui" / "state.py"
     source = state_path.read_text()
-    assert "app.storage.tab" in source, (
-        "state.py must use app.storage.tab for tab-scoped session isolation"
-    )
+    assert "app.storage.tab" in source, "state.py must use app.storage.tab for tab-scoped session isolation"
     # Verify both save and load functions reference tab storage
     assert "save_session_data" in source, "state.py must define save_session_data"
     assert "load_session_data" in source, "state.py must define load_session_data"

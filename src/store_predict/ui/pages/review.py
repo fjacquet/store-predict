@@ -93,7 +93,11 @@ async def review_page() -> None:
             ui.button(
                 "Bulk Update Workload",
                 on_click=lambda: _handle_bulk_update(
-                    row_data, drr_table, workload_options, grid, stats_container,
+                    row_data,
+                    drr_table,
+                    workload_options,
+                    grid,
+                    stats_container,
                 ),
                 icon="edit",
             ).classes("bg-orange-700 text-white")
