@@ -19,6 +19,15 @@ CANONICAL_COLUMNS: list[str] = [
     "is_template",
     "is_powered_on",
     "source_format",
+    "vm_description",
+    "peak_iops",
+    "avg_iops",
+    "peak_throughput_mbs",
+    "avg_throughput_mbs",
+    "peak_latency_ms",
+    "avg_read_latency_ms",
+    "avg_write_latency_ms",
+    "iops_8k_equivalent",
 ]
 
 REQUIRED_RVTOOLS_COLUMNS: set[str] = {
@@ -47,6 +56,7 @@ RVTOOLS_ALIASES: dict[str, list[str]] = {
     "in_use_mib": ["In Use MB", "In Use MiB"],
     "datacenter": ["Datacenter"],
     "cluster": ["Cluster"],
+    "vm_description": ["Annotation", "Notes"],
 }
 
 LIVEOPTICS_ALIASES: dict[str, list[str]] = {
@@ -58,7 +68,21 @@ LIVEOPTICS_ALIASES: dict[str, list[str]] = {
     "powerstate": ["Power State"],
     "datacenter": ["Datacenter"],
     "cluster": ["Cluster"],
+    "vm_description": ["Description", "Notes", "Annotation"],
 }
+
+LIVEOPTICS_PERFORMANCE_ALIASES: dict[str, list[str]] = {
+    "vm_name": ["VM Name"],
+    "peak_iops": ["Peak IOPS", "Peak Total IOPS"],
+    "avg_iops": ["Average IOPS", "Average Total IOPS"],
+    "peak_throughput_kbs": ["Max KB/sec", "Peak KB/sec", "Max Total KB/sec"],
+    "avg_throughput_kbs": ["Average KB/sec", "Average Total KB/sec"],
+    "peak_latency_ms": ["Max Latency(ms)", "Peak Latency(ms)", "Max Latency (ms)"],
+    "avg_read_latency_ms": ["Average Read Latency(ms)", "Average Read Latency (ms)"],
+    "avg_write_latency_ms": ["Average Write Latency(ms)", "Average Write Latency (ms)"],
+}
+
+REQUIRED_LIVEOPTICS_PERFORMANCE_COLUMNS: set[str] = {"vm_name", "peak_iops"}
 
 
 def resolve_columns(
