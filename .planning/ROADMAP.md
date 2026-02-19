@@ -194,10 +194,16 @@ Plans:
 
 **Depends on:** Phase 5
 
-**Plans:** 0 plans
+**Requirements covered:** FR-1.1, FR-1.2, FR-3.1, FR-3.2, FR-3.3, FR-3.4, FR-4.1, FR-4.2, FR-4.3, FR-4.4, FR-4.5, FR-4.6, FR-5.1, FR-5.2, FR-5.3, FR-5.4, FR-6.1, FR-6.2, FR-6.3, FR-6.4, FR-6.5
+
+**Plans:** 5 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 7 to break down)
+- [ ] 07-01-PLAN.md — Extend ingestion pipeline with performance data, description fields, config
+- [ ] 07-02-PLAN.md — Classification improvements: prefix stripping and description matching
+- [ ] 07-03-PLAN.md — AG Grid bug fixes: multi-select, filter/page preservation, subcategory
+- [ ] 07-04-PLAN.md — Report enhancements: VM stats, performance data in PDF and review table
+- [ ] 07-05-PLAN.md — Tests for performance parsing, enhanced calculation, and PDF
 
 **Deliverables:**
 
@@ -252,12 +258,12 @@ Phases 2 and 3 can be developed in parallel after Phase 1 completes.
 
 | Requirement | Phase |
 |------------|-------|
-| FR-1.x (Ingestion) | Phase 2 |
+| FR-1.x (Ingestion) | Phase 2, Phase 7 |
 | FR-2.x (DRR Table) | Phase 1 |
-| FR-3.x (Classification) | Phase 3 |
-| FR-4.x (Review UI) | Phase 4 |
-| FR-5.x (Calculation) | Phase 5 |
-| FR-6.x (PDF Report) | Phase 5 |
+| FR-3.x (Classification) | Phase 3, Phase 7 |
+| FR-4.x (Review UI) | Phase 4, Phase 7 |
+| FR-5.x (Calculation) | Phase 5, Phase 7 |
+| FR-6.x (PDF Report) | Phase 5, Phase 7 |
 | FR-7.x (UI General, Dark/Light mode) | Phase 4 |
 | NFR-1.x (Deployment) | Phase 1 + 6 |
 | NFR-2.x (Code Quality) | Phase 1 |
