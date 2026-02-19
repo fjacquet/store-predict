@@ -289,9 +289,7 @@ def build_default_rules() -> list[ClassificationRule]:
         ClassificationRule(
             name="File Archive",
             category="File",
-            subcategory=(
-                "Archive / Backup / Compressed / Encrypted / Rich Media / ISO / PACS / CAD"
-            ),
+            subcategory=("Archive / Backup / Compressed / Encrypted / Rich Media / ISO / PACS / CAD"),
             priority=360,
             vm_name_patterns=_patterns("ARCHIVE"),
         ),

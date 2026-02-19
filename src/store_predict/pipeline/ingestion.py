@@ -50,8 +50,7 @@ def detect_format(path: Path) -> FileFormat:
         return _detect_xlsx(path)
 
     raise IngestionError(
-        f"Unsupported file type: {suffix}. "
-        "Please upload .xlsx (RVTools or LiveOptics) or .csv (LiveOptics)."
+        f"Unsupported file type: {suffix}. Please upload .xlsx (RVTools or LiveOptics) or .csv (LiveOptics)."
     )
 
 

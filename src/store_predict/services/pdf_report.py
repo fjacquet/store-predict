@@ -155,22 +155,26 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
     table_data: list[list[str]] = [header]
 
     for grp in summary.workload_groups:
-        table_data.append([
-            grp.category,
-            str(grp.vm_count),
-            f"{grp.total_provisioned_mib / 1024:.1f}",
-            f"{grp.avg_drr:.2f}",
-            f"{grp.total_required_mib / 1024:.1f}",
-        ])
+        table_data.append(
+            [
+                grp.category,
+                str(grp.vm_count),
+                f"{grp.total_provisioned_mib / 1024:.1f}",
+                f"{grp.avg_drr:.2f}",
+                f"{grp.total_required_mib / 1024:.1f}",
+            ]
+        )
 
     # Totals row
-    table_data.append([
-        "TOTAL",
-        str(summary.total_vms),
-        f"{summary.total_provisioned_mib / 1024:.1f}",
-        f"{summary.weighted_avg_drr:.2f}",
-        f"{summary.total_required_mib / 1024:.1f}",
-    ])
+    table_data.append(
+        [
+            "TOTAL",
+            str(summary.total_vms),
+            f"{summary.total_provisioned_mib / 1024:.1f}",
+            f"{summary.weighted_avg_drr:.2f}",
+            f"{summary.total_required_mib / 1024:.1f}",
+        ]
+    )
 
     col_widths = [180, 50, 100, 70, 100]
     table = Table(table_data, colWidths=col_widths)
@@ -200,9 +204,7 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
     # Alternating row colours (skip header row 0 and totals row -1)
     for i in range(1, len(table_data) - 1):
         if i % 2 == 0:
-            style_cmds.append(
-                ("BACKGROUND", (0, i), (-1, i), colors.HexColor("#f0f0f0"))
-            )
+            style_cmds.append(("BACKGROUND", (0, i), (-1, i), colors.HexColor("#f0f0f0")))
 
     table.setStyle(TableStyle(style_cmds))
     story.append(table)

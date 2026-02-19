@@ -5,9 +5,6 @@ from __future__ import annotations
 import pytest
 
 from store_predict.pipeline.calculation import (
-    CalculationSummary,
-    VMCalculation,
-    WorkloadGroupResult,
     calculate,
 )
 
@@ -145,10 +142,7 @@ class TestEdgeCases:
         assert vm.workload_category == "Unknown (Reducible)"
 
     def test_large_dataset(self) -> None:
-        rows = [
-            _row(vm_name=f"VM-{i}", provisioned_mib=1000, in_use_mib=500, drr=5.0)
-            for i in range(5000)
-        ]
+        rows = [_row(vm_name=f"VM-{i}", provisioned_mib=1000, in_use_mib=500, drr=5.0) for i in range(5000)]
         result = calculate(rows)
         assert result.total_vms == 5000
         assert result.total_provisioned_mib == pytest.approx(5_000_000.0)

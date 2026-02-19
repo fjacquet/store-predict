@@ -37,9 +37,7 @@ def _build_liveoptics_df(
     result = pd.DataFrame()
     result["vm_name"] = df[col_map["vm_name"]].fillna("")
     result["os_name"] = df[col_map["os_name"]].fillna("")
-    result["provisioned_mib"] = pd.to_numeric(
-        df[col_map["provisioned_mib"]], errors="coerce"
-    ).fillna(0.0)
+    result["provisioned_mib"] = pd.to_numeric(df[col_map["provisioned_mib"]], errors="coerce").fillna(0.0)
     result["in_use_mib"] = pd.to_numeric(df[col_map["in_use_mib"]], errors="coerce").fillna(0.0)
 
     # Optional columns
@@ -59,9 +57,7 @@ def _build_liveoptics_df(
         result["is_template"] = False
 
     if col_map.get("powerstate"):
-        result["is_powered_on"] = (
-            df[col_map["powerstate"]].fillna("").astype(str).str.lower() == "poweredon"
-        )
+        result["is_powered_on"] = df[col_map["powerstate"]].fillna("").astype(str).str.lower() == "poweredon"
     else:
         result["is_powered_on"] = True
 

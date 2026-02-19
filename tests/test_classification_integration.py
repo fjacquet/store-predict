@@ -62,7 +62,7 @@ class TestDRRTableConsistency:
         # Custom DRR is user-assigned only, not auto-classified
         uncovered.discard(("Custom DRR", "Custom DRR"))
         # "Content not included" is a user override -- cannot detect from
-        # VM name/OS alone; default is "Content included" (conservative)
+        # VM name/OS alone; default is "Content included" (DRR 1.5, safe for pre-sales)
         uncovered.discard(("Web Servers", "Content not included"))
         assert uncovered == set(), f"DRR categories without matching rules: {sorted(uncovered)}"
 
@@ -145,9 +145,7 @@ class TestLiveOpticsSampleClassification:
             pytest.skip("No VMs with 'SQL' in name found in sample")
 
         non_db = sql_vms[sql_vms["workload_category"] != "Database"]
-        assert len(non_db) == 0, (
-            f"{len(non_db)} SQL VMs not classified as Database: {list(non_db['vm_name'])}"
-        )
+        assert len(non_db) == 0, f"{len(non_db)} SQL VMs not classified as Database: {list(non_db['vm_name'])}"
 
     def test_classify_liveoptics_citrix_vms(
         self,
@@ -162,9 +160,7 @@ class TestLiveOpticsSampleClassification:
             pytest.skip("No VMs with 'CIT' in name found in sample")
 
         non_vdi = cit_vms[cit_vms["workload_category"] != "VDI"]
-        assert len(non_vdi) == 0, (
-            f"{len(non_vdi)} Citrix VMs not classified as VDI: {list(non_vdi['vm_name'])}"
-        )
+        assert len(non_vdi) == 0, f"{len(non_vdi)} Citrix VMs not classified as VDI: {list(non_vdi['vm_name'])}"
 
     def test_classify_liveoptics_fortinet_vms(
         self,
@@ -180,8 +176,7 @@ class TestLiveOpticsSampleClassification:
 
         non_logging = forti_vms[forti_vms["workload_category"] != "Logging - Analytics"]
         assert len(non_logging) == 0, (
-            f"{len(non_logging)} FortiNet VMs not classified as "
-            f"Logging - Analytics: {list(non_logging['vm_name'])}"
+            f"{len(non_logging)} FortiNet VMs not classified as Logging - Analytics: {list(non_logging['vm_name'])}"
         )
 
 
@@ -287,18 +282,12 @@ def test_classification_coverage_report(liveoptics_xlsx_path: Path) -> None:
         print(f"  {conf:<20} {count:5d} ({pct:5.1f}%)")
 
     # rule_match should be present (VMs matched by specific rules)
-    assert "rule_match" in confidence_counts.index, (
-        "No VMs matched by specific rules (rule_match missing)"
-    )
+    assert "rule_match" in confidence_counts.index, "No VMs matched by specific rules (rule_match missing)"
 
     # os_fallback should be present (generic VMs caught by OS)
-    assert "os_fallback" in confidence_counts.index, (
-        "No VMs matched by OS fallback (os_fallback missing)"
-    )
+    assert "os_fallback" in confidence_counts.index, "No VMs matched by OS fallback (os_fallback missing)"
 
     # default should be minimal (<5%)
     default_count = confidence_counts.get("default", 0)
     default_pct = default_count / total
-    assert default_pct < 0.05, (
-        f"Default confidence is {default_pct:.1%} ({default_count}/{total}) -- should be < 5%"
-    )
+    assert default_pct < 0.05, f"Default confidence is {default_pct:.1%} ({default_count}/{total}) -- should be < 5%"

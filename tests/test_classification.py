@@ -286,6 +286,5 @@ def test_rule_categories_exist_in_drr(drr_table: DRRTable) -> None:
     for rule in build_default_rules():
         key = (rule.category, rule.subcategory)
         assert key in drr_categories, (
-            f"Rule '{rule.name}' references ({rule.category}, {rule.subcategory}) "
-            f"which does not exist in DRR table"
+            f"Rule '{rule.name}' references ({rule.category}, {rule.subcategory}) which does not exist in DRR table"
         )

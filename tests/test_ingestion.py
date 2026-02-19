@@ -124,9 +124,7 @@ class TestParseLiveopticsXlsx:
         df = parse_liveoptics_xlsx(liveoptics_xlsx_path)
         assert (df["source_format"] == "liveoptics_xlsx").all()
 
-    def test_liveoptics_xlsx_schema_matches_rvtools(
-        self, rvtools_path: Path, liveoptics_xlsx_path: Path
-    ) -> None:
+    def test_liveoptics_xlsx_schema_matches_rvtools(self, rvtools_path: Path, liveoptics_xlsx_path: Path) -> None:
         rv = parse_rvtools(rvtools_path)
         lo = parse_liveoptics_xlsx(liveoptics_xlsx_path)
         assert list(rv.columns) == list(lo.columns)
@@ -152,9 +150,7 @@ class TestParseLiveopticsCsv:
         df = parse_liveoptics_csv(liveoptics_csv_path)
         assert (df["source_format"] == "liveoptics_csv").all()
 
-    def test_liveoptics_csv_schema_matches_rvtools(
-        self, rvtools_path: Path, liveoptics_csv_path: Path
-    ) -> None:
+    def test_liveoptics_csv_schema_matches_rvtools(self, rvtools_path: Path, liveoptics_csv_path: Path) -> None:
         rv = parse_rvtools(rvtools_path)
         lo = parse_liveoptics_csv(liveoptics_csv_path)
         assert list(rv.columns) == list(lo.columns)

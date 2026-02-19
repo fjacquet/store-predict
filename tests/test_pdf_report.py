@@ -73,19 +73,23 @@ def _make_summary(
 # ---------------------------------------------------------------------------
 class TestPdfGeneratesBytes:
     def test_pdf_generates_bytes(self) -> None:
-        summary = _make_summary([
-            ("Database/Microsoft SQL", 3, 30720.0, 5.0),
-            ("Virtual Machines", 2, 10240.0, 5.0),
-        ])
+        summary = _make_summary(
+            [
+                ("Database/Microsoft SQL", 3, 30720.0, 5.0),
+                ("Virtual Machines", 2, 10240.0, 5.0),
+            ]
+        )
         result = generate_report_pdf(summary, "Test Project")
         assert isinstance(result, bytes)
         assert len(result) > 0
         assert result[:5] == b"%PDF-"
 
     def test_pdf_with_french_chars(self) -> None:
-        summary = _make_summary([
-            ("Base de donnees", 2, 20480.0, 4.0),
-        ])
+        summary = _make_summary(
+            [
+                ("Base de donnees", 2, 20480.0, 4.0),
+            ]
+        )
         result = generate_report_pdf(summary, "Evaluation pre-vente")
         assert isinstance(result, bytes)
         assert result[:5] == b"%PDF-"

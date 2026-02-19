@@ -29,9 +29,7 @@ async def report_page() -> None:
             layout("StorePredict - Report"),
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
         ):
-            ui.label("No data available. Please upload a file first.").classes(
-                "text-xl text-gray-500"
-            )
+            ui.label("No data available. Please upload a file first.").classes("text-xl text-gray-500")
             ui.link("Go to Upload", "/upload").classes("text-blue-600 underline text-lg")
         return
 

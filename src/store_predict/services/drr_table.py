@@ -30,9 +30,7 @@ class DRRTable:
 
     def __init__(self, entries: list[DRREntry]) -> None:
         self._entries = entries
-        self._lookup: dict[tuple[str, str], float] = {
-            (e.category, e.subcategory): e.ratio for e in entries
-        }
+        self._lookup: dict[tuple[str, str], float] = {(e.category, e.subcategory): e.ratio for e in entries}
 
     @classmethod
     def from_csv(cls, path: Path) -> DRRTable:

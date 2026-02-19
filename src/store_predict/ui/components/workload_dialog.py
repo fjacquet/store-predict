@@ -28,9 +28,9 @@ class WorkloadDialog(ui.dialog):
         self.props("persistent")
         with self, ui.card().classes("w-96"):
             ui.label(f"Workloads for {vm_name}").classes("text-lg font-bold")
-            ui.label(
-                "Select one or more workload types. Conservative (lowest) DRR will be used."
-            ).classes("text-sm text-gray-500")
+            ui.label("Select one or more workload types. Conservative (lowest) DRR will be used.").classes(
+                "text-sm text-gray-500"
+            )
             self.select = (
                 ui.select(
                     options=all_options,

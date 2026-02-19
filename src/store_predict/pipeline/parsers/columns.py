@@ -96,10 +96,7 @@ def resolve_columns(
     missing = {col for col in required if col_map.get(col) is None}
     if missing:
         available = list(df.columns[:15])
-        msg = (
-            f"Missing required columns: {sorted(missing)}. "
-            f"Available columns (first 15): {available}"
-        )
+        msg = f"Missing required columns: {sorted(missing)}. Available columns (first 15): {available}"
         raise IngestionError(msg)
 
     return col_map
