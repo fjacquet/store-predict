@@ -90,21 +90,21 @@ def create_vm_table(
             "sortable": True,
             "filter": "agNumberColumnFilter",
             "floatingFilter": True,
-            "valueFormatter": "value.toFixed(1)",
+            ":valueFormatter": "params => params.value != null ? params.value.toFixed(1) : ''",
         },
         {
             "field": "provisioned_mib",
             "headerName": "Provisioned (MiB)",
             "sortable": True,
             "filter": "agNumberColumnFilter",
-            "valueFormatter": "Math.round(value).toLocaleString()",
+            ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
         },
         {
             "field": "in_use_mib",
             "headerName": "In Use (MiB)",
             "sortable": True,
             "filter": "agNumberColumnFilter",
-            "valueFormatter": "Math.round(value).toLocaleString()",
+            ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
         },
         {
             "field": "classification_confidence",
@@ -122,41 +122,45 @@ def create_vm_table(
                 "headerName": "Peak IOPS",
                 "sortable": True,
                 "filter": "agNumberColumnFilter",
-                "valueFormatter": "value ? Math.round(value).toLocaleString() : ''",
+                ":valueFormatter": "params => params.value ? Math.round(params.value).toLocaleString() : ''",
             },
             {
                 "field": "iops_8k_equivalent",
                 "headerName": "8K Eq. IOPS",
                 "sortable": True,
                 "filter": "agNumberColumnFilter",
-                "valueFormatter": "value ? Math.round(value).toLocaleString() : ''",
+                ":valueFormatter": "params => params.value ? Math.round(params.value).toLocaleString() : ''",
             },
             {
                 "field": "peak_throughput_mbs",
                 "headerName": "Peak MB/s",
                 "sortable": True,
                 "filter": "agNumberColumnFilter",
-                "valueFormatter": "value ? value.toFixed(1) : ''",
+                ":valueFormatter": "params => params.value ? params.value.toFixed(1) : ''",
             },
         ]
         # Insert before the last column (classification_confidence)
         column_defs = column_defs[:-1] + perf_cols + column_defs[-1:]
 
-    grid = ui.aggrid(
-        {
-            "columnDefs": column_defs,
-            "rowData": row_data,
-            "pagination": True,
-            "paginationPageSize": 50,
-            "rowSelection": {
-                "mode": "multiRow",
-                "headerCheckbox": True,
-                "enableClickSelection": False,
-            },
-            "getRowId": "params => params.data.vm_name",
-            "stopEditingWhenCellsLoseFocus": True,
-        }
-    ).classes("w-full").style("height: 600px")
+    grid = (
+        ui.aggrid(
+            {
+                "columnDefs": column_defs,
+                "rowData": row_data,
+                "pagination": True,
+                "paginationPageSize": 50,
+                "rowSelection": {
+                    "mode": "multiRow",
+                    "headerCheckbox": True,
+                    "enableClickSelection": False,
+                },
+                ":getRowId": "params => params.data.vm_name",
+                "stopEditingWhenCellsLoseFocus": True,
+            }
+        )
+        .classes("w-full")
+        .style("height: 600px")
+    )
 
     if on_cell_changed:
         grid.on("cellValueChanged", on_cell_changed)
