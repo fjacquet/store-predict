@@ -10,6 +10,8 @@ Research documents produced during project development. Each document captures d
 | [Phase 2](phase-02-ingestion.md) | File Ingestion | RVTools "MB" = MiB, Template NaN pitfall, column aliases |
 | [Phase 3](phase-03-classification.md) | Workload Classification | 28 DRR categories, false positive patterns (ORA/SAP/EX), OS fallback strategy |
 | [Phase 4](phase-04-ui.md) | UI Upload & Review Pages | AG Grid table, session storage split, multi-workload dialog, dark mode |
+| [Phase 5](phase-05-calculation.md) | Calculation & PDF Report | ReportLab Platypus, Vera fonts, weighted avg DRR, BytesIO PDF |
+| [Phase 6](phase-06-polish.md) | Polish, Docs & Deployment | Docker hardening, file validation, CI/CD, MkDocs, performance tests |
 
 ## Sample Data Analysis
 

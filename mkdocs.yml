@@ -44,6 +44,9 @@ nav:
     - Phase 2 - Ingestion: research/phase-02-ingestion.md
     - Phase 3 - Classification: research/phase-03-classification.md
     - Phase 4 - UI Upload & Review: research/phase-04-ui.md
+    - Phase 5 - Calculation & PDF: research/phase-05-calculation.md
+    - Phase 6 - Polish & Deployment: research/phase-06-polish.md
+  - Changelog: changelog.md
   - ADR:
     - Overview: adr/index.md
     - 001 - NiceGUI Framework: adr/001-nicegui-framework.md

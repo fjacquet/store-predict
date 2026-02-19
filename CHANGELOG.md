@@ -4,6 +4,19 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+### Phase 6: Polish, Docs & Deployment (COMPLETE)
+
+- Docker hardening: `.dockerignore`, `HEALTHCHECK` directive, env-var `STORAGE_SECRET`
+- Server-side file upload validation with magic-byte checks (XLSX zip header, CSV UTF-8)
+- Logging configuration with sanitization guidance (never log DataFrame contents)
+- Session isolation verification via `app.storage.tab` (tab-scoped)
+- Performance benchmark tests: 5000 VM classification < 10s, PDF generation < 5s
+- MkDocs documentation: architecture page with 3 Mermaid diagrams, getting-started guide
+- Project README with Docker and local dev quickstart
+- GitHub Actions CI: ruff check, ruff format, mypy, pytest on push/PR to main
+- GitHub Actions docs: MkDocs deployment to GitHub Pages on push to main
+- 15 new tests (validation + log sanitization + performance), 121 total tests passing
+
 ### Phase 5: Calculation & PDF Report (COMPLETE)
 
 - Calculation service with per-VM required capacity (`provisioned_mib / drr`)
