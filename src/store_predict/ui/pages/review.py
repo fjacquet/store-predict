@@ -59,12 +59,18 @@ async def review_page() -> None:
         with stats_container:
             build_summary_stats(row_data)
 
+        # Build "Category / Subcategory" labels for inline dropdown
+        subcategory_labels = [
+            f"{opt['category']} / {opt['subcategory']}" for opt in workload_options
+        ]
+
         # AG Grid table
         grid = create_vm_table(
             row_data,
             categories,
             on_cell_changed=lambda e: _handle_cell_change(e, row_data, drr_table, grid, stats_container),
             on_row_clicked=lambda e: _handle_row_click(e, row_data, drr_table, workload_options, grid, stats_container),
+            subcategory_labels=subcategory_labels,
         )
 
         # Navigation to report
@@ -82,29 +88,37 @@ def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -
         build_summary_stats(row_data)
 
 
-def _handle_cell_change(
+async def _handle_cell_change(
     e: object,
     row_data: list[dict[str, Any]],
     drr_table: DRRTable,
     grid: ui.aggrid,
     stats_container: ui.column,
 ) -> None:
-    """Handle inline cell edit (workload category dropdown change)."""
+    """Handle inline cell edit (workload category dropdown change).
+
+    Parses "Category / Subcategory" labels and preserves filter/page state.
+    """
     args = e.args  # type: ignore[attr-defined]
     col_id = args.get("colId", "")
-    if col_id != "workload_category":
+    if col_id not in ("workload_category", "workload_subcategory"):
         return
 
     changed_data = args.get("data", {})
     vm_name = changed_data.get("vm_name", "")
-    new_category = args.get("newValue", "")
+    new_value = args.get("newValue", "")
 
-    # Find first matching subcategory for the new category
-    subcategory = ""
-    for entry in drr_table.entries:
-        if entry.category == new_category:
-            subcategory = entry.subcategory
-            break
+    # Parse "Category / Subcategory" label format
+    if " / " in new_value:
+        new_category, subcategory = new_value.split(" / ", 1)
+    else:
+        # Fallback: bare category, find first subcategory
+        new_category = new_value
+        subcategory = ""
+        for entry in drr_table.entries:
+            if entry.category == new_category:
+                subcategory = entry.subcategory
+                break
 
     new_drr = drr_table.get_ratio(new_category, subcategory)
 
@@ -116,10 +130,20 @@ def _handle_cell_change(
             row["drr"] = new_drr
             break
 
+    # Capture filter/page state before update
+    filter_model = await grid.run_grid_method("getFilterModel")
+    current_page = await grid.run_grid_method("paginationGetCurrentPage")
+
     # Refresh grid and stats
     grid.options["rowData"] = row_data
     grid.update()
     _rebuild_stats(stats_container, row_data)
+
+    # Restore filter/page state after update (fire-and-forget, no await)
+    if filter_model:
+        grid.run_grid_method("setFilterModel", filter_model)
+    if current_page is not None and current_page > 0:
+        grid.run_grid_method("paginationGoToPage", current_page)
 
     # Persist to session
     save_session_data(pd.DataFrame(row_data), get_project_name())
@@ -182,10 +206,20 @@ async def _handle_row_click(
             r["drr"] = conservative_drr
             break
 
+    # Capture filter/page state before update
+    filter_model = await grid.run_grid_method("getFilterModel")
+    current_page = await grid.run_grid_method("paginationGetCurrentPage")
+
     # Refresh grid and stats
     grid.options["rowData"] = row_data
     grid.update()
     _rebuild_stats(stats_container, row_data)
+
+    # Restore filter/page state after update (fire-and-forget, no await)
+    if filter_model:
+        grid.run_grid_method("setFilterModel", filter_model)
+    if current_page is not None and current_page > 0:
+        grid.run_grid_method("paginationGoToPage", current_page)
 
     # Persist to session
     save_session_data(pd.DataFrame(row_data), get_project_name())
