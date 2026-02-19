@@ -207,6 +207,7 @@ Plans:
 - [ ] Preserve current page position after workload modification
 - [ ] Display VM characteristics in review table (including Description field)
 - [ ] Allow subcategory selection when changing workload category (currently only category is selectable)
+- [ ] Make "Unknown (Reducible)" VMs editable — user must be able to reassign workload and DRR
 
 *Report Enhancements:*
 - [ ] Add to PDF report: total number of VMs
