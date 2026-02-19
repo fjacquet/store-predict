@@ -3,7 +3,7 @@
 ## Current Phase
 
 Phase 7: UI Bug Fixes & Report Enhancements (IN PROGRESS)
-Plans: 1 of 5 complete
+Plans: 3 of 5 complete
 
 ## Milestone
 
@@ -82,6 +82,8 @@ Execute Phase 7 Plan 02 (classification improvements).
 - [Phase 07]: Throughput KB/s to MB/s conversion at parser level for early normalization
 - [Phase 07]: Fire-and-forget setFilterModel/paginationGoToPage to avoid JS timeout
 - [Phase 07]: enableClickSelection: False so row clicks open dialog, checkboxes handle selection
+- [Phase 07]: Performance fields extracted with NaN-safe helper (math.isnan check, default 0.0)
+- [Phase 07]: VM Statistics always in PDF; Performance Summary conditional on has_performance_data
 
 ## Performance Metrics
 
@@ -105,6 +107,7 @@ Execute Phase 7 Plan 02 (classification improvements).
 | 06    | 04   | 2min     | 2     | 5     |
 | 07    | 01   | 3min     | 2     | 5     |
 | Phase 07 P03 | 2min | 2 tasks | 2 files |
+| Phase 07 P04 | 3min | 2 tasks | 4 files |
 
 ## Roadmap Evolution
 
@@ -121,7 +124,7 @@ Execute Phase 7 Plan 02 (classification improvements).
 
 ## Last Session
 
-- **Stopped at:** Completed 07-01-PLAN.md
+- **Stopped at:** Completed 07-04-PLAN.md
 - **Timestamp:** 2026-02-19T12:40:21Z
 
 <!-- rtk-instructions v2 -->
