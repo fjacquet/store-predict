@@ -188,23 +188,18 @@ def parse_liveoptics_xlsx(path: Path) -> pd.DataFrame:
 
         # Convert throughput from KB/s to MB/s
         if "peak_throughput_kbs" in perf_df.columns:
-            perf_df["peak_throughput_mbs"] = pd.to_numeric(
-                perf_df["peak_throughput_kbs"], errors="coerce"
-            ) / 1024.0
+            perf_df["peak_throughput_mbs"] = pd.to_numeric(perf_df["peak_throughput_kbs"], errors="coerce") / 1024.0
         else:
             perf_df["peak_throughput_mbs"] = float("nan")
 
         if "avg_throughput_kbs" in perf_df.columns:
-            perf_df["avg_throughput_mbs"] = pd.to_numeric(
-                perf_df["avg_throughput_kbs"], errors="coerce"
-            ) / 1024.0
+            perf_df["avg_throughput_mbs"] = pd.to_numeric(perf_df["avg_throughput_kbs"], errors="coerce") / 1024.0
         else:
             perf_df["avg_throughput_mbs"] = float("nan")
 
-        # Compute 8K equivalent IOPS: avg_iops + (avg_throughput_kbs / 8.0)
-        avg_iops = pd.to_numeric(perf_df.get("avg_iops", float("nan")), errors="coerce")
+        # Compute 8K equivalent IOPS: throughput_KB/s / 8 (normalize all IO to 8K block size)
         avg_tp_kbs = pd.to_numeric(perf_df.get("avg_throughput_kbs", float("nan")), errors="coerce")
-        perf_df["iops_8k_equivalent"] = avg_iops + (avg_tp_kbs / 8.0)
+        perf_df["iops_8k_equivalent"] = avg_tp_kbs / 8.0
 
         # Select columns for merge
         merge_cols = [

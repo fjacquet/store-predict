@@ -105,9 +105,8 @@ class TestIops8kEquivalent:
             pytest.skip("No rows with avg_iops data in performance sheet")
 
         row = perf_with_data.iloc[0]
-        avg_iops = float(row["avg_iops"])
         avg_tp_kbs = float(row.get("avg_throughput_kbs", 0))
-        expected_8k = avg_iops + (avg_tp_kbs / 8.0)
+        expected_8k = avg_tp_kbs / 8.0
 
         # Find the same VM in the merged result
         vm_name = str(row["vm_name"]).strip()

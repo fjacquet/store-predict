@@ -38,7 +38,7 @@ async def report_page() -> None:
 
     with (
         layout("StorePredict - Report"),
-        ui.column().classes("w-full max-w-6xl mx-auto p-4 gap-6"),
+        ui.column().classes("w-full p-4 gap-6"),
     ):
         # Title row
         with ui.row().classes("w-full items-center justify-between"):
@@ -46,13 +46,26 @@ async def report_page() -> None:
             if project_name:
                 ui.label(f"Project: {project_name}").classes("text-lg text-gray-500")
 
-        # Summary cards
+        # Storage summary cards
+        ui.label("Storage Summary").classes("text-xl font-semibold")
         with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
             _summary_card("Total VMs", str(summary.total_vms))
             _summary_card("Total Provisioned", format_storage(summary.total_provisioned_mib))
             _summary_card("Total In Use", format_storage(summary.total_in_use_mib))
             _summary_card("Weighted Avg DRR", f"{summary.weighted_avg_drr:.1f}x")
             _summary_card("Required Capacity", format_storage(summary.total_required_mib))
+            _summary_card("Avg VM Size", format_storage(summary.avg_vm_size_mib))
+            _summary_card("Largest VM", f"{summary.largest_vm_name}")
+            _summary_card("Largest VM Size", format_storage(summary.largest_vm_provisioned_mib))
+
+        # Performance summary cards (only when LiveOptics data available)
+        if summary.has_performance_data:
+            ui.label("Performance Summary").classes("text-xl font-semibold")
+            with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
+                _summary_card("Total Peak IOPS", f"{summary.total_peak_iops:,.0f}")
+                _summary_card("Total Avg IOPS", f"{summary.total_avg_iops:,.0f}")
+                _summary_card("Peak Throughput", f"{summary.peak_throughput_mbs:,.1f} MB/s")
+                _summary_card("8K Eq. IOPS", f"{summary.total_iops_8k_equivalent:,.0f}")
 
         # Workload breakdown table
         ui.label("Workload Breakdown").classes("text-xl font-semibold")

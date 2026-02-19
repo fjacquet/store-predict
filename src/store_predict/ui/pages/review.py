@@ -50,7 +50,7 @@ async def review_page() -> None:
 
     with (
         layout("StorePredict - Review"),
-        ui.column().classes("w-full max-w-7xl mx-auto p-4 gap-4"),
+        ui.column().classes("w-full p-4 gap-4"),
     ):
         # Title row
         with ui.row().classes("w-full items-center justify-between"):
