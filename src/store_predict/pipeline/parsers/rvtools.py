@@ -83,4 +83,23 @@ def parse_rvtools(path: Path) -> pd.DataFrame:
 
     result["source_format"] = FileFormat.RVTOOLS.value
 
+    # Description from Annotation column (optional)
+    if col_map.get("vm_description"):
+        result["vm_description"] = df[col_map["vm_description"]].fillna("")
+    else:
+        result["vm_description"] = ""
+
+    # Performance columns not available in RVTools -- default to NaN
+    for perf_col in [
+        "peak_iops",
+        "avg_iops",
+        "peak_throughput_mbs",
+        "avg_throughput_mbs",
+        "peak_latency_ms",
+        "avg_read_latency_ms",
+        "avg_write_latency_ms",
+        "iops_8k_equivalent",
+    ]:
+        result[perf_col] = float("nan")
+
     return result[CANONICAL_COLUMNS]

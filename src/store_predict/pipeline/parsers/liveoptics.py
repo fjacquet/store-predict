@@ -11,7 +11,9 @@ from store_predict.pipeline.models import FileFormat
 from store_predict.pipeline.parsers.columns import (
     CANONICAL_COLUMNS,
     LIVEOPTICS_ALIASES,
+    LIVEOPTICS_PERFORMANCE_ALIASES,
     REQUIRED_LIVEOPTICS_COLUMNS,
+    REQUIRED_LIVEOPTICS_PERFORMANCE_COLUMNS,
     resolve_columns,
 )
 
@@ -63,7 +65,75 @@ def _build_liveoptics_df(
 
     result["source_format"] = source_format
 
+    # Description field (optional)
+    if col_map.get("vm_description"):
+        result["vm_description"] = df[col_map["vm_description"]].fillna("")
+    else:
+        result["vm_description"] = ""
+
+    # Performance columns default to NaN (populated later for xlsx from VM Performance sheet)
+    for perf_col in [
+        "peak_iops",
+        "avg_iops",
+        "peak_throughput_mbs",
+        "avg_throughput_mbs",
+        "peak_latency_ms",
+        "avg_read_latency_ms",
+        "avg_write_latency_ms",
+        "iops_8k_equivalent",
+    ]:
+        result[perf_col] = float("nan")
+
     return result[CANONICAL_COLUMNS]
+
+
+def parse_liveoptics_performance(path: Path) -> pd.DataFrame:
+    """Parse the VM Performance sheet from a LiveOptics xlsx export.
+
+    Args:
+        path: Path to the LiveOptics .xlsx file.
+
+    Returns:
+        DataFrame with performance columns keyed by vm_name.
+        Empty DataFrame if sheet is missing or cannot be parsed.
+    """
+    perf_columns = [
+        "vm_name",
+        "peak_iops",
+        "avg_iops",
+        "peak_throughput_kbs",
+        "avg_throughput_kbs",
+        "peak_latency_ms",
+        "avg_read_latency_ms",
+        "avg_write_latency_ms",
+    ]
+    try:
+        df = pd.read_excel(path, sheet_name="VM Performance", engine="openpyxl")
+    except (KeyError, ValueError):
+        return pd.DataFrame(columns=perf_columns)
+    except Exception:
+        return pd.DataFrame(columns=perf_columns)
+
+    df.columns = df.columns.str.strip()
+
+    try:
+        col_map = resolve_columns(
+            df,
+            LIVEOPTICS_PERFORMANCE_ALIASES,
+            REQUIRED_LIVEOPTICS_PERFORMANCE_COLUMNS,
+        )
+    except Exception:
+        return pd.DataFrame(columns=perf_columns)
+
+    result = pd.DataFrame()
+    for canonical in perf_columns:
+        actual = col_map.get(canonical)
+        if actual:
+            result[canonical] = pd.to_numeric(df[actual], errors="coerce") if canonical != "vm_name" else df[actual]
+        else:
+            result[canonical] = float("nan") if canonical != "vm_name" else ""
+
+    return result
 
 
 def parse_liveoptics_xlsx(path: Path) -> pd.DataFrame:
@@ -94,7 +164,70 @@ def parse_liveoptics_xlsx(path: Path) -> pd.DataFrame:
         ) from exc
 
     df.columns = df.columns.str.strip()
-    return _build_liveoptics_df(df, FileFormat.LIVEOPTICS_XLSX.value)
+    result = _build_liveoptics_df(df, FileFormat.LIVEOPTICS_XLSX.value)
+
+    # Join performance data from VM Performance sheet
+    perf_df = parse_liveoptics_performance(path)
+    if not perf_df.empty and len(perf_df) > 0:
+        # Strip whitespace on join keys
+        result["vm_name"] = result["vm_name"].astype(str).str.strip()
+        perf_df["vm_name"] = perf_df["vm_name"].astype(str).str.strip()
+
+        # Drop performance columns from result before merge (they are NaN defaults)
+        perf_cols_to_update = [
+            "peak_iops",
+            "avg_iops",
+            "peak_throughput_mbs",
+            "avg_throughput_mbs",
+            "peak_latency_ms",
+            "avg_read_latency_ms",
+            "avg_write_latency_ms",
+            "iops_8k_equivalent",
+        ]
+        result = result.drop(columns=perf_cols_to_update, errors="ignore")
+
+        # Convert throughput from KB/s to MB/s
+        if "peak_throughput_kbs" in perf_df.columns:
+            perf_df["peak_throughput_mbs"] = pd.to_numeric(
+                perf_df["peak_throughput_kbs"], errors="coerce"
+            ) / 1024.0
+        else:
+            perf_df["peak_throughput_mbs"] = float("nan")
+
+        if "avg_throughput_kbs" in perf_df.columns:
+            perf_df["avg_throughput_mbs"] = pd.to_numeric(
+                perf_df["avg_throughput_kbs"], errors="coerce"
+            ) / 1024.0
+        else:
+            perf_df["avg_throughput_mbs"] = float("nan")
+
+        # Compute 8K equivalent IOPS: avg_iops + (avg_throughput_kbs / 8.0)
+        avg_iops = pd.to_numeric(perf_df.get("avg_iops", float("nan")), errors="coerce")
+        avg_tp_kbs = pd.to_numeric(perf_df.get("avg_throughput_kbs", float("nan")), errors="coerce")
+        perf_df["iops_8k_equivalent"] = avg_iops + (avg_tp_kbs / 8.0)
+
+        # Select columns for merge
+        merge_cols = [
+            "vm_name",
+            "peak_iops",
+            "avg_iops",
+            "peak_throughput_mbs",
+            "avg_throughput_mbs",
+            "peak_latency_ms",
+            "avg_read_latency_ms",
+            "avg_write_latency_ms",
+            "iops_8k_equivalent",
+        ]
+        perf_merge = perf_df[[c for c in merge_cols if c in perf_df.columns]]
+
+        result = result.merge(perf_merge, on="vm_name", how="left")
+
+        # Ensure all performance columns exist
+        for col in perf_cols_to_update:
+            if col not in result.columns:
+                result[col] = float("nan")
+
+    return result[CANONICAL_COLUMNS]
 
 
 def parse_liveoptics_csv(path: Path) -> pd.DataFrame:
