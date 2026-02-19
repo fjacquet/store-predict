@@ -41,7 +41,12 @@ See [v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md) for full details.
 
 **Key risks:** python-i18n `set('locale')` is global — need per-session wrapper. String concatenation (f-strings) must use named placeholders.
 
-**Estimated plans:** 2-3
+**Plans:** 3 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — i18n package infrastructure: t() helper, YAML locale files, locale_toggle component
+- [ ] 08-02-PLAN.md — UI string wrapping: all 65 strings in pages/components/layout + AG Grid locale
+- [ ] 08-03-PLAN.md — PDF report locale parameter + i18n unit test suite
 
 ---
 
@@ -150,7 +155,7 @@ See [v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md) for full details.
 | 5. Calculation & PDF | v1.0 | 3/3 | Complete | 2026-02-19 |
 | 6. Polish & Deploy | v1.0 | 5/5 | Complete | 2026-02-19 |
 | 7. UI Fixes & Report | v1.0 | 5/5 | Complete | 2026-02-19 |
-| 8. i18n Foundation | v1.1 | 0/? | Pending | — |
+| 8. i18n Foundation | v1.1 | 0/3 | Pending | — |
 | 9. Excel Export | v1.1 | 0/? | Pending | — |
 | 10. PDF Branding | v1.1 | 0/? | Pending | — |
 | 11. LLM Classification | v1.1 | 0/? | Pending | — |
