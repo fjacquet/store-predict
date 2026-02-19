@@ -32,7 +32,7 @@ async def _handle_upload(e: object) -> None:
             suffix=Path(e.file.name).suffix,  # type: ignore[attr-defined]
             delete=False,
         ) as tmp:
-            content = e.file.read()  # type: ignore[attr-defined]
+            content = await e.file.read()  # type: ignore[attr-defined]
             tmp.write(content)
             tmp_path = Path(tmp.name)
 
