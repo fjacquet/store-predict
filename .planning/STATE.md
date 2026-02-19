@@ -2,8 +2,8 @@
 
 ## Current Phase
 
-Phase 3: Workload Classification Engine (COMPLETE)
-Plans: 2 of 2 complete
+Phase 4: UI Upload & Review Pages (IN PROGRESS)
+Plans: 2 of 3 complete
 
 ## Milestone
 
@@ -22,14 +22,16 @@ v1.0 — MVP Sizing Tool
 - [x] Plan 02-02: Format detection orchestrator, template filtering, 29 ingestion tests
 - [x] Plan 03-01: Classification engine with 29 rules, 28 tests, all 28 DRR subcategories covered
 - [x] Plan 03-02: Integration tests with real sample data, DRR consistency, 82 total tests, 0% Unknown rate
+- [x] Plan 04-01: Upload page with pipeline integration, session state, dark mode toggle
+- [x] Plan 04-02: UI components (AG Grid VM table, workload dialog, summary stats)
 
 ## Next Action
 
-Execute Phase 04 (User Review UI).
+Execute Plan 04-03 (Review page wiring components together).
 
 ## Decisions
 
-- Used setuptools.build_meta instead of _legacy backend (not available in current setuptools)
+- Used setuptools.build_meta instead of_legacy backend (not available in current setuptools)
 - DRR.csv has 28 valid entries, not 30 as estimated in research
 - Path import moved to TYPE_CHECKING block per ruff TCH003 rule
 - Context manager layout pattern for NiceGUI shared header/nav
@@ -46,6 +48,9 @@ Execute Phase 04 (User Review UI).
 - Excluded Web Servers/Content not included from DRR coverage check (user override only)
 - 594 VMs classified after template filtering (610 raw, 16 templates removed)
 - 0% Unknown (Reducible) rate achieved on LiveOptics sample data
+- Used agSelectCellEditor for inline single-workload dropdown (AG Grid community)
+- WorkloadDialog uses persistent prop and use-chips to prevent accidental close
+- Summary stats use get() with defaults for robustness with incomplete data
 
 ## Performance Metrics
 
@@ -57,6 +62,8 @@ Execute Phase 04 (User Review UI).
 | 02    | 02   | 4min     | 2     | 5     |
 | 03    | 01   | 7min     | 2     | 2     |
 | 03    | 02   | 4min     | 2     | 1     |
+| 04    | 01   | 5min     | 2     | 4     |
+| 04    | 02   | 4min     | 2     | 4     |
 
 ## Notes
 
@@ -69,8 +76,8 @@ Execute Phase 04 (User Review UI).
 
 ## Last Session
 
-- **Stopped at:** Completed 03-02-PLAN.md (Phase 03 complete)
-- **Timestamp:** 2026-02-18T21:14:00Z
+- **Stopped at:** Re-executed 04-01-PLAN.md (upload page + session state)
+- **Timestamp:** 2026-02-18T22:10:00Z
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
