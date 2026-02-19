@@ -2,8 +2,8 @@
 
 ## Current Phase
 
-Phase 5: Calculation & PDF Report (COMPLETE)
-Plans: 3 of 3 complete
+Phase 6: Polish, Docs & Deployment (IN PROGRESS)
+Plans: 4 of 5 complete
 
 ## Milestone
 
@@ -30,9 +30,11 @@ v1.0 — MVP Sizing Tool
 - [x] Plan 05-02: PDF report generator with branded layout
 - [x] Plan 05-03: Report page UI with summary cards, breakdown table, PDF download, navigation
 
+- [x] Plan 06-01: Docker deployment hardening (.dockerignore, HEALTHCHECK, env-var secret)
+
 ## Next Action
 
-Execute Phase 6 (Polish & Deployment).
+Execute Phase 6 Plan 02.
 
 ## Decisions
 
@@ -66,6 +68,7 @@ Execute Phase 6 (Polish & Deployment).
 - [Phase 05]: ui.table (not AG Grid) for read-only workload breakdown display
 - [Phase 05]: ui.download uses positional src arg per NiceGUI API
 - [Phase 06]: Used time.perf_counter() for high-resolution performance benchmarks
+- [Phase 06]: CI triggers on push and PR to main; docs triggers on push only
 
 ## Performance Metrics
 
@@ -85,6 +88,7 @@ Execute Phase 6 (Polish & Deployment).
 | 05    | 03   | 2min     | 2     | 4     |
 | Phase 06 P01 | 2min | 2 tasks | 4 files |
 | Phase 06 P03 | 2min | 1 tasks | 1 files |
+| Phase 06 P05 | 1min | 2 tasks | 2 files |
 
 ## Roadmap Evolution
 
@@ -101,7 +105,7 @@ Execute Phase 6 (Polish & Deployment).
 
 ## Last Session
 
-- **Stopped at:** Completed 06-03-PLAN.md
+- **Stopped at:** Completed 06-05-PLAN.md
 - **Timestamp:** 2026-02-19T05:30:50Z
 
 <!-- rtk-instructions v2 -->
