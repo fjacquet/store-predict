@@ -55,6 +55,14 @@ def parse_rvtools(path: Path) -> pd.DataFrame:
     result = pd.DataFrame()
     result["vm_name"] = df[col_map["vm_name"]].fillna("")
     result["os_name"] = df[col_map["os_name"]].fillna("")
+    result["num_cpus"] = (
+        pd.to_numeric(df[col_map["num_cpus"]], errors="coerce").fillna(0).astype(int)
+        if col_map.get("num_cpus") else 0
+    )
+    result["memory_mib"] = (
+        pd.to_numeric(df[col_map["memory_mib"]], errors="coerce").fillna(0.0)
+        if col_map.get("memory_mib") else 0.0
+    )
     result["provisioned_mib"] = pd.to_numeric(df[col_map["provisioned_mib"]], errors="coerce").fillna(0.0)
     result["in_use_mib"] = pd.to_numeric(df[col_map["in_use_mib"]], errors="coerce").fillna(0.0)
 

@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 CANONICAL_COLUMNS: list[str] = [
     "vm_name",
     "os_name",
+    "num_cpus",
+    "memory_mib",
     "provisioned_mib",
     "in_use_mib",
     "datacenter",
@@ -52,6 +54,8 @@ RVTOOLS_ALIASES: dict[str, list[str]] = {
         "OS according to the VMware Tools",
         "OS according to the configuration file",
     ],
+    "num_cpus": ["CPUs", "Num CPUs", "vCPUs"],
+    "memory_mib": ["Memory", "Memory MB", "Memory MiB"],
     "provisioned_mib": ["Provisioned MB", "Provisioned MiB"],
     "in_use_mib": ["In Use MB", "In Use MiB"],
     "datacenter": ["Datacenter"],
@@ -62,6 +66,8 @@ RVTOOLS_ALIASES: dict[str, list[str]] = {
 LIVEOPTICS_ALIASES: dict[str, list[str]] = {
     "vm_name": ["VM Name"],
     "os_name": ["VM OS"],
+    "num_cpus": ["Virtual CPU", "vCPU", "CPUs"],
+    "memory_mib": ["Provisioned Memory (MiB)", "Memory (MiB)", "Memory MB"],
     "provisioned_mib": ["Virtual Disk Size (MiB)"],
     "in_use_mib": ["Guest VM Disk Used (MiB)"],
     "is_template": ["Template"],

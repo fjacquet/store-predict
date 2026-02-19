@@ -58,6 +58,10 @@ class CalculationSummary:
     total_required_mib: float
     weighted_avg_drr: float
     avg_vm_size_mib: float = 0.0
+    avg_vm_cpus: float = 0.0
+    avg_vm_memory_mib: float = 0.0
+    total_cpus: int = 0
+    total_memory_mib: float = 0.0
     largest_vm_name: str = ""
     largest_vm_provisioned_mib: float = 0.0
     total_peak_iops: float = 0.0
@@ -162,6 +166,12 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
     total_vms = len(vm_calcs)
     avg_vm_size_mib = total_provisioned / total_vms if total_vms > 0 else 0.0
 
+    # CPU and memory totals
+    total_cpus = sum(int(_safe_float(r.get("num_cpus"))) for r in row_data)
+    total_memory_mib = sum(_safe_float(r.get("memory_mib")) for r in row_data)
+    avg_vm_cpus = total_cpus / total_vms if total_vms > 0 else 0.0
+    avg_vm_memory_mib = total_memory_mib / total_vms if total_vms > 0 else 0.0
+
     # Largest VM by provisioned size
     largest_vm = max(vm_calcs, key=lambda v: v.provisioned_mib)
     largest_vm_name = largest_vm.vm_name
@@ -183,6 +193,10 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
         total_required_mib=total_required,
         weighted_avg_drr=weighted_avg_drr,
         avg_vm_size_mib=avg_vm_size_mib,
+        avg_vm_cpus=avg_vm_cpus,
+        avg_vm_memory_mib=avg_vm_memory_mib,
+        total_cpus=total_cpus,
+        total_memory_mib=total_memory_mib,
         largest_vm_name=largest_vm_name,
         largest_vm_provisioned_mib=largest_vm_provisioned_mib,
         total_peak_iops=total_peak_iops,
