@@ -4,6 +4,23 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+### Phase 5: Calculation & PDF Report (COMPLETE)
+
+- Calculation service with per-VM required capacity (`provisioned_mib / drr`)
+- Workload grouping with subtotals (VM count, provisioned, in-use, required per category)
+- Weighted average DRR (`total_provisioned / total_required`, not simple average)
+- Division-by-zero guard: `max(drr, 0.1)` prevents invalid calculations
+- Missing field defaults via `.get()` for robustness with incomplete data
+- PDF report generator using ReportLab Platypus with branded one-page layout
+- Dark blue header bar with StorePredict branding
+- Workload breakdown table in PDF (Category, VMs, Provisioned, Avg DRR, Required)
+- Vera/VeraBd TTF fonts for French character support (accents, special chars)
+- Storage formatting helper: MiB to GiB with TiB display for large values
+- Report page at `/report` with summary cards and workload breakdown table
+- PDF download button triggering browser download
+- Navigation wiring: Review → Report button, Report link in nav bar
+- 24 new tests (12 calculation + 12 PDF), 106 total tests passing
+
 ### Phase 4: UI — Upload & Review Pages (COMPLETE)
 
 - Session state module for per-tab DataFrame serialization (`ui/state.py`)
