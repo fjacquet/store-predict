@@ -163,6 +163,16 @@ Plans:
 
 **Requirements covered:** NFR-1.1, NFR-1.2, NFR-1.3, NFR-3.1, NFR-3.2, NFR-3.3, NFR-4.1, NFR-4.2, NFR-5.1, NFR-5.2, NFR-5.3
 
+**Plans:** 5 plans
+
+Plans:
+
+- [ ] 06-01-PLAN.md -- Docker hardening (.dockerignore, health check, env-var storage secret)
+- [ ] 06-02-PLAN.md -- Security (upload validation, log sanitization, session isolation)
+- [ ] 06-03-PLAN.md -- Performance tests (5000 VMs classification, PDF benchmark)
+- [ ] 06-04-PLAN.md -- MkDocs documentation (architecture with Mermaid, getting-started, README)
+- [ ] 06-05-PLAN.md -- GitHub Actions CI + docs deployment
+
 **Deliverables:**
 
 - [ ] Docker Compose production config (port, storage secret, restart policy)
@@ -176,6 +186,15 @@ Plans:
 - [ ] README.md with quickstart
 
 **Success criteria:** `docker compose up` serves the app, docs deployed to GitHub Pages, CI green.
+
+### Phase 7: UI bug fixes and report enhancements
+
+**Goal:** [To be planned]
+**Depends on:** Phase 6
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 7 to break down)
 
 ---
 
