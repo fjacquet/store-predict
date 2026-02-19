@@ -4,18 +4,19 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
-### Phase 4: UI — Upload & Review Pages
+### Phase 4: UI — Upload & Review Pages (COMPLETE)
 
 - Session state module for per-tab DataFrame serialization (`ui/state.py`)
 - Upload page with file dropzone, project name input, pipeline integration
-- AG Grid VM table component with inline workload dropdown
-- Multi-select workload dialog for assigning multiple workload types
+- AG Grid VM table component with inline workload dropdown (ADR-007)
+- Multi-select workload dialog for assigning multiple workload types (ADR-009)
 - Summary statistics cards (Total VMs, Provisioned, Avg DRR, Effective Capacity)
 - Review page wiring all components: table, dialog, stats, DRR recalculation
-- Dark mode toggle with persistent user preference via `app.storage.user`
+- Dark mode toggle with persistent user preference via `app.storage.user` (ADR-008)
 - Navigation header with Home, Upload, and Review links
 - Cell change handler: inline workload dropdown updates DRR and stats
 - Row click handler: multi-select dialog applies conservative (lowest) DRR
+- Per-tab session isolation for upload data, per-user storage for preferences (ADR-008)
 
 ### Phase 3: Workload Classification Engine
 

@@ -9,6 +9,7 @@ Research documents produced during project development. Each document captures d
 | [Phase 1](phase-01-foundation.md) | Project Foundation | Python stack, NiceGUI, DRR.csv parsing quirks |
 | [Phase 2](phase-02-ingestion.md) | File Ingestion | RVTools "MB" = MiB, Template NaN pitfall, column aliases |
 | [Phase 3](phase-03-classification.md) | Workload Classification | 28 DRR categories, false positive patterns (ORA/SAP/EX), OS fallback strategy |
+| [Phase 4](phase-04-ui.md) | UI Upload & Review Pages | AG Grid table, session storage split, multi-workload dialog, dark mode |
 
 ## Sample Data Analysis
 

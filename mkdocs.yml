@@ -41,6 +41,7 @@ nav:
     - Phase 1 - Foundation: research/phase-01-foundation.md
     - Phase 2 - Ingestion: research/phase-02-ingestion.md
     - Phase 3 - Classification: research/phase-03-classification.md
+    - Phase 4 - UI Upload & Review: research/phase-04-ui.md
   - ADR:
     - Overview: adr/index.md
     - 001 - NiceGUI Framework: adr/001-nicegui-framework.md
@@ -49,3 +50,6 @@ nav:
     - 004 - DataFrame Pipeline Format: adr/004-dataframe-not-dataclass.md
     - 005 - Conservative DRR: adr/005-conservative-drr.md
     - 006 - No Mocks Testing: adr/006-no-mocks-testing.md
+    - 007 - AG Grid VM Table: adr/007-aggrid-vm-table.md
+    - 008 - Session Storage Split: adr/008-session-storage-split.md
+    - 009 - Dialog Multi Workload: adr/009-dialog-multi-workload.md

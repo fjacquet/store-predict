@@ -10,3 +10,6 @@ ADRs document key technical decisions made during StorePredict development.
 | [004](004-dataframe-not-dataclass.md) | DataFrame as pipeline data format, not dataclass | Accepted | 2026-02-18 |
 | [005](005-conservative-drr.md) | Most conservative DRR for multi-workload VMs | Accepted | 2026-02-18 |
 | [006](006-no-mocks-testing.md) | Real objects and sample data for tests, no mocks | Accepted | 2026-02-18 |
+| [007](007-aggrid-vm-table.md) | AG Grid for VM review table | Accepted | 2026-02-18 |
+| [008](008-session-storage-split.md) | Tab storage for data, user storage for preferences | Accepted | 2026-02-18 |
+| [009](009-dialog-multi-workload.md) | Dialog for multi-workload assignment | Accepted | 2026-02-18 |
