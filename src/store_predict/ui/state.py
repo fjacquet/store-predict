@@ -16,7 +16,11 @@ def save_session_data(df: pd.DataFrame, project_name: str) -> None:
 
     NaN values are converted to None for JSON serialization compatibility.
     """
-    records = df.where(df.notna(), other="").to_dict(orient="records")
+    records: list[dict] = df.to_dict(orient="records")
+    for row in records:
+        for key, val in row.items():
+            if isinstance(val, float) and val != val:  # NaN check
+                row[key] = None
     app.storage.tab["vm_data"] = records
     app.storage.tab["project_name"] = project_name
 

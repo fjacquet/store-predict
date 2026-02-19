@@ -67,11 +67,16 @@ async def review_page() -> None:
         # Build "Category / Subcategory" labels for inline dropdown
         subcategory_labels = [f"{opt['category']} / {opt['subcategory']}" for opt in workload_options]
 
-        # Detect performance data availability (NaN already replaced with None)
-        has_perf = any(
-            r.get("peak_iops") is not None and float(r["peak_iops"]) > 0
-            for r in row_data
-        )
+        # Detect performance data availability (None/empty from NaN replacement)
+        def _has_iops(val: object) -> bool:
+            if val is None or val == "":
+                return False
+            try:
+                return float(val) > 0
+            except (TypeError, ValueError):
+                return False
+
+        has_perf = any(_has_iops(r.get("peak_iops")) for r in row_data)
 
         # AG Grid table
         grid = create_vm_table(
