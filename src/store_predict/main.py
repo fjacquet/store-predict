@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 from nicegui import ui
 
 # Import pages to register their routes with NiceGUI
@@ -31,10 +33,11 @@ def index_page() -> None:
 
 def main() -> None:
     """Start the NiceGUI application."""
+    storage_secret = os.environ.get("STORAGE_SECRET", "dev-only-not-for-production")
     ui.run(
         title=APP_TITLE,
         port=APP_PORT,
-        storage_secret="change-me-in-production",
+        storage_secret=storage_secret,
         reload=False,
     )
 
