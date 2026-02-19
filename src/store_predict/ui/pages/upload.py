@@ -15,6 +15,7 @@ from store_predict.pipeline.classification import (
 )
 from store_predict.pipeline.errors import IngestionError
 from store_predict.pipeline.ingestion import ingest_file
+from store_predict.pipeline.validation import validate_upload
 from store_predict.services.drr_table import DRRTable
 from store_predict.ui.layout import layout
 from store_predict.ui.state import get_project_name, save_session_data, set_project_name
@@ -28,11 +29,14 @@ async def _handle_upload(e: object) -> None:
     tmp_path: Path | None = None
     try:
         # Write uploaded content to a temp file
+        # Read and validate before writing to disk
+        content = await e.file.read()  # type: ignore[attr-defined]
+        validate_upload(content, e.file.name)  # type: ignore[attr-defined]
+
         with tempfile.NamedTemporaryFile(
             suffix=Path(e.file.name).suffix,  # type: ignore[attr-defined]
             delete=False,
         ) as tmp:
-            content = await e.file.read()  # type: ignore[attr-defined]
             tmp.write(content)
             tmp_path = Path(tmp.name)
 
@@ -95,6 +99,4 @@ async def upload_page() -> None:
             ).props('accept=".xlsx,.csv"').classes("w-full")
 
         # Format hints
-        ui.label("Supported formats: RVTools (.xlsx), LiveOptics (.xlsx, .csv)").classes(
-            "text-sm text-gray-400"
-        )
+        ui.label("Supported formats: RVTools (.xlsx), LiveOptics (.xlsx, .csv)").classes("text-sm text-gray-400")
