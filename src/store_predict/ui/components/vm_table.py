@@ -15,6 +15,7 @@ def create_vm_table(
     workload_categories: list[str],
     on_cell_changed: Callable[..., Any] | None = None,
     on_row_clicked: Callable[..., Any] | None = None,
+    subcategory_labels: list[str] | None = None,
 ) -> ui.aggrid:
     """Create an AG Grid table for VM data with inline workload editing.
 
@@ -26,10 +27,16 @@ def create_vm_table(
             for the inline dropdown editor.
         on_cell_changed: Optional callback for cellValueChanged events.
         on_row_clicked: Optional callback for rowClicked events.
+        subcategory_labels: Optional list of "Category / Subcategory" labels
+            for inline dropdown. When provided, the workload_category column
+            uses these full labels instead of bare categories.
 
     Returns:
         The configured ui.aggrid instance.
     """
+    # Use full "Category / Subcategory" labels when available
+    dropdown_values = subcategory_labels if subcategory_labels else workload_categories
+
     column_defs = [
         {
             "field": "vm_name",
@@ -52,7 +59,7 @@ def create_vm_table(
             "editable": True,
             "singleClickEdit": True,
             "cellEditor": "agSelectCellEditor",
-            "cellEditorParams": {"values": workload_categories},
+            "cellEditorParams": {"values": dropdown_values},
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
@@ -60,6 +67,10 @@ def create_vm_table(
         {
             "field": "workload_subcategory",
             "headerName": "Subcategory",
+            "editable": True,
+            "singleClickEdit": True,
+            "cellEditor": "agSelectCellEditor",
+            "cellEditorParams": {"values": dropdown_values},
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
@@ -100,7 +111,12 @@ def create_vm_table(
             "rowData": row_data,
             "pagination": True,
             "paginationPageSize": 50,
-            "rowSelection": {"mode": "singleRow"},
+            "rowSelection": {
+                "mode": "multiRow",
+                "headerCheckbox": True,
+                "enableClickSelection": False,
+            },
+            "getRowId": "params => params.data.vm_name",
             "stopEditingWhenCellsLoseFocus": True,
         }
     ).classes("w-full").style("height: 600px")
