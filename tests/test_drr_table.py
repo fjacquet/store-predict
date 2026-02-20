@@ -5,8 +5,8 @@ from store_predict.services.drr_table import DRRTable, apply_storage_model
 
 
 def test_drr_table_loads_30_entries(drr_table: DRRTable) -> None:
-    """DRR.csv should produce exactly 28 valid workload categories."""
-    assert len(drr_table) == 28
+    """DRR.csv should produce exactly 42 valid workload entries (28 base + 14 variants)."""
+    assert len(drr_table) == 42
 
 
 def test_postgresql_entry_parsed_correctly(drr_table: DRRTable) -> None:
@@ -94,3 +94,38 @@ def test_apply_storage_model_powerstore_restores_table_values(drr_table: DRRTabl
     expected = drr_table.get_ratio("Database", "Microsoft SQL")
     assert rows[0]["drr"] == expected
     assert rows[0]["drr"] > 1.0
+
+
+# ---------------------------------------------------------------------------
+# Encrypted/compressed variant DRR spot-checks
+# ---------------------------------------------------------------------------
+
+
+def test_oracle_tde_drr(drr_table: DRRTable) -> None:
+    """Oracle TDE encrypted DRR should be 1.5 (encryption defeats dedup)."""
+    assert drr_table.get_ratio("Database", "Oracle - TDE (Encrypted)") == 1.5
+
+
+def test_oracle_hcc_tde_drr(drr_table: DRRTable) -> None:
+    """Oracle HCC + TDE combined DRR should be 1.2 (most conservative)."""
+    assert drr_table.get_ratio("Database", "Oracle - HCC + TDE") == 1.2
+
+
+def test_sql_page_compressed_tde_drr(drr_table: DRRTable) -> None:
+    """SQL Server page-compressed + TDE should yield 1.2."""
+    assert drr_table.get_ratio("Database", "Microsoft SQL - Page Compressed + TDE") == 1.2
+
+
+def test_ddve_drr(drr_table: DRRTable) -> None:
+    """DDVE DRR should be 1.0 — data is already deduplicated by DDVE."""
+    assert drr_table.get_ratio("VM Replication", "Data Domain Virtual Edition (DDVE)") == 1.0
+
+
+def test_kubernetes_encrypted_pvs_drr(drr_table: DRRTable) -> None:
+    """Kubernetes encrypted PVs DRR should be 1.3."""
+    assert drr_table.get_ratio("Containers", "Kubernetes - Encrypted PVs") == 1.3
+
+
+def test_veeam_compressed_dedup_drr(drr_table: DRRTable) -> None:
+    """Veeam with compression+dedup enabled should yield 1.2."""
+    assert drr_table.get_ratio("VM Replication", "Veeam - Compressed + Dedup") == 1.2

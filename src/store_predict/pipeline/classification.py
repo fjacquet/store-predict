@@ -192,6 +192,80 @@ def build_default_rules() -> list[ClassificationRule]:
         999      Default (Unknown Reducible)
     """
     return [
+        # === Tier 0: Application-level encryption/compression variants (80-99) ===
+        # These must come BEFORE their plain counterparts so that specifically-named
+        # encrypted/compressed VMs get the correct (lower) DRR subcategory.
+        # Combined patterns (HCC+TDE) use regex lookaheads for AND matching.
+        ClassificationRule(
+            name="Oracle HCC + TDE",
+            category="Database",
+            subcategory="Oracle - HCC + TDE",
+            priority=88,
+            vm_name_patterns=_regex_patterns(r"(?=.*(?:ORACLE|ORA))(?=.*HCC)(?=.*TDE)"),
+        ),
+        ClassificationRule(
+            name="Oracle HCC",
+            category="Database",
+            subcategory="Oracle - HCC (App Compressed)",
+            priority=89,
+            vm_name_patterns=_regex_patterns(r"(?=.*(?:ORACLE|ORA))(?=.*\bHCC\b)"),
+        ),
+        ClassificationRule(
+            name="Oracle TDE",
+            category="Database",
+            subcategory="Oracle - TDE (Encrypted)",
+            priority=90,
+            vm_name_patterns=_patterns("ORACLE-TDE", "ORA-TDE", "ORATDE", "ORACLE-ENC", "ORA-ENC"),
+        ),
+        ClassificationRule(
+            name="SQL Page Compressed + TDE",
+            category="Database",
+            subcategory="Microsoft SQL - Page Compressed + TDE",
+            priority=91,
+            vm_name_patterns=_regex_patterns(r"(?=.*(?:MSSQL|SQL))(?=.*(?:COMPRESS|PAGE))(?=.*TDE)"),
+        ),
+        ClassificationRule(
+            name="SQL Page Compressed",
+            category="Database",
+            subcategory="Microsoft SQL - Page Compressed",
+            priority=92,
+            vm_name_patterns=_patterns("SQL-COMPRESS", "SQL-COMP", "SQL-PAGE", "MSSQL-COMPRESS", "MSSQL-PAGE"),
+        ),
+        ClassificationRule(
+            name="SQL TDE",
+            category="Database",
+            subcategory="Microsoft SQL - TDE (Encrypted)",
+            priority=93,
+            vm_name_patterns=_patterns("SQL-TDE", "MSSQL-TDE", "SQL-ENC", "MSSQL-ENC"),
+        ),
+        ClassificationRule(
+            name="MongoDB Encrypted",
+            category="Database",
+            subcategory="MongoDB - Encrypted",
+            priority=94,
+            vm_name_patterns=_patterns("MONGO-ENC", "MONGO-ENCRYPT", "MONGODB-ENC"),
+        ),
+        ClassificationRule(
+            name="PostgreSQL Encrypted",
+            category="Database",
+            subcategory="PostgreSQL - Encrypted",
+            priority=95,
+            vm_name_patterns=_patterns("PGSQL-ENC", "POSTGRES-ENC", "PG-ENC", "POSTGRESQL-ENC"),
+        ),
+        ClassificationRule(
+            name="MySQL / NoSQL Encrypted",
+            category="Database",
+            subcategory="My SQL / NoSQL - Encrypted",
+            priority=96,
+            vm_name_patterns=_patterns("MYSQL-ENC", "MYSQL-ENCRYPT", "NOSQL-ENC", "MARIADB-ENC"),
+        ),
+        ClassificationRule(
+            name="Kubernetes Encrypted PVs",
+            category="Containers",
+            subcategory="Kubernetes - Encrypted PVs",
+            priority=97,
+            vm_name_patterns=_patterns("K8S-ENC", "K8S-LUKS", "KUBE-ENC", "KUBE-LUKS", "K8S-ENCRYPT"),
+        ),
         # === Tier 1: Database (100-199) ===
         # NOTE: More specific DB rules (PostgreSQL, MySQL) must come BEFORE
         # generic "SQL" rule because "PGSQL" and "MYSQL" contain "SQL".
@@ -313,6 +387,36 @@ def build_default_rules() -> list[ClassificationRule]:
             vm_name_patterns=_regex_patterns(r"VDI.*PROFIL|PROFIL.*VDI"),
         ),
         # === Tier 3: Infrastructure (300-399) ===
+        # Compressed/dedup backup variants (lower DRR) come before plain rules.
+        ClassificationRule(
+            name="DDVE",
+            category="VM Replication",
+            subcategory="Data Domain Virtual Edition (DDVE)",
+            priority=293,
+            # DDVE stores already-deduplicated data → PowerStore sees DRR = 1.0
+            vm_name_patterns=_patterns("DDVE", "DATADOMAIN", "DATA-DOMAIN"),
+        ),
+        ClassificationRule(
+            name="Veeam Compressed + Dedup",
+            category="VM Replication",
+            subcategory="Veeam - Compressed + Dedup",
+            priority=295,
+            vm_name_patterns=_patterns("VEEAM-DD", "VBR-DD"),
+        ),
+        ClassificationRule(
+            name="Commvault Compressed + Dedup",
+            category="VM Replication",
+            subcategory="Commvault - Compressed + Dedup",
+            priority=296,
+            vm_name_patterns=_patterns("COMMVAULT-DD", "CVD-DD"),
+        ),
+        ClassificationRule(
+            name="Commvault",
+            category="VM Replication",
+            subcategory="Commvault",
+            priority=297,
+            vm_name_patterns=_patterns("COMMVAULT", "CVD"),
+        ),
         ClassificationRule(
             name="VM Replication",
             category="VM Replication",

@@ -27,3 +27,17 @@ Web Servers;Content included;1.5
 Web Servers;Content not included;5
 Unknown (Reducible);Unknown (Reducible);5
 Custom DRR;Custom DRR;3
+Database;Oracle - HCC (App Compressed);2.5
+Database;Oracle - TDE (Encrypted);1.5
+Database;Oracle - HCC + TDE;1.2
+Database;Microsoft SQL - Page Compressed;2.5
+Database;Microsoft SQL - TDE (Encrypted);1.5
+Database;Microsoft SQL - Page Compressed + TDE;1.2
+Database;MongoDB - Encrypted;1.3
+Database;PostgreSQL - Encrypted;1.3
+Database;My SQL / NoSQL - Encrypted;1.3
+Containers;Kubernetes - Encrypted PVs;1.3
+VM Replication;Commvault;1.5
+VM Replication;Veeam - Compressed + Dedup;1.2
+VM Replication;Commvault - Compressed + Dedup;1.2
+VM Replication;Data Domain Virtual Edition (DDVE);1.0

@@ -11,6 +11,8 @@ upload:
   supported_formats: "Supported formats: RVTools (.xlsx), LiveOptics (.xlsx, .csv)"
   loaded_notify: "Loaded %{count} VM(s)"
   processing: "Processing file, please wait..."
+  llm_toggle: "Use AI classification"
+  llm_disabled_hint: "Set LLM_ENABLED=true to activate AI classification"
 
 review:
   title: Review Classifications
