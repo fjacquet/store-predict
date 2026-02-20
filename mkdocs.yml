@@ -47,6 +47,12 @@ nav:
     - Phase 5 - Calculation & PDF: research/phase-05-calculation.md
     - Phase 6 - Polish & Deployment: research/phase-06-polish.md
     - Phase 7 - UI Enhancements: research/phase-07-ui-enhancements.md
+    - Phase 8 - i18n Foundation: research/phase-08-i18n.md
+    - Phase 8.1 - LiveOptics ZIP: research/phase-08.1-liveoptics-zip.md
+    - Phase 9 - Excel Export: research/phase-09-excel-export.md
+    - Phase 10 - PDF Branding: research/phase-10-pdf-branding.md
+    - Phase 11 - LLM Classification: research/phase-11-llm-classification.md
+    - Phase 12 - UX Polish: research/phase-12-ux-polish.md
   - Changelog: changelog.md
   - ADR:
     - Overview: adr/index.md
