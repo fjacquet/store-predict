@@ -191,5 +191,5 @@ Plans:
 | 8.1. LiveOptics ZIP | v1.1 | Complete    | 2026-02-20 | — |
 | 9. Excel Export | 2/2 | Complete    | 2026-02-20 | — |
 | 10. PDF Branding | 2/2 | Complete    | 2026-02-20 | — |
-| 11. LLM Classification | 2/2 | Complete   | 2026-02-20 | — |
+| 11. LLM Classification | 2/2 | Complete    | 2026-02-20 | — |
 | 12. UX Polish | v1.1 | 0/? | Pending | — |
