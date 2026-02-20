@@ -55,3 +55,6 @@ ADRs document key technical decisions made during StorePredict development.
 | [049](049-aggrid-event-args-filter.md) | AG Grid v34 circular context — event args filter | Accepted | 2026-02-20 |
 | [050](050-click-zoom-vs-reclassify.md) | Row click = inspect (zoom), bulk button = reclassify | Accepted | 2026-02-20 |
 | [051](051-llm-rule-suggestion-loop.md) | LLM → keyword extraction → rule suggestion feedback loop | Accepted | 2026-02-20 |
+| [052](052-storage-model-flat-drr-override.md) | Flat DRR override for non-PowerStore storage models | Accepted | 2026-02-20 |
+| [053](053-app-level-drr-as-csv-variants.md) | Application-level DRR degradation as CSV subcategory variants | Accepted | 2026-02-20 |
+| [054](054-llm-toggle-session-scoped.md) | AI classification toggle is per-session, not a server restart | Accepted | 2026-02-20 |

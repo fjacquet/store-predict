@@ -27,9 +27,10 @@ flowchart TD
     Norm --> Class["Classification Engine<br/>RuleRegistry — 29 rules"]
     Class --> Categories["Workload Categories"]
 
-    Categories --> DRR["DRR Lookup<br/>(DRR.csv — 28 entries)"]
+    Categories --> DRR["DRR Lookup<br/>(DRR.csv — 42 entries, incl. encrypted variants)"]
     DRR --> Review["Review Page<br/>AG Grid + WorkloadDialog"]
-    Review --> Overrides["User Overrides"]
+    Review --> Model["Storage Model Selector<br/>PowerStore / PowerFlex / PowerVault"]
+    Model --> Overrides["User Overrides"]
 
     Overrides --> Calc["Calculation Engine"]
     Calc --> Summary["SizingSummary"]
@@ -71,14 +72,33 @@ The canonical columns after ingestion are:
 
 ### Classification
 
-- **`pipeline/classification.py`** -- Rule-based classification engine with 29 priority-ordered rules.
+- **`pipeline/classification.py`** -- Rule-based classification engine with 43 priority-ordered rules.
   Each rule matches patterns in VM name and OS fields to assign workload categories
   (e.g., SQL, Oracle, VDI, SAP).
 
 ### DRR Table
 
-- **`services/drr_table.py`** -- Loads the reference DRR table from `samples/DRR.csv`
-  (semicolon-delimited, 28 entries). Maps workload categories to reduction ratios.
+- **`services/drr_table.py`** -- Loads the reference DRR table from `src/store_predict/data/DRR.csv`
+  (semicolon-delimited, 42 entries). Maps workload categories and subcategories to
+  reduction ratios, including application-level encryption/compression variants
+  (Oracle TDE, SQL Server Page Compression, DDVE, etc.).
+
+### Storage Model
+
+- **`config.py` — `StorageModel` enum** — Three target platforms with different
+  data-reduction capabilities:
+
+  | Platform | Dedup | Compression | DRR source |
+  |----------|-------|-------------|------------|
+  | PowerStore | ✅ | ✅ | Per workload from DRR.csv |
+  | PowerFlex | ❌ | ✅ | Flat 2.0 |
+  | PowerVault | ❌ | ❌ | Flat 1.0 |
+
+- **`services/drr_table.py` — `apply_storage_model()`** -- Overwrites per-VM DRR
+  values in session based on the selected platform. Called on every review page load
+  and on toggle change.
+- **`ui/state.py` — `get/set_storage_model()`** -- Persists the selection in
+  `app.storage.tab["storage_model"]`.
 
 ### Calculation
 
@@ -117,7 +137,8 @@ flowchart TD
     Tab2 --> U
 ```
 
-- **Tab-scoped** (`app.storage.tab`): uploaded file, DataFrame, classification results, SizingSummary.
+- **Tab-scoped** (`app.storage.tab`): uploaded file, DataFrame, classification results,
+  SizingSummary, selected storage model, AI toggle state.
 - **User-scoped** (`app.storage.user`): dark mode preference (persists across pages and tabs).
 
 ## Technology Stack
