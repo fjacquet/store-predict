@@ -178,7 +178,7 @@ Plans:
 | 6. Polish & Deploy | v1.0 | 5/5 | Complete | 2026-02-19 |
 | 7. UI Fixes & Report | v1.0 | 5/5 | Complete | 2026-02-19 |
 | 8. i18n Foundation | v1.1 | 3/3 | Complete | 2026-02-20 |
-| 8.1. LiveOptics ZIP | v1.1 | 0/1 | Pending | — |
+| 8.1. LiveOptics ZIP | v1.1 | Complete    | 2026-02-20 | — |
 | 9. Excel Export | 2/2 | Complete    | 2026-02-20 | — |
 | 10. PDF Branding | v1.1 | 0/? | Pending | — |
 | 11. LLM Classification | v1.1 | 0/? | Pending | — |
