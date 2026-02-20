@@ -181,12 +181,14 @@ Plans:
 
 ### Phase 13: graphics
 
-**Goal:** [To be planned]
+**Goal:** Add data visualizations (charts) to both the PDF report (page 2) and the web UI report page.
 **Depends on:** Phase 12
-**Plans:** 0 plans
+**Plans:** 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 13 to break down)
+- [ ] 13-01-PLAN.md — Chart service modules: pyproject.toml matplotlib fix, charts.py (ECharts option builders), pdf_charts.py (ReportLab drawings + matplotlib Sankey), i18n keys
+- [ ] 13-02-PLAN.md — Web UI wiring: ECharts charts section on report page (GFX-01)
+- [ ] 13-03-PLAN.md — PDF page 2 wiring: PageBreak + chart flowables + onLaterPages header (GFX-02 through GFX-06)
 
 ---
 
