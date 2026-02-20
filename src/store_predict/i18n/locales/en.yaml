@@ -99,3 +99,23 @@ dialog:
   select_label: Select workload types
   cancel: Cancel
   apply: Apply
+
+excel:
+  sheet_summary: Summary
+  sheet_breakdown: Workload Breakdown
+  sheet_vm_detail: VM Detail
+  col_metric: Metric
+  col_value: Value
+  col_category: Category
+  col_vms: VMs
+  col_provisioned_gib: "Provisioned (GiB)"
+  col_in_use_gib: "In Use (GiB)"
+  col_avg_drr: Avg DRR
+  col_required_gib: "Required (GiB)"
+  col_vm_name: VM Name
+  col_workload: Workload
+  col_drr: DRR
+  col_peak_iops: Peak IOPS
+  col_avg_iops: Avg IOPS
+  col_peak_mbs: "Peak MB/s"
+  col_iops_8k: "8K Eq. IOPS"

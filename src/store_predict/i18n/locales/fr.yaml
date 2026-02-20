@@ -99,3 +99,23 @@ dialog:
   select_label: "Sélectionner les charges de travail"
   cancel: Annuler
   apply: Appliquer
+
+excel:
+  sheet_summary: "Résumé"
+  sheet_breakdown: "Répartition"
+  sheet_vm_detail: "Détail VMs"
+  col_metric: "Métrique"
+  col_value: "Valeur"
+  col_category: "Catégorie"
+  col_vms: "VMs"
+  col_provisioned_gib: "Provisionné (Gio)"
+  col_in_use_gib: "Utilisé (Gio)"
+  col_avg_drr: "DRR moyen"
+  col_required_gib: "Requis (Gio)"
+  col_vm_name: "Nom de la VM"
+  col_workload: "Charge de travail"
+  col_drr: "DRR"
+  col_peak_iops: "IOPS de pointe"
+  col_avg_iops: "IOPS moyennes"
+  col_peak_mbs: "Débit de pointe (Mo/s)"
+  col_iops_8k: "IOPS éq. 8K"
