@@ -288,3 +288,70 @@ def test_rule_categories_exist_in_drr(drr_table: DRRTable) -> None:
         assert key in drr_categories, (
             f"Rule '{rule.name}' references ({rule.category}, {rule.subcategory}) which does not exist in DRR table"
         )
+
+
+# ---------------------------------------------------------------------------
+# Encrypted / compressed variant classification
+# ---------------------------------------------------------------------------
+
+
+def test_oracle_tde_classification() -> None:
+    """ORACLE-TDE VM names should classify as Oracle - TDE (Encrypted)."""
+    result = _registry().classify("PROD-ORACLE-TDE-01", "")
+    assert result.subcategory == "Oracle - TDE (Encrypted)"
+
+
+def test_oracle_hcc_classification() -> None:
+    """ORACLE-HCC VM names should classify as Oracle - HCC (App Compressed)."""
+    result = _registry().classify("PROD-ORACLE-HCC-01", "")
+    assert result.subcategory == "Oracle - HCC (App Compressed)"
+
+
+def test_oracle_hcc_tde_combined_classification() -> None:
+    """ORACLE-HCC-TDE names (both keywords present) → Oracle - HCC + TDE."""
+    result = _registry().classify("PROD-ORACLE-HCC-TDE-01", "")
+    assert result.subcategory == "Oracle - HCC + TDE"
+
+
+def test_sql_tde_classification() -> None:
+    """SQL-TDE VM names should classify as Microsoft SQL - TDE (Encrypted)."""
+    result = _registry().classify("PROD-SQL-TDE-01", "")
+    assert result.subcategory == "Microsoft SQL - TDE (Encrypted)"
+
+
+def test_sql_page_compressed_classification() -> None:
+    """SQL-PAGE VM names should classify as Microsoft SQL - Page Compressed."""
+    result = _registry().classify("PROD-SQL-PAGE-01", "")
+    assert result.subcategory == "Microsoft SQL - Page Compressed"
+
+
+def test_mongo_encrypted_classification() -> None:
+    """MONGO-ENC VM names should classify as MongoDB - Encrypted."""
+    result = _registry().classify("PROD-MONGO-ENC-01", "")
+    assert result.subcategory == "MongoDB - Encrypted"
+
+
+def test_commvault_classification() -> None:
+    """COMMVAULT VM names should classify as Commvault."""
+    result = _registry().classify("BACKUP-COMMVAULT-01", "")
+    assert result.category == "VM Replication"
+    assert result.subcategory == "Commvault"
+
+
+def test_ddve_classification() -> None:
+    """DDVE VM names should classify as Data Domain Virtual Edition (DDVE)."""
+    result = _registry().classify("BACKUP-DDVE-PROD-01", "")
+    assert result.category == "VM Replication"
+    assert result.subcategory == "Data Domain Virtual Edition (DDVE)"
+
+
+def test_plain_oracle_unaffected() -> None:
+    """Plain ORACLE VMs (no TDE/HCC) still classify as Oracle base."""
+    result = _registry().classify("PROD-ORACLE-DB-01", "")
+    assert result.subcategory == "Oracle"
+
+
+def test_plain_sql_unaffected() -> None:
+    """Plain SQL VMs (no TDE/compress) still classify as Microsoft SQL base."""
+    result = _registry().classify("PROD-SQL-DB-01", "")
+    assert result.subcategory == "Microsoft SQL"

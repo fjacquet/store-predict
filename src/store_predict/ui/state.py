@@ -56,6 +56,16 @@ def set_storage_model(model: StorageModel) -> None:
     app.storage.tab["storage_model"] = model.value
 
 
+def get_llm_ui_enabled() -> bool:
+    """Return per-session AI classification preference (default True)."""
+    return bool(app.storage.tab.get("llm_ui_enabled", True))
+
+
+def set_llm_ui_enabled(val: bool) -> None:
+    """Persist the AI classification toggle state in tab-scoped session."""
+    app.storage.tab["llm_ui_enabled"] = val
+
+
 def save_rule_suggestions(suggestions: list[RuleSuggestion]) -> None:
     """Persist LLM rule suggestions in tab-scoped session storage."""
     app.storage.tab["rule_suggestions"] = [

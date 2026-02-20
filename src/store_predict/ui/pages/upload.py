@@ -26,7 +26,12 @@ from store_predict.pipeline.zip_extraction import extract_liveoptics_from_zip
 from store_predict.services.drr_table import DRRTable
 from store_predict.services.llm_config import LLMConfig
 from store_predict.ui.layout import layout
-from store_predict.ui.state import save_rule_suggestions, set_project_name
+from store_predict.ui.state import (
+    get_llm_ui_enabled,
+    save_rule_suggestions,
+    set_llm_ui_enabled,
+    set_project_name,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +78,18 @@ async def upload_page() -> None:
         # Format hints
         ui.label(t("upload.supported_formats")).classes("text-sm text-gray-400")
 
+        # AI classification toggle — only interactive when LLM is configured via env
+        llm_cfg = LLMConfig()
+        with ui.row().classes("items-center gap-3 mt-2"):
+            llm_switch = ui.switch(
+                t("upload.llm_toggle"),
+                value=get_llm_ui_enabled(),
+                on_change=lambda e: set_llm_ui_enabled(e.value),
+            )
+            if not llm_cfg.enabled:
+                llm_switch.disable()
+                ui.label(t("upload.llm_disabled_hint")).classes("text-xs text-gray-400 italic")
+
         async def handle_upload(e: object) -> None:
             """Process uploaded file through ingestion + classification pipeline.
 
@@ -88,6 +105,7 @@ async def upload_page() -> None:
             with upload_widget:
                 _tab = app.storage.tab
             _project_name = str(_tab.get("project_name", ""))
+            _llm_ui_enabled = bool(_tab.get("llm_ui_enabled", True))
 
             tmp_path: Path | None = None
             spinner.visible = True
@@ -121,14 +139,14 @@ async def upload_page() -> None:
                 df = await run.io_bound(classify_dataframe, df, registry)
 
                 # --- LLM Classification Fallback ---
-                llm_cfg = LLMConfig()
                 logger.info(
-                    "LLM config: enabled=%s model=%s api_base=%s",
+                    "LLM config: enabled=%s ui_enabled=%s model=%s api_base=%s",
                     llm_cfg.enabled,
+                    _llm_ui_enabled,
                     llm_cfg.model,
                     llm_cfg.api_base,
                 )
-                if llm_cfg.enabled:
+                if llm_cfg.enabled and _llm_ui_enabled:
                     with upload_widget:
                         llm_notif = ui.notification(t("llm.classifying"), spinner=True, timeout=None, type="info")
                     try:
