@@ -1,6 +1,7 @@
 """Tests for the DRR table service."""
 
-from store_predict.services.drr_table import DRRTable
+from store_predict.config import StorageModel
+from store_predict.services.drr_table import DRRTable, apply_storage_model
 
 
 def test_drr_table_loads_30_entries(drr_table: DRRTable) -> None:
@@ -63,3 +64,33 @@ def test_entries_returns_copy(drr_table: DRRTable) -> None:
     original_len = len(drr_table)
     entries.clear()
     assert len(drr_table) == original_len
+
+
+def test_apply_storage_model_powervault(drr_table: DRRTable) -> None:
+    """PowerVault sets all DRR values to 1.0."""
+    rows: list[dict] = [
+        {"vm_name": "sql-01", "workload_category": "Database", "workload_subcategory": "Microsoft SQL", "drr": 5.0},
+        {"vm_name": "web-01", "workload_category": "Virtual Machines", "workload_subcategory": "Windows", "drr": 5.0},
+    ]
+    apply_storage_model(rows, StorageModel.POWERVAULT, drr_table)
+    assert all(r["drr"] == 1.0 for r in rows)
+
+
+def test_apply_storage_model_powerflex(drr_table: DRRTable) -> None:
+    """PowerFlex sets all DRR values to 2.0."""
+    rows: list[dict] = [
+        {"vm_name": "sql-01", "workload_category": "Database", "workload_subcategory": "Microsoft SQL", "drr": 5.0},
+    ]
+    apply_storage_model(rows, StorageModel.POWERFLEX, drr_table)
+    assert rows[0]["drr"] == 2.0
+
+
+def test_apply_storage_model_powerstore_restores_table_values(drr_table: DRRTable) -> None:
+    """PowerStore restores per-workload DRR from the reference table."""
+    rows: list[dict] = [
+        {"vm_name": "sql-01", "workload_category": "Database", "workload_subcategory": "Microsoft SQL", "drr": 1.0},
+    ]
+    apply_storage_model(rows, StorageModel.POWERSTORE, drr_table)
+    expected = drr_table.get_ratio("Database", "Microsoft SQL")
+    assert rows[0]["drr"] == expected
+    assert rows[0]["drr"] > 1.0

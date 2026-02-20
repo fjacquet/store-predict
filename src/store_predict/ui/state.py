@@ -8,7 +8,7 @@ from typing import Any
 import pandas as pd
 from nicegui import app
 
-from store_predict.config import DRR_CSV_PATH
+from store_predict.config import DRR_CSV_PATH, StorageModel
 from store_predict.pipeline.llm_classifier import RuleSuggestion
 from store_predict.services.drr_table import DRRTable
 
@@ -43,6 +43,17 @@ def get_project_name() -> str:
 def set_project_name(name: str) -> None:
     """Store project name in tab-scoped session."""
     app.storage.tab["project_name"] = name
+
+
+def get_storage_model() -> StorageModel:
+    """Return the selected storage model from session (default: PowerStore)."""
+    val = app.storage.tab.get("storage_model", StorageModel.POWERSTORE)
+    return StorageModel(val)
+
+
+def set_storage_model(model: StorageModel) -> None:
+    """Persist the selected storage model in tab-scoped session."""
+    app.storage.tab["storage_model"] = model.value
 
 
 def save_rule_suggestions(suggestions: list[RuleSuggestion]) -> None:

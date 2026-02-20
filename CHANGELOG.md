@@ -4,6 +4,21 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v2.0.0] - 2026-02-20
+
+Multi-platform storage model selection — **breaking UX change**: DRR values now depend on the selected target storage platform, not only on workload type.
+
+### Target Storage Model Selector
+
+- New `StorageModel` enum in `config.py`: `POWERSTORE` (full dedup+compression, per-workload DRR), `POWERFLEX` (compression only, flat 2.0), `POWERVAULT` (no reduction, flat 1.0)
+- `apply_storage_model()` added to `services/drr_table.py` — overwrites per-VM DRR in session based on selected platform
+- `get_storage_model()` / `set_storage_model()` added to `ui/state.py` for tab-scoped session persistence
+- Review page now shows a `ui.toggle` selector (PowerStore / PowerFlex / PowerVault) above the summary stats; switching instantly recalculates all DRR values, refreshes the grid and stats
+- Model is applied at page load so navigating back from the report preserves the selection
+- Report page picks up overridden DRR values automatically — no changes required
+- 6 i18n keys added (`storage_model.label`, `.powerstore`, `.powerflex`, `.powervault`) in both `en.yaml` and `fr.yaml`
+- 3 new tests for `apply_storage_model()` (PowerVault→1.0, PowerFlex→2.0, PowerStore→table values); 230 tests passing, ruff and mypy clean
+
 ## [v1.1] - 2026-02-20
 
 i18n, Branding & Intelligence milestone.

@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import csv
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from store_predict.config import StorageModel
 
 
 @dataclass(frozen=True)
@@ -95,3 +97,28 @@ class DRRTable:
 
     def __len__(self) -> int:
         return len(self._entries)
+
+
+def apply_storage_model(
+    row_data: list[dict[str, Any]],
+    model: StorageModel,
+    drr_table: DRRTable,
+) -> None:
+    """Overwrite DRR for every VM row based on the selected storage platform.
+
+    - PowerVault: flat 1.0 (no reduction)
+    - PowerFlex:  flat 2.0 (compression only)
+    - PowerStore: per-workload from DRR reference table
+    """
+    from store_predict.config import StorageModel  # local import avoids circular at module level
+
+    for row in row_data:
+        if model == StorageModel.POWERVAULT:
+            row["drr"] = 1.0
+        elif model == StorageModel.POWERFLEX:
+            row["drr"] = 2.0
+        else:  # POWERSTORE — restore from reference table
+            row["drr"] = drr_table.get_ratio(
+                row.get("workload_category", ""),
+                row.get("workload_subcategory", ""),
+            )

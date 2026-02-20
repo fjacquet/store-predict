@@ -144,6 +144,12 @@ rule_suggestions:
   vm_count: "%{count} VM(s)"
   examples: "ex. %{examples}"
 
+storage_model:
+  label: "Stockage cible"
+  powerstore: "PowerStore"
+  powerflex: "PowerFlex"
+  powervault: "PowerVault"
+
 error:
   unexpected: "Une erreur inattendue s'est produite. Veuillez réessayer."
   logo_upload_failed: "Échec du téléchargement du logo. Veuillez fournir un fichier PNG ou JPEG valide."

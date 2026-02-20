@@ -7,19 +7,21 @@ from typing import Any
 import pandas as pd
 from nicegui import ui
 
-from store_predict.config import DRR_CSV_PATH
+from store_predict.config import DRR_CSV_PATH, StorageModel
 from store_predict.i18n import t
-from store_predict.services.drr_table import DRRTable
+from store_predict.services.drr_table import DRRTable, apply_storage_model
 from store_predict.ui.components.summary_stats import build_summary_stats
 from store_predict.ui.components.vm_table import create_vm_table
 from store_predict.ui.components.workload_dialog import WorkloadDialog
 from store_predict.ui.layout import layout
 from store_predict.ui.state import (
     get_project_name,
+    get_storage_model,
     get_workload_options,
     load_rule_suggestions,
     load_session_data,
     save_session_data,
+    set_storage_model,
 )
 
 
@@ -56,6 +58,9 @@ async def review_page() -> None:
             if isinstance(val, float) and val != val:  # NaN check (NaN != NaN)
                 row[key] = None
 
+    # Apply stored storage model (re-apply in case user navigated back from report)
+    apply_storage_model(row_data, get_storage_model(), drr_table)
+
     with (
         layout("StorePredict - Review"),
         ui.column().classes("w-full p-4 gap-4"),
@@ -66,6 +71,27 @@ async def review_page() -> None:
             project = get_project_name()
             if project:
                 ui.label(t("review.project_label", name=project)).classes("text-lg text-gray-500")
+
+        # Storage model selector — switches DRR calculation strategy
+        current_model = get_storage_model()
+        storage_toggle = ui.toggle(
+            {
+                StorageModel.POWERSTORE: t("storage_model.powerstore"),
+                StorageModel.POWERFLEX: t("storage_model.powerflex"),
+                StorageModel.POWERVAULT: t("storage_model.powervault"),
+            },
+            value=current_model,
+        ).classes("mb-2")
+
+        async def _on_model_change(new_model: StorageModel) -> None:
+            set_storage_model(new_model)
+            apply_storage_model(row_data, new_model, drr_table)
+            save_session_data(pd.DataFrame(row_data), get_project_name())
+            grid.options["rowData"] = row_data
+            grid.update()
+            _rebuild_stats(stats_container, row_data)
+
+        storage_toggle.on_value_change(lambda e: _on_model_change(e.value))
 
         # Summary stats container (will be rebuilt on changes)
         stats_container = ui.column().classes("w-full")
@@ -179,14 +205,10 @@ def _build_rule_suggestions_panel() -> None:
                     ui.button(
                         t("rule_suggestions.copy"),
                         icon="content_copy",
-                        on_click=lambda s=snippet: ui.run_javascript(
-                            f"navigator.clipboard.writeText({s!r})"
-                        ),
+                        on_click=lambda s=snippet: ui.run_javascript(f"navigator.clipboard.writeText({s!r})"),
                     ).classes("text-xs bg-gray-100 text-gray-700").props("flat dense")
 
-                ui.label(t("rule_suggestions.examples", examples=examples_str)).classes(
-                    "text-xs text-gray-500"
-                )
+                ui.label(t("rule_suggestions.examples", examples=examples_str)).classes("text-xs text-gray-500")
                 ui.code(snippet, language="python").classes("w-full text-xs")
 
 
@@ -328,7 +350,6 @@ async def _handle_cell_change(
 
     # Persist to session
     save_session_data(pd.DataFrame(row_data), get_project_name())
-
 
 
 def _update_detail_bar(detail_bar: ui.row, row: dict[str, Any], has_performance_data: bool) -> None:

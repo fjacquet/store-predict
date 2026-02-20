@@ -374,15 +374,15 @@ def build_default_rules() -> list[ClassificationRule]:
                 "SPLUNK",
                 "FORTIANALYZER",
                 "FORTIMANAGER",
-                "FAZ",   # FortiAnalyzer short hostname (e.g. CIGES-FAZ)
-                "FMG",   # FortiManager short hostname (e.g. CIGES-FMG)
+                "FAZ",  # FortiAnalyzer short hostname (e.g. CIGES-FAZ)
+                "FMG",  # FortiManager short hostname (e.g. CIGES-FMG)
                 "ZABBIX",
                 "CENTREON",
                 "OBSERVIUM",
                 "GRAFANA",
                 "RSYSLOG",  # syslog collection servers
                 "SYSLOG",
-                "POLLER",   # monitoring pollers (Centreon/Nagios)
+                "POLLER",  # monitoring pollers (Centreon/Nagios)
             ),
             os_patterns=_patterns("FORTI"),
         ),
