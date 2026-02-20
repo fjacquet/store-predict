@@ -3610,7 +3610,7 @@
 
 Priority 101: Database/Microsoft SQL
   vm_name_patterns: [&quot;SQL&quot;, &quot;MSSQL&quot;]
-  NOTE: SQL is broadly used, catches CADSRVSQL001, CIGES-SQL, CIGES-SQLP, etc.
+  NOTE: SQL is broadly used, catches CADSRVSQL001, xxx-SQL, xxx-SQLP, etc.
   Must be AFTER Oracle (priority 100) so &quot;ORACLESQL&quot; goes to Oracle first.
 
 Priority 102: Database/My SQL / NoSQL
@@ -3895,7 +3895,7 @@ Priority 999: Default
 <tr>
 <td>"SAP"</td>
 <td>MEDIUM</td>
-<td>CIGES-CONSAPPT, CIGES-GISAPP</td>
+<td>xxx-CONSAPPT, xxx-GISAPP</td>
 <td>"GISAPP" contains "SAP" at boundary; "CONSAPPT" acceptable</td>
 </tr>
 <tr>
@@ -3943,7 +3943,7 @@ Priority 999: Default
 <tr>
 <td>"GIT"</td>
 <td>LOW</td>
-<td>CIGES-GIT, OIK_GITLAB genuinely Git servers</td>
+<td>xxx-GIT, OIK_GITLAB genuinely Git servers</td>
 <td>Keep as-is</td>
 </tr>
 </tbody>
@@ -4008,7 +4008,7 @@ Priority 999: Default
 <h3 id="pitfall-3-case-sensitivity">Pitfall 3: Case Sensitivity</h3>
 <p><strong>What goes wrong:</strong> "cadsrvsql001" (lowercase) doesn't match "SQL" pattern.
 <strong>Why it happens:</strong> Forgot <code>re.IGNORECASE</code> flag, or used <code>str.find()</code> without <code>.upper()</code>.
-<strong>How to avoid:</strong> Always compile patterns with <code>re.IGNORECASE</code>. Test with mixed-case VM names from real data (sample has: "cig-cent-int-p-01", "ciges-phenix", "ciges-poller3", "ciges-TST2-07").
+<strong>How to avoid:</strong> Always compile patterns with <code>re.IGNORECASE</code>. Test with mixed-case VM names from real data (sample has: "cig-cent-int-p-01", "xxx-phenix", "xxx-poller3", "xxx-TST2-07").
 <strong>Warning signs:</strong> VMs with lowercase names get classified as "Unknown."</p>
 <h3 id="pitfall-4-nanempty-os-field">Pitfall 4: NaN/Empty OS Field</h3>
 <p><strong>What goes wrong:</strong> OS-based fallback rules crash or don't match when OS field is NaN or empty string.
@@ -4184,7 +4184,7 @@ Priority 999: Default
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;FortiNet appliances detected via OS field.&quot;&quot;&quot;</span>
     <span class="n">registry</span> <span class="o">=</span> <span class="n">RuleRegistry</span><span class="p">(</span><span class="n">build_default_rules</span><span class="p">())</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span>
-        <span class="s2">&quot;CIGES-FAZ&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;xxx-FAZ&quot;</span><span class="p">,</span>
         <span class="s2">&quot;FortiAnalyzer-VM64 v7.4.10-build2778 260126 (GA.M)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;Logging - Analytics&quot;</span>
@@ -4194,7 +4194,7 @@ Priority 999: Default
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic Windows Server VM falls to OS fallback, not Unknown.&quot;&quot;&quot;</span>
     <span class="n">registry</span> <span class="o">=</span> <span class="n">RuleRegistry</span><span class="p">(</span><span class="n">build_default_rules</span><span class="p">())</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span>
-        <span class="s2">&quot;CIGES-SERVICES&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;xxx-SERVICES&quot;</span><span class="p">,</span>
         <span class="s2">&quot;Microsoft Windows Server 2022 (64-bit)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="s2">&quot;Virtual Machines&quot;</span>

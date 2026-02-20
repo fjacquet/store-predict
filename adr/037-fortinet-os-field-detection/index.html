@@ -2541,7 +2541,7 @@
 <p><strong>Status:</strong> Accepted
 <strong>Date:</strong> 2026-02-19</p>
 <h2 id="context">Context</h2>
-<p>FortiNet security appliances (FortiGate, FortiAnalyzer, FortiManager) are virtualised in VMware environments. Their VM names often follow internal naming conventions that do not contain "FORTI" (e.g., "CIGES-FAZ" for a FortiAnalyzer instance).</p>
+<p>FortiNet security appliances (FortiGate, FortiAnalyzer, FortiManager) are virtualised in VMware environments. Their VM names often follow internal naming conventions that do not contain "FORTI" (e.g., "xxx-FAZ" for a FortiAnalyzer instance).</p>
 <h2 id="decision">Decision</h2>
 <p>The FortiNet classification rule matches "FORTI" in either the VM name OR the OS field. The two conditions are evaluated with OR logic.</p>
 <h2 id="rationale">Rationale</h2>

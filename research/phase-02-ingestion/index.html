@@ -3420,7 +3420,7 @@
 <h2 id="summary">Summary</h2>
 <p>Phase 2 implements parsers for RVTools (.xlsx) and LiveOptics (.xlsx/.csv) files, auto-detects the format, normalizes data into a common DataFrame schema, and filters template VMs. The existing codebase already has the <code>VMRecord</code> dataclass and <code>FileFormat</code> enum from Phase 1, plus pandas and openpyxl in the dependency stack.</p>
 <p>Key discovery from inspecting the actual sample files: RVTools has 70 columns in vInfo (we need 8), LiveOptics has 38 columns in VMs (we need ~8). RVTools labels columns as "MB" but values are actually MiB (base-2), matching LiveOptics which explicitly uses "MiB". This means NO unit conversion is needed between formats -- both are already in MiB despite different labeling. The Template column in RVTools is a boolean (<code>True</code>/<code>False</code>/<code>NaN</code>), not a string "True" as the requirements suggest.</p>
-<p>The project already has two sample files (<code>samples/rvtools.xlsx</code> with 24 VMs, <code>samples/live-optics.xlsx</code> with 610 VMs) plus a second LiveOptics file in <code>samples/CIGES-IT_02_16_2026/</code>. Both LiveOptics files have identical column schemas, confirming the format is stable.</p>
+<p>The project already has two sample files (<code>samples/rvtools.xlsx</code> with 24 VMs, <code>samples/live-optics.xlsx</code> with 610 VMs) plus a second LiveOptics file in <code>samples/xxx-IT_02_16_2026/</code>. Both LiveOptics files have identical column schemas, confirming the format is stable.</p>
 <p><strong>Primary recommendation:</strong> Build three parser functions (one per format) that return <code>pd.DataFrame</code> with a canonical schema, plus a format detector that dispatches to the correct parser. Use simple alias dictionaries for column fuzzy matching (no external library needed). Return errors as custom exceptions with user-friendly messages.</p>
 <h2 id="standard-stack">Standard Stack</h2>
 <h3 id="core-already-installed">Core (already installed)</h3>
@@ -3998,7 +3998,7 @@
 <li><strong>Actual sample files</strong> inspected with openpyxl and pandas:</li>
 <li><code>samples/rvtools.xlsx</code> - 24 VMs, 70 columns in vInfo, Template is boolean with NaN</li>
 <li><code>samples/live-optics.xlsx</code> - 610 VMs, 38 columns in VMs, clean data</li>
-<li><code>samples/CIGES-IT_02_16_2026/LiveOptics_3221684_VMWARE_02_12_2026.xlsx</code> - identical schema to main sample</li>
+<li><code>samples/xxx-IT_02_16_2026/LiveOptics_3221684_VMWARE_02_12_2026.xlsx</code> - identical schema to main sample</li>
 <li><strong>Existing codebase</strong>: <code>pipeline/models.py</code> (VMRecord, FileFormat), <code>config.py</code> (paths), <code>conftest.py</code> (fixtures)</li>
 <li><strong>pandas documentation</strong>: <code>pd.read_excel()</code>, <code>pd.read_csv()</code> API verified from training data (stable API)</li>
 </ul>
