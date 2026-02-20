@@ -11,11 +11,12 @@ from typing import TYPE_CHECKING
 
 import i18n as _i18n
 import xlsxwriter
-from xlsxwriter.format import Format
 
 import store_predict.i18n  # noqa: F401 — ensures YAML load_path and config are initialised
 
 if TYPE_CHECKING:
+    from xlsxwriter.format import Format
+
     from store_predict.pipeline.calculation import CalculationSummary
 
 __all__ = ["generate_report_xlsx"]

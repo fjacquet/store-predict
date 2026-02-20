@@ -8,9 +8,18 @@ LLM API calls are made.
 import asyncio
 import os
 
+import pytest
+
 from store_predict.pipeline.llm_classifier import classify_unknown_vms_async
 from store_predict.services.drr_table import DRRTable
 from store_predict.services.llm_config import LLMConfig
+
+
+@pytest.fixture(autouse=True)
+def _clear_llm_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Strip LLM_* env vars so local Ollama/OpenAI config can't bleed into tests."""
+    for key in ("LLM_ENABLED", "LLM_MODEL", "LLM_API_BASE", "LLM_API_KEY"):
+        monkeypatch.delenv(key, raising=False)
 
 
 def test_llm_disabled_by_default() -> None:

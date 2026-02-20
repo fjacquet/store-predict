@@ -176,7 +176,6 @@ async def _handle_bulk_update(
     # Refresh grid and stats
     grid.options["rowData"] = row_data
     grid.update()
-    await grid.run_grid_method("setRowData", row_data)
     _rebuild_stats(stats_container, row_data)
 
     # Restore filter/page state
@@ -250,7 +249,6 @@ async def _handle_cell_change(
     # Refresh grid and stats
     grid.options["rowData"] = row_data
     grid.update()
-    await grid.run_grid_method("setRowData", row_data)
     _rebuild_stats(stats_container, row_data)
 
     # Restore filter/page state after update
@@ -327,7 +325,6 @@ async def _handle_row_click(
     # Refresh grid and stats
     grid.options["rowData"] = row_data
     grid.update()
-    await grid.run_grid_method("setRowData", row_data)
     _rebuild_stats(stats_container, row_data)
 
     # Restore filter/page state after update
