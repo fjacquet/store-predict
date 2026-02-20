@@ -130,6 +130,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 11]: LLM_ENABLED=false default — feature opt-in via env var, never active in tests or CI
 - [Phase 11]: type: ignore[assignment] on df.to_dict(orient='records') — pandas stubs return Hashable keys but str at runtime
 - [Phase 11]: .env.example tracked in git for operator onboarding; .env gitignored by pre-existing entry
+- [Phase 12]: asyncio.ensure_future used to wrap local async handler in on_upload callback (NiceGUI limitation)
+- [Phase 12]: run.io_bound wraps ingest_file and classify_dataframe to keep NiceGUI event loop responsive during pipeline
+- [Phase 12]: ui.notification with spinner=True, timeout=None for persistent LLM status updated in-place (not fire-and-forget ui.notify)
 
 ## Performance Metrics
 
@@ -166,12 +169,15 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 10 P02 | 10min | 2 tasks | 2 files |
 | Phase 11 P01 | 12min | 2 tasks | 4 files |
 | Phase 11 P02 | 8min | 2 tasks | 5 files |
+| Phase 12 P01 | 4min | 2 tasks | 3 files |
 
 ## Roadmap Evolution
 
 - Phase 8.1 inserted after Phase 8: LiveOptics ZIP extraction (URGENT)
 
 - Phase 7 added: UI bug fixes and report enhancements
+
+- Phase 13 added: graphics
 
 ## Notes
 
@@ -184,7 +190,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Completed 11-02-PLAN.md
+- **Stopped at:** Completed 12-01-PLAN.md
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->
