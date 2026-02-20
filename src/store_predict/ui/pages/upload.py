@@ -8,6 +8,7 @@ from pathlib import Path
 from nicegui import ui
 
 from store_predict.config import DRR_CSV_PATH
+from store_predict.i18n import t
 from store_predict.pipeline.classification import (
     RuleRegistry,
     build_default_rules,
@@ -58,7 +59,7 @@ async def _handle_upload(e: object) -> None:
         save_session_data(df, get_project_name())
 
         # Notify and navigate
-        ui.notify(f"Loaded {len(df)} VMs", type="positive")
+        ui.notify(t("upload.loaded_notify", count=len(df)), type="positive")
         ui.navigate.to("/review")
 
     except IngestionError as exc:
@@ -78,12 +79,12 @@ async def upload_page() -> None:
         layout("StorePredict - Upload"),
         ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6"),
     ):
-        ui.label("Upload Workload Data").classes("text-3xl font-bold")
+        ui.label(t("upload.title")).classes("text-3xl font-bold")
 
         # Project name input
         project_input = ui.input(
-            label="Project Name",
-            placeholder="e.g., Customer-DC-Migration-2026",
+            label=t("upload.project_label"),
+            placeholder=t("upload.project_placeholder"),
             on_change=lambda e: set_project_name(e.value or ""),
         ).classes("w-full")
         # Set initial value from session
@@ -92,11 +93,11 @@ async def upload_page() -> None:
         # File upload dropzone
         with ui.card().classes("w-full"):
             ui.upload(
-                label="Drop RVTools or LiveOptics file here (.xlsx, .csv)",
+                label=t("upload.drop_label"),
                 on_upload=_handle_upload,
                 auto_upload=True,
                 max_file_size=50_000_000,
             ).props('accept=".xlsx,.csv"').classes("w-full")
 
         # Format hints
-        ui.label("Supported formats: RVTools (.xlsx), LiveOptics (.xlsx, .csv)").classes("text-sm text-gray-400")
+        ui.label(t("upload.supported_formats")).classes("text-sm text-gray-400")

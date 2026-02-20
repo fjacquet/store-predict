@@ -6,6 +6,9 @@ from typing import TYPE_CHECKING, Any
 
 from nicegui import ui
 
+from store_predict.i18n import t
+from store_predict.i18n.locale import get_locale
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -35,13 +38,22 @@ def create_vm_table(
     Returns:
         The configured ui.aggrid instance.
     """
+    locale = get_locale()
+
+    # Inject AG Grid French locale pack via CDN when locale is 'fr'
+    if locale == "fr":
+        cdn_url = (
+            "https://cdn.jsdelivr.net/npm/@ag-grid-community/locale@32.2.2/dist/umd/@ag-grid-community/locale.min.js"
+        )
+        ui.add_head_html(f'<script src="{cdn_url}" defer></script>')
+
     # Use full "Category / Subcategory" labels when available
     dropdown_values = subcategory_labels if subcategory_labels else workload_categories
 
     column_defs = [
         {
             "field": "vm_name",
-            "headerName": "VM Name",
+            "headerName": t("columns.vm_name"),
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
@@ -49,14 +61,14 @@ def create_vm_table(
         },
         {
             "field": "os_name",
-            "headerName": "OS",
+            "headerName": t("columns.os"),
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
         },
         {
             "field": "vm_description",
-            "headerName": "Description",
+            "headerName": t("columns.description"),
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
@@ -64,7 +76,7 @@ def create_vm_table(
         },
         {
             "field": "workload_category",
-            "headerName": "Workload Category",
+            "headerName": t("columns.workload_category"),
             "editable": True,
             "singleClickEdit": True,
             "cellEditor": "agSelectCellEditor",
@@ -77,7 +89,7 @@ def create_vm_table(
         },
         {
             "field": "workload_subcategory",
-            "headerName": "Subcategory",
+            "headerName": t("columns.subcategory"),
             "editable": True,
             "singleClickEdit": True,
             "cellEditor": "agSelectCellEditor",
@@ -90,7 +102,7 @@ def create_vm_table(
         },
         {
             "field": "drr",
-            "headerName": "DRR",
+            "headerName": t("columns.drr"),
             "editable": True,
             "singleClickEdit": True,
             "sortable": True,
@@ -100,21 +112,21 @@ def create_vm_table(
         },
         {
             "field": "provisioned_mib",
-            "headerName": "Provisioned (MiB)",
+            "headerName": t("columns.provisioned_mib"),
             "sortable": True,
             "filter": "agNumberColumnFilter",
             ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
         },
         {
             "field": "in_use_mib",
-            "headerName": "In Use (MiB)",
+            "headerName": t("columns.in_use_mib"),
             "sortable": True,
             "filter": "agNumberColumnFilter",
             ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
         },
         {
             "field": "classification_confidence",
-            "headerName": "Confidence",
+            "headerName": t("columns.confidence"),
             "sortable": True,
             "filter": "agTextColumnFilter",
         },
@@ -125,21 +137,21 @@ def create_vm_table(
         perf_cols = [
             {
                 "field": "peak_iops",
-                "headerName": "Peak IOPS",
+                "headerName": t("columns.peak_iops"),
                 "sortable": True,
                 "filter": "agNumberColumnFilter",
                 ":valueFormatter": "params => params.value ? Math.round(params.value).toLocaleString() : ''",
             },
             {
                 "field": "iops_8k_equivalent",
-                "headerName": "8K Eq. IOPS",
+                "headerName": t("columns.iops_8k"),
                 "sortable": True,
                 "filter": "agNumberColumnFilter",
                 ":valueFormatter": "params => params.value ? Math.round(params.value).toLocaleString() : ''",
             },
             {
                 "field": "peak_throughput_mbs",
-                "headerName": "Peak MB/s",
+                "headerName": t("columns.peak_mbs"),
                 "sortable": True,
                 "filter": "agNumberColumnFilter",
                 ":valueFormatter": "params => params.value ? params.value.toFixed(1) : ''",
@@ -148,26 +160,26 @@ def create_vm_table(
         # Insert before the last column (classification_confidence)
         column_defs = column_defs[:-1] + perf_cols + column_defs[-1:]
 
-    grid = (
-        ui.aggrid(
-            {
-                "columnDefs": column_defs,
-                "rowData": row_data,
-                "pagination": True,
-                "paginationPageSize": 50,
-                "rowSelection": {
-                    "mode": "multiRow",
-                    "headerCheckbox": True,
-                    "selectAll": "filtered",
-                    "enableClickSelection": False,
-                },
-                ":getRowId": "params => params.data.vm_name",
-                "stopEditingWhenCellsLoseFocus": True,
-            }
-        )
-        .classes("w-full")
-        .style("height: 600px")
-    )
+    grid_options: dict[str, Any] = {
+        "columnDefs": column_defs,
+        "rowData": row_data,
+        "pagination": True,
+        "paginationPageSize": 50,
+        "rowSelection": {
+            "mode": "multiRow",
+            "headerCheckbox": True,
+            "selectAll": "filtered",
+            "enableClickSelection": False,
+        },
+        ":getRowId": "params => params.data.vm_name",
+        "stopEditingWhenCellsLoseFocus": True,
+    }
+
+    # Apply French locale text when locale is 'fr'
+    if locale == "fr":
+        grid_options[":localeText"] = "AG_GRID_LOCALE_FR"
+
+    grid = ui.aggrid(grid_options).classes("w-full").style("height: 600px")
 
     if on_cell_changed:
         grid.on("cellValueChanged", on_cell_changed)

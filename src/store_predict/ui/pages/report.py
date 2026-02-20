@@ -7,6 +7,8 @@ from typing import Any
 
 from nicegui import app, ui
 
+from store_predict.i18n import t
+from store_predict.i18n.locale import get_locale
 from store_predict.pipeline.calculation import calculate
 from store_predict.services.pdf_report import (
     format_storage,
@@ -29,7 +31,7 @@ async def report_page() -> None:
             layout("StorePredict - Report"),
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
         ):
-            ui.label("No data available. Please upload a file first.").classes("text-xl text-gray-500")
+            ui.label(t("report.no_data")).classes("text-xl text-gray-500")
             ui.link("Go to Upload", "/upload").classes("text-blue-600 underline text-lg")
         return
 
@@ -42,34 +44,34 @@ async def report_page() -> None:
     ):
         # Title row
         with ui.row().classes("w-full items-center justify-between"):
-            ui.label("Sizing Report").classes("text-2xl font-bold")
+            ui.label(t("report.title")).classes("text-2xl font-bold")
             if project_name:
-                ui.label(f"Project: {project_name}").classes("text-lg text-gray-500")
+                ui.label(t("report.project_label", name=project_name)).classes("text-lg text-gray-500")
 
         # Totals cards
-        ui.label("Totals").classes("text-xl font-semibold")
+        ui.label(t("report.totals_heading")).classes("text-xl font-semibold")
         with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
-            _summary_card("Total VMs", str(summary.total_vms))
+            _summary_card(t("stats.total_vms"), str(summary.total_vms))
             _summary_card("Total vCPUs", f"{summary.total_cpus:,}")
             _summary_card("Total Memory", format_storage(summary.total_memory_mib))
-            _summary_card("Total Provisioned", format_storage(summary.total_provisioned_mib))
+            _summary_card(t("stats.total_provisioned"), format_storage(summary.total_provisioned_mib))
             _summary_card("Total In Use", format_storage(summary.total_in_use_mib))
             _summary_card("Required Capacity", format_storage(summary.total_required_mib))
 
         # Averages cards
-        ui.label("Averages").classes("text-xl font-semibold")
+        ui.label(t("report.averages_heading")).classes("text-xl font-semibold")
         with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
             _summary_card("Avg vCPUs / VM", f"{summary.avg_vm_cpus:.1f}")
             _summary_card("Avg Memory / VM", format_storage(summary.avg_vm_memory_mib))
             _summary_card("Avg Storage / VM", format_storage(summary.avg_vm_size_mib))
-            _summary_card("Weighted Avg DRR", f"{summary.weighted_avg_drr:.1f}x")
+            _summary_card(t("stats.avg_drr"), f"{summary.weighted_avg_drr:.1f}x")
             _summary_card(
                 "Largest VM", f"{summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})"
             )
 
         # Performance summary cards (only when LiveOptics data available)
         if summary.has_performance_data:
-            ui.label("Performance Summary").classes("text-xl font-semibold")
+            ui.label(t("report.performance_heading")).classes("text-xl font-semibold")
             with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
                 _summary_card("Total Avg IOPS", f"{summary.total_avg_iops:,.0f}")
                 _summary_card("Hottest VM Peak", f"{summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})")
@@ -77,17 +79,17 @@ async def report_page() -> None:
                 _summary_card("8K Eq. IOPS", f"{summary.total_iops_8k_equivalent:,.0f}")
 
         # Workload breakdown table
-        ui.label("Workload Breakdown").classes("text-xl font-semibold")
+        ui.label(t("report.breakdown_heading")).classes("text-xl font-semibold")
         columns = [
-            {"name": "category", "label": "Category", "field": "category", "align": "left"},
-            {"name": "vms", "label": "VMs", "field": "vms", "align": "right"},
+            {"name": "category", "label": t("columns.workload_category"), "field": "category", "align": "left"},
+            {"name": "vms", "label": t("columns.vm_name"), "field": "vms", "align": "right"},
             {
                 "name": "provisioned",
-                "label": "Provisioned (GiB)",
+                "label": t("columns.provisioned_mib"),
                 "field": "provisioned",
                 "align": "right",
             },
-            {"name": "avg_drr", "label": "Avg DRR", "field": "avg_drr", "align": "right"},
+            {"name": "avg_drr", "label": t("columns.drr"), "field": "avg_drr", "align": "right"},
             {
                 "name": "required",
                 "label": "Required (GiB)",
@@ -110,13 +112,13 @@ async def report_page() -> None:
         # Action buttons
         with ui.row().classes("gap-4"):
             ui.button(
-                "Download PDF Report",
+                t("report.download_pdf"),
                 on_click=lambda: _on_download(summary, project_name),
                 icon="download",
             ).classes("bg-blue-700 text-white")
 
             ui.button(
-                "Back to Review",
+                t("report.back_to_review"),
                 on_click=lambda: ui.navigate.to("/review"),
             ).classes("bg-gray-600 text-white")
 
@@ -133,7 +135,7 @@ def _on_download(summary: object, project_name: str) -> None:
     from store_predict.pipeline.calculation import CalculationSummary
 
     assert isinstance(summary, CalculationSummary)
-    pdf_bytes = generate_report_pdf(summary, project_name)
+    pdf_bytes = generate_report_pdf(summary, project_name, locale=get_locale())
     safe_name = sanitize_filename(project_name)
     date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
     filename = f"StorePredict_{safe_name}_{date_str}.pdf"
