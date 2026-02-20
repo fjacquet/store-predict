@@ -29,6 +29,8 @@ class TestParseLiveopticsPerformance:
 
     def test_parse_liveoptics_performance_returns_dataframe(self) -> None:
         """Performance sheet parsed into a DataFrame with expected columns."""
+        if not LIVEOPTICS_XLSX.exists():
+            pytest.skip("LiveOptics sample not available in CI")
         df = parse_liveoptics_performance(LIVEOPTICS_XLSX)
         assert isinstance(df, pd.DataFrame)
         assert len(df) > 0, "Expected non-empty performance data"
@@ -50,6 +52,8 @@ class TestLiveopticsXlsxPerformance:
 
     def test_liveoptics_xlsx_has_performance_columns(self) -> None:
         """LiveOptics xlsx output has peak_iops and iops_8k_equivalent columns."""
+        if not LIVEOPTICS_XLSX.exists():
+            pytest.skip("LiveOptics sample not available in CI")
         df = parse_liveoptics_xlsx(LIVEOPTICS_XLSX)
         assert "peak_iops" in df.columns
         assert "iops_8k_equivalent" in df.columns
@@ -76,6 +80,8 @@ class TestRvtoolsPerformance:
 
     def test_rvtools_has_nan_performance(self) -> None:
         """RVTools has performance columns but all values are NaN."""
+        if not RVTOOLS_XLSX.exists():
+            pytest.skip("RVTools sample not available in CI")
         df = parse_rvtools(RVTOOLS_XLSX)
         for col in ("peak_iops", "avg_iops", "peak_throughput_mbs", "iops_8k_equivalent"):
             assert col in df.columns, f"Missing performance column: {col}"
@@ -90,6 +96,8 @@ class TestIops8kEquivalent:
 
     def test_8k_equivalent_iops_formula(self) -> None:
         """Spot-check the 8K equivalent IOPS formula on a row with performance data."""
+        if not LIVEOPTICS_XLSX.exists():
+            pytest.skip("LiveOptics sample not available in CI")
         df = parse_liveoptics_xlsx(LIVEOPTICS_XLSX)
         # Get rows where performance data is present
         has_perf = df[df["peak_iops"].notna() & (df["peak_iops"] > 0)]
@@ -128,11 +136,15 @@ class TestDescriptionColumn:
 
     def test_liveoptics_xlsx_has_description(self) -> None:
         """LiveOptics xlsx has a vm_description column."""
+        if not LIVEOPTICS_XLSX.exists():
+            pytest.skip("LiveOptics sample not available in CI")
         df = parse_liveoptics_xlsx(LIVEOPTICS_XLSX)
         assert "vm_description" in df.columns
 
     def test_rvtools_has_annotation_as_description(self) -> None:
         """RVTools xlsx has vm_description column (mapped from Annotation)."""
+        if not RVTOOLS_XLSX.exists():
+            pytest.skip("RVTools sample not available in CI")
         df = parse_rvtools(RVTOOLS_XLSX)
         assert "vm_description" in df.columns
         # If annotation data exists in sample, some values should be non-empty
