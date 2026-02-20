@@ -172,7 +172,7 @@ Plans:
 
 **Key risks:** Must not regress existing functionality. Dark mode Tailwind `dark:` variants unreliable in NiceGUI — use Python conditionals.
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 
@@ -206,4 +206,4 @@ Plans:
 | 9. Excel Export | 2/2 | Complete    | 2026-02-20 | — |
 | 10. PDF Branding | 2/2 | Complete    | 2026-02-20 | — |
 | 11. LLM Classification | 2/2 | Complete    | 2026-02-20 | — |
-| 12. UX Polish | 1/2 | In Progress|  | — |
+| 12. UX Polish | 2/2 | Complete   | 2026-02-20 | — |

@@ -33,14 +33,16 @@ v1.1 — i18n, Branding & Intelligence
 - [x] Plan 06-04: MkDocs documentation with architecture Mermaid diagrams, getting-started guide, README
 - [x] Plan 11-01: LLM config (pydantic-settings), async classifier with circuit breaker, LLM tests
 - [x] Plan 11-02: LLM fallback wired into upload pipeline, i18n keys, docker-compose env stubs, .env.example
+- [x] Plan 12-01: Upload page spinner, run.io_bound, persistent LLM notification, i18n error keys
+- [x] Plan 12-02: Review/report no-data card-with-CTA, download button guards, logo i18n, notify type audit, 20 UX tests
 
 ## Current Phase Progress
 
-Phase 11 (LLM Classification Fallback) — COMPLETE (2/2 plans done)
+Phase 12 (UX Polish) — COMPLETE (2/2 plans done)
 
 ## Next Action
 
-Phase 11 complete. Determine next phase to execute.
+Phase 12 complete. Determine next phase to execute.
 
 ## Project Reference
 
@@ -133,6 +135,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 12]: asyncio.ensure_future used to wrap local async handler in on_upload callback (NiceGUI limitation)
 - [Phase 12]: run.io_bound wraps ingest_file and classify_dataframe to keep NiceGUI event loop responsive during pipeline
 - [Phase 12]: ui.notification with spinner=True, timeout=None for persistent LLM status updated in-place (not fire-and-forget ui.notify)
+- [Phase 12]: Merged nested with statements into parenthesized multi-context with (ruff SIM117 fix)
+- [Phase 12]: pdf_btn and excel_btn wired via .on('click', handler) for async disable/enable button guards
+- [Phase 12]: IngestionError str(exc) in upload.py unchanged — domain error with user-facing message
 
 ## Performance Metrics
 
@@ -170,6 +175,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 11 P01 | 12min | 2 tasks | 4 files |
 | Phase 11 P02 | 8min | 2 tasks | 5 files |
 | Phase 12 P01 | 4min | 2 tasks | 3 files |
+| Phase 12 P02 | 5min | 2 tasks | 3 files |
 
 ## Roadmap Evolution
 
@@ -190,7 +196,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Completed 12-01-PLAN.md
+- **Stopped at:** Completed 12-02-PLAN.md
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->
