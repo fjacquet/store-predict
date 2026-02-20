@@ -113,6 +113,8 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 09]: Use _i18n.t() directly (not store_predict.i18n.t() wrapper) so locale set at function entry is respected; wrapper overrides with NiceGUI session locale
 - [Phase 09]: Import store_predict.i18n at module level (noqa: F401) to ensure YAML load_path configured before first _i18n.t() call
 - [Phase 09]: Three excel sheets mirror CalculationSummary: Summary (label-value), Workload Breakdown (grouped), VM Detail (per-VM)
+- [Phase 09]: Green Download Excel button added between PDF and Back buttons in report.py using table_view icon
+- [Phase 09]: excel_report.py uses _i18n.t() directly (not t() wrapper) so locale arg to generate_report_xlsx() is honoured throughout sheet writers
 
 ## Performance Metrics
 
@@ -144,6 +146,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | 08    | 03   | 12min    | 2     | 3     |
 | Phase 08.1 P01 | 3min | 3 tasks | 4 files |
 | Phase 09 P01 | 8min | 2 tasks | 4 files |
+| Phase 09 P02 | 14min | 2 tasks | 5 files |
 
 ## Roadmap Evolution
 
@@ -162,7 +165,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Completed 09-01-PLAN.md
+- **Stopped at:** Completed 09-02-PLAN.md
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->

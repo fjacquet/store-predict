@@ -25,7 +25,7 @@ Requirements for v1.1 milestone. Each maps to roadmap phases (continuing from Ph
 
 ### Excel Export (XLSX)
 
-- [ ] **XLSX-01**: Download Excel button on report page exports .xlsx file
+- [x] **XLSX-01**: Download Excel button on report page exports .xlsx file
 - [x] **XLSX-02**: Excel workbook contains Summary sheet with capacity/performance metrics
 - [x] **XLSX-03**: Excel workbook contains Workload Breakdown sheet with per-category aggregations
 - [x] **XLSX-04**: Excel workbook contains VM Detail sheet with all VMs, workloads, and DRR values
@@ -92,7 +92,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | I18N-03 | Phase 8 | Complete |
 | I18N-04 | Phase 8 | Complete |
 | I18N-05 | Phase 8 | Complete |
-| XLSX-01 | Phase 9 | Pending |
+| XLSX-01 | Phase 9 | Complete |
 | XLSX-02 | Phase 9 | Complete |
 | XLSX-03 | Phase 9 | Complete |
 | XLSX-04 | Phase 9 | Complete |
