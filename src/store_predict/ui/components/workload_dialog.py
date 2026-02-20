@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from nicegui import ui
 
+from store_predict.i18n import t
+
 
 class WorkloadDialog(ui.dialog):
     """Dialog for assigning multiple workload types to a VM.
@@ -27,23 +29,21 @@ class WorkloadDialog(ui.dialog):
         super().__init__()
         self.props("persistent")
         with self, ui.card().classes("min-w-[500px]"):
-            ui.label(f"Workloads for {vm_name}").classes("text-lg font-bold")
-            ui.label("Select one or more workload types. Conservative (lowest) DRR will be used.").classes(
-                "text-sm text-gray-500"
-            )
+            ui.label(t("dialog.workloads_for", vm_name=vm_name)).classes("text-lg font-bold")
+            ui.label(t("dialog.select_hint")).classes("text-sm text-gray-500")
             self.select = (
                 ui.select(
                     options=all_options,
                     multiple=True,
                     value=current_workloads,
-                    label="Select workload types",
+                    label=t("dialog.select_label"),
                 )
                 .props("use-chips")
                 .classes("w-full")
             )
             with ui.row().classes("w-full justify-end"):
-                ui.button("Cancel", on_click=lambda: self.submit(None))
+                ui.button(t("dialog.cancel"), on_click=lambda: self.submit(None))
                 ui.button(
-                    "Apply",
+                    t("dialog.apply"),
                     on_click=lambda: self.submit(self.select.value),
                 ).classes("bg-blue-600 text-white")
