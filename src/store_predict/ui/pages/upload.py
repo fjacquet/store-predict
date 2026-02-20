@@ -72,14 +72,14 @@ async def upload_page() -> None:
             Steps: temp file -> ingest -> classify -> DRR lookup -> session state -> navigate.
             Wraps blocking I/O with run.io_bound so the event loop stays responsive.
 
-            IMPORTANT: app.storage.tab resolves through context.slot which is cleared after
-            each await run.io_bound() call. Capture the tab dict reference and project name
-            BEFORE the first await so they remain usable throughout the function.
+            NiceGUI background tasks never have slot context (the slot stack is always empty).
+            All calls that need client context (app.storage.tab, ui.notify, ui.navigate.to)
+            must use `with upload_widget:` to enter a slot and make the client reachable.
+            `with upload_widget:` doesn't add child elements — it only sets the slot context.
             """
-            # Capture slot-dependent values BEFORE any await.
-            # After await run.io_bound(), the slot stack is cleared by NiceGUI and
-            # app.storage.tab (which resolves through context.slot) raises RuntimeError.
-            _tab = app.storage.tab
+            # Enter upload_widget slot to make context.client available.
+            with upload_widget:
+                _tab = app.storage.tab
             _project_name = str(_tab.get("project_name", ""))
 
             tmp_path: Path | None = None
@@ -116,9 +116,10 @@ async def upload_page() -> None:
                 # --- LLM Classification Fallback ---
                 llm_cfg = LLMConfig()
                 if llm_cfg.enabled:
-                    llm_notif = ui.notification(
-                        t("llm.classifying"), spinner=True, timeout=None, type="info"
-                    )
+                    with upload_widget:
+                        llm_notif = ui.notification(
+                            t("llm.classifying"), spinner=True, timeout=None, type="info"
+                        )
                     try:
                         drr_table_for_llm = DRRTable.from_csv(DRR_CSV_PATH)
                         vm_records: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
@@ -145,8 +146,7 @@ async def upload_page() -> None:
                     axis=1,
                 )
 
-                # Store results via pre-captured tab reference.
-                # Cannot call app.storage.tab after awaits — slot context is gone.
+                # Store results via pre-captured _tab reference (dict persists beyond slot).
                 records: list[dict[str, object]] = df.to_dict(orient="records")  # type: ignore[assignment]
                 for row in records:
                     for key, val in row.items():
@@ -156,15 +156,19 @@ async def upload_page() -> None:
                 _tab["project_name"] = _project_name
                 progress.value = 1.0
 
-                # Notify and navigate
-                ui.notify(t("upload.loaded_notify", count=len(df)), type="positive")
+                # Notify and navigate — both need client context via slot
+                with upload_widget:
+                    ui.notify(t("upload.loaded_notify", count=len(df)), type="positive")
                 await asyncio.sleep(0.3)
-                ui.navigate.to("/review")
+                with upload_widget:
+                    ui.navigate.to("/review")
 
             except IngestionError as exc:
-                ui.notify(str(exc), type="negative")
+                with upload_widget:
+                    ui.notify(str(exc), type="negative")
             except Exception:
-                ui.notify(t("error.unexpected"), type="negative")
+                with upload_widget:
+                    ui.notify(t("error.unexpected"), type="negative")
             finally:
                 spinner.visible = False
                 progress.visible = False
