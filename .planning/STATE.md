@@ -34,11 +34,11 @@ v1.1 — i18n, Branding & Intelligence
 
 ## Current Phase Progress
 
-Phase 08 (i18n Foundation) — Plan 01/03 complete
+Phase 08 (i18n Foundation) — COMPLETE (3/3 plans done)
 
 ## Next Action
 
-Execute Plan 08-02 (Wrap Upload Page)
+Begin next milestone phase (all Phase 08 plans complete)
 
 ## Project Reference
 
@@ -101,6 +101,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 08]: Full page reload on locale switch (location.reload()) — ui.header cannot be in @ui.refreshable
 - [Phase 08]: skip_locale_root_data=True so YAML keys not prefixed with locale name
 - [Phase 08]: Lazy import of get_locale() inside t() to avoid circular import
+- [Phase 08]: Renamed loop variable t->wt in review.py to avoid shadowing t() import
+- [Phase 08]: :localeText uses NiceGUI JS binding syntax so AG_GRID_LOCALE_FR resolves as JS object not string
+- [Phase 08]: AG Grid FR locale CDN script injected only when locale='fr'
 
 ## Performance Metrics
 
@@ -128,6 +131,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 07 P04 | 3min | 2 tasks | 4 files |
 | Phase 07 P05 | 5min | 2 tasks | 3 files |
 | 08    | 01   | 8min     | 2     | 6     |
+| Phase 08 P02 | 12min | 2 tasks | 8 files |
 
 ## Roadmap Evolution
 
@@ -144,7 +148,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Completed 08-01-PLAN.md (i18n Foundation Plan 01)
+- **Stopped at:** Completed 08-02-PLAN.md (i18n UI String Wrapping)
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->

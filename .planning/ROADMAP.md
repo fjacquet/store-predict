@@ -31,6 +31,7 @@ See [v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md) for full details.
 **Why first:** Every subsequent feature's UI strings must go through `t()` from day one. Building i18n last would require a retroactive audit of 200+ strings.
 
 **Delivers:**
+
 - `i18n/` package with `t()` helper and YAML locale files (en.yaml, fr.yaml)
 - FR/EN language toggle in header, persisted in `app.storage.tab['locale']`
 - All existing UI strings (upload page, review page, report page) wrapped in `t()`
@@ -41,9 +42,10 @@ See [v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md) for full details.
 
 **Key risks:** python-i18n `set('locale')` is global — need per-session wrapper. String concatenation (f-strings) must use named placeholders.
 
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
+
 - [ ] 08-01-PLAN.md — i18n package infrastructure: t() helper, YAML locale files, locale_toggle component
 - [ ] 08-02-PLAN.md — UI string wrapping: all 65 strings in pages/components/layout + AG Grid locale
 - [ ] 08-03-PLAN.md — PDF report locale parameter + i18n unit test suite
@@ -59,6 +61,7 @@ Plans:
 **Why second:** Pure additive feature with zero risk to existing code. Validates the download button pattern before PDF branding work.
 
 **Delivers:**
+
 - Download Excel button on report page (alongside existing PDF download)
 - Summary sheet with capacity and performance metrics
 - Workload Breakdown sheet with per-category aggregations
@@ -82,6 +85,7 @@ Plans:
 **Why third:** Modifies existing `pdf_report.py` but is well-isolated. Optional kwargs keep signature backwards-compatible.
 
 **Delivers:**
+
 - Dell partner logo in PDF header (static asset shipped with app)
 - Logo upload UI on report page (PNG/JPEG, validated)
 - Custom company logo embedded in PDF alongside Dell logo
@@ -105,6 +109,7 @@ Plans:
 **Why fourth:** Highest-risk, lowest-priority feature per user direction. Disabled by default. By this point the rest of the app is stable.
 
 **Delivers:**
+
 - `pipeline/llm_classifier.py` — async LLM classification of unmatched VMs
 - litellm provider abstraction (OpenAI, Anthropic, Ollama, OpenRouter)
 - `services/llm_config.py` — pydantic-settings config with SecretStr for API keys
@@ -130,6 +135,7 @@ Plans:
 **Why last:** Touches every page. Benefits from seeing the complete feature set before deciding what to polish.
 
 **Delivers:**
+
 - Loading/progress indicators for file upload, LLM classification, report generation
 - Meaningful error messages (not generic tracebacks) for all failure modes
 - Consistent notification pattern (success/warning/error toasts) across all pages
@@ -155,7 +161,7 @@ Plans:
 | 5. Calculation & PDF | v1.0 | 3/3 | Complete | 2026-02-19 |
 | 6. Polish & Deploy | v1.0 | 5/5 | Complete | 2026-02-19 |
 | 7. UI Fixes & Report | v1.0 | 5/5 | Complete | 2026-02-19 |
-| 8. i18n Foundation | 1/3 | In Progress|  | — |
+| 8. i18n Foundation | 3/3 | Complete   | 2026-02-20 | — |
 | 9. Excel Export | v1.1 | 0/? | Pending | — |
 | 10. PDF Branding | v1.1 | 0/? | Pending | — |
 | 11. LLM Classification | v1.1 | 0/? | Pending | — |
