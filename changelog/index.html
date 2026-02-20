@@ -980,6 +980,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v210-2026-02-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v2.1.0] - 2026-02-20
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v2.1.0] - 2026-02-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#drr-reference-table-14-entries-28-42-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DRR Reference Table (+14 entries, 28 → 42 total)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#classifier-14-rules-priorities-8897-and-293297" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classifier (+14 rules, priorities 88–97 and 293–297)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-classification-ui-toggle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Classification UI Toggle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v200-2026-02-20" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2646,6 +2718,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v210-2026-02-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v2.1.0] - 2026-02-20
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v2.1.0] - 2026-02-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#drr-reference-table-14-entries-28-42-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DRR Reference Table (+14 entries, 28 → 42 total)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#classifier-14-rules-priorities-8897-and-293297" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classifier (+14 rules, priorities 88–97 and 293–297)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-classification-ui-toggle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Classification UI Toggle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v200-2026-02-20" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2884,6 +3028,45 @@
 <h1 id="changelog">Changelog</h1>
 <p>All notable changes to StorePredict are documented here.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h2 id="v210-2026-02-20">[v2.1.0] - 2026-02-20</h2>
+<p>Application-level DRR variants, DDVE support, and AI classification UI toggle.</p>
+<h3 id="drr-reference-table-14-entries-28-42-total">DRR Reference Table (+14 entries, 28 → 42 total)</h3>
+<p>New subcategories covering application-layer encryption and compression scenarios
+where PowerStore's inline dedup/compression is partially or fully defeated:</p>
+<ul>
+<li><code>Database / Oracle - HCC (App Compressed)</code> → DRR 2.5</li>
+<li><code>Database / Oracle - TDE (Encrypted)</code> → DRR 1.5</li>
+<li><code>Database / Oracle - HCC + TDE</code> → DRR 1.2</li>
+<li><code>Database / Microsoft SQL - Page Compressed</code> → DRR 2.5</li>
+<li><code>Database / Microsoft SQL - TDE (Encrypted)</code> → DRR 1.5</li>
+<li><code>Database / Microsoft SQL - Page Compressed + TDE</code> → DRR 1.2</li>
+<li><code>Database / MongoDB - Encrypted</code> → DRR 1.3</li>
+<li><code>Database / PostgreSQL - Encrypted</code> → DRR 1.3</li>
+<li><code>Database / My SQL / NoSQL - Encrypted</code> → DRR 1.3</li>
+<li><code>Containers / Kubernetes - Encrypted PVs</code> → DRR 1.3</li>
+<li><code>VM Replication / Commvault</code> → DRR 1.5</li>
+<li><code>VM Replication / Veeam - Compressed + Dedup</code> → DRR 1.2</li>
+<li><code>VM Replication / Commvault - Compressed + Dedup</code> → DRR 1.2</li>
+<li><code>VM Replication / Data Domain Virtual Edition (DDVE)</code> → DRR 1.0 (already deduplicated — 1:1 at most)</li>
+</ul>
+<h3 id="classifier-14-rules-priorities-8897-and-293297">Classifier (+14 rules, priorities 88–97 and 293–297)</h3>
+<p>Pattern matching for encrypted/compressed VM naming conventions. Combined scenarios
+(e.g. Oracle HCC + TDE) use regex lookaheads for AND matching. DDVE, Commvault, and
+compressed Veeam/Commvault variants also added.</p>
+<h3 id="ai-classification-ui-toggle">AI Classification UI Toggle</h3>
+<p>Per-session <code>ui.switch</code> on the upload page to disable LLM classification without
+server restart. Greyed out with hint when <code>LLM_ENABLED=false</code>. State persisted in
+<code>app.storage.tab["llm_ui_enabled"]</code>.</p>
+<h3 id="documentation">Documentation</h3>
+<ul>
+<li>ADR-052: Flat DRR override for non-PowerStore storage models</li>
+<li>ADR-053: Application-level DRR degradation as CSV subcategory variants</li>
+<li>ADR-054: AI classification toggle is per-session, not a server restart</li>
+<li>Research phase 14: application-level data reduction findings with source references</li>
+<li><code>architecture.md</code> updated: storage model section, DRR/rule counts, session state</li>
+</ul>
+<h3 id="tests">Tests</h3>
+<p>246 tests passing (up from 230); ruff and mypy clean.</p>
 <h2 id="v200-2026-02-20">[v2.0.0] - 2026-02-20</h2>
 <p>Multi-platform storage model selection — <strong>breaking UX change</strong>: DRR values now depend on the selected target storage platform, not only on workload type.</p>
 <h3 id="target-storage-model-selector">Target Storage Model Selector</h3>

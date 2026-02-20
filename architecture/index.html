@@ -450,6 +450,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#storage-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#calculation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2624,6 +2635,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#storage-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Storage Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#calculation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2726,9 +2748,10 @@ present to customers with defensible capacity numbers.</p>
     Norm --&gt; Class["Classification Engine&lt;br/&gt;RuleRegistry — 29 rules"]
     Class --&gt; Categories["Workload Categories"]
 
-    Categories --&gt; DRR["DRR Lookup&lt;br/&gt;(DRR.csv — 28 entries)"]
+    Categories --&gt; DRR["DRR Lookup&lt;br/&gt;(DRR.csv — 42 entries, incl. encrypted variants)"]
     DRR --&gt; Review["Review Page&lt;br/&gt;AG Grid + WorkloadDialog"]
-    Review --&gt; Overrides["User Overrides"]
+    Review --&gt; Model["Storage Model Selector&lt;br/&gt;PowerStore / PowerFlex / PowerVault"]
+    Model --&gt; Overrides["User Overrides"]
 
     Overrides --&gt; Calc["Calculation Engine"]
     Calc --&gt; Summary["SizingSummary"]
@@ -2796,14 +2819,58 @@ present to customers with defensible capacity numbers.</p>
 </ul>
 <h3 id="classification">Classification</h3>
 <ul>
-<li><strong><code>pipeline/classification.py</code></strong> -- Rule-based classification engine with 29 priority-ordered rules.
+<li><strong><code>pipeline/classification.py</code></strong> -- Rule-based classification engine with 43 priority-ordered rules.
   Each rule matches patterns in VM name and OS fields to assign workload categories
   (e.g., SQL, Oracle, VDI, SAP).</li>
 </ul>
 <h3 id="drr-table">DRR Table</h3>
 <ul>
-<li><strong><code>services/drr_table.py</code></strong> -- Loads the reference DRR table from <code>samples/DRR.csv</code>
-  (semicolon-delimited, 28 entries). Maps workload categories to reduction ratios.</li>
+<li><strong><code>services/drr_table.py</code></strong> -- Loads the reference DRR table from <code>src/store_predict/data/DRR.csv</code>
+  (semicolon-delimited, 42 entries). Maps workload categories and subcategories to
+  reduction ratios, including application-level encryption/compression variants
+  (Oracle TDE, SQL Server Page Compression, DDVE, etc.).</li>
+</ul>
+<h3 id="storage-model">Storage Model</h3>
+<ul>
+<li><strong><code>config.py</code> — <code>StorageModel</code> enum</strong> — Three target platforms with different
+  data-reduction capabilities:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Dedup</th>
+<th>Compression</th>
+<th>DRR source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PowerStore</td>
+<td>✅</td>
+<td>✅</td>
+<td>Per workload from DRR.csv</td>
+</tr>
+<tr>
+<td>PowerFlex</td>
+<td>❌</td>
+<td>✅</td>
+<td>Flat 2.0</td>
+</tr>
+<tr>
+<td>PowerVault</td>
+<td>❌</td>
+<td>❌</td>
+<td>Flat 1.0</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong><code>services/drr_table.py</code> — <code>apply_storage_model()</code></strong> -- Overwrites per-VM DRR
+  values in session based on the selected platform. Called on every review page load
+  and on toggle change.</li>
+<li><strong><code>ui/state.py</code> — <code>get/set_storage_model()</code></strong> -- Persists the selection in
+  <code>app.storage.tab["storage_model"]</code>.</li>
 </ul>
 <h3 id="calculation">Calculation</h3>
 <ul>
@@ -2839,7 +2906,8 @@ present to customers with defensible capacity numbers.</p>
     Tab1 --&gt; U
     Tab2 --&gt; U</code></pre>
 <ul>
-<li><strong>Tab-scoped</strong> (<code>app.storage.tab</code>): uploaded file, DataFrame, classification results, SizingSummary.</li>
+<li><strong>Tab-scoped</strong> (<code>app.storage.tab</code>): uploaded file, DataFrame, classification results,
+  SizingSummary, selected storage model, AI toggle state.</li>
 <li><strong>User-scoped</strong> (<code>app.storage.user</code>): dark mode preference (persists across pages and tabs).</li>
 </ul>
 <h2 id="technology-stack">Technology Stack</h2>
