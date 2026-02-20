@@ -8,6 +8,7 @@ import pandas as pd
 from nicegui import ui
 
 from store_predict.config import DRR_CSV_PATH
+from store_predict.i18n import t
 from store_predict.services.drr_table import DRRTable
 from store_predict.ui.components.summary_stats import build_summary_stats
 from store_predict.ui.components.vm_table import create_vm_table
@@ -30,9 +31,15 @@ async def review_page() -> None:
         with (
             layout("StorePredict - Review"),
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
+            ui.card().classes("p-8 gap-4 items-center text-center"),
         ):
-            ui.label("No data uploaded yet.").classes("text-xl text-gray-500")
-            ui.link("Go to Upload", "/upload").classes("text-blue-600 underline text-lg")
+            ui.icon("upload_file", size="3rem").classes("text-gray-400")
+            ui.label(t("review.no_data")).classes("text-xl text-gray-500")
+            ui.button(
+                t("report.go_to_upload"),
+                on_click=lambda: ui.navigate.to("/upload"),
+                icon="arrow_forward",
+            ).classes("bg-blue-700 text-white")
         return
 
     # Load DRR reference data
@@ -54,10 +61,10 @@ async def review_page() -> None:
     ):
         # Title row
         with ui.row().classes("w-full items-center justify-between"):
-            ui.label("Review Classifications").classes("text-2xl font-bold")
+            ui.label(t("review.title")).classes("text-2xl font-bold")
             project = get_project_name()
             if project:
-                ui.label(f"Project: {project}").classes("text-lg text-gray-500")
+                ui.label(t("review.project_label", name=project)).classes("text-lg text-gray-500")
 
         # Summary stats container (will be rebuilt on changes)
         stats_container = ui.column().classes("w-full")
@@ -91,7 +98,7 @@ async def review_page() -> None:
         # Bulk actions + navigation
         with ui.row().classes("w-full justify-between mt-4"):
             ui.button(
-                "Bulk Update Workload",
+                t("review.bulk_update"),
                 on_click=lambda: _handle_bulk_update(
                     row_data,
                     drr_table,
@@ -102,7 +109,7 @@ async def review_page() -> None:
                 icon="edit",
             ).classes("bg-orange-700 text-white")
             ui.button(
-                "Generate Report",
+                t("review.generate_report"),
                 on_click=lambda: ui.navigate.to("/report"),
             ).classes("bg-blue-700 text-white")
 
@@ -124,13 +131,13 @@ async def _handle_bulk_update(
     """Apply a workload category to all selected rows."""
     selected = await grid.get_selected_rows()
     if not selected:
-        ui.notify("No rows selected. Use checkboxes to select VMs first.", type="warning")
+        ui.notify(t("review.no_rows_selected"), type="warning")
         return
 
     # Build options for the dialog (plain string labels)
     options_list = [str(opt["label"]) for opt in workload_options]
     dialog = WorkloadDialog(
-        f"{len(selected)} selected VMs",
+        t("dialog.workloads_for", vm_name=f"{len(selected)} selected VMs"),
         [],
         options_list,
     )
@@ -180,7 +187,10 @@ async def _handle_bulk_update(
 
     # Persist to session
     save_session_data(pd.DataFrame(row_data), get_project_name())
-    ui.notify(f"Updated {len(selected_names)} VMs to {new_category} / {new_subcategory}", type="positive")
+    ui.notify(
+        t("review.updated_notify", count=len(selected_names), category=new_category, subcategory=new_subcategory),
+        type="positive",
+    )
 
 
 async def _handle_cell_change(
@@ -302,7 +312,7 @@ async def _handle_row_click(
     conservative_drr = drr_table.get_conservative_ratio(workload_tuples)
 
     # Update the row
-    display_category = first_category if len(workload_tuples) == 1 else ", ".join(t[0] for t in workload_tuples)
+    display_category = first_category if len(workload_tuples) == 1 else ", ".join(wt[0] for wt in workload_tuples)
     for r in row_data:
         if r.get("vm_name") == vm_name:
             r["workload_category"] = display_category

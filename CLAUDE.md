@@ -39,8 +39,7 @@ Even in command chains: `rtk git add file && rtk git commit -m "msg"`
 ## Commands
 
 ```bash
-# Development
-uv venv .venv && source .venv/bin/activate
+# Development (.venv is always pre-activated — no need to source it)
 uv pip install -e ".[dev]"
 python -m store_predict.main          # Run the app
 
@@ -53,7 +52,7 @@ rtk mypy src/                         # Type check
 rtk pytest                            # All tests
 rtk pytest tests/test_classifier.py -k "test_sql_detection"  # Single test
 rtk pytest --cov=store_predict        # With coverage
-# 121+ tests across: ingestion, classification, calculation, PDF, validation, performance, log sanitization
+# 158+ tests across: ingestion, classification, calculation, PDF, i18n, validation, performance, log sanitization
 
 # Docker
 rtk docker compose up --build         # Run in container
@@ -77,12 +76,22 @@ mkdocs build                          # Build docs
 - `logging_config.py` — Logger setup; NEVER log DataFrame contents or VM names
 - Session isolation via `app.storage.tab` (tab-scoped, not global)
 
+### Type Checking
+
+- `pyrightconfig.json` at root: `include: ["src"]`, `venvPath: "."`, `venv: ".venv"`, `reportMissingModuleSource: false`
+- The `i18n` package has no `py.typed` — `reportMissingModuleSource: false` suppresses false positives
+
+### PDF Testing Gotcha
+
+- ReportLab uses CIDFont/FlateDecode encoding — text strings are NOT searchable in raw PDF bytes
+- To test locale-specific PDF content, compare FR output ≠ EN output bytes, not string presence
+
 ### Documentation
 
 - MkDocs site: `docs/` with Material theme, Mermaid diagrams via `pymdownx.superfences`
 - CHANGELOG.md at project root, symlinked into `docs/changelog.md` for MkDocs
 - Research pages in `docs/research/` (one per phase)
-- 9 ADRs in `docs/adr/`
+- 44 ADRs in `docs/adr/` — add new ones as `docs/adr/{NNN}-slug.md` and update `docs/adr/index.md`
 - GitHub Actions: `.github/workflows/ci.yml` (lint/test), `.github/workflows/docs.yml` (Pages deploy)
 
 ### Docker Production
@@ -115,7 +124,9 @@ When a VM has multiple workload types selected, use the **lowest (most conservat
 
 ## Conventions
 
-- All user-facing strings should support future i18n (French is primary use case)
+- All user-facing strings must go through `t()` from `store_predict.i18n` — French is primary locale (`'fr'`)
+- New i18n keys go in both `src/store_predict/i18n/locales/en.yaml` and `fr.yaml`
+- Avoid loop variable named `t` — it shadows the `t()` import; use `wt` or another name
 - DRR table is reference data loaded from CSV, not hardcoded — users may need to update ratios
 - Sample data in `samples/` is real customer data — never commit additional customer data without anonymization
 - Planning docs live in `.planning/` and are tracked in git

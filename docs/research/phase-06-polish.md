@@ -23,7 +23,7 @@ The project already had solid foundations. Key gaps addressed: hardcoded `storag
 
 ## Architecture Additions
 
-```
+```text
 .github/workflows/ci.yml       # Lint, type-check, test on PR + push
 .github/workflows/docs.yml     # MkDocs to GitHub Pages on push to main
 .dockerignore                   # Build context exclusions

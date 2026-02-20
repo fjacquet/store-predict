@@ -6,6 +6,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 SAMPLES_DIR = PROJECT_ROOT / "samples"
 # DRR reference data shipped inside the package
 DRR_CSV_PATH = Path(__file__).resolve().parent / "data" / "DRR.csv"
+# Static Dell partner logo bundled with the package
+DELL_LOGO_PATH = Path(__file__).resolve().parent / "data" / "dell_logo.png"
 
 DEFAULT_DRR = 5.0
 APP_TITLE = "StorePredict"

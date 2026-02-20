@@ -1,0 +1,152 @@
+home:
+  subtitle: "PowerStore DRR Sizing Tool"
+  description: "Analyze VMware workload exports (RVTools, LiveOptics) to predict Data Reduction Ratios on Dell PowerStore arrays."
+  cta: "Upload Workload Data"
+
+upload:
+  title: Upload Workload Data
+  project_label: Project Name
+  project_placeholder: "e.g., Customer-DC-Migration-2026"
+  drop_label: "Drop RVTools or LiveOptics file here (.xlsx, .csv)"
+  supported_formats: "Supported formats: RVTools (.xlsx), LiveOptics (.xlsx, .csv)"
+  loaded_notify: "Loaded %{count} VM(s)"
+  processing: "Processing file, please wait..."
+
+review:
+  title: Review Classifications
+  project_label: "Project: %{name}"
+  no_data: No data uploaded yet.
+  bulk_update: Bulk Update Workload
+  generate_report: Generate Report
+  no_rows_selected: "No rows selected. Use checkboxes to select VMs first."
+  updated_notify: "Updated %{count} VM(s) to %{category} / %{subcategory}"
+
+report:
+  title: Sizing Report
+  project_label: "Project: %{name}"
+  no_data: No data available. Please upload a file first.
+  totals_heading: Totals
+  averages_heading: Averages
+  performance_heading: Performance Summary
+  breakdown_heading: Workload Breakdown
+  charts_heading: "Data Visualizations"
+  download_pdf: Download PDF Report
+  download_excel: Download Excel Report
+  back_to_review: Back to Review
+  go_to_upload: Go to Upload
+  upload_logo: "Upload Company Logo"
+  logo_upload_label: "PNG or JPEG, max 200 KB"
+  logo_uploaded: "Logo uploaded successfully"
+  logo_error_format: "Logo must be PNG or JPEG"
+  logo_error_size: "Logo file too large (max 200 KB)"
+  logo_remove: "Remove Logo"
+  logo_removed: "Company logo removed"
+
+columns:
+  vm_name: VM Name
+  os: OS
+  description: Description
+  workload_category: Workload Category
+  subcategory: Subcategory
+  drr: DRR
+  provisioned_mib: "Provisioned (MiB)"
+  in_use_mib: "In Use (MiB)"
+  confidence: Confidence
+  peak_iops: Peak IOPS
+  iops_8k: "8K Eq. IOPS"
+  peak_mbs: "Peak MB/s"
+
+stats:
+  total_vms: Total VMs
+  total_provisioned: Total Provisioned
+  avg_drr: Avg DRR
+  effective_capacity: Effective Capacity
+  total_cpus: Total vCPUs
+  total_memory: Total Memory
+  total_in_use: Total In Use
+  required_capacity: Required Capacity
+  avg_cpus: Avg vCPUs / VM
+  avg_memory: Avg Memory / VM
+  avg_storage: Avg Storage / VM
+  largest_vm: Largest VM
+  total_avg_iops: Total Avg IOPS
+  hottest_vm: Hottest VM Peak
+  peak_throughput: Peak Throughput
+  iops_8k: 8K Eq. IOPS
+
+pdf:
+  report_title: StorePredict Sizing Report
+  total_vms: "Total VMs:"
+  total_cpus: "Total vCPUs:"
+  total_memory: "Total Memory:"
+  total_provisioned: "Total Provisioned:"
+  total_in_use: "Total In Use:"
+  required_capacity: "Required Capacity:"
+  avg_cpus: "Avg vCPUs / VM:"
+  avg_memory: "Avg Memory / VM:"
+  avg_storage: "Avg Storage / VM:"
+  weighted_drr: "Weighted Avg DRR:"
+  largest_vm: "Largest VM:"
+  total_avg_iops: "Total Average IOPS:"
+  hottest_vm: "Hottest VM Peak IOPS:"
+  peak_throughput: "Peak Throughput:"
+  iops_8k: "Total 8K Equivalent IOPS:"
+  table_category: Category
+  table_vms: VMs
+  table_provisioned: "Provisioned (GiB)"
+  table_avg_drr: Avg DRR
+  table_required: "Required (GiB)"
+  table_total: TOTAL
+  performance_heading: Performance Summary
+  stats_heading: VM Statistics
+  charts_heading: "Data Analysis"
+  sankey_title: "Data Reduction Flow"
+  pie_title: "Workload Distribution"
+  drr_bar_title: "DRR by Workload Category"
+  before_after_title: "Capacity: Before vs After DRR"
+
+layout:
+  home: Home
+  upload: Upload
+  review: Review
+  report: Report
+  dark_mode: Dark Mode
+  language: "FR"
+
+dialog:
+  workloads_for: "Workloads for %{vm_name}"
+  select_hint: "Select one or more workload types. Conservative (lowest) DRR will be used."
+  select_label: Select workload types
+  cancel: Cancel
+  apply: Apply
+
+llm:
+  classifying: "Classifying unknown VMs with AI..."
+  classified_notify: "AI classified %{count} VM(s)"
+  unavailable: "AI classification unavailable (check LLM_MODEL / LLM_API_KEY)"
+  disabled: "AI classification disabled (set LLM_ENABLED=true to enable)"
+  error: "AI classification failed. Rules-based results will be used."
+
+error:
+  unexpected: "An unexpected error occurred. Please try again."
+  logo_upload_failed: "Logo upload failed. Please try a valid PNG or JPEG file."
+
+excel:
+  sheet_summary: Summary
+  sheet_breakdown: Workload Breakdown
+  sheet_vm_detail: VM Detail
+  col_metric: Metric
+  col_value: Value
+  col_category: Category
+  col_vms: VMs
+  col_provisioned_gib: "Provisioned (GiB)"
+  col_in_use_gib: "In Use (GiB)"
+  col_avg_drr: Avg DRR
+  col_required_gib: "Required (GiB)"
+  col_vm_name: VM Name
+  col_workload: Workload
+  col_drr: DRR
+  col_peak_iops: Peak IOPS
+  col_avg_iops: Avg IOPS
+  col_peak_mbs: "Peak MB/s"
+  col_iops_8k: "8K Eq. IOPS"

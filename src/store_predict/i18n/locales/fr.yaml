@@ -1,0 +1,152 @@
+home:
+  subtitle: "Outil de dimensionnement DRR PowerStore"
+  description: "Analysez vos exports de charges VMware (RVTools, LiveOptics) pour prédire les taux de réduction de données sur les baies Dell PowerStore."
+  cta: "Télécharger les données de charge"
+
+upload:
+  title: "Téléchargement des données"
+  project_label: Nom du projet
+  project_placeholder: "ex. : Client-DC-Migration-2026"
+  drop_label: "Déposez votre fichier RVTools ou LiveOptics ici (.xlsx, .csv)"
+  supported_formats: "Formats supportés : RVTools (.xlsx), LiveOptics (.xlsx, .csv)"
+  loaded_notify: "%{count} VM(s) chargées"
+  processing: "Traitement du fichier en cours, veuillez patienter..."
+
+review:
+  title: "Révision des classifications"
+  project_label: "Projet : %{name}"
+  no_data: "Aucune donnée chargée."
+  bulk_update: "Mise à jour groupée"
+  generate_report: "Générer le rapport"
+  no_rows_selected: "Aucune ligne sélectionnée. Utilisez les cases à cocher pour sélectionner des VMs."
+  updated_notify: "%{count} VM(s) mises à jour vers %{category} / %{subcategory}"
+
+report:
+  title: "Rapport de dimensionnement"
+  project_label: "Projet : %{name}"
+  no_data: "Aucune donnée disponible. Veuillez d'abord télécharger un fichier."
+  totals_heading: Totaux
+  averages_heading: Moyennes
+  performance_heading: "Résumé des performances"
+  breakdown_heading: "Détail par charge de travail"
+  charts_heading: "Visualisations des données"
+  download_pdf: "Télécharger le rapport PDF"
+  download_excel: "Télécharger le rapport Excel"
+  back_to_review: "Retour à la révision"
+  go_to_upload: "Aller au téléchargement"
+  upload_logo: "Télécharger le logo entreprise"
+  logo_upload_label: "PNG ou JPEG, max 200 Ko"
+  logo_uploaded: "Logo chargé avec succès"
+  logo_error_format: "Le logo doit être PNG ou JPEG"
+  logo_error_size: "Fichier logo trop volumineux (max 200 Ko)"
+  logo_remove: "Supprimer le logo"
+  logo_removed: "Logo entreprise supprimé"
+
+columns:
+  vm_name: Nom de la VM
+  os: "Système d'exploitation"
+  description: Description
+  workload_category: "Catégorie de charge"
+  subcategory: "Sous-catégorie"
+  drr: DRR
+  provisioned_mib: "Provisionné (Mio)"
+  in_use_mib: "Utilisé (Mio)"
+  confidence: Confiance
+  peak_iops: IOPS de pointe
+  iops_8k: "IOPS éq. 8K"
+  peak_mbs: "Débit de pointe (Mo/s)"
+
+stats:
+  total_vms: Total VMs
+  total_provisioned: Total provisionné
+  avg_drr: DRR moyen
+  effective_capacity: "Capacité effective"
+  total_cpus: Total vCPUs
+  total_memory: "Mémoire totale"
+  total_in_use: Total utilisé
+  required_capacity: "Capacité requise"
+  avg_cpus: "vCPUs moy. / VM"
+  avg_memory: "Mémoire moy. / VM"
+  avg_storage: "Stockage moy. / VM"
+  largest_vm: VM la plus grande
+  total_avg_iops: "IOPS moyennes totales"
+  hottest_vm: "IOPS de pointe max"
+  peak_throughput: "Débit de pointe"
+  iops_8k: "IOPS éq. 8K"
+
+pdf:
+  report_title: "Rapport de dimensionnement StorePredict"
+  total_vms: "Nombre de VMs :"
+  total_cpus: "Total vCPUs :"
+  total_memory: "Mémoire totale :"
+  total_provisioned: "Total provisionné :"
+  total_in_use: "Total utilisé :"
+  required_capacity: "Capacité requise :"
+  avg_cpus: "vCPUs moy. / VM :"
+  avg_memory: "Mémoire moy. / VM :"
+  avg_storage: "Stockage moy. / VM :"
+  weighted_drr: "DRR moyen pondéré :"
+  largest_vm: "VM la plus grande :"
+  total_avg_iops: "IOPS moyennes totales :"
+  hottest_vm: "IOPS de pointe max :"
+  peak_throughput: "Débit de pointe :"
+  iops_8k: "IOPS éq. 8K totales :"
+  table_category: "Catégorie"
+  table_vms: VMs
+  table_provisioned: "Provisionné (Gio)"
+  table_avg_drr: DRR moyen
+  table_required: "Requis (Gio)"
+  table_total: TOTAL
+  performance_heading: "Résumé des performances"
+  stats_heading: "Statistiques des VMs"
+  charts_heading: "Analyse des données"
+  sankey_title: "Flux de réduction de données"
+  pie_title: "Distribution des charges"
+  drr_bar_title: "DRR par catégorie"
+  before_after_title: "Capacité : avant vs après DRR"
+
+layout:
+  home: Accueil
+  upload: "Télécharger"
+  review: "Révision"
+  report: Rapport
+  dark_mode: "Mode sombre"
+  language: "EN"
+
+dialog:
+  workloads_for: "Charges de travail pour %{vm_name}"
+  select_hint: "Sélectionnez un ou plusieurs types de charge. Le DRR le plus conservateur (le plus bas) sera utilisé."
+  select_label: "Sélectionner les charges de travail"
+  cancel: Annuler
+  apply: Appliquer
+
+llm:
+  classifying: "Classification des VM inconnues par IA en cours..."
+  classified_notify: "L'IA a classifié %{count} VM(s)"
+  unavailable: "Classification IA indisponible (vérifier LLM_MODEL / LLM_API_KEY)"
+  disabled: "Classification IA désactivée (définir LLM_ENABLED=true pour activer)"
+  error: "La classification par IA a échoué. Les résultats basés sur les règles seront utilisés."
+
+error:
+  unexpected: "Une erreur inattendue s'est produite. Veuillez réessayer."
+  logo_upload_failed: "Échec du téléchargement du logo. Veuillez fournir un fichier PNG ou JPEG valide."
+
+excel:
+  sheet_summary: "Résumé"
+  sheet_breakdown: "Répartition"
+  sheet_vm_detail: "Détail VMs"
+  col_metric: "Métrique"
+  col_value: "Valeur"
+  col_category: "Catégorie"
+  col_vms: "VMs"
+  col_provisioned_gib: "Provisionné (Gio)"
+  col_in_use_gib: "Utilisé (Gio)"
+  col_avg_drr: "DRR moyen"
+  col_required_gib: "Requis (Gio)"
+  col_vm_name: "Nom de la VM"
+  col_workload: "Charge de travail"
+  col_drr: "DRR"
+  col_peak_iops: "IOPS de pointe"
+  col_avg_iops: "IOPS moyennes"
+  col_peak_mbs: "Débit de pointe (Mo/s)"
+  col_iops_8k: "IOPS éq. 8K"

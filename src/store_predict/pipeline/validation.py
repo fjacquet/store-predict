@@ -25,11 +25,14 @@ def validate_upload(content: bytes, filename: str) -> None:
     """
     ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
 
-    if ext not in ("xlsx", "csv"):
-        raise IngestionError(f"Unsupported file type: .{ext}. Only .xlsx and .csv files are accepted.")
+    if ext not in ("xlsx", "csv", "zip"):
+        raise IngestionError(f"Unsupported file type: .{ext}. Only .xlsx, .csv, and .zip files are accepted.")
 
     if ext == "xlsx" and (len(content) < 4 or content[:4] != _XLSX_MAGIC):
         raise IngestionError("File does not appear to be a valid .xlsx file")
+
+    if ext == "zip" and (len(content) < 4 or content[:4] != _XLSX_MAGIC):
+        raise IngestionError("File does not appear to be a valid .zip file")
 
     if ext == "csv":
         try:

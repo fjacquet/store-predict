@@ -2,12 +2,13 @@
 
 ## Milestones
 
-- **v1.0 MVP Sizing Tool** — Phases 1-7 (shipped 2026-02-19)
+- ✅ **v1.0 MVP Sizing Tool** — Phases 1-7 (shipped 2026-02-19) — [Archive](milestones/v1.0-ROADMAP.md)
+- ✅ **v1.1 i18n, Branding & Intelligence** — Phases 8-13 (shipped 2026-02-20) — [Archive](milestones/v1.1-ROADMAP.md)
 
 ## Phases
 
 <details>
-<summary>v1.0 MVP (Phases 1-7) — SHIPPED 2026-02-19</summary>
+<summary>✅ v1.0 MVP (Phases 1-7) — SHIPPED 2026-02-19</summary>
 
 - [x] Phase 1: Project Foundation & DRR Table (2/2 plans)
 - [x] Phase 2: File Ingestion Pipeline (2/2 plans)
@@ -18,6 +19,21 @@
 - [x] Phase 7: UI Bug Fixes & Report Enhancements (5/5 plans)
 
 See [v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md) for full details.
+
+</details>
+
+<details>
+<summary>✅ v1.1 i18n, Branding & Intelligence (Phases 8-13) — SHIPPED 2026-02-20</summary>
+
+- [x] Phase 8: i18n Foundation (3/3 plans) — completed 2026-02-20
+- [x] Phase 8.1: LiveOptics ZIP extraction (1/1 plan) — completed 2026-02-20
+- [x] Phase 9: Excel Export (2/2 plans) — completed 2026-02-20
+- [x] Phase 10: PDF Branding (2/2 plans) — completed 2026-02-20
+- [x] Phase 11: LLM Classification Fallback (2/2 plans) — completed 2026-02-20
+- [x] Phase 12: UX Polish (2/2 plans) — completed 2026-02-20
+- [x] Phase 13: Graphics / Data Visualizations (3/3 plans) — completed 2026-02-20
+
+See [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md) for full details.
 
 </details>
 
@@ -32,3 +48,10 @@ See [v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md) for full details.
 | 5. Calculation & PDF | v1.0 | 3/3 | Complete | 2026-02-19 |
 | 6. Polish & Deploy | v1.0 | 5/5 | Complete | 2026-02-19 |
 | 7. UI Fixes & Report | v1.0 | 5/5 | Complete | 2026-02-19 |
+| 8. i18n Foundation | v1.1 | 3/3 | Complete | 2026-02-20 |
+| 8.1. LiveOptics ZIP | v1.1 | 1/1 | Complete | 2026-02-20 |
+| 9. Excel Export | v1.1 | 2/2 | Complete | 2026-02-20 |
+| 10. PDF Branding | v1.1 | 2/2 | Complete | 2026-02-20 |
+| 11. LLM Classification | v1.1 | 2/2 | Complete | 2026-02-20 |
+| 12. UX Polish | v1.1 | 2/2 | Complete | 2026-02-20 |
+| 13. Graphics | v1.1 | 3/3 | Complete | 2026-02-20 |

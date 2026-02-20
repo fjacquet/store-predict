@@ -10,23 +10,35 @@ import os
 import re
 from datetime import UTC, datetime
 from io import BytesIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+import i18n as _i18n
 import reportlab
+from PIL import Image as PilImage
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import Flowable, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+from store_predict.config import DELL_LOGO_PATH
+from store_predict.i18n import t
+from store_predict.services.pdf_charts import (
+    make_before_after_bar_drawing,
+    make_drr_bar_drawing,
+    make_pie_drawing,
+    make_sankey_image_flowable,
+)
 
 if TYPE_CHECKING:
     from reportlab.pdfgen.canvas import Canvas
 
     from store_predict.pipeline.calculation import CalculationSummary
 
-__all__ = ["format_storage", "generate_report_pdf", "sanitize_filename"]
+__all__ = ["format_storage", "generate_report_pdf", "sanitize_filename", "validate_logo"]
 
 # ---------------------------------------------------------------------------
 # Font registration
@@ -37,6 +49,79 @@ pdfmetrics.registerFont(TTFont("VeraBd", os.path.join(_FONT_DIR, "VeraBd.ttf")))
 
 # Brand colour
 _BRAND_BLUE = colors.HexColor("#1e3a5f")
+
+# Logo constraints
+_PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+_JPEG_MAGIC = b"\xff\xd8\xff"
+_MAX_LOGO_BYTES = 200 * 1024  # 200 KB — keeps tab storage safe
+_MAX_LOGO_DIMENSION = 2000  # pixels — reject absurd resolution
+_LOGO_HEIGHT_PT = 36  # points — fits in 50pt bar with padding
+_LOGO_WIDTH_PT = 80  # points — max display width
+
+
+# ---------------------------------------------------------------------------
+# Logo helpers
+# ---------------------------------------------------------------------------
+def _preprocess_logo(raw_bytes: bytes) -> bytes:
+    """Normalize any image to RGBA PNG for black-background-safe ReportLab embedding."""
+    src = PilImage.open(BytesIO(raw_bytes))
+    img: PilImage.Image = src if src.mode in ("RGBA", "RGB") else src.convert("RGBA")
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()
+
+
+def validate_logo(content: bytes, filename: str) -> None:
+    """Validate a logo image for format, size, and dimensions.
+
+    Raises:
+        IngestionError: If the logo fails any validation check.
+    """
+    from store_predict.pipeline.errors import IngestionError
+
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    if ext not in ("png", "jpg", "jpeg"):
+        raise IngestionError(
+            f"Logo must be PNG or JPEG, got '.{ext}'",
+            details=f"filename={filename}",
+        )
+
+    if len(content) > _MAX_LOGO_BYTES:
+        raise IngestionError(
+            f"Logo file too large (max {_MAX_LOGO_BYTES // 1024} KB)",
+            details=f"size={len(content)}",
+        )
+
+    if ext == "png" and not content.startswith(_PNG_MAGIC):
+        raise IngestionError(
+            "Logo file has invalid PNG magic bytes",
+            details=f"filename={filename}",
+        )
+    if ext in ("jpg", "jpeg") and not content.startswith(_JPEG_MAGIC):
+        raise IngestionError(
+            "Logo file has invalid JPEG magic bytes",
+            details=f"filename={filename}",
+        )
+
+    img = PilImage.open(BytesIO(content))
+    w, h = img.size
+    if w > _MAX_LOGO_DIMENSION or h > _MAX_LOGO_DIMENSION:
+        raise IngestionError(
+            f"Logo dimensions too large ({w}x{h}px, max {_MAX_LOGO_DIMENSION}px per side)",
+            details=f"filename={filename}",
+        )
+
+
+def _load_dell_logo() -> bytes | None:
+    """Load Dell partner logo bytes from package data, or return None if missing."""
+    try:
+        return DELL_LOGO_PATH.read_bytes()
+    except FileNotFoundError:
+        return None
+
+
+# Load at module level so Docker paths work without absolute paths at runtime
+_DELL_LOGO_BYTES: bytes | None = _load_dell_logo()
 
 
 # ---------------------------------------------------------------------------
@@ -68,6 +153,9 @@ def _draw_header(
     canvas: Canvas,
     doc: SimpleDocTemplate,
     project_name: str,
+    report_title: str,
+    dell_logo_bytes: bytes | None = None,
+    company_logo_bytes: bytes | None = None,
 ) -> None:
     """Draw branded header bar on the first page."""
     canvas.saveState()
@@ -78,10 +166,37 @@ def _draw_header(
     canvas.setFillColor(_BRAND_BLUE)
     canvas.rect(0, height - bar_height, width, bar_height, fill=1, stroke=0)
 
-    # White title
+    # Draw Dell logo right-aligned in the bar
+    if dell_logo_bytes:
+        dell_reader = ImageReader(BytesIO(dell_logo_bytes))
+        canvas.drawImage(
+            dell_reader,
+            width - _LOGO_WIDTH_PT - 10,
+            height - bar_height + 7,
+            width=_LOGO_WIDTH_PT,
+            height=_LOGO_HEIGHT_PT,
+            mask="auto",
+            preserveAspectRatio=True,
+        )
+
+    # Draw company logo left-aligned in the bar
+    if company_logo_bytes:
+        company_reader = ImageReader(BytesIO(company_logo_bytes))
+        canvas.drawImage(
+            company_reader,
+            10,
+            height - bar_height + 7,
+            width=_LOGO_WIDTH_PT,
+            height=_LOGO_HEIGHT_PT,
+            mask="auto",
+            preserveAspectRatio=True,
+        )
+
+    # White title — shift right if company logo present to avoid overlap
+    x_title = 100 if company_logo_bytes else 20 * mm
     canvas.setFillColor(colors.white)
     canvas.setFont("VeraBd", 18)
-    canvas.drawString(20 * mm, height - 35, "StorePredict Sizing Report")
+    canvas.drawString(x_title, height - 35, report_title)
 
     # Project name + date below bar
     canvas.setFillColor(colors.black)
@@ -95,16 +210,39 @@ def _draw_header(
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
-def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes:
+def generate_report_pdf(
+    summary: CalculationSummary,
+    project_name: str,
+    locale: str = "fr",
+    dell_logo_bytes: bytes | None = None,
+    company_logo_bytes: bytes | None = None,
+) -> bytes:
     """Generate a branded PDF sizing report and return raw bytes.
 
     Args:
         summary: Calculation results to render.
         project_name: Customer / project label for the header.
+        locale: Language for report labels, e.g. ``"fr"`` or ``"en"``.
+            Defaults to ``"fr"`` (French is the primary use-case language).
+        dell_logo_bytes: Raw bytes of the Dell partner logo PNG/JPEG.
+            Defaults to the bundled dell_logo.png if not provided.
+        company_logo_bytes: Raw bytes of the customer company logo PNG/JPEG.
+            Displayed left-aligned in the header bar.  ``None`` = no logo.
 
     Returns:
         PDF document as ``bytes``.
     """
+    # Set process-global locale before any t() calls.
+    # Safe: generate_report_pdf() is fully synchronous — no coroutine interleaving.
+    _i18n.set("locale", locale)
+
+    # Default Dell logo to bundled asset when caller does not override
+    dell_logo_bytes = dell_logo_bytes if dell_logo_bytes is not None else _DELL_LOGO_BYTES
+
+    # Preprocess logos to RGBA PNG for transparent rendering in ReportLab
+    dell_logo_preprocessed = _preprocess_logo(dell_logo_bytes) if dell_logo_bytes else None
+    company_logo_preprocessed = _preprocess_logo(company_logo_bytes) if company_logo_bytes else None
+
     buf = BytesIO()
     margin = 20 * mm
     doc = SimpleDocTemplate(
@@ -133,30 +271,31 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
         leading=14,
     )
 
-    story: list[object] = []
+    story: list[Flowable] = []
 
     # --- Totals section ----------------------------------------------------
-    story.append(Paragraph("Totals", heading_style))
+    story.append(Paragraph(t("report.totals_heading"), heading_style))
     totals_lines = [
-        f"<b>Total VMs:</b> {summary.total_vms}",
-        f"<b>Total vCPUs:</b> {summary.total_cpus:,}",
-        f"<b>Total Memory:</b> {format_storage(summary.total_memory_mib)}",
-        f"<b>Total Provisioned:</b> {format_storage(summary.total_provisioned_mib)}",
-        f"<b>Total In Use:</b> {format_storage(summary.total_in_use_mib)}",
-        f"<b>Required Capacity:</b> {format_storage(summary.total_required_mib)}",
+        f"<b>{t('pdf.total_vms')}</b> {summary.total_vms}",
+        f"<b>{t('pdf.total_cpus')}</b> {summary.total_cpus:,}",
+        f"<b>{t('pdf.total_memory')}</b> {format_storage(summary.total_memory_mib)}",
+        f"<b>{t('pdf.total_provisioned')}</b> {format_storage(summary.total_provisioned_mib)}",
+        f"<b>{t('pdf.total_in_use')}</b> {format_storage(summary.total_in_use_mib)}",
+        f"<b>{t('pdf.required_capacity')}</b> {format_storage(summary.total_required_mib)}",
     ]
     for line in totals_lines:
         story.append(Paragraph(line, body_style))
     story.append(Spacer(1, 10))
 
     # --- Averages section --------------------------------------------------
-    story.append(Paragraph("Averages", heading_style))
+    story.append(Paragraph(t("report.averages_heading"), heading_style))
     avg_lines = [
-        f"<b>Avg vCPUs / VM:</b> {summary.avg_vm_cpus:.1f}",
-        f"<b>Avg Memory / VM:</b> {format_storage(summary.avg_vm_memory_mib)}",
-        f"<b>Avg Storage / VM:</b> {format_storage(summary.avg_vm_size_mib)}",
-        f"<b>Weighted Avg DRR:</b> {summary.weighted_avg_drr:.2f}",
-        f"<b>Largest VM:</b> {summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})",
+        f"<b>{t('pdf.avg_cpus')}</b> {summary.avg_vm_cpus:.1f}",
+        f"<b>{t('pdf.avg_memory')}</b> {format_storage(summary.avg_vm_memory_mib)}",
+        f"<b>{t('pdf.avg_storage')}</b> {format_storage(summary.avg_vm_size_mib)}",
+        f"<b>{t('pdf.weighted_drr')}</b> {summary.weighted_avg_drr:.2f}",
+        f"<b>{t('pdf.largest_vm')}</b> {summary.largest_vm_name}"
+        f" ({format_storage(summary.largest_vm_provisioned_mib)})",
     ]
     for line in avg_lines:
         story.append(Paragraph(line, body_style))
@@ -164,21 +303,27 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
 
     # --- Performance Summary section (only if data available) --------------
     if summary.has_performance_data:
-        story.append(Paragraph("Performance Summary", heading_style))
+        story.append(Paragraph(t("pdf.performance_heading"), heading_style))
         perf_lines = [
-            f"<b>Total Average IOPS:</b> {summary.total_avg_iops:,.0f}",
-            f"<b>Hottest VM Peak IOPS:</b> {summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})",
-            f"<b>Peak Throughput:</b> {summary.peak_throughput_mbs:,.1f} MB/s",
-            f"<b>Total 8K Equivalent IOPS:</b> {summary.total_iops_8k_equivalent:,.0f}",
+            f"<b>{t('pdf.total_avg_iops')}</b> {summary.total_avg_iops:,.0f}",
+            f"<b>{t('pdf.hottest_vm')}</b> {summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})",
+            f"<b>{t('pdf.peak_throughput')}</b> {summary.peak_throughput_mbs:,.1f} MB/s",
+            f"<b>{t('pdf.iops_8k')}</b> {summary.total_iops_8k_equivalent:,.0f}",
         ]
         for line in perf_lines:
             story.append(Paragraph(line, body_style))
         story.append(Spacer(1, 10))
 
     # --- Workload breakdown table ------------------------------------------
-    story.append(Paragraph("Workload Breakdown", heading_style))
+    story.append(Paragraph(t("report.breakdown_heading"), heading_style))
 
-    header = ["Category", "VMs", "Provisioned (GiB)", "Avg DRR", "Required (GiB)"]
+    header = [
+        t("pdf.table_category"),
+        t("pdf.table_vms"),
+        t("pdf.table_provisioned"),
+        t("pdf.table_avg_drr"),
+        t("pdf.table_required"),
+    ]
     table_data: list[list[str]] = [header]
 
     for grp in summary.workload_groups:
@@ -195,7 +340,7 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
     # Totals row
     table_data.append(
         [
-            "TOTAL",
+            t("pdf.table_total"),
             str(summary.total_vms),
             f"{summary.total_provisioned_mib / 1024:.1f}",
             f"{summary.weighted_avg_drr:.2f}",
@@ -207,7 +352,7 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
     table = Table(table_data, colWidths=col_widths)
 
     # Style
-    style_cmds: list[tuple[object, ...]] = [
+    style_cmds: list[Any] = [
         # Header
         ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
@@ -236,9 +381,37 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
     table.setStyle(TableStyle(style_cmds))
     story.append(table)
 
-    # --- Build PDF ---------------------------------------------------------
-    def on_first_page(canvas: Canvas, doc: SimpleDocTemplate) -> None:
-        _draw_header(canvas, doc, project_name)
+    # --- Page 2: Charts ----------------------------------------------------
+    story.append(PageBreak())
+    story.append(Paragraph(t("pdf.charts_heading"), heading_style))
+    story.append(Spacer(1, 12))
 
-    doc.build(story, onFirstPage=on_first_page)
+    # Sankey (full width)
+    story.append(make_sankey_image_flowable(summary, width_pt=480, height_pt=180))
+    story.append(Spacer(1, 10))
+
+    # Pie + DRR bar side by side via a two-column Table
+    chart_row: list[list[Any]] = [
+        [
+            make_pie_drawing(summary, width=230, height=180),
+            make_drr_bar_drawing(summary, width=230, height=180),
+        ]
+    ]
+    chart_table = Table(chart_row, colWidths=[240, 240])
+    story.append(chart_table)
+    story.append(Spacer(1, 10))
+
+    # Before/after bar (full width)
+    story.append(make_before_after_bar_drawing(summary, width=480, height=150))
+
+    # --- Build PDF ---------------------------------------------------------
+    report_title = t("pdf.report_title")
+
+    def on_first_page(canvas: Canvas, doc: SimpleDocTemplate) -> None:
+        _draw_header(canvas, doc, project_name, report_title, dell_logo_preprocessed, company_logo_preprocessed)
+
+    def on_later_pages(canvas: Canvas, doc: SimpleDocTemplate) -> None:
+        _draw_header(canvas, doc, project_name, report_title, dell_logo_preprocessed, company_logo_preprocessed)
+
+    doc.build(story, onFirstPage=on_first_page, onLaterPages=on_later_pages)
     return buf.getvalue()

@@ -22,7 +22,7 @@ ReportLab 4.4.10 is already installed. It ships with Bitstream Vera TTF fonts th
 
 ## Architecture
 
-```
+```text
 pipeline/calculation.py    # Pure data, no UI dependency
 services/pdf_report.py     # ReportLab PDF generation
 ui/pages/report.py         # Report page with download button

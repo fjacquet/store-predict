@@ -8,6 +8,7 @@ COPY pyproject.toml .
 COPY src/ src/
 
 RUN uv venv .venv && . .venv/bin/activate && uv pip install --no-cache .
+RUN .venv/bin/playwright install chromium --with-deps
 
 RUN useradd --create-home --shell /bin/bash appuser && chown -R appuser:appuser /app
 USER appuser

@@ -6,3 +6,25 @@
   - du nombre de vm
   - de la dimension de la VM moyenne
   - de la plus grosse VM
+
+
+   should we create some new ADR ?
+
+❯ live optics export are normally zip file, would it be complex to handle this (download, unzip and open the correct file from the zip ) ?
+
+
+  On LiveOptics ZIP files: Moderate complexity — the zip handling is straightforward, the tricky part is reliably identifying which file inside the zip is the right one.
+  Typical LiveOptics export zips contain:
+  - A .xlsx or .csv data file
+  - Sometimes additional docs or multiple exports
+
+  A clean approach would be:
+  1. Detect .zip extension during upload validation
+  2. Extract to a temp dir, scan for .xlsx/.csv matching LiveOptics naming patterns
+  3. Pick the correct file and pass it through the existing pipeline
+
+  The existing ingestion pipeline wouldn't need changes — just a pre-processing step before format detection. The main risks are: zip bombs (need size limits), ambiguous file
+  selection if multiple valid files exist, and cleanup of temp dirs. Probably 1 plan to implement.
+
+the xls file to use is always like LiveOptics_3221684_VMWARE_02_12_2026.xlsx so : LiveOptics ProjectID
+   VMWARE date xls. does it change things ?

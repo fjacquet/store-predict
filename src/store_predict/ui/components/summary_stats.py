@@ -6,6 +6,8 @@ from typing import Any
 
 from nicegui import ui
 
+from store_predict.i18n import t
+
 
 def build_summary_stats(row_data: list[dict[str, Any]]) -> ui.row:
     """Build a row of 4 summary statistic cards from VM row data.
@@ -32,10 +34,10 @@ def build_summary_stats(row_data: list[dict[str, Any]]) -> ui.row:
     total_effective = sum(r.get("provisioned_mib", 0) / r.get("drr", 5.0) for r in row_data)
 
     stats = [
-        ("Total VMs", str(total_vms)),
-        ("Total Provisioned", f"{total_provisioned / 1024:.1f} GiB"),
-        ("Avg DRR", f"{avg_drr:.1f}x"),
-        ("Effective Capacity", f"{total_effective / 1024:.1f} GiB"),
+        (t("stats.total_vms"), str(total_vms)),
+        (t("stats.total_provisioned"), f"{total_provisioned / 1024:.1f} GiB"),
+        (t("stats.avg_drr"), f"{avg_drr:.1f}x"),
+        (t("stats.effective_capacity"), f"{total_effective / 1024:.1f} GiB"),
     ]
 
     row = ui.row().classes("w-full gap-4")

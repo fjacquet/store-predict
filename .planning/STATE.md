@@ -31,10 +31,21 @@ v1.1 — i18n, Branding & Intelligence
 
 - [x] Plan 06-01: Docker deployment hardening (.dockerignore, HEALTHCHECK, env-var secret)
 - [x] Plan 06-04: MkDocs documentation with architecture Mermaid diagrams, getting-started guide, README
+- [x] Plan 11-01: LLM config (pydantic-settings), async classifier with circuit breaker, LLM tests
+- [x] Plan 11-02: LLM fallback wired into upload pipeline, i18n keys, docker-compose env stubs, .env.example
+- [x] Plan 12-01: Upload page spinner, run.io_bound, persistent LLM notification, i18n error keys
+- [x] Plan 12-02: Review/report no-data card-with-CTA, download button guards, logo i18n, notify type audit, 20 UX tests
+- [x] Plan 13-01: charts.py (ECharts option dicts), pdf_charts.py (ReportLab/matplotlib builders), i18n keys, matplotlib dep
+- [x] Plan 13-02: Web UI report page _build_charts_section with 4 interactive ECharts
+- [x] Plan 13-03: PDF page 2 with Sankey + pie + DRR bar + before/after bar, onLaterPages header
+
+## Current Phase Progress
+
+Phase 13 (Graphics) — COMPLETE (3/3 plans done)
 
 ## Next Action
 
-Define requirements for v1.1 milestone, then create roadmap.
+Phase 13 complete. v1.1 milestone ready for audit and archiving.
 
 ## Project Reference
 
@@ -92,6 +103,44 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 07]: Performance fields extracted with NaN-safe helper (math.isnan check, default 0.0)
 - [Phase 07]: VM Statistics always in PDF; Performance Summary conditional on has_performance_data
 - [Phase 07]: PDF CIDFont subset encoding requires size comparison for testing conditional sections
+- [Phase 08]: Default locale is 'fr' (French) — French is primary use case per CLAUDE.md
+- [Phase 08]: t() sets python-i18n process-global locale per call — safe in NiceGUI single-threaded async
+- [Phase 08]: Full page reload on locale switch (location.reload()) — ui.header cannot be in @ui.refreshable
+- [Phase 08]: skip_locale_root_data=True so YAML keys not prefixed with locale name
+- [Phase 08]: Lazy import of get_locale() inside t() to avoid circular import
+- [Phase 08]: Renamed loop variable t->wt in review.py to avoid shadowing t() import
+- [Phase 08]: :localeText uses NiceGUI JS binding syntax so AG_GRID_LOCALE_FR resolves as JS object not string
+- [Phase 08]: AG Grid FR locale CDN script injected only when locale='fr'
+- [Phase 08]: _i18n.set('locale', locale) once at top of generate_report_pdf() — synchronous, safe
+- [Phase 08]: ReportLab CID encoding means PDF text not searchable in raw bytes; test FR != EN instead
+- [Phase 08]: make_summary fixture is a factory callable in conftest.py for shared PDF test data
+- [Phase 08.1]: ZIP extraction runs before validate_upload so extracted xlsx bytes go through existing validation unchanged
+- [Phase 08.1]: extract_liveoptics_from_zip returns tuple[bytes, str] — xlsx bytes plus matched member filename
+- [Phase 08.1]: 100 MB zip bomb guard uses central directory sum — no extraction needed for detection
+- [Phase 09]: Use _i18n.t() directly (not store_predict.i18n.t() wrapper) so locale set at function entry is respected; wrapper overrides with NiceGUI session locale
+- [Phase 09]: Import store_predict.i18n at module level (noqa: F401) to ensure YAML load_path configured before first _i18n.t() call
+- [Phase 09]: Three excel sheets mirror CalculationSummary: Summary (label-value), Workload Breakdown (grouped), VM Detail (per-VM)
+- [Phase 09]: Green Download Excel button added between PDF and Back buttons in report.py using table_view icon
+- [Phase 09]: excel_report.py uses _i18n.t() directly (not t() wrapper) so locale arg to generate_report_xlsx() is honoured throughout sheet writers
+- [Phase 10]: DELL_LOGO_PATH in config.py uses Path(__file__).resolve().parent for Docker-safe bundled asset resolution
+- [Phase 10]: _preprocess_logo keeps both RGBA and RGB as-is; only non-RGBA/RGB modes converted to RGBA before ReportLab embedding
+- [Phase 10]: _DELL_LOGO_BYTES loaded at module import time for Docker-safe path resolution and no per-call I/O
+- [Phase 10]: pillow>=12.1.1 added to runtime dependencies (not dev-only) — _preprocess_logo runs in production Docker
+- [Phase 10]: Logo upload section positioned below action buttons to keep primary PDF/Excel/Back buttons prominent
+- [Phase 10]: base64 decode guard: empty string short-circuits to None — avoids empty bytes from b64decode of empty string
+- [Phase 11]: pydantic-settings BaseSettings with LLM_ env prefix for typed config; SecretStr for api_key
+- [Phase 11]: DRRTable and LLMConfig in TYPE_CHECKING block in llm_classifier.py (ruff TC001, safe with from __future__ import annotations)
+- [Phase 11]: Circuit breaker as module globals — simple, zero-dependency, correct for NiceGUI single-threaded async
+- [Phase 11]: classify_single_vm returns None for invalid LLM responses (not in valid_categories) — conservative sizing
+- [Phase 11]: LLM_ENABLED=false default — feature opt-in via env var, never active in tests or CI
+- [Phase 11]: type: ignore[assignment] on df.to_dict(orient='records') — pandas stubs return Hashable keys but str at runtime
+- [Phase 11]: .env.example tracked in git for operator onboarding; .env gitignored by pre-existing entry
+- [Phase 12]: asyncio.ensure_future used to wrap local async handler in on_upload callback (NiceGUI limitation)
+- [Phase 12]: run.io_bound wraps ingest_file and classify_dataframe to keep NiceGUI event loop responsive during pipeline
+- [Phase 12]: ui.notification with spinner=True, timeout=None for persistent LLM status updated in-place (not fire-and-forget ui.notify)
+- [Phase 12]: Merged nested with statements into parenthesized multi-context with (ruff SIM117 fix)
+- [Phase 12]: pdf_btn and excel_btn wired via .on('click', handler) for async disable/enable button guards
+- [Phase 12]: IngestionError str(exc) in upload.py unchanged — domain error with user-facing message
 
 ## Performance Metrics
 
@@ -118,10 +167,26 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 07 P03 | 2min | 2 tasks | 2 files |
 | Phase 07 P04 | 3min | 2 tasks | 4 files |
 | Phase 07 P05 | 5min | 2 tasks | 3 files |
+| 08    | 01   | 8min     | 2     | 6     |
+| Phase 08 P02 | 12min | 2 tasks | 8 files |
+| 08    | 03   | 12min    | 2     | 3     |
+| Phase 08.1 P01 | 3min | 3 tasks | 4 files |
+| Phase 09 P01 | 8min | 2 tasks | 4 files |
+| Phase 09 P02 | 14min | 2 tasks | 5 files |
+| Phase 10 P01 | 20min | 2 tasks | 7 files |
+| Phase 10 P02 | 10min | 2 tasks | 2 files |
+| Phase 11 P01 | 12min | 2 tasks | 4 files |
+| Phase 11 P02 | 8min | 2 tasks | 5 files |
+| Phase 12 P01 | 4min | 2 tasks | 3 files |
+| Phase 12 P02 | 5min | 2 tasks | 3 files |
 
 ## Roadmap Evolution
 
+- Phase 8.1 inserted after Phase 8: LiveOptics ZIP extraction (URGENT)
+
 - Phase 7 added: UI bug fixes and report enhancements
+
+- Phase 13 added: graphics
 
 ## Notes
 
@@ -134,8 +199,8 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** v1.1 milestone initialization
-- **Timestamp:** 2026-02-19
+- **Stopped at:** Phase 13 complete — all 3 plans executed, docs updated, ready for milestone audit
+- **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands

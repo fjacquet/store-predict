@@ -3,10 +3,14 @@
   "depth": "standard",
   "parallelization": true,
   "commit_docs": true,
-  "model_profile": "quality",
+  "model_profile": "balanced",
   "workflow": {
     "research": true,
-    "plan_check": true,
-    "verifier": true
+    "plan_check": false,
+    "verifier": true,
+    "auto_advance": true
+  },
+  "git": {
+    "branching_strategy": "milestone"
   }
 }
