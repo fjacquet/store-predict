@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
+from typing import Any
 
+import pandas as pd
 from nicegui import ui
 
 from store_predict.config import DRR_CSV_PATH
@@ -16,9 +18,11 @@ from store_predict.pipeline.classification import (
 )
 from store_predict.pipeline.errors import IngestionError
 from store_predict.pipeline.ingestion import ingest_file
+from store_predict.pipeline.llm_classifier import classify_unknown_vms_async
 from store_predict.pipeline.validation import validate_upload
 from store_predict.pipeline.zip_extraction import extract_liveoptics_from_zip
 from store_predict.services.drr_table import DRRTable
+from store_predict.services.llm_config import LLMConfig
 from store_predict.ui.layout import layout
 from store_predict.ui.state import get_project_name, save_session_data, set_project_name
 
@@ -54,6 +58,19 @@ async def _handle_upload(e: object) -> None:
         # Run classification pipeline
         registry = RuleRegistry(build_default_rules())
         df = classify_dataframe(df, registry)
+
+        # --- LLM Classification Fallback ---
+        llm_cfg = LLMConfig()
+        if llm_cfg.enabled:
+            ui.notify(t("llm.classifying"), type="info")
+            drr_table_for_llm = DRRTable.from_csv(DRR_CSV_PATH)
+            vm_records: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
+            vm_records = await classify_unknown_vms_async(vm_records, drr_table_for_llm, llm_cfg)
+            df = pd.DataFrame(vm_records)
+            llm_count = sum(1 for r in vm_records if r.get("classification_confidence") == "llm")
+            if llm_count > 0:
+                ui.notify(t("llm.classified_notify", count=llm_count), type="positive")
+        # --- End LLM Classification Fallback ---
 
         # Add DRR column from reference table
         drr_table = DRRTable.from_csv(DRR_CSV_PATH)
