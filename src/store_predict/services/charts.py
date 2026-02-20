@@ -73,8 +73,7 @@ def echart_sankey_options(summary: CalculationSummary) -> dict[str, Any]:
 def echart_pie_options(summary: CalculationSummary) -> dict[str, Any]:
     """Return ECharts donut-pie option dict for workload capacity distribution."""
     data = [
-        {"value": round(grp.total_provisioned_mib / 1024, 1), "name": grp.category}
-        for grp in summary.workload_groups
+        {"value": round(grp.total_provisioned_mib / 1024, 1), "name": grp.category} for grp in summary.workload_groups
     ]
 
     subtitle = "" if len(summary.workload_groups) >= 2 else "Single category"

@@ -122,9 +122,7 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
 
     total = summary.total_provisioned_mib
     flows = [total] + [-grp.total_required_mib for grp in summary.workload_groups]
-    labels = ["Provisioned"] + [
-        f"{grp.category[:12]}\n{grp.avg_drr:.1f}x" for grp in summary.workload_groups
-    ]
+    labels = ["Provisioned"] + [f"{grp.category[:12]}\n{grp.avg_drr:.1f}x" for grp in summary.workload_groups]
     orientations = [0] + [-1 for _ in summary.workload_groups]
 
     fig, ax = plt.subplots(figsize=(width_pt / 72, height_pt / 72), dpi=150)

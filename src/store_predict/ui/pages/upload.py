@@ -52,12 +52,16 @@ async def upload_page() -> None:
 
         # File upload dropzone
         with ui.card().classes("w-full"):
-            upload_widget = ui.upload(
-                label=t("upload.drop_label"),
-                on_upload=lambda e: background_tasks.create(handle_upload(e)),
-                auto_upload=True,
-                max_file_size=50_000_000,
-            ).props('accept=".xlsx,.csv,.zip"').classes("w-full")
+            upload_widget = (
+                ui.upload(
+                    label=t("upload.drop_label"),
+                    on_upload=lambda e: background_tasks.create(handle_upload(e)),
+                    auto_upload=True,
+                    max_file_size=50_000_000,
+                )
+                .props('accept=".xlsx,.csv,.zip"')
+                .classes("w-full")
+            )
 
         # Spinner and progress bar (initially hidden)
         with ui.column().classes("w-full items-center gap-2"):
@@ -126,9 +130,7 @@ async def upload_page() -> None:
                 )
                 if llm_cfg.enabled:
                     with upload_widget:
-                        llm_notif = ui.notification(
-                            t("llm.classifying"), spinner=True, timeout=None, type="info"
-                        )
+                        llm_notif = ui.notification(t("llm.classifying"), spinner=True, timeout=None, type="info")
                     try:
                         drr_table_for_llm = DRRTable.from_csv(DRR_CSV_PATH)
                         vm_records: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]

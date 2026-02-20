@@ -71,6 +71,7 @@ def test_i18n_yaml_is_valid(locale: str) -> None:
 # UX-02: Raw exception strings not exposed to users
 # ---------------------------------------------------------------------------
 
+
 def test_upload_no_raw_exception_string() -> None:
     """upload.py must not contain raw f'Unexpected error: {exc}' pattern."""
     source = _page_source("upload")
@@ -83,9 +84,7 @@ def test_report_logo_error_uses_i18n() -> None:
     """_handle_logo_upload must use t('error.logo_upload_failed') not str(exc)."""
     source = _page_source("report")
     # The logo upload except block must reference the i18n key
-    assert "error.logo_upload_failed" in source, (
-        "report.py _handle_logo_upload must use t('error.logo_upload_failed')"
-    )
+    assert "error.logo_upload_failed" in source, "report.py _handle_logo_upload must use t('error.logo_upload_failed')"
 
 
 # ---------------------------------------------------------------------------
@@ -107,15 +106,13 @@ def test_notify_types_are_canonical(page: str) -> None:
     source = _page_source(page)
     found_types = _extract_notify_types(source)
     invalid = [t for t in found_types if t not in VALID_NOTIFY_TYPES]
-    assert not invalid, (
-        f"{page}.py has non-canonical notify types: {invalid}. "
-        f"Use: {VALID_NOTIFY_TYPES}"
-    )
+    assert not invalid, f"{page}.py has non-canonical notify types: {invalid}. Use: {VALID_NOTIFY_TYPES}"
 
 
 # ---------------------------------------------------------------------------
 # UX-04: Navigation CTAs use button (not link) for no-data states
 # ---------------------------------------------------------------------------
+
 
 def test_review_no_data_uses_button_not_link() -> None:
     """review.py no-data state must use ui.button for CTA, not ui.link."""
@@ -139,6 +136,7 @@ def test_report_no_data_uses_button_not_link() -> None:
 # UX-01: Spinner / progress present in upload.py
 # ---------------------------------------------------------------------------
 
+
 def test_upload_has_spinner() -> None:
     """upload.py must use ui.spinner for visual upload feedback."""
     source = _page_source("upload")
@@ -154,6 +152,4 @@ def test_upload_has_run_io_bound() -> None:
 def test_upload_has_persistent_llm_notification() -> None:
     """upload.py must use ui.notification (persistent) for LLM classification, not ui.notify."""
     source = _page_source("upload")
-    assert "ui.notification" in source, (
-        "upload.py must use ui.notification with spinner=True for LLM classification"
-    )
+    assert "ui.notification" in source, "upload.py must use ui.notification with spinner=True for LLM classification"

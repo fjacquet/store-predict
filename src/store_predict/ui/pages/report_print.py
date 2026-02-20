@@ -70,9 +70,7 @@ async def report_print_page(request: Request) -> None:
         with ui.row().classes("w-full items-center justify-between mb-2"):
             ui.label(t("report.title")).classes("text-2xl font-bold")
             if project_name:
-                ui.label(t("report.project_label", name=project_name)).classes(
-                    "text-lg text-gray-500"
-                )
+                ui.label(t("report.project_label", name=project_name)).classes("text-lg text-gray-500")
 
         # ── Totals ──────────────────────────────────────────────────────────
         ui.label(t("report.totals_heading")).classes("text-xl font-semibold")

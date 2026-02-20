@@ -151,11 +151,8 @@ class TestPdfDownloadWithCompanyLogo:
         """PDF with company logo is larger than PDF without — proves logo is embedded."""
         summary_with = _make_summary()
         summary_without = _make_summary()
-        with_logo = generate_report_pdf(
-            summary_with, "With Logo", company_logo_bytes=_make_rgba_png_bytes()
-        )
+        with_logo = generate_report_pdf(summary_with, "With Logo", company_logo_bytes=_make_rgba_png_bytes())
         without_logo = generate_report_pdf(summary_without, "Without Logo", company_logo_bytes=None)
         assert len(with_logo) > len(without_logo), (
-            f"PDF with logo ({len(with_logo)} bytes) should be larger than "
-            f"PDF without logo ({len(without_logo)} bytes)"
+            f"PDF with logo ({len(with_logo)} bytes) should be larger than PDF without logo ({len(without_logo)} bytes)"
         )

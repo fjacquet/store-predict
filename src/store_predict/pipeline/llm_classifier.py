@@ -109,8 +109,7 @@ async def classify_single_vm(
         if _cb_fail_count >= _CB_FAIL_MAX:
             _cb_open_until = time.monotonic() + _CB_COOLDOWN
             logger.warning(
-                "LLM circuit breaker opened after %d consecutive failures — "
-                "skipping calls for %.0f seconds",
+                "LLM circuit breaker opened after %d consecutive failures — skipping calls for %.0f seconds",
                 _cb_fail_count,
                 _CB_COOLDOWN,
             )
@@ -145,11 +144,7 @@ async def classify_unknown_vms_async(
     # Include both "default" (no match at all) and "os_fallback" (matched only
     # via generic OS string) — the LLM may find a more specific category from
     # the VM name alone.
-    unknown = [
-        r
-        for r in records
-        if r.get("classification_confidence") in {"default", "os_fallback"}
-    ]
+    unknown = [r for r in records if r.get("classification_confidence") in {"default", "os_fallback"}]
 
     logger.info(
         "LLM classification: %d total VMs, %d candidates (default + os_fallback)",
