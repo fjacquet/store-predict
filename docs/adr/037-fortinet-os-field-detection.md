@@ -5,7 +5,7 @@
 
 ## Context
 
-FortiNet security appliances (FortiGate, FortiAnalyzer, FortiManager) are virtualised in VMware environments. Their VM names often follow internal naming conventions that do not contain "FORTI" (e.g., "CIGES-FAZ" for a FortiAnalyzer instance).
+FortiNet security appliances (FortiGate, FortiAnalyzer, FortiManager) are virtualised in VMware environments. Their VM names often follow internal naming conventions that do not contain "FORTI" (e.g., "xxx-FAZ" for a FortiAnalyzer instance).
 
 ## Decision
 

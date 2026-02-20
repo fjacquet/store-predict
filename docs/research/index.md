@@ -27,7 +27,7 @@ Research documents produced during project development. Each document captures d
 - **LiveOptics sample:** 610 VMs, 38 columns in VMs tab
 - **DRR reference:** 28 valid categories, semicolon-delimited CSV with parsing quirks
 
-## Key Technical Findings
+## Key Technical Findingsxxx-
 
 ### RVTools "MB" values are MiB
 
@@ -35,7 +35,7 @@ Despite column headers saying "MB", RVTools uses base-2 (MiB) values. No unit co
 
 ### VM Naming Conventions
 
-Corporate VM names embed functional keywords: `CADSRVSQL001` (SQL), `CITADM-01` (Citrix), `CIGES-FAZ` (FortiAnalyzer). Classification relies on substring matching against these patterns.
+Corporate VM names embed functional keywords: `CADSRVSQL001` (SQL), `CITADM-01` (Citrix), `xxx-FAZ` (FortiAnalyzer). Classification relies on substring matching against these patterns.
 
 ### False Positive Patterns
 

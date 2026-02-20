@@ -59,9 +59,9 @@ class TestRuleMatching:
         assert result.subcategory == "SAP Traditional (R/3 / ECC)"
 
     def test_sap_not_abac(self) -> None:
-        """CIGES-ABAC01 is Abacus ERP, NOT SAP."""
+        """xxx-ABAC01 is Abacus ERP, NOT SAP."""
         result = _registry().classify(
-            "CIGES-ABAC01",
+            "xxx-ABAC01",
             "Microsoft Windows Server 2022 (64-bit)",
         )
         assert result.category == "Virtual Machines"
@@ -69,15 +69,15 @@ class TestRuleMatching:
     def test_sap_not_gisapp(self) -> None:
         """GISAPP contains 'SAP' as substring but is a GIS application server."""
         result = _registry().classify(
-            "CIGES-GISAPP",
+            "xxx-GISAPP",
             "Microsoft Windows Server 2022 (64-bit)",
         )
         assert result.category != "Database" or "SAP" not in result.subcategory
 
     def test_exchange_not_ex(self) -> None:
-        """CIGES-EXTRANET must NOT match Email (uses 'EXCHANGE', not 'EX')."""
+        """xxx-EXTRANET must NOT match Email (uses 'EXCHANGE', not 'EX')."""
         result = _registry().classify(
-            "CIGES-EXTRANET",
+            "xxx-EXTRANET",
             "Microsoft Windows Server 2022 (64-bit)",
         )
         assert result.category != "Email"
@@ -99,7 +99,7 @@ class TestRuleMatching:
     def test_fortinet_os_match(self) -> None:
         """FortiNet appliances detected via OS field."""
         result = _registry().classify(
-            "CIGES-FAZ",
+            "xxx-FAZ",
             "FortiAnalyzer-VM64 v7.4.10-build2778 260126 (GA.M)",
         )
         assert result.category == "Logging - Analytics"

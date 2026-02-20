@@ -10,7 +10,7 @@ Phase 2 implements parsers for RVTools (.xlsx) and LiveOptics (.xlsx/.csv) files
 
 Key discovery from inspecting the actual sample files: RVTools has 70 columns in vInfo (we need 8), LiveOptics has 38 columns in VMs (we need ~8). RVTools labels columns as "MB" but values are actually MiB (base-2), matching LiveOptics which explicitly uses "MiB". This means NO unit conversion is needed between formats -- both are already in MiB despite different labeling. The Template column in RVTools is a boolean (`True`/`False`/`NaN`), not a string "True" as the requirements suggest.
 
-The project already has two sample files (`samples/rvtools.xlsx` with 24 VMs, `samples/live-optics.xlsx` with 610 VMs) plus a second LiveOptics file in `samples/CIGES-IT_02_16_2026/`. Both LiveOptics files have identical column schemas, confirming the format is stable.
+The project already has two sample files (`samples/rvtools.xlsx` with 24 VMs, `samples/live-optics.xlsx` with 610 VMs) plus a second LiveOptics file in `samples/xxx-IT_02_16_2026/`. Both LiveOptics files have identical column schemas, confirming the format is stable.
 
 **Primary recommendation:** Build three parser functions (one per format) that return `pd.DataFrame` with a canonical schema, plus a format detector that dispatches to the correct parser. Use simple alias dictionaries for column fuzzy matching (no external library needed). Return errors as custom exceptions with user-friendly messages.
 
@@ -469,7 +469,7 @@ Recommendation: Create a small CSV fixture file (5-10 rows) rather than dependin
 - **Actual sample files** inspected with openpyxl and pandas:
   - `samples/rvtools.xlsx` - 24 VMs, 70 columns in vInfo, Template is boolean with NaN
   - `samples/live-optics.xlsx` - 610 VMs, 38 columns in VMs, clean data
-  - `samples/CIGES-IT_02_16_2026/LiveOptics_3221684_VMWARE_02_12_2026.xlsx` - identical schema to main sample
+  - `samples/xxx-IT_02_16_2026/LiveOptics_3221684_VMWARE_02_12_2026.xlsx` - identical schema to main sample
 - **Existing codebase**: `pipeline/models.py` (VMRecord, FileFormat), `config.py` (paths), `conftest.py` (fixtures)
 - **pandas documentation**: `pd.read_excel()`, `pd.read_csv()` API verified from training data (stable API)
 

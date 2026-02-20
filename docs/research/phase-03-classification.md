@@ -211,7 +211,7 @@ Priority 100: Database/Oracle
 
 Priority 101: Database/Microsoft SQL
   vm_name_patterns: ["SQL", "MSSQL"]
-  NOTE: SQL is broadly used, catches CADSRVSQL001, CIGES-SQL, CIGES-SQLP, etc.
+  NOTE: SQL is broadly used, catches CADSRVSQL001, xxx-SQL, xxx-SQLP, etc.
   Must be AFTER Oracle (priority 100) so "ORACLESQL" goes to Oracle first.
 
 Priority 102: Database/My SQL / NoSQL
@@ -365,7 +365,7 @@ Note: "PostgreSQL" subcategory is clean (DRRTable.from_csv() strips the embedded
 | Pattern | False Positive Risk | Example | Mitigation |
 |---------|-------------------|---------|------------|
 | "ORA" | HIGH | OIK_LORADB, OIK_LORANETv2, ORAP-COMMUNES | Use "ORACLE" instead of "ORA" |
-| "SAP" | MEDIUM | CIGES-CONSAPPT, CIGES-GISAPP | "GISAPP" contains "SAP" at boundary; "CONSAPPT" acceptable |
+| "SAP" | MEDIUM | xxx-CONSAPPT, xxx-GISAPP | "GISAPP" contains "SAP" at boundary; "CONSAPPT" acceptable |
 | "EX" | HIGH | EXTRANET, APEXP, APEXT | Use "EXCHANGE" not "EX" |
 | "SQL" | LOW | Broadly correct - SQL in VM name almost always means SQL Server | Keep as-is |
 | "CIT" | LOW for Citrix infra | CITADM, CITAPP, etc. are genuinely Citrix | Keep as-is |
@@ -373,7 +373,7 @@ Note: "PostgreSQL" subcategory is clean (DRRTable.from_csv() strips the embedded
 | "ABAC" | MEDIUM | Abacus (Swiss ERP) VMs, not SAP | Do NOT use as SAP pattern |
 | "FILE" | LOW | OIK_FILE1, MFILES (M-Files doc mgmt) | MFILES matches File/General Purpose (acceptable) |
 | "BACKUP" | LOW | BACKUP-DC1, BACKUP-DC2 are backup-related | Place Veeam/Zerto rules (priority 300) before generic backup (360) |
-| "GIT" | LOW | CIGES-GIT, OIK_GITLAB genuinely Git servers | Keep as-is |
+| "GIT" | LOW | xxx-GIT, OIK_GITLAB genuinely Git servers | Keep as-is |
 
 ### Special Cases in Sample Data
 
@@ -414,7 +414,7 @@ Note: "PostgreSQL" subcategory is clean (DRRTable.from_csv() strips the embedded
 
 **What goes wrong:** "cadsrvsql001" (lowercase) doesn't match "SQL" pattern.
 **Why it happens:** Forgot `re.IGNORECASE` flag, or used `str.find()` without `.upper()`.
-**How to avoid:** Always compile patterns with `re.IGNORECASE`. Test with mixed-case VM names from real data (sample has: "cig-cent-int-p-01", "ciges-phenix", "ciges-poller3", "ciges-TST2-07").
+**How to avoid:** Always compile patterns with `re.IGNORECASE`. Test with mixed-case VM names from real data (sample has: "cig-cent-int-p-01", "xxx-phenix", "xxx-poller3", "xxx-TST2-07").
 **Warning signs:** VMs with lowercase names get classified as "Unknown."
 
 ### Pitfall 4: NaN/Empty OS Field
@@ -617,7 +617,7 @@ def test_fortinet_os_match() -> None:
     """FortiNet appliances detected via OS field."""
     registry = RuleRegistry(build_default_rules())
     result = registry.classify(
-        "CIGES-FAZ",
+        "xxx-FAZ",
         "FortiAnalyzer-VM64 v7.4.10-build2778 260126 (GA.M)",
     )
     assert result.category == "Logging - Analytics"
@@ -627,7 +627,7 @@ def test_windows_server_fallback() -> None:
     """Generic Windows Server VM falls to OS fallback, not Unknown."""
     registry = RuleRegistry(build_default_rules())
     result = registry.classify(
-        "CIGES-SERVICES",
+        "xxx-SERVICES",
         "Microsoft Windows Server 2022 (64-bit)",
     )
     assert result.category == "Virtual Machines"
