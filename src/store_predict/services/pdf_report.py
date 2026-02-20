@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 from io import BytesIO
 from typing import TYPE_CHECKING
 
+import i18n as _i18n
 import reportlab
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -20,6 +21,8 @@ from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+from store_predict.i18n import t
 
 if TYPE_CHECKING:
     from reportlab.pdfgen.canvas import Canvas
@@ -68,6 +71,7 @@ def _draw_header(
     canvas: Canvas,
     doc: SimpleDocTemplate,
     project_name: str,
+    report_title: str,
 ) -> None:
     """Draw branded header bar on the first page."""
     canvas.saveState()
@@ -81,7 +85,7 @@ def _draw_header(
     # White title
     canvas.setFillColor(colors.white)
     canvas.setFont("VeraBd", 18)
-    canvas.drawString(20 * mm, height - 35, "StorePredict Sizing Report")
+    canvas.drawString(20 * mm, height - 35, report_title)
 
     # Project name + date below bar
     canvas.setFillColor(colors.black)
@@ -95,16 +99,26 @@ def _draw_header(
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
-def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes:
+def generate_report_pdf(
+    summary: CalculationSummary,
+    project_name: str,
+    locale: str = "fr",
+) -> bytes:
     """Generate a branded PDF sizing report and return raw bytes.
 
     Args:
         summary: Calculation results to render.
         project_name: Customer / project label for the header.
+        locale: Language for report labels, e.g. ``"fr"`` or ``"en"``.
+            Defaults to ``"fr"`` (French is the primary use-case language).
 
     Returns:
         PDF document as ``bytes``.
     """
+    # Set process-global locale before any t() calls.
+    # Safe: generate_report_pdf() is fully synchronous — no coroutine interleaving.
+    _i18n.set("locale", locale)
+
     buf = BytesIO()
     margin = 20 * mm
     doc = SimpleDocTemplate(
@@ -136,27 +150,28 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
     story: list[object] = []
 
     # --- Totals section ----------------------------------------------------
-    story.append(Paragraph("Totals", heading_style))
+    story.append(Paragraph(t("report.totals_heading"), heading_style))
     totals_lines = [
-        f"<b>Total VMs:</b> {summary.total_vms}",
-        f"<b>Total vCPUs:</b> {summary.total_cpus:,}",
-        f"<b>Total Memory:</b> {format_storage(summary.total_memory_mib)}",
-        f"<b>Total Provisioned:</b> {format_storage(summary.total_provisioned_mib)}",
-        f"<b>Total In Use:</b> {format_storage(summary.total_in_use_mib)}",
-        f"<b>Required Capacity:</b> {format_storage(summary.total_required_mib)}",
+        f"<b>{t('pdf.total_vms')}</b> {summary.total_vms}",
+        f"<b>{t('pdf.total_cpus')}</b> {summary.total_cpus:,}",
+        f"<b>{t('pdf.total_memory')}</b> {format_storage(summary.total_memory_mib)}",
+        f"<b>{t('pdf.total_provisioned')}</b> {format_storage(summary.total_provisioned_mib)}",
+        f"<b>{t('pdf.total_in_use')}</b> {format_storage(summary.total_in_use_mib)}",
+        f"<b>{t('pdf.required_capacity')}</b> {format_storage(summary.total_required_mib)}",
     ]
     for line in totals_lines:
         story.append(Paragraph(line, body_style))
     story.append(Spacer(1, 10))
 
     # --- Averages section --------------------------------------------------
-    story.append(Paragraph("Averages", heading_style))
+    story.append(Paragraph(t("report.averages_heading"), heading_style))
     avg_lines = [
-        f"<b>Avg vCPUs / VM:</b> {summary.avg_vm_cpus:.1f}",
-        f"<b>Avg Memory / VM:</b> {format_storage(summary.avg_vm_memory_mib)}",
-        f"<b>Avg Storage / VM:</b> {format_storage(summary.avg_vm_size_mib)}",
-        f"<b>Weighted Avg DRR:</b> {summary.weighted_avg_drr:.2f}",
-        f"<b>Largest VM:</b> {summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})",
+        f"<b>{t('pdf.avg_cpus')}</b> {summary.avg_vm_cpus:.1f}",
+        f"<b>{t('pdf.avg_memory')}</b> {format_storage(summary.avg_vm_memory_mib)}",
+        f"<b>{t('pdf.avg_storage')}</b> {format_storage(summary.avg_vm_size_mib)}",
+        f"<b>{t('pdf.weighted_drr')}</b> {summary.weighted_avg_drr:.2f}",
+        f"<b>{t('pdf.largest_vm')}</b> {summary.largest_vm_name}"
+        f" ({format_storage(summary.largest_vm_provisioned_mib)})",
     ]
     for line in avg_lines:
         story.append(Paragraph(line, body_style))
@@ -164,21 +179,27 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
 
     # --- Performance Summary section (only if data available) --------------
     if summary.has_performance_data:
-        story.append(Paragraph("Performance Summary", heading_style))
+        story.append(Paragraph(t("pdf.performance_heading"), heading_style))
         perf_lines = [
-            f"<b>Total Average IOPS:</b> {summary.total_avg_iops:,.0f}",
-            f"<b>Hottest VM Peak IOPS:</b> {summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})",
-            f"<b>Peak Throughput:</b> {summary.peak_throughput_mbs:,.1f} MB/s",
-            f"<b>Total 8K Equivalent IOPS:</b> {summary.total_iops_8k_equivalent:,.0f}",
+            f"<b>{t('pdf.total_avg_iops')}</b> {summary.total_avg_iops:,.0f}",
+            f"<b>{t('pdf.hottest_vm')}</b> {summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})",
+            f"<b>{t('pdf.peak_throughput')}</b> {summary.peak_throughput_mbs:,.1f} MB/s",
+            f"<b>{t('pdf.iops_8k')}</b> {summary.total_iops_8k_equivalent:,.0f}",
         ]
         for line in perf_lines:
             story.append(Paragraph(line, body_style))
         story.append(Spacer(1, 10))
 
     # --- Workload breakdown table ------------------------------------------
-    story.append(Paragraph("Workload Breakdown", heading_style))
+    story.append(Paragraph(t("report.breakdown_heading"), heading_style))
 
-    header = ["Category", "VMs", "Provisioned (GiB)", "Avg DRR", "Required (GiB)"]
+    header = [
+        t("pdf.table_category"),
+        t("pdf.table_vms"),
+        t("pdf.table_provisioned"),
+        t("pdf.table_avg_drr"),
+        t("pdf.table_required"),
+    ]
     table_data: list[list[str]] = [header]
 
     for grp in summary.workload_groups:
@@ -195,7 +216,7 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
     # Totals row
     table_data.append(
         [
-            "TOTAL",
+            t("pdf.table_total"),
             str(summary.total_vms),
             f"{summary.total_provisioned_mib / 1024:.1f}",
             f"{summary.weighted_avg_drr:.2f}",
@@ -237,8 +258,10 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
     story.append(table)
 
     # --- Build PDF ---------------------------------------------------------
+    report_title = t("pdf.report_title")
+
     def on_first_page(canvas: Canvas, doc: SimpleDocTemplate) -> None:
-        _draw_header(canvas, doc, project_name)
+        _draw_header(canvas, doc, project_name, report_title)
 
     doc.build(story, onFirstPage=on_first_page)
     return buf.getvalue()
