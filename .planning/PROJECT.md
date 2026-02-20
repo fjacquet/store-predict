@@ -40,6 +40,7 @@ Accurately predict real-world PowerStore DRR per workload instead of relying on 
 **Goal:** Internationalize the UI, add branding to PDF reports, enable Excel export, introduce LLM-based fallback classification for unmatched VMs, and polish the user experience.
 
 **Target features:**
+
 - i18n framework with FR/EN toggle (extensible for future languages)
 - PDF reports with Dell partner logo + optional custom company logo
 - Excel export of VM table with calculations

@@ -96,6 +96,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] Removed unused VMCalculation and WorkloadGroupResult from TYPE_CHECKING import**
+
 - **Found during:** Task 2 (ruff check)
 - **Issue:** Plan specified importing all three types under TYPE_CHECKING, but only CalculationSummary is used as annotation; ruff F401 flagged VMCalculation and WorkloadGroupResult as unused
 - **Fix:** Reduced TYPE_CHECKING import to `CalculationSummary` only
@@ -104,6 +105,7 @@ Each task was committed atomically:
 - **Committed in:** 4055d38 (Task 2 commit)
 
 **2. [Rule 2 - Missing Critical] Added module-level store_predict.i18n import to ensure YAML configured**
+
 - **Found during:** Task 2 (full verification — EN != FR assertion failed)
 - **Issue:** Direct `_i18n.t()` calls without prior `store_predict.i18n` import caused YAML files not loaded, returning key-not-found placeholders identically for EN and FR
 - **Fix:** Added `import store_predict.i18n  # noqa: F401` at module level to ensure YAML load_path and skip_locale_root_data config are applied before any `_i18n.t()` call

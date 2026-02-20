@@ -7,6 +7,7 @@
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -228,11 +229,13 @@ def generate_report_xlsx(summary, project_name, locale="fr"):
 **What goes wrong:** `mypy src/` fails with `Skipping analyzing "xlsxwriter": module is installed, but missing library stubs or py.typed marker [import-untyped]`.
 **Why it happens:** xlsxwriter 3.2.9 ships no `py.typed` file and no bundled `.pyi` stubs.
 **How to avoid:** Add to `pyproject.toml`:
+
 ```toml
 [[tool.mypy.overrides]]
 module = "xlsxwriter.*"
 ignore_missing_imports = true
 ```
+
 **Warning signs:** `mypy` CI step fails after adding the import.
 
 ### Pitfall 3: `worksheet.autofit()` called before data written
@@ -349,6 +352,7 @@ ws.write(row, col, summary.total_provisioned_mib / 1024, gib_fmt)
 | `openpyxl` for styled xlsx generation | `xlsxwriter` for write-only generation | Project decision | xlsxwriter API is simpler for generation; openpyxl needed only if reading back |
 
 **Deprecated/outdated:**
+
 - `xlsxwriter.Workbook(filename)` with temp files: use `BytesIO` + `in_memory: True` in web context.
 
 ---
@@ -376,11 +380,11 @@ ws.write(row, col, summary.total_provisioned_mib / 1024, gib_fmt)
 
 ### Primary (HIGH confidence)
 
-- XlsxWriter official docs — https://xlsxwriter.readthedocs.io/workbook.html — Workbook BytesIO, in_memory option, close()
-- XlsxWriter worksheet docs — https://xlsxwriter.readthedocs.io/worksheet.html — write, write_row, freeze_panes, autofit, set_column
-- XlsxWriter format docs — https://xlsxwriter.readthedocs.io/format.html — add_format() dict syntax, bold, bg_color, font_color, border, align, num_format
-- XlsxWriter HTTP server example — https://xlsxwriter.readthedocs.io/example_http_server.html — BytesIO + in_memory + seek(0) pattern
-- XlsxWriter autofit example — https://xlsxwriter.readthedocs.io/example_autofit.html — autofit() after writes
+- XlsxWriter official docs — <https://xlsxwriter.readthedocs.io/workbook.html> — Workbook BytesIO, in_memory option, close()
+- XlsxWriter worksheet docs — <https://xlsxwriter.readthedocs.io/worksheet.html> — write, write_row, freeze_panes, autofit, set_column
+- XlsxWriter format docs — <https://xlsxwriter.readthedocs.io/format.html> — add_format() dict syntax, bold, bg_color, font_color, border, align, num_format
+- XlsxWriter HTTP server example — <https://xlsxwriter.readthedocs.io/example_http_server.html> — BytesIO + in_memory + seek(0) pattern
+- XlsxWriter autofit example — <https://xlsxwriter.readthedocs.io/example_autofit.html> — autofit() after writes
 - Local runtime validation — `python -c "import xlsxwriter; print(xlsxwriter.__version__)"` → `3.2.9`; full multi-sheet BytesIO workbook generated and verified (`b'PK\x03\x04'` magic)
 
 ### Secondary (MEDIUM confidence)
@@ -397,6 +401,7 @@ ws.write(row, col, summary.total_provisioned_mib / 1024, gib_fmt)
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — xlsxwriter 3.2.9 is already installed; API verified via official docs and local runtime test
 - Architecture: HIGH — mirrors existing `pdf_report.py` shape exactly; no new patterns required
 - Pitfalls: HIGH — BytesIO cursor pitfall verified by runtime; mypy override verified by mypy execution; locale pattern copied from existing pdf_report.py

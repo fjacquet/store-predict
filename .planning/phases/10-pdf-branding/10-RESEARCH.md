@@ -7,6 +7,7 @@
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -59,6 +60,7 @@ PNG transparency is the critical risk: ReportLab's `mask='auto'` handles RGBA PN
 
 **Installation:**
 Pillow is already installed. No new `pip install` needed. Add to `pyproject.toml` dependencies:
+
 ```bash
 uv pip install "pillow>=12.1.1"
 # then add to pyproject.toml [project] dependencies:
@@ -290,30 +292,35 @@ def generate_report_pdf(
 ## Common Pitfalls
 
 ### Pitfall 1: PNG Mode P → Black Background
+
 **What goes wrong:** A palette-indexed PNG with transparency is passed directly to ReportLab. The alpha channel is ignored; transparent regions render as black.
 **Why it happens:** ReportLab's `mask='auto'` only handles RGBA PNGs; mode P stores transparency in the palette info dict, not in a dedicated channel.
 **How to avoid:** Always run `_preprocess_logo()` which converts mode P to RGBA before handing bytes to `ImageReader`.
 **Warning signs:** Logo appears with solid black or colored background in generated PDF.
 
 ### Pitfall 2: Logo Pushes Content to Page 2
+
 **What goes wrong:** Logo image placed in story (as Platypus `Image` flowable) occupies vertical space, causing the workload table to overflow to a second page.
 **Why it happens:** Platypus lays out story elements sequentially; an Image flowable at the top consumes `topMargin` space and reduces the writable area.
 **How to avoid:** Draw logos exclusively in `_draw_header` via `canvas.drawImage`. Never add logos to the `story` list.
 **Warning signs:** PDF grows from 1 page to 2 pages in tests.
 
 ### Pitfall 3: Tab Storage Serialization Error
+
 **What goes wrong:** `app.storage.tab["company_logo"] = raw_bytes` raises a serialization error at runtime.
 **Why it happens:** `app.storage.tab` is a persistent dict backed by JSON. Python `bytes` are not JSON-serializable.
 **How to avoid:** Store `base64.b64encode(bytes).decode("ascii")` string; decode back with `base64.b64decode(s)` before use.
 **Warning signs:** NiceGUI raises `TypeError: Object of type bytes is not JSON serializable`.
 
 ### Pitfall 4: Dell Logo Not Found in Docker
+
 **What goes wrong:** `open("dell_logo.png")` works locally but raises `FileNotFoundError` in Docker.
 **Why it happens:** Relative filesystem paths don't survive Docker `COPY` and working-directory changes.
 **How to avoid:** Store logo under `src/store_predict/data/`, declare in `pyproject.toml` `[tool.setuptools.package-data]`, access via `importlib.resources` or a `Path(__file__).parent / "data" / "dell_logo.png"` constant in `config.py`.
 **Warning signs:** PDF generates fine in dev but `FileNotFoundError` in container.
 
 ### Pitfall 5: Header Layout Breaks With Both Logos
+
 **What goes wrong:** Two logos + title text all compete for the 50pt header bar, causing overlap or clipped text.
 **Why it happens:** Current `_draw_header` draws title at a fixed x coordinate; with a company logo at x=10 the text overlaps.
 **How to avoid:** When company logo is present, shift the title x-coordinate right (e.g., x_title = 100 when logo present, else 20mm). Test by generating a PDF with both logos and measuring pixel positions.
@@ -342,6 +349,7 @@ def _load_dell_logo() -> bytes | None:
 ```
 
 Alternatively (simpler, already used in codebase pattern):
+
 ```python
 # Source: config.py pattern already in use for DRR_CSV_PATH
 DELL_LOGO_PATH = Path(__file__).resolve().parent / "data" / "dell_logo.png"
@@ -414,6 +422,7 @@ async def _handle_logo_upload(e: object) -> None:
 | `mask=[r1,r2,g1,g2,b1,b2]` for transparency | `mask='auto'` | ReportLab 3.x | Auto-detects PNG alpha channel |
 
 **Deprecated/outdated:**
+
 - `canvas.drawInlineImage`: Still works but no caching; avoid in favor of `drawImage`.
 - PIL `Image.save(fp, "PDF")` for embedding: This saves a separate PDF, not what we need; use `ImageReader` + `drawImage` instead.
 
@@ -441,18 +450,21 @@ async def _handle_logo_upload(e: object) -> None:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - ReportLab 4.4.10 (installed in .venv) — verified version via `reportlab.__version__`
 - [ReportLab ch2_graphics docs](https://docs.reportlab.com/reportlab/userguide/ch2_graphics/) — `canvas.drawImage` signature, `mask='auto'`, `ImageReader`, `preserveAspectRatio`
 - [Pillow 12.1.1 docs — Image.html](https://pillow.readthedocs.io/en/stable/reference/Image.html) — `Image.open`, `.convert()`, `.size`, `.save()`
 - [Pillow 12.1.1 docs — concepts.html](https://pillow.readthedocs.io/en/stable/handbook/concepts.html) — P, RGBA mode descriptions
 
 ### Secondary (MEDIUM confidence)
+
 - [NiceGUI storage docs](https://nicegui.io/documentation/storage) — `app.storage.tab` data types, JSON serialization requirement
 - [NiceGUI upload docs](https://nicegui.io/documentation/upload) — `UploadEventArguments.content.read()`, `e.name`
 - [reportlab-users: Transparent PNG](https://groups.google.com/g/reportlab-users/c/ldbVVQLjIXU) — `mask='auto'` for RGBA PNGs confirmed
 - Direct codebase inspection: `src/store_predict/services/pdf_report.py` — existing `_draw_header`, `generate_report_pdf` signature, header bar geometry (50pt, y positions)
 
 ### Tertiary (LOW confidence)
+
 - [NiceGUI discussion #3052](https://github.com/zauberzeug/nicegui/discussions/3052) — `app.storage.tab` patterns (unverified exact behavior of large string storage)
 - [reportlab-users: ImageReader BytesIO pattern](https://python.hotexamples.com/examples/reportlab.lib.utils/ImageReader/-/python-imagereader-class-examples.html) — corroborates BytesIO + ImageReader pattern but single source
 
@@ -461,6 +473,7 @@ async def _handle_logo_upload(e: object) -> None:
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — both libraries installed and verified in .venv
 - Architecture patterns: HIGH — directly derived from reading existing `pdf_report.py` + official ReportLab/Pillow docs
 - Pitfalls: HIGH — transparent PNG black background is a well-documented ReportLab issue confirmed by multiple sources; tab storage serialization is observable from NiceGUI source

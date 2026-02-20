@@ -7,6 +7,7 @@
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -60,16 +61,19 @@ AG Grid UI chrome (filter menus, pagination, sort controls) is localized by load
 | Full-page reload for language switch | `@ui.refreshable` | NiceGUI prohibits `ui.header` inside `@ui.refreshable`; refreshable declared outside page handler syncs ALL tabs; full reload is simpler and reliable |
 
 **Installation:**
+
 ```bash
 uv pip install "python-i18n[YAML]>=0.3.9"
 ```
 
 Add to `pyproject.toml`:
+
 ```toml
 "python-i18n[YAML]>=0.3.9",
 ```
 
 Add to `pyproject.toml` mypy overrides:
+
 ```toml
 [[tool.mypy.overrides]]
 module = "i18n.*"
@@ -407,6 +411,7 @@ def layout(title: str = "StorePredict") -> Iterator[None]:
 ### Pattern 5: AG Grid Locale Integration
 
 AG Grid locale requires two independent changes:
+
 1. UI chrome (filter labels, pagination, menus) — via `AG_GRID_LOCALE_FR` CDN
 2. Column headers — via `t()` on `headerName` values in the Python column definition
 
@@ -463,6 +468,7 @@ def generate_report_pdf(
 ```
 
 Caller in `report.py`:
+
 ```python
 pdf_bytes = generate_report_pdf(summary, project_name, locale=get_locale())
 ```
@@ -647,6 +653,7 @@ def generate_report_pdf(summary, project_name, locale="fr"):
 | `i18n.set('locale')` globally | Per-call locale setting in wrapper | python-i18n has no built-in session isolation | Wrapper pattern is the community standard for Flask/FastAPI too |
 
 **Deprecated/outdated:**
+
 - `ui.navigate.reload()` — this function does NOT exist in NiceGUI; use `ui.run_javascript('location.reload()')` instead (confirmed via docs fetch)
 - `Quasar.lang.set()` for app-level text — only affects Quasar component UI chrome (date pickers, etc.), not app-level labels
 
@@ -777,6 +784,7 @@ def test_pdf_report_french(make_summary):
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack (python-i18n, YAML, AG Grid CDN): HIGH — PyPI docs + NiceGUI maintainer discussions verified
 - Architecture (t() wrapper, page reload, per-tab locale): HIGH — NiceGUI behavior confirmed via multiple official discussions
 - AG Grid locale integration: HIGH — NiceGUI discussion #3899 shows exact working pattern from maintainers

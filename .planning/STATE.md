@@ -115,6 +115,10 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 09]: Three excel sheets mirror CalculationSummary: Summary (label-value), Workload Breakdown (grouped), VM Detail (per-VM)
 - [Phase 09]: Green Download Excel button added between PDF and Back buttons in report.py using table_view icon
 - [Phase 09]: excel_report.py uses _i18n.t() directly (not t() wrapper) so locale arg to generate_report_xlsx() is honoured throughout sheet writers
+- [Phase 10]: DELL_LOGO_PATH in config.py uses Path(__file__).resolve().parent for Docker-safe bundled asset resolution
+- [Phase 10]: _preprocess_logo keeps both RGBA and RGB as-is; only non-RGBA/RGB modes converted to RGBA before ReportLab embedding
+- [Phase 10]: _DELL_LOGO_BYTES loaded at module import time for Docker-safe path resolution and no per-call I/O
+- [Phase 10]: pillow>=12.1.1 added to runtime dependencies (not dev-only) — _preprocess_logo runs in production Docker
 
 ## Performance Metrics
 
@@ -147,6 +151,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 08.1 P01 | 3min | 3 tasks | 4 files |
 | Phase 09 P01 | 8min | 2 tasks | 4 files |
 | Phase 09 P02 | 14min | 2 tasks | 5 files |
+| Phase 10 P01 | 20min | 2 tasks | 7 files |
 
 ## Roadmap Evolution
 
@@ -165,7 +170,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Completed 09-02-PLAN.md
+- **Stopped at:** Completed 10-01-PLAN.md
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->

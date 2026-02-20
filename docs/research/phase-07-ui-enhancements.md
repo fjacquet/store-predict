@@ -27,6 +27,7 @@ This applies to all JS function properties: `getRowId`, `valueFormatter`, `value
 ### NaN Serialization Chain
 
 pandas NaN values break JSON serialization. The fix chain:
+
 1. `df.where(notna, "")` produces empty strings that break `float("")` downstream
 2. Correct approach: dict post-processing with `val != val` identity check → `None`
 
@@ -37,6 +38,7 @@ The original formula `avg_iops + (throughput_KB/s / 8)` double-counts IO activit
 ### Peak IOPS Aggregation
 
 Summing peak IOPS across all VMs is meaningless — peaks don't coincide. For storage sizing, show:
+
 - **Total Average IOPS** (sum of averages — valid steady-state)
 - **Hottest VM Peak IOPS** (single VM max — burst reference)
 

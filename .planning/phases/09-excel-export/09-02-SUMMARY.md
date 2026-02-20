@@ -101,6 +101,7 @@ Each task was committed atomically:
 ### Auto-fixed Issues
 
 **1. [Rule 1 - Bug] excel_report.py t() wrapper overrides locale argument**
+
 - **Found during:** Task 2 (test_en_and_fr_differ failing — EN and FR bytes were identical)
 - **Issue:** `_write_summary_sheet`, `_write_breakdown_sheet`, and `_write_vm_detail_sheet` called `t()` from `store_predict.i18n`. That wrapper invokes `get_locale()` which returns the NiceGUI session locale (falls back to 'fr' in test context), then does `_i18n.set("locale", "fr")` — overwriting the locale that `generate_report_xlsx()` had set to 'en' via `_i18n.set("locale", locale)`.
 - **Fix:** Replaced all `t("...")` calls in the three sheet writer functions with `_i18n.t("...")` directly. Updated the import block: removed `from store_predict.i18n import t`, added `import store_predict.i18n  # noqa: F401` to ensure YAML load_path is configured at module import.
@@ -109,6 +110,7 @@ Each task was committed atomically:
 - **Committed in:** `11b6f58` (Task 2 commit)
 
 **2. [Rule 1 - Bug] Pre-existing E501 line-length violations in report.py**
+
 - **Found during:** Task 1 (ruff check after edits)
 - **Issue:** Lines 70 and 78 in report.py were 122 chars (limit 120), pre-existing before this plan's changes. Task done criteria requires zero ruff errors.
 - **Fix:** Split the two long `_summary_card(...)` calls across multiple lines using trailing-comma style.

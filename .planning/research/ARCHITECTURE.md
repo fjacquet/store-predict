@@ -43,6 +43,7 @@ src/store_predict/
 ```
 
 **Critical contracts:**
+
 - `pipeline/` never imports from `ui/` — the pipeline is UI-free and fully testable
 - Session state lives in `app.storage.tab` as JSON-serializable `list[dict]`
 - `classify_dataframe()` adds four columns: `workload_category`, `workload_subcategory`, `classification_rule`, `classification_confidence`
@@ -189,6 +190,7 @@ LLM_API_KEY: str | None = os.environ.get("LLM_API_KEY")
 ```
 
 LiteLLM model string format:
+
 - OpenAI: `"gpt-4o-mini"`
 - Anthropic: `"claude-3-haiku-20240307"`
 - Ollama: `"ollama/llama3.2"` with `base_url="http://localhost:11434"`
@@ -409,6 +411,7 @@ The features have dependency relationships that dictate build order:
 **Rationale:** Every other feature's UI strings need to go through `t()`. Building i18n last means retroactively wrapping every string — double the effort. Do it first with the two simplest strings, then string-wrap naturally as each feature is built.
 
 Steps:
+
 1. Add `python-i18n` dependency
 2. Create `i18n/` package with `t()` wrapper and `get_locale()` / `set_locale()` on `app.storage.tab`
 3. Create `en.yaml` and `fr.yaml` with placeholder keys for all existing UI strings
@@ -421,6 +424,7 @@ Steps:
 **Rationale:** Pure new service module with a new button. Zero risk to existing functionality. `openpyxl` is already a dependency. Fast to deliver, validates the download button pattern before PDF branding work.
 
 Steps:
+
 1. Create `services/excel_export.py` with three-sheet workbook
 2. Add Download Excel button to `report.py`
 3. Test with existing `CalculationSummary` data
@@ -431,6 +435,7 @@ Steps:
 **Rationale:** Modifies an existing service but is well-isolated. The signature change to `generate_report_pdf()` is backwards-compatible (optional kwargs with defaults). The logo loading via session state is the riskiest part — base64 encoding large images in `app.storage.tab` needs size limits.
 
 Steps:
+
 1. Extend `config.py` with logo path constants
 2. Add `save_logo()` / `load_logo()` to `state.py`
 3. Add logo upload inputs to `report.py`
@@ -443,6 +448,7 @@ Steps:
 **Rationale:** Builds last because it is optional, network-dependent, and has the most failure modes. By this point, the rest of the app is stable. The LLM path is disabled by default (`LLM_ENABLED` env var). It modifies only one line in the existing upload flow.
 
 Steps:
+
 1. Add `litellm` as optional dependency in `pyproject.toml`
 2. Create `services/llm_config.py` with config dataclass
 3. Create `pipeline/llm_classifier.py` with async classify function
