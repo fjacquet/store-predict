@@ -980,6 +980,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v200-2026-02-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v2.0.0] - 2026-02-20
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v2.0.0] - 2026-02-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#target-storage-model-selector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Target Storage Model Selector
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v11-2026-02-20" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2618,6 +2646,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v200-2026-02-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v2.0.0] - 2026-02-20
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v2.0.0] - 2026-02-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#target-storage-model-selector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Target Storage Model Selector
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v11-2026-02-20" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2828,6 +2884,19 @@
 <h1 id="changelog">Changelog</h1>
 <p>All notable changes to StorePredict are documented here.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h2 id="v200-2026-02-20">[v2.0.0] - 2026-02-20</h2>
+<p>Multi-platform storage model selection — <strong>breaking UX change</strong>: DRR values now depend on the selected target storage platform, not only on workload type.</p>
+<h3 id="target-storage-model-selector">Target Storage Model Selector</h3>
+<ul>
+<li>New <code>StorageModel</code> enum in <code>config.py</code>: <code>POWERSTORE</code> (full dedup+compression, per-workload DRR), <code>POWERFLEX</code> (compression only, flat 2.0), <code>POWERVAULT</code> (no reduction, flat 1.0)</li>
+<li><code>apply_storage_model()</code> added to <code>services/drr_table.py</code> — overwrites per-VM DRR in session based on selected platform</li>
+<li><code>get_storage_model()</code> / <code>set_storage_model()</code> added to <code>ui/state.py</code> for tab-scoped session persistence</li>
+<li>Review page now shows a <code>ui.toggle</code> selector (PowerStore / PowerFlex / PowerVault) above the summary stats; switching instantly recalculates all DRR values, refreshes the grid and stats</li>
+<li>Model is applied at page load so navigating back from the report preserves the selection</li>
+<li>Report page picks up overridden DRR values automatically — no changes required</li>
+<li>6 i18n keys added (<code>storage_model.label</code>, <code>.powerstore</code>, <code>.powerflex</code>, <code>.powervault</code>) in both <code>en.yaml</code> and <code>fr.yaml</code></li>
+<li>3 new tests for <code>apply_storage_model()</code> (PowerVault→1.0, PowerFlex→2.0, PowerStore→table values); 230 tests passing, ruff and mypy clean</li>
+</ul>
 <h2 id="v11-2026-02-20">[v1.1] - 2026-02-20</h2>
 <p>i18n, Branding &amp; Intelligence milestone.</p>
 <h3 id="phase-13-graphics-complete">Phase 13: Graphics (COMPLETE)</h3>
