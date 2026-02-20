@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 from datetime import UTC, datetime
 from typing import Any
 
@@ -15,6 +16,7 @@ from store_predict.services.pdf_report import (
     format_storage,
     generate_report_pdf,
     sanitize_filename,
+    validate_logo,
 )
 from store_predict.ui.layout import layout
 
@@ -133,6 +135,9 @@ async def report_page() -> None:
                 on_click=lambda: ui.navigate.to("/review"),
             ).classes("bg-gray-600 text-white")
 
+        # Logo upload section (secondary action, below buttons)
+        _build_logo_upload_section()
+
 
 def _summary_card(label: str, value: str) -> None:
     """Render a single summary metric card."""
@@ -146,11 +151,55 @@ def _on_download(summary: object, project_name: str) -> None:
     from store_predict.pipeline.calculation import CalculationSummary
 
     assert isinstance(summary, CalculationSummary)
-    pdf_bytes = generate_report_pdf(summary, project_name, locale=get_locale())
+
+    company_logo_b64: str = app.storage.tab.get("company_logo_b64", "")
+    company_logo_bytes: bytes | None = base64.b64decode(company_logo_b64) if company_logo_b64 else None
+
+    pdf_bytes = generate_report_pdf(
+        summary,
+        project_name,
+        locale=get_locale(),
+        company_logo_bytes=company_logo_bytes,
+    )
     safe_name = sanitize_filename(project_name)
     date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
     filename = f"StorePredict_{safe_name}_{date_str}.pdf"
     ui.download(pdf_bytes, filename=filename, media_type="application/pdf")
+
+
+def _build_logo_upload_section() -> None:
+    """Render the company logo upload widget on the report page."""
+    with ui.card().classes("w-full max-w-md p-4 gap-2"):
+        ui.label(t("report.upload_logo")).classes("text-sm font-semibold")
+        ui.upload(
+            label=t("report.logo_upload_label"),
+            on_upload=_handle_logo_upload,
+            auto_upload=True,
+            max_file_size=200_000,
+        ).props('accept=".png,.jpg,.jpeg"').classes("w-full")
+        ui.button(
+            t("report.logo_remove"),
+            on_click=_remove_logo,
+            icon="delete",
+        ).classes("bg-gray-400 text-white text-sm")
+
+
+async def _handle_logo_upload(e: object) -> None:
+    """Validate and store uploaded company logo in tab storage."""
+    content: bytes = e.content.read()  # type: ignore[attr-defined]
+    filename: str = e.name  # type: ignore[attr-defined]
+    try:
+        validate_logo(content, filename)
+        app.storage.tab["company_logo_b64"] = base64.b64encode(content).decode("ascii")
+        ui.notify(t("report.logo_uploaded"), type="positive")
+    except Exception as exc:
+        ui.notify(str(exc), type="negative")
+
+
+def _remove_logo() -> None:
+    """Remove company logo from tab storage."""
+    app.storage.tab.pop("company_logo_b64", None)
+    ui.notify(t("report.logo_removed"), type="info")
 
 
 def _on_download_excel(summary: object, project_name: str) -> None:

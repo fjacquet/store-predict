@@ -1,4 +1,5 @@
 """FR/EN language toggle button for the shared header."""
+
 from __future__ import annotations
 
 from nicegui import ui

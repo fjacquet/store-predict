@@ -47,10 +47,10 @@ _BRAND_BLUE = colors.HexColor("#1e3a5f")
 # Logo constraints
 _PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 _JPEG_MAGIC = b"\xff\xd8\xff"
-_MAX_LOGO_BYTES = 200 * 1024        # 200 KB — keeps tab storage safe
-_MAX_LOGO_DIMENSION = 2000          # pixels — reject absurd resolution
-_LOGO_HEIGHT_PT = 36                # points — fits in 50pt bar with padding
-_LOGO_WIDTH_PT = 80                 # points — max display width
+_MAX_LOGO_BYTES = 200 * 1024  # 200 KB — keeps tab storage safe
+_MAX_LOGO_DIMENSION = 2000  # pixels — reject absurd resolution
+_LOGO_HEIGHT_PT = 36  # points — fits in 50pt bar with padding
+_LOGO_WIDTH_PT = 80  # points — max display width
 
 
 # ---------------------------------------------------------------------------

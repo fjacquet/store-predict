@@ -1,4 +1,5 @@
 """Per-session locale helpers backed by app.storage.tab."""
+
 from __future__ import annotations
 
 _DEFAULT_LOCALE = "fr"  # French is the primary use-case language

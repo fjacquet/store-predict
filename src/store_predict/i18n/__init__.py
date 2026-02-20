@@ -1,4 +1,5 @@
 """i18n package: t() helper and configuration for python-i18n."""
+
 from __future__ import annotations
 
 from pathlib import Path

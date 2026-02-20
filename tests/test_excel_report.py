@@ -165,17 +165,13 @@ class TestExcelGeneratesBytes:
 # ---------------------------------------------------------------------------
 class TestExcelLocale:
     def test_en_and_fr_differ(self) -> None:
-        summary = _make_summary(
-            [("Database/Microsoft SQL", 2, 20480.0, 5.0)]
-        )
+        summary = _make_summary([("Database/Microsoft SQL", 2, 20480.0, 5.0)])
         en_bytes = generate_report_xlsx(summary, "X", locale="en")
         fr_bytes = generate_report_xlsx(summary, "X", locale="fr")
         assert en_bytes != fr_bytes
 
     def test_default_locale_is_fr(self) -> None:
-        summary = _make_summary(
-            [("Virtual Machines", 1, 10240.0, 5.0)]
-        )
+        summary = _make_summary([("Virtual Machines", 1, 10240.0, 5.0)])
         result = generate_report_xlsx(summary, "X")
         assert isinstance(result, bytes)
         assert result[:4] == b"PK\x03\x04"
@@ -186,9 +182,7 @@ class TestExcelLocale:
 # ---------------------------------------------------------------------------
 class TestExcelPerformanceGuard:
     def test_no_performance_data_still_generates(self) -> None:
-        summary = _make_summary(
-            [("Virtual Machines", 2, 10240.0, 5.0)]
-        )
+        summary = _make_summary([("Virtual Machines", 2, 10240.0, 5.0)])
         assert summary.has_performance_data is False
         result = generate_report_xlsx(summary, "No Perf")
         assert isinstance(result, bytes)

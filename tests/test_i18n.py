@@ -1,4 +1,5 @@
 """Unit tests for the i18n package: t() helper, locale management, and PDF locale."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -151,9 +152,7 @@ def test_pdf_report_fr_differs_from_en(
     assert pdf_fr.startswith(b"%PDF-"), "FR PDF invalid"
     assert pdf_en.startswith(b"%PDF-"), "EN PDF invalid"
     # The two PDFs must differ because their label strings differ
-    assert pdf_fr != pdf_en, (
-        "FR and EN PDFs are identical — locale parameter has no effect on output"
-    )
+    assert pdf_fr != pdf_en, "FR and EN PDFs are identical — locale parameter has no effect on output"
 
 
 def test_pdf_report_default_locale_is_fr(

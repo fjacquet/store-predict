@@ -18,9 +18,7 @@ from store_predict.pipeline.errors import IngestionError
 # Checked against the central directory only — no extraction needed.
 _MAX_UNCOMPRESSED_BYTES = 100 * 1024 * 1024
 
-_LIVEOPTICS_PATTERN = re.compile(
-    r"LiveOptics_\d+_VMWARE_\d{2}_\d{2}_\d{4}\.xlsx", re.IGNORECASE
-)
+_LIVEOPTICS_PATTERN = re.compile(r"LiveOptics_\d+_VMWARE_\d{2}_\d{2}_\d{4}\.xlsx", re.IGNORECASE)
 
 
 def extract_liveoptics_from_zip(content: bytes) -> tuple[bytes, str]:
