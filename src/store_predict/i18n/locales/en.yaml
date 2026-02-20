@@ -1,0 +1,88 @@
+upload:
+  title: Upload Workload Data
+  project_label: Project Name
+  project_placeholder: "e.g., Customer-DC-Migration-2026"
+  drop_label: "Drop RVTools or LiveOptics file here (.xlsx, .csv)"
+  supported_formats: "Supported formats: RVTools (.xlsx), LiveOptics (.xlsx, .csv)"
+  loaded_notify: "Loaded %{count} VM(s)"
+
+review:
+  title: Review Classifications
+  project_label: "Project: %{name}"
+  no_data: No data uploaded yet.
+  bulk_update: Bulk Update Workload
+  generate_report: Generate Report
+  no_rows_selected: "No rows selected. Use checkboxes to select VMs first."
+  updated_notify: "Updated %{count} VM(s) to %{category} / %{subcategory}"
+
+report:
+  title: Sizing Report
+  project_label: "Project: %{name}"
+  no_data: No data available. Please upload a file first.
+  totals_heading: Totals
+  averages_heading: Averages
+  performance_heading: Performance Summary
+  breakdown_heading: Workload Breakdown
+  download_pdf: Download PDF Report
+  back_to_review: Back to Review
+
+columns:
+  vm_name: VM Name
+  os: OS
+  description: Description
+  workload_category: Workload Category
+  subcategory: Subcategory
+  drr: DRR
+  provisioned_mib: "Provisioned (MiB)"
+  in_use_mib: "In Use (MiB)"
+  confidence: Confidence
+  peak_iops: Peak IOPS
+  iops_8k: "8K Eq. IOPS"
+  peak_mbs: "Peak MB/s"
+
+stats:
+  total_vms: Total VMs
+  total_provisioned: Total Provisioned
+  avg_drr: Avg DRR
+  effective_capacity: Effective Capacity
+
+pdf:
+  report_title: StorePredict Sizing Report
+  total_vms: "Total VMs:"
+  total_cpus: "Total vCPUs:"
+  total_memory: "Total Memory:"
+  total_provisioned: "Total Provisioned:"
+  total_in_use: "Total In Use:"
+  required_capacity: "Required Capacity:"
+  avg_cpus: "Avg vCPUs / VM:"
+  avg_memory: "Avg Memory / VM:"
+  avg_storage: "Avg Storage / VM:"
+  weighted_drr: "Weighted Avg DRR:"
+  largest_vm: "Largest VM:"
+  total_avg_iops: "Total Average IOPS:"
+  hottest_vm: "Hottest VM Peak IOPS:"
+  peak_throughput: "Peak Throughput:"
+  iops_8k: "Total 8K Equivalent IOPS:"
+  table_category: Category
+  table_vms: VMs
+  table_provisioned: "Provisioned (GiB)"
+  table_avg_drr: Avg DRR
+  table_required: "Required (GiB)"
+  table_total: TOTAL
+  performance_heading: Performance Summary
+  stats_heading: VM Statistics
+
+layout:
+  home: Home
+  upload: Upload
+  review: Review
+  report: Report
+  dark_mode: Dark Mode
+  language: "FR"
+
+dialog:
+  workloads_for: "Workloads for %{vm_name}"
+  select_hint: "Select one or more workload types. Conservative (lowest) DRR will be used."
+  select_label: Select workload types
+  cancel: Cancel
+  apply: Apply
