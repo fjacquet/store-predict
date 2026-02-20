@@ -33,9 +33,15 @@ async def report_page() -> None:
         with (
             layout("StorePredict - Report"),
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
+            ui.card().classes("p-8 gap-4 items-center text-center"),
         ):
+            ui.icon("upload_file", size="3rem").classes("text-gray-400")
             ui.label(t("report.no_data")).classes("text-xl text-gray-500")
-            ui.link(t("report.go_to_upload"), "/upload").classes("text-blue-600 underline text-lg")
+            ui.button(
+                t("report.go_to_upload"),
+                on_click=lambda: ui.navigate.to("/upload"),
+                icon="arrow_forward",
+            ).classes("bg-blue-700 text-white")
         return
 
     # Run calculation
@@ -118,15 +124,13 @@ async def report_page() -> None:
 
         # Action buttons
         with ui.row().classes("gap-4"):
-            ui.button(
+            pdf_btn = ui.button(
                 t("report.download_pdf"),
-                on_click=lambda: _on_download(summary, project_name),
                 icon="download",
             ).classes("bg-blue-700 text-white")
 
-            ui.button(
+            excel_btn = ui.button(
                 t("report.download_excel"),
-                on_click=lambda: _on_download_excel(summary, project_name),
                 icon="table_view",
             ).classes("bg-green-700 text-white")
 
@@ -134,6 +138,23 @@ async def report_page() -> None:
                 t("report.back_to_review"),
                 on_click=lambda: ui.navigate.to("/review"),
             ).classes("bg-gray-600 text-white")
+
+        async def on_download_pdf() -> None:
+            pdf_btn.disable()
+            try:
+                _on_download(summary, project_name)
+            finally:
+                pdf_btn.enable()
+
+        async def on_download_excel() -> None:
+            excel_btn.disable()
+            try:
+                _on_download_excel(summary, project_name)
+            finally:
+                excel_btn.enable()
+
+        pdf_btn.on("click", on_download_pdf)
+        excel_btn.on("click", on_download_excel)
 
         # Logo upload section (secondary action, below buttons)
         _build_logo_upload_section()
@@ -192,8 +213,8 @@ async def _handle_logo_upload(e: object) -> None:
         validate_logo(content, filename)
         app.storage.tab["company_logo_b64"] = base64.b64encode(content).decode("ascii")
         ui.notify(t("report.logo_uploaded"), type="positive")
-    except Exception as exc:
-        ui.notify(str(exc), type="negative")
+    except Exception:
+        ui.notify(t("error.logo_upload_failed"), type="negative")
 
 
 def _remove_logo() -> None:

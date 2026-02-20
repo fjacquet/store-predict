@@ -31,9 +31,15 @@ async def review_page() -> None:
         with (
             layout("StorePredict - Review"),
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
+            ui.card().classes("p-8 gap-4 items-center text-center"),
         ):
+            ui.icon("upload_file", size="3rem").classes("text-gray-400")
             ui.label(t("review.no_data")).classes("text-xl text-gray-500")
-            ui.link(t("report.go_to_upload"), "/upload").classes("text-blue-600 underline text-lg")
+            ui.button(
+                t("report.go_to_upload"),
+                on_click=lambda: ui.navigate.to("/upload"),
+                icon="arrow_forward",
+            ).classes("bg-blue-700 text-white")
         return
 
     # Load DRR reference data
