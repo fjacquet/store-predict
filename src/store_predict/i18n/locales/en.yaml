@@ -24,6 +24,7 @@ report:
   performance_heading: Performance Summary
   breakdown_heading: Workload Breakdown
   download_pdf: Download PDF Report
+  download_excel: Download Excel Report
   back_to_review: Back to Review
   go_to_upload: Go to Upload
 

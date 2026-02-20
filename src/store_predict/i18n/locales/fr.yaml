@@ -24,6 +24,7 @@ report:
   performance_heading: "Résumé des performances"
   breakdown_heading: "Détail par charge de travail"
   download_pdf: "Télécharger le rapport PDF"
+  download_excel: "Télécharger le rapport Excel"
   back_to_review: "Retour à la révision"
   go_to_upload: "Aller au téléchargement"
 

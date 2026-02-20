@@ -10,6 +10,7 @@ from nicegui import app, ui
 from store_predict.i18n import t
 from store_predict.i18n.locale import get_locale
 from store_predict.pipeline.calculation import calculate
+from store_predict.services.excel_report import generate_report_xlsx
 from store_predict.services.pdf_report import (
     format_storage,
     generate_report_pdf,
@@ -66,7 +67,8 @@ async def report_page() -> None:
             _summary_card(t("stats.avg_storage"), format_storage(summary.avg_vm_size_mib))
             _summary_card(t("stats.avg_drr"), f"{summary.weighted_avg_drr:.1f}x")
             _summary_card(
-                t("stats.largest_vm"), f"{summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})"
+                t("stats.largest_vm"),
+                f"{summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})",
             )
 
         # Performance summary cards (only when LiveOptics data available)
@@ -74,7 +76,10 @@ async def report_page() -> None:
             ui.label(t("report.performance_heading")).classes("text-xl font-semibold")
             with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
                 _summary_card(t("stats.total_avg_iops"), f"{summary.total_avg_iops:,.0f}")
-                _summary_card(t("stats.hottest_vm"), f"{summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})")
+                _summary_card(
+                    t("stats.hottest_vm"),
+                    f"{summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})",
+                )
                 _summary_card(t("stats.peak_throughput"), f"{summary.peak_throughput_mbs:,.1f} MB/s")
                 _summary_card(t("stats.iops_8k"), f"{summary.total_iops_8k_equivalent:,.0f}")
 
@@ -118,6 +123,12 @@ async def report_page() -> None:
             ).classes("bg-blue-700 text-white")
 
             ui.button(
+                t("report.download_excel"),
+                on_click=lambda: _on_download_excel(summary, project_name),
+                icon="table_view",
+            ).classes("bg-green-700 text-white")
+
+            ui.button(
                 t("report.back_to_review"),
                 on_click=lambda: ui.navigate.to("/review"),
             ).classes("bg-gray-600 text-white")
@@ -140,3 +151,19 @@ def _on_download(summary: object, project_name: str) -> None:
     date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
     filename = f"StorePredict_{safe_name}_{date_str}.pdf"
     ui.download(pdf_bytes, filename=filename, media_type="application/pdf")
+
+
+def _on_download_excel(summary: object, project_name: str) -> None:
+    """Generate Excel workbook and trigger browser download."""
+    from store_predict.pipeline.calculation import CalculationSummary
+
+    assert isinstance(summary, CalculationSummary)
+    xlsx_bytes = generate_report_xlsx(summary, project_name, locale=get_locale())
+    safe_name = sanitize_filename(project_name)
+    date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
+    filename = f"StorePredict_{safe_name}_{date_str}.xlsx"
+    ui.download(
+        xlsx_bytes,
+        filename=filename,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
