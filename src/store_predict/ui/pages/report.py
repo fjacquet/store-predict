@@ -32,7 +32,7 @@ async def report_page() -> None:
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
         ):
             ui.label(t("report.no_data")).classes("text-xl text-gray-500")
-            ui.link("Go to Upload", "/upload").classes("text-blue-600 underline text-lg")
+            ui.link(t("report.go_to_upload"), "/upload").classes("text-blue-600 underline text-lg")
         return
 
     # Run calculation
@@ -52,31 +52,31 @@ async def report_page() -> None:
         ui.label(t("report.totals_heading")).classes("text-xl font-semibold")
         with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
             _summary_card(t("stats.total_vms"), str(summary.total_vms))
-            _summary_card("Total vCPUs", f"{summary.total_cpus:,}")
-            _summary_card("Total Memory", format_storage(summary.total_memory_mib))
+            _summary_card(t("stats.total_cpus"), f"{summary.total_cpus:,}")
+            _summary_card(t("stats.total_memory"), format_storage(summary.total_memory_mib))
             _summary_card(t("stats.total_provisioned"), format_storage(summary.total_provisioned_mib))
-            _summary_card("Total In Use", format_storage(summary.total_in_use_mib))
-            _summary_card("Required Capacity", format_storage(summary.total_required_mib))
+            _summary_card(t("stats.total_in_use"), format_storage(summary.total_in_use_mib))
+            _summary_card(t("stats.required_capacity"), format_storage(summary.total_required_mib))
 
         # Averages cards
         ui.label(t("report.averages_heading")).classes("text-xl font-semibold")
         with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
-            _summary_card("Avg vCPUs / VM", f"{summary.avg_vm_cpus:.1f}")
-            _summary_card("Avg Memory / VM", format_storage(summary.avg_vm_memory_mib))
-            _summary_card("Avg Storage / VM", format_storage(summary.avg_vm_size_mib))
+            _summary_card(t("stats.avg_cpus"), f"{summary.avg_vm_cpus:.1f}")
+            _summary_card(t("stats.avg_memory"), format_storage(summary.avg_vm_memory_mib))
+            _summary_card(t("stats.avg_storage"), format_storage(summary.avg_vm_size_mib))
             _summary_card(t("stats.avg_drr"), f"{summary.weighted_avg_drr:.1f}x")
             _summary_card(
-                "Largest VM", f"{summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})"
+                t("stats.largest_vm"), f"{summary.largest_vm_name} ({format_storage(summary.largest_vm_provisioned_mib)})"
             )
 
         # Performance summary cards (only when LiveOptics data available)
         if summary.has_performance_data:
             ui.label(t("report.performance_heading")).classes("text-xl font-semibold")
             with ui.grid().classes("grid grid-cols-2 md:grid-cols-4 gap-4 w-full"):
-                _summary_card("Total Avg IOPS", f"{summary.total_avg_iops:,.0f}")
-                _summary_card("Hottest VM Peak", f"{summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})")
-                _summary_card("Peak Throughput", f"{summary.peak_throughput_mbs:,.1f} MB/s")
-                _summary_card("8K Eq. IOPS", f"{summary.total_iops_8k_equivalent:,.0f}")
+                _summary_card(t("stats.total_avg_iops"), f"{summary.total_avg_iops:,.0f}")
+                _summary_card(t("stats.hottest_vm"), f"{summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})")
+                _summary_card(t("stats.peak_throughput"), f"{summary.peak_throughput_mbs:,.1f} MB/s")
+                _summary_card(t("stats.iops_8k"), f"{summary.total_iops_8k_equivalent:,.0f}")
 
         # Workload breakdown table
         ui.label(t("report.breakdown_heading")).classes("text-xl font-semibold")
@@ -92,7 +92,7 @@ async def report_page() -> None:
             {"name": "avg_drr", "label": t("columns.drr"), "field": "avg_drr", "align": "right"},
             {
                 "name": "required",
-                "label": "Required (GiB)",
+                "label": t("pdf.table_required"),
                 "field": "required",
                 "align": "right",
             },

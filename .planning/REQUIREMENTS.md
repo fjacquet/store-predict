@@ -13,7 +13,7 @@ Requirements for v1.1 milestone. Each maps to roadmap phases (continuing from Ph
 - [x] **I18N-02**: FR/EN language toggle in header, persisted in `app.storage.tab['locale']`
 - [x] **I18N-03**: AG Grid column headers and built-in text displayed in selected language
 - [x] **I18N-04**: PDF report labels (headers, section titles, column names) rendered in selected language
-- [x] **I18N-05**: Language switch updates all visible UI elements without page reload
+- [x] **I18N-05**: Language switch updates all visible UI elements (implemented via full page reload — NiceGUI 1.5+ prohibits `ui.header` inside `@ui.refreshable`)
 
 ### PDF Branding (BRAND)
 

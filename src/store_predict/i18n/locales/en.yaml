@@ -25,6 +25,7 @@ report:
   breakdown_heading: Workload Breakdown
   download_pdf: Download PDF Report
   back_to_review: Back to Review
+  go_to_upload: Go to Upload
 
 columns:
   vm_name: VM Name
@@ -45,6 +46,18 @@ stats:
   total_provisioned: Total Provisioned
   avg_drr: Avg DRR
   effective_capacity: Effective Capacity
+  total_cpus: Total vCPUs
+  total_memory: Total Memory
+  total_in_use: Total In Use
+  required_capacity: Required Capacity
+  avg_cpus: Avg vCPUs / VM
+  avg_memory: Avg Memory / VM
+  avg_storage: Avg Storage / VM
+  largest_vm: Largest VM
+  total_avg_iops: Total Avg IOPS
+  hottest_vm: Hottest VM Peak
+  peak_throughput: Peak Throughput
+  iops_8k: 8K Eq. IOPS
 
 pdf:
   report_title: StorePredict Sizing Report

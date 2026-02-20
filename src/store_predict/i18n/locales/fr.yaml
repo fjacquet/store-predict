@@ -25,6 +25,7 @@ report:
   breakdown_heading: "Détail par charge de travail"
   download_pdf: "Télécharger le rapport PDF"
   back_to_review: "Retour à la révision"
+  go_to_upload: "Aller au téléchargement"
 
 columns:
   vm_name: Nom de la VM
@@ -45,6 +46,18 @@ stats:
   total_provisioned: Total provisionné
   avg_drr: DRR moyen
   effective_capacity: "Capacité effective"
+  total_cpus: Total vCPUs
+  total_memory: "Mémoire totale"
+  total_in_use: Total utilisé
+  required_capacity: "Capacité requise"
+  avg_cpus: "vCPUs moy. / VM"
+  avg_memory: "Mémoire moy. / VM"
+  avg_storage: "Stockage moy. / VM"
+  largest_vm: VM la plus grande
+  total_avg_iops: "IOPS moyennes totales"
+  hottest_vm: "IOPS de pointe max"
+  peak_throughput: "Débit de pointe"
+  iops_8k: "IOPS éq. 8K"
 
 pdf:
   report_title: "Rapport de dimensionnement StorePredict"

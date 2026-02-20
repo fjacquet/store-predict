@@ -33,7 +33,7 @@ async def review_page() -> None:
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
         ):
             ui.label(t("review.no_data")).classes("text-xl text-gray-500")
-            ui.link("Go to Upload", "/upload").classes("text-blue-600 underline text-lg")
+            ui.link(t("report.go_to_upload"), "/upload").classes("text-blue-600 underline text-lg")
         return
 
     # Load DRR reference data
