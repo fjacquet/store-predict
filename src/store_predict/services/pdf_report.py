@@ -14,14 +14,17 @@ from typing import TYPE_CHECKING
 
 import i18n as _i18n
 import reportlab
+from PIL import Image as PilImage
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
+from store_predict.config import DELL_LOGO_PATH
 from store_predict.i18n import t
 
 if TYPE_CHECKING:
@@ -29,7 +32,7 @@ if TYPE_CHECKING:
 
     from store_predict.pipeline.calculation import CalculationSummary
 
-__all__ = ["format_storage", "generate_report_pdf", "sanitize_filename"]
+__all__ = ["format_storage", "generate_report_pdf", "sanitize_filename", "validate_logo"]
 
 # ---------------------------------------------------------------------------
 # Font registration
@@ -40,6 +43,79 @@ pdfmetrics.registerFont(TTFont("VeraBd", os.path.join(_FONT_DIR, "VeraBd.ttf")))
 
 # Brand colour
 _BRAND_BLUE = colors.HexColor("#1e3a5f")
+
+# Logo constraints
+_PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+_JPEG_MAGIC = b"\xff\xd8\xff"
+_MAX_LOGO_BYTES = 200 * 1024        # 200 KB — keeps tab storage safe
+_MAX_LOGO_DIMENSION = 2000          # pixels — reject absurd resolution
+_LOGO_HEIGHT_PT = 36                # points — fits in 50pt bar with padding
+_LOGO_WIDTH_PT = 80                 # points — max display width
+
+
+# ---------------------------------------------------------------------------
+# Logo helpers
+# ---------------------------------------------------------------------------
+def _preprocess_logo(raw_bytes: bytes) -> bytes:
+    """Normalize any image to RGBA PNG for black-background-safe ReportLab embedding."""
+    src = PilImage.open(BytesIO(raw_bytes))
+    img: PilImage.Image = src if src.mode in ("RGBA", "RGB") else src.convert("RGBA")
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    return buf.getvalue()
+
+
+def validate_logo(content: bytes, filename: str) -> None:
+    """Validate a logo image for format, size, and dimensions.
+
+    Raises:
+        IngestionError: If the logo fails any validation check.
+    """
+    from store_predict.pipeline.errors import IngestionError
+
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    if ext not in ("png", "jpg", "jpeg"):
+        raise IngestionError(
+            f"Logo must be PNG or JPEG, got '.{ext}'",
+            details=f"filename={filename}",
+        )
+
+    if len(content) > _MAX_LOGO_BYTES:
+        raise IngestionError(
+            f"Logo file too large (max {_MAX_LOGO_BYTES // 1024} KB)",
+            details=f"size={len(content)}",
+        )
+
+    if ext == "png" and not content.startswith(_PNG_MAGIC):
+        raise IngestionError(
+            "Logo file has invalid PNG magic bytes",
+            details=f"filename={filename}",
+        )
+    if ext in ("jpg", "jpeg") and not content.startswith(_JPEG_MAGIC):
+        raise IngestionError(
+            "Logo file has invalid JPEG magic bytes",
+            details=f"filename={filename}",
+        )
+
+    img = PilImage.open(BytesIO(content))
+    w, h = img.size
+    if w > _MAX_LOGO_DIMENSION or h > _MAX_LOGO_DIMENSION:
+        raise IngestionError(
+            f"Logo dimensions too large ({w}x{h}px, max {_MAX_LOGO_DIMENSION}px per side)",
+            details=f"filename={filename}",
+        )
+
+
+def _load_dell_logo() -> bytes | None:
+    """Load Dell partner logo bytes from package data, or return None if missing."""
+    try:
+        return DELL_LOGO_PATH.read_bytes()
+    except FileNotFoundError:
+        return None
+
+
+# Load at module level so Docker paths work without absolute paths at runtime
+_DELL_LOGO_BYTES: bytes | None = _load_dell_logo()
 
 
 # ---------------------------------------------------------------------------
@@ -72,6 +148,8 @@ def _draw_header(
     doc: SimpleDocTemplate,
     project_name: str,
     report_title: str,
+    dell_logo_bytes: bytes | None = None,
+    company_logo_bytes: bytes | None = None,
 ) -> None:
     """Draw branded header bar on the first page."""
     canvas.saveState()
@@ -82,10 +160,37 @@ def _draw_header(
     canvas.setFillColor(_BRAND_BLUE)
     canvas.rect(0, height - bar_height, width, bar_height, fill=1, stroke=0)
 
-    # White title
+    # Draw Dell logo right-aligned in the bar
+    if dell_logo_bytes:
+        dell_reader = ImageReader(BytesIO(dell_logo_bytes))
+        canvas.drawImage(
+            dell_reader,
+            width - _LOGO_WIDTH_PT - 10,
+            height - bar_height + 7,
+            width=_LOGO_WIDTH_PT,
+            height=_LOGO_HEIGHT_PT,
+            mask="auto",
+            preserveAspectRatio=True,
+        )
+
+    # Draw company logo left-aligned in the bar
+    if company_logo_bytes:
+        company_reader = ImageReader(BytesIO(company_logo_bytes))
+        canvas.drawImage(
+            company_reader,
+            10,
+            height - bar_height + 7,
+            width=_LOGO_WIDTH_PT,
+            height=_LOGO_HEIGHT_PT,
+            mask="auto",
+            preserveAspectRatio=True,
+        )
+
+    # White title — shift right if company logo present to avoid overlap
+    x_title = 100 if company_logo_bytes else 20 * mm
     canvas.setFillColor(colors.white)
     canvas.setFont("VeraBd", 18)
-    canvas.drawString(20 * mm, height - 35, report_title)
+    canvas.drawString(x_title, height - 35, report_title)
 
     # Project name + date below bar
     canvas.setFillColor(colors.black)
@@ -103,6 +208,8 @@ def generate_report_pdf(
     summary: CalculationSummary,
     project_name: str,
     locale: str = "fr",
+    dell_logo_bytes: bytes | None = None,
+    company_logo_bytes: bytes | None = None,
 ) -> bytes:
     """Generate a branded PDF sizing report and return raw bytes.
 
@@ -111,6 +218,10 @@ def generate_report_pdf(
         project_name: Customer / project label for the header.
         locale: Language for report labels, e.g. ``"fr"`` or ``"en"``.
             Defaults to ``"fr"`` (French is the primary use-case language).
+        dell_logo_bytes: Raw bytes of the Dell partner logo PNG/JPEG.
+            Defaults to the bundled dell_logo.png if not provided.
+        company_logo_bytes: Raw bytes of the customer company logo PNG/JPEG.
+            Displayed left-aligned in the header bar.  ``None`` = no logo.
 
     Returns:
         PDF document as ``bytes``.
@@ -118,6 +229,13 @@ def generate_report_pdf(
     # Set process-global locale before any t() calls.
     # Safe: generate_report_pdf() is fully synchronous — no coroutine interleaving.
     _i18n.set("locale", locale)
+
+    # Default Dell logo to bundled asset when caller does not override
+    dell_logo_bytes = dell_logo_bytes if dell_logo_bytes is not None else _DELL_LOGO_BYTES
+
+    # Preprocess logos to RGBA PNG for transparent rendering in ReportLab
+    dell_logo_preprocessed = _preprocess_logo(dell_logo_bytes) if dell_logo_bytes else None
+    company_logo_preprocessed = _preprocess_logo(company_logo_bytes) if company_logo_bytes else None
 
     buf = BytesIO()
     margin = 20 * mm
@@ -261,7 +379,7 @@ def generate_report_pdf(
     report_title = t("pdf.report_title")
 
     def on_first_page(canvas: Canvas, doc: SimpleDocTemplate) -> None:
-        _draw_header(canvas, doc, project_name, report_title)
+        _draw_header(canvas, doc, project_name, report_title, dell_logo_preprocessed, company_logo_preprocessed)
 
     doc.build(story, onFirstPage=on_first_page)
     return buf.getvalue()
