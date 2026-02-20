@@ -1,0 +1,13 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "pythonVersion": "3.14",
+  "include": ["src"],
+  "exclude": ["**/__pycache__", ".venv"],
+  "reportMissingImports": true,
+  "reportMissingModuleSource": false,
+  "typeCheckingMode": "standard",
+  "reportUnknownMemberType": false,
+  "reportUnknownVariableType": false,
+  "reportUnknownArgumentType": false
+}
