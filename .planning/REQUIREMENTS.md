@@ -43,10 +43,10 @@ Requirements for v1.1 milestone. Each maps to roadmap phases (continuing from Ph
 
 ### UX Polish (UX)
 
-- [ ] **UX-01**: Loading/progress indicators during file upload, LLM classification, and report generation
-- [ ] **UX-02**: Meaningful error messages for upload failures, LLM errors, and export failures
-- [ ] **UX-03**: Consistent notification pattern (success/warning/error) across all pages
-- [ ] **UX-04**: Navigation flow improvements (clear next-step guidance after upload, after review)
+- [x] **UX-01**: Loading/progress indicators during file upload, LLM classification, and report generation
+- [x] **UX-02**: Meaningful error messages for upload failures, LLM errors, and export failures
+- [x] **UX-03**: Consistent notification pattern (success/warning/error) across all pages
+- [x] **UX-04**: Navigation flow improvements (clear next-step guidance after upload, after review)
 
 ## v2 Requirements
 
@@ -109,10 +109,10 @@ Deferred to future release. Tracked but not in current roadmap.
 | LLM-05 | Phase 11 | Complete |
 | LLM-06 | Phase 11 | Complete |
 | LLM-07 | Phase 11 | Complete |
-| UX-01 | Phase 12 | Pending |
-| UX-02 | Phase 12 | Pending |
-| UX-03 | Phase 12 | Pending |
-| UX-04 | Phase 12 | Pending |
+| UX-01 | Phase 12 | Complete |
+| UX-02 | Phase 12 | Complete |
+| UX-03 | Phase 12 | Complete |
+| UX-04 | Phase 12 | Complete |
 
 **Coverage:**
 
