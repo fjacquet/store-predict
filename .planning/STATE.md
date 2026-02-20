@@ -32,9 +32,13 @@ v1.1 — i18n, Branding & Intelligence
 - [x] Plan 06-01: Docker deployment hardening (.dockerignore, HEALTHCHECK, env-var secret)
 - [x] Plan 06-04: MkDocs documentation with architecture Mermaid diagrams, getting-started guide, README
 
+## Current Phase Progress
+
+Phase 08 (i18n Foundation) — Plan 01/03 complete
+
 ## Next Action
 
-Plan Phase 8 (i18n Foundation) — run `/gsd:plan-phase 8`
+Execute Plan 08-02 (Wrap Upload Page)
 
 ## Project Reference
 
@@ -92,6 +96,11 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 07]: Performance fields extracted with NaN-safe helper (math.isnan check, default 0.0)
 - [Phase 07]: VM Statistics always in PDF; Performance Summary conditional on has_performance_data
 - [Phase 07]: PDF CIDFont subset encoding requires size comparison for testing conditional sections
+- [Phase 08]: Default locale is 'fr' (French) — French is primary use case per CLAUDE.md
+- [Phase 08]: t() sets python-i18n process-global locale per call — safe in NiceGUI single-threaded async
+- [Phase 08]: Full page reload on locale switch (location.reload()) — ui.header cannot be in @ui.refreshable
+- [Phase 08]: skip_locale_root_data=True so YAML keys not prefixed with locale name
+- [Phase 08]: Lazy import of get_locale() inside t() to avoid circular import
 
 ## Performance Metrics
 
@@ -118,6 +127,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 07 P03 | 2min | 2 tasks | 2 files |
 | Phase 07 P04 | 3min | 2 tasks | 4 files |
 | Phase 07 P05 | 5min | 2 tasks | 3 files |
+| 08    | 01   | 8min     | 2     | 6     |
 
 ## Roadmap Evolution
 
@@ -134,8 +144,8 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** v1.1 roadmap and requirements complete, ready for Phase 8
-- **Timestamp:** 2026-02-19
+- **Stopped at:** Completed 08-01-PLAN.md (i18n Foundation Plan 01)
+- **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands

@@ -9,8 +9,8 @@ Requirements for v1.1 milestone. Each maps to roadmap phases (continuing from Ph
 
 ### Internationalization (I18N)
 
-- [ ] **I18N-01**: All UI strings (labels, buttons, tooltips, notifications) served via `t()` helper from YAML locale files
-- [ ] **I18N-02**: FR/EN language toggle in header, persisted in `app.storage.tab['locale']`
+- [x] **I18N-01**: All UI strings (labels, buttons, tooltips, notifications) served via `t()` helper from YAML locale files
+- [x] **I18N-02**: FR/EN language toggle in header, persisted in `app.storage.tab['locale']`
 - [ ] **I18N-03**: AG Grid column headers and built-in text displayed in selected language
 - [ ] **I18N-04**: PDF report labels (headers, section titles, column names) rendered in selected language
 - [ ] **I18N-05**: Language switch updates all visible UI elements without page reload
@@ -87,8 +87,8 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| I18N-01 | Phase 8 | Pending |
-| I18N-02 | Phase 8 | Pending |
+| I18N-01 | Phase 8 | Complete |
+| I18N-02 | Phase 8 | Complete |
 | I18N-03 | Phase 8 | Pending |
 | I18N-04 | Phase 8 | Pending |
 | I18N-05 | Phase 8 | Pending |
