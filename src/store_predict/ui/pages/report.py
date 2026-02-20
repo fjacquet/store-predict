@@ -10,7 +10,13 @@ from nicegui import app, ui
 
 from store_predict.i18n import t
 from store_predict.i18n.locale import get_locale
-from store_predict.pipeline.calculation import calculate
+from store_predict.pipeline.calculation import CalculationSummary, calculate
+from store_predict.services.charts import (
+    echart_before_after_options,
+    echart_drr_bar_options,
+    echart_pie_options,
+    echart_sankey_options,
+)
 from store_predict.services.excel_report import generate_report_xlsx
 from store_predict.services.pdf_report import (
     format_storage,
@@ -156,8 +162,32 @@ async def report_page() -> None:
         pdf_btn.on("click", on_download_pdf)
         excel_btn.on("click", on_download_excel)
 
+        # Charts section
+        _build_charts_section(summary)
+
         # Logo upload section (secondary action, below buttons)
         _build_logo_upload_section()
+
+
+def _build_charts_section(summary: CalculationSummary) -> None:
+    """Render interactive ECharts visualizations below the workload breakdown table."""
+    if not summary.workload_groups:
+        return
+
+    ui.label(t("report.charts_heading")).classes("text-xl font-bold mb-4")
+
+    # Sankey — full width
+    with ui.row().classes("w-full"):
+        ui.echart(echart_sankey_options(summary)).classes("w-full h-72")
+
+    # Pie + DRR bar — two-column grid
+    with ui.grid(columns=2).classes("w-full gap-4"):
+        ui.echart(echart_pie_options(summary)).classes("h-64")
+        ui.echart(echart_drr_bar_options(summary)).classes("h-64")
+
+    # Before/after bar — full width
+    with ui.row().classes("w-full"):
+        ui.echart(echart_before_after_options(summary)).classes("w-full h-64")
 
 
 def _summary_card(label: str, value: str) -> None:

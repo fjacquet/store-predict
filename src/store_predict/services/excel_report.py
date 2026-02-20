@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 import i18n as _i18n
 import xlsxwriter
+from xlsxwriter.format import Format
 
 import store_predict.i18n  # noqa: F401 — ensures YAML load_path and config are initialised
 
@@ -72,10 +73,10 @@ def generate_report_xlsx(
 def _write_summary_sheet(
     wb: xlsxwriter.Workbook,
     summary: CalculationSummary,
-    header_fmt: object,
-    bold_fmt: object,
-    number_fmt: object,
-    int_fmt: object,
+    header_fmt: Format,
+    bold_fmt: Format,
+    number_fmt: Format,
+    int_fmt: Format,
 ) -> None:
     """Write the Summary sheet with label-value pairs."""
     ws = wb.add_worksheet(_i18n.t("excel.sheet_summary"))
@@ -122,11 +123,11 @@ def _write_summary_sheet(
 def _write_breakdown_sheet(
     wb: xlsxwriter.Workbook,
     summary: CalculationSummary,
-    header_fmt: object,
-    number_fmt: object,
-    int_fmt: object,
-    alt_fmt: object,
-    alt_right_fmt: object,
+    header_fmt: Format,
+    number_fmt: Format,
+    int_fmt: Format,
+    alt_fmt: Format,
+    alt_right_fmt: Format,
 ) -> None:
     """Write the Workload Breakdown sheet with category subtotals."""
     ws = wb.add_worksheet(_i18n.t("excel.sheet_breakdown"))
@@ -171,10 +172,10 @@ def _write_breakdown_sheet(
 def _write_vm_detail_sheet(
     wb: xlsxwriter.Workbook,
     summary: CalculationSummary,
-    header_fmt: object,
-    number_fmt: object,
-    alt_fmt: object,
-    alt_right_fmt: object,
+    header_fmt: Format,
+    number_fmt: Format,
+    alt_fmt: Format,
+    alt_right_fmt: Format,
 ) -> None:
     """Write the VM Detail sheet with one row per VMCalculation."""
     ws = wb.add_worksheet(_i18n.t("excel.sheet_vm_detail"))

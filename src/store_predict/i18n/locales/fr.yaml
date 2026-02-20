@@ -1,3 +1,8 @@
+home:
+  subtitle: "Outil de dimensionnement DRR PowerStore"
+  description: "Analysez vos exports de charges VMware (RVTools, LiveOptics) pour prédire les taux de réduction de données sur les baies Dell PowerStore."
+  cta: "Télécharger les données de charge"
+
 upload:
   title: "Téléchargement des données"
   project_label: Nom du projet
@@ -24,6 +29,7 @@ report:
   averages_heading: Moyennes
   performance_heading: "Résumé des performances"
   breakdown_heading: "Détail par charge de travail"
+  charts_heading: "Visualisations des données"
   download_pdf: "Télécharger le rapport PDF"
   download_excel: "Télécharger le rapport Excel"
   back_to_review: "Retour à la révision"
@@ -93,6 +99,11 @@ pdf:
   table_total: TOTAL
   performance_heading: "Résumé des performances"
   stats_heading: "Statistiques des VMs"
+  charts_heading: "Analyse des données"
+  sankey_title: "Flux de réduction de données"
+  pie_title: "Distribution des charges"
+  drr_bar_title: "DRR par catégorie"
+  before_after_title: "Capacité : avant vs après DRR"
 
 layout:
   home: Accueil

@@ -101,7 +101,8 @@ async def classify_single_vm(
         )
         # Success — reset circuit breaker
         _cb_fail_count = 0
-        raw: str = response.choices[0].message.content.strip()
+        model_response: Any = response
+        raw: str = (model_response.choices[0].message.content or "").strip()
         return raw if raw in valid_categories else None
     except (TimeoutError, Exception):
         _cb_fail_count += 1

@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from nicegui import run, ui
+from nicegui import app, background_tasks, run, ui
 
 from store_predict.config import DRR_CSV_PATH
 from store_predict.i18n import t
@@ -25,7 +25,7 @@ from store_predict.pipeline.zip_extraction import extract_liveoptics_from_zip
 from store_predict.services.drr_table import DRRTable
 from store_predict.services.llm_config import LLMConfig
 from store_predict.ui.layout import layout
-from store_predict.ui.state import get_project_name, save_session_data, set_project_name
+from store_predict.ui.state import set_project_name
 
 
 @ui.page("/upload")
@@ -44,14 +44,14 @@ async def upload_page() -> None:
             placeholder=t("upload.project_placeholder"),
             on_change=lambda e: set_project_name(e.value or ""),
         ).classes("w-full")
-        # Set initial value from session
-        project_input.value = get_project_name()
+        # Set initial value from session (slot context is active here)
+        project_input.value = str(app.storage.tab.get("project_name", ""))
 
         # File upload dropzone
         with ui.card().classes("w-full"):
             upload_widget = ui.upload(
                 label=t("upload.drop_label"),
-                on_upload=lambda e: asyncio.ensure_future(handle_upload(e)),
+                on_upload=lambda e: background_tasks.create(handle_upload(e)),
                 auto_upload=True,
                 max_file_size=50_000_000,
             ).props('accept=".xlsx,.csv,.zip"').classes("w-full")
@@ -71,7 +71,17 @@ async def upload_page() -> None:
 
             Steps: temp file -> ingest -> classify -> DRR lookup -> session state -> navigate.
             Wraps blocking I/O with run.io_bound so the event loop stays responsive.
+
+            IMPORTANT: app.storage.tab resolves through context.slot which is cleared after
+            each await run.io_bound() call. Capture the tab dict reference and project name
+            BEFORE the first await so they remain usable throughout the function.
             """
+            # Capture slot-dependent values BEFORE any await.
+            # After await run.io_bound(), the slot stack is cleared by NiceGUI and
+            # app.storage.tab (which resolves through context.slot) raises RuntimeError.
+            _tab = app.storage.tab
+            _project_name = str(_tab.get("project_name", ""))
+
             tmp_path: Path | None = None
             spinner.visible = True
             progress.visible = True
@@ -135,8 +145,15 @@ async def upload_page() -> None:
                     axis=1,
                 )
 
-                # Store results in session state
-                save_session_data(df, get_project_name())
+                # Store results via pre-captured tab reference.
+                # Cannot call app.storage.tab after awaits — slot context is gone.
+                records: list[dict[str, object]] = df.to_dict(orient="records")  # type: ignore[assignment]
+                for row in records:
+                    for key, val in row.items():
+                        if isinstance(val, float) and val != val:  # NaN check
+                            row[key] = None
+                _tab["vm_data"] = records
+                _tab["project_name"] = _project_name
                 progress.value = 1.0
 
                 # Notify and navigate

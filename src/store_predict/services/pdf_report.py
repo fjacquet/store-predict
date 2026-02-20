@@ -10,7 +10,7 @@ import os
 import re
 from datetime import UTC, datetime
 from io import BytesIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import i18n as _i18n
 import reportlab
@@ -22,10 +22,16 @@ from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import Flowable, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from store_predict.config import DELL_LOGO_PATH
 from store_predict.i18n import t
+from store_predict.services.pdf_charts import (
+    make_before_after_bar_drawing,
+    make_drr_bar_drawing,
+    make_pie_drawing,
+    make_sankey_image_flowable,
+)
 
 if TYPE_CHECKING:
     from reportlab.pdfgen.canvas import Canvas
@@ -265,7 +271,7 @@ def generate_report_pdf(
         leading=14,
     )
 
-    story: list[object] = []
+    story: list[Flowable] = []
 
     # --- Totals section ----------------------------------------------------
     story.append(Paragraph(t("report.totals_heading"), heading_style))
@@ -346,7 +352,7 @@ def generate_report_pdf(
     table = Table(table_data, colWidths=col_widths)
 
     # Style
-    style_cmds: list[tuple[object, ...]] = [
+    style_cmds: list[Any] = [
         # Header
         ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
@@ -375,11 +381,37 @@ def generate_report_pdf(
     table.setStyle(TableStyle(style_cmds))
     story.append(table)
 
+    # --- Page 2: Charts ----------------------------------------------------
+    story.append(PageBreak())
+    story.append(Paragraph(t("pdf.charts_heading"), heading_style))
+    story.append(Spacer(1, 12))
+
+    # Sankey (full width)
+    story.append(make_sankey_image_flowable(summary, width_pt=480, height_pt=180))
+    story.append(Spacer(1, 10))
+
+    # Pie + DRR bar side by side via a two-column Table
+    chart_row: list[list[Any]] = [
+        [
+            make_pie_drawing(summary, width=230, height=180),
+            make_drr_bar_drawing(summary, width=230, height=180),
+        ]
+    ]
+    chart_table = Table(chart_row, colWidths=[240, 240])
+    story.append(chart_table)
+    story.append(Spacer(1, 10))
+
+    # Before/after bar (full width)
+    story.append(make_before_after_bar_drawing(summary, width=480, height=150))
+
     # --- Build PDF ---------------------------------------------------------
     report_title = t("pdf.report_title")
 
     def on_first_page(canvas: Canvas, doc: SimpleDocTemplate) -> None:
         _draw_header(canvas, doc, project_name, report_title, dell_logo_preprocessed, company_logo_preprocessed)
 
-    doc.build(story, onFirstPage=on_first_page)
+    def on_later_pages(canvas: Canvas, doc: SimpleDocTemplate) -> None:
+        _draw_header(canvas, doc, project_name, report_title, dell_logo_preprocessed, company_logo_preprocessed)
+
+    doc.build(story, onFirstPage=on_first_page, onLaterPages=on_later_pages)
     return buf.getvalue()

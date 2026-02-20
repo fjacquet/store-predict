@@ -24,3 +24,27 @@
 
 - [v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 - [v1.0-REQUIREMENTS.md](milestones/v1.0-REQUIREMENTS.md)
+
+## v1.1 — i18n, Branding & Intelligence
+
+**Shipped:** 2026-02-20
+**Phases:** 8–13 (15 plans)
+**Source:** 4,140 LOC Python + 227 tests passing
+
+### Key Accomplishments
+
+1. FR/EN internationalization — `t()` helper backed by YAML locale files; all 150+ strings, AG Grid locale pack, PDF labels fully localizable with per-tab locale persistence
+2. LiveOptics ZIP upload — Auto-extracts LiveOptics xlsx from .zip archives before validation
+3. Excel export — Styled multi-sheet .xlsx workbook (Summary, Workload Breakdown, VM Detail) with XlsxWriter
+4. PDF branding — Dell partner logo + optional custom company logo with PNG transparency handling via Pillow
+5. LLM classification fallback — litellm async circuit-breaker classifier for "Unknown Reducible" VMs; disabled by default, supports OpenAI/Anthropic/Ollama/OpenRouter
+6. UX polish — Loading spinners, progress bars, error toasts, button guards, no-data cards across all pages
+7. Data visualizations — ECharts interactive charts on report page + ReportLab/matplotlib charts on PDF page 2
+
+### Archives
+
+- [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
+- [v1.1-REQUIREMENTS.md](milestones/v1.1-REQUIREMENTS.md)
+
+---
+

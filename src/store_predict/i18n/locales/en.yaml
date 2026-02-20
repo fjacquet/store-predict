@@ -1,3 +1,8 @@
+home:
+  subtitle: "PowerStore DRR Sizing Tool"
+  description: "Analyze VMware workload exports (RVTools, LiveOptics) to predict Data Reduction Ratios on Dell PowerStore arrays."
+  cta: "Upload Workload Data"
+
 upload:
   title: Upload Workload Data
   project_label: Project Name
@@ -24,6 +29,7 @@ report:
   averages_heading: Averages
   performance_heading: Performance Summary
   breakdown_heading: Workload Breakdown
+  charts_heading: "Data Visualizations"
   download_pdf: Download PDF Report
   download_excel: Download Excel Report
   back_to_review: Back to Review
@@ -93,6 +99,11 @@ pdf:
   table_total: TOTAL
   performance_heading: Performance Summary
   stats_heading: VM Statistics
+  charts_heading: "Data Analysis"
+  sankey_title: "Data Reduction Flow"
+  pie_title: "Workload Distribution"
+  drr_bar_title: "DRR by Workload Category"
+  before_after_title: "Capacity: Before vs After DRR"
 
 layout:
   home: Home
