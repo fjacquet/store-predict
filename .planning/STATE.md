@@ -107,6 +107,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 08]: _i18n.set('locale', locale) once at top of generate_report_pdf() — synchronous, safe
 - [Phase 08]: ReportLab CID encoding means PDF text not searchable in raw bytes; test FR != EN instead
 - [Phase 08]: make_summary fixture is a factory callable in conftest.py for shared PDF test data
+- [Phase 08.1]: ZIP extraction runs before validate_upload so extracted xlsx bytes go through existing validation unchanged
+- [Phase 08.1]: extract_liveoptics_from_zip returns tuple[bytes, str] — xlsx bytes plus matched member filename
+- [Phase 08.1]: 100 MB zip bomb guard uses central directory sum — no extraction needed for detection
 
 ## Performance Metrics
 
@@ -136,8 +139,11 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | 08    | 01   | 8min     | 2     | 6     |
 | Phase 08 P02 | 12min | 2 tasks | 8 files |
 | 08    | 03   | 12min    | 2     | 3     |
+| Phase 08.1 P01 | 3min | 3 tasks | 4 files |
 
 ## Roadmap Evolution
+
+- Phase 8.1 inserted after Phase 8: LiveOptics ZIP extraction (URGENT)
 
 - Phase 7 added: UI bug fixes and report enhancements
 
@@ -152,7 +158,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Completed 08-02-PLAN.md (i18n UI String Wrapping)
+- **Stopped at:** Completed 08.1-01-PLAN.md
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->

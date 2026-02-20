@@ -57,7 +57,7 @@ Plans:
 **Goal:** Accept LiveOptics ZIP exports directly on the upload page. Detect .zip uploads, extract the LiveOptics xlsx using a known filename pattern, and pass xlsx bytes through the existing pipeline unchanged.
 
 **Depends on:** Phase 8
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 
