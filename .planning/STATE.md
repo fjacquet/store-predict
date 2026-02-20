@@ -110,6 +110,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 08.1]: ZIP extraction runs before validate_upload so extracted xlsx bytes go through existing validation unchanged
 - [Phase 08.1]: extract_liveoptics_from_zip returns tuple[bytes, str] — xlsx bytes plus matched member filename
 - [Phase 08.1]: 100 MB zip bomb guard uses central directory sum — no extraction needed for detection
+- [Phase 09]: Use _i18n.t() directly (not store_predict.i18n.t() wrapper) so locale set at function entry is respected; wrapper overrides with NiceGUI session locale
+- [Phase 09]: Import store_predict.i18n at module level (noqa: F401) to ensure YAML load_path configured before first _i18n.t() call
+- [Phase 09]: Three excel sheets mirror CalculationSummary: Summary (label-value), Workload Breakdown (grouped), VM Detail (per-VM)
 
 ## Performance Metrics
 
@@ -140,6 +143,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 08 P02 | 12min | 2 tasks | 8 files |
 | 08    | 03   | 12min    | 2     | 3     |
 | Phase 08.1 P01 | 3min | 3 tasks | 4 files |
+| Phase 09 P01 | 8min | 2 tasks | 4 files |
 
 ## Roadmap Evolution
 
@@ -158,7 +162,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Completed 08.1-01-PLAN.md
+- **Stopped at:** Completed 09-01-PLAN.md
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->

@@ -26,10 +26,10 @@ Requirements for v1.1 milestone. Each maps to roadmap phases (continuing from Ph
 ### Excel Export (XLSX)
 
 - [ ] **XLSX-01**: Download Excel button on report page exports .xlsx file
-- [ ] **XLSX-02**: Excel workbook contains Summary sheet with capacity/performance metrics
-- [ ] **XLSX-03**: Excel workbook contains Workload Breakdown sheet with per-category aggregations
-- [ ] **XLSX-04**: Excel workbook contains VM Detail sheet with all VMs, workloads, and DRR values
-- [ ] **XLSX-05**: Excel sheets have styled headers, auto-sized columns, and frozen header rows
+- [x] **XLSX-02**: Excel workbook contains Summary sheet with capacity/performance metrics
+- [x] **XLSX-03**: Excel workbook contains Workload Breakdown sheet with per-category aggregations
+- [x] **XLSX-04**: Excel workbook contains VM Detail sheet with all VMs, workloads, and DRR values
+- [x] **XLSX-05**: Excel sheets have styled headers, auto-sized columns, and frozen header rows
 
 ### LLM Classification Fallback (LLM)
 
@@ -93,10 +93,10 @@ Deferred to future release. Tracked but not in current roadmap.
 | I18N-04 | Phase 8 | Complete |
 | I18N-05 | Phase 8 | Complete |
 | XLSX-01 | Phase 9 | Pending |
-| XLSX-02 | Phase 9 | Pending |
-| XLSX-03 | Phase 9 | Pending |
-| XLSX-04 | Phase 9 | Pending |
-| XLSX-05 | Phase 9 | Pending |
+| XLSX-02 | Phase 9 | Complete |
+| XLSX-03 | Phase 9 | Complete |
+| XLSX-04 | Phase 9 | Complete |
+| XLSX-05 | Phase 9 | Complete |
 | BRAND-01 | Phase 10 | Pending |
 | BRAND-02 | Phase 10 | Pending |
 | BRAND-03 | Phase 10 | Pending |

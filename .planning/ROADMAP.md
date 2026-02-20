@@ -83,7 +83,7 @@ Plans:
 
 **Key risks:** BytesIO seek(0) before download. XlsxWriter cannot modify existing files (write-only). All strings via `t()`.
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 
@@ -179,7 +179,7 @@ Plans:
 | 7. UI Fixes & Report | v1.0 | 5/5 | Complete | 2026-02-19 |
 | 8. i18n Foundation | v1.1 | 3/3 | Complete | 2026-02-20 |
 | 8.1. LiveOptics ZIP | v1.1 | 0/1 | Pending | — |
-| 9. Excel Export | v1.1 | 0/2 | Pending | — |
+| 9. Excel Export | 1/2 | In Progress|  | — |
 | 10. PDF Branding | v1.1 | 0/? | Pending | — |
 | 11. LLM Classification | v1.1 | 0/? | Pending | — |
 | 12. UX Polish | v1.1 | 0/? | Pending | — |
