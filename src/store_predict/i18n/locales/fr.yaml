@@ -108,6 +108,12 @@ dialog:
   cancel: Annuler
   apply: Appliquer
 
+llm:
+  classifying: "Classification des VM inconnues par IA en cours..."
+  classified_notify: "L'IA a classifié %{count} VM(s)"
+  unavailable: "Classification IA indisponible (vérifier LLM_MODEL / LLM_API_KEY)"
+  disabled: "Classification IA désactivée (définir LLM_ENABLED=true pour activer)"
+
 excel:
   sheet_summary: "Résumé"
   sheet_breakdown: "Répartition"

@@ -108,6 +108,12 @@ dialog:
   cancel: Cancel
   apply: Apply
 
+llm:
+  classifying: "Classifying unknown VMs with AI..."
+  classified_notify: "AI classified %{count} VM(s)"
+  unavailable: "AI classification unavailable (check LLM_MODEL / LLM_API_KEY)"
+  disabled: "AI classification disabled (set LLM_ENABLED=true to enable)"
+
 excel:
   sheet_summary: Summary
   sheet_breakdown: Workload Breakdown
