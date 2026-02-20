@@ -53,6 +53,7 @@ nav:
     - Phase 10 - PDF Branding: research/phase-10-pdf-branding.md
     - Phase 11 - LLM Classification: research/phase-11-llm-classification.md
     - Phase 12 - UX Polish: research/phase-12-ux-polish.md
+    - Phase 13 - Graphics: research/phase-13-graphics.md
   - Changelog: changelog.md
   - ADR:
     - Overview: adr/index.md
@@ -65,3 +66,41 @@ nav:
     - 007 - AG Grid VM Table: adr/007-aggrid-vm-table.md
     - 008 - Session Storage Split: adr/008-session-storage-split.md
     - 009 - Dialog Multi Workload: adr/009-dialog-multi-workload.md
+    - 010 - NiceGUI 3.x: adr/010-nicegui-3x.md
+    - 011 - Substring Matching: adr/011-substring-matching.md
+    - 012 - Priority Ordered Rules: adr/012-priority-ordered-rules.md
+    - 013 - Weighted Average DRR: adr/013-weighted-average-drr.md
+    - 014 - DRR Guard: adr/014-drr-guard.md
+    - 015 - Calculation Dataclass: adr/015-calculation-dataclass.md
+    - 016 - ReportLab Platypus: adr/016-reportlab-platypus.md
+    - 017 - Vera Fonts: adr/017-vera-fonts.md
+    - 018 - BytesIO PDF: adr/018-bytesio-pdf.md
+    - 019 - Docker Compose: adr/019-docker-compose.md
+    - 020 - File Validation: adr/020-file-validation.md
+    - 021 - CI GitHub Actions: adr/021-ci-github-actions.md
+    - 022 - Performance Benchmarks: adr/022-performance-benchmarks.md
+    - 023 - AG Grid Advanced Features: adr/023-aggrid-advanced-features.md
+    - 024 - NiceGUI Component Patterns: adr/024-nicegui-component-patterns.md
+    - 025 - Performance Columns NaN: adr/025-performance-columns-nan.md
+    - 026 - Two Pass Classification: adr/026-two-pass-classification.md
+    - 027 - 8K IOPS Formula: adr/027-8k-iops-formula.md
+    - 028 - i18n Per-Call Locale: adr/028-i18n-per-call-locale.md
+    - 029 - AG Grid FR Locale: adr/029-aggrid-fr-locale.md
+    - 030 - Language Switch Reload: adr/030-language-switch-reload.md
+    - 031 - ZIP Extraction: adr/031-zip-extraction.md
+    - 032 - Excel XlsxWriter: adr/032-excel-xlsxwriter.md
+    - 033 - Pillow Logo Normalization: adr/033-pillow-logo-normalization.md
+    - 034 - SAP Word Boundary: adr/034-sap-word-boundary.md
+    - 035 - Postgres MySQL Before SQL: adr/035-postgres-mysql-before-sql.md
+    - 036 - Citrix Full Clone Default: adr/036-citrix-full-clone-default.md
+    - 037 - FortiNet OS Field Detection: adr/037-fortinet-os-field-detection.md
+    - 038 - MkDocs Material: adr/038-mkdocs-material.md
+    - 039 - uv Package Manager: adr/039-uv-package-manager.md
+    - 040 - pyproject Single Config: adr/040-pyproject-single-config.md
+    - 041 - Strict mypy: adr/041-strict-mypy-type-checking.md
+    - 042 - Web Server Content Included: adr/042-web-server-content-included-default.md
+    - 043 - i18n Architecture: adr/043-i18n-architecture-t-wrapper-yaml.md
+    - 044 - Language Switch Page Reload: adr/044-language-switch-page-reload.md
+    - 045 - ECharts for Web Charts: adr/045-echart-for-web-charts.md
+    - 046 - PDF Charts Page Two: adr/046-pdf-charts-page-two.md
+    - 047 - Sankey matplotlib Strategy: adr/047-sankey-reportlab-strategy.md

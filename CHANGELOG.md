@@ -8,6 +8,16 @@ All notable changes to StorePredict are documented here.
 
 i18n, Branding & Intelligence milestone.
 
+### Phase 13: Graphics (COMPLETE)
+
+- `src/store_predict/services/charts.py` — four ECharts option-dict builders: `echart_sankey_options`, `echart_pie_options`, `echart_drr_bar_options`, `echart_before_after_options`; all use Dell blue `#007DB8` palette; Sankey falls back to grouped bar when fewer than 2 workload groups
+- `src/store_predict/services/pdf_charts.py` — four ReportLab/matplotlib builders: `make_sankey_image_flowable` (lazy matplotlib import, `Spacer` guard for empty data), `make_pie_drawing`, `make_drr_bar_drawing`, `make_before_after_bar_drawing`
+- `report.py` — `_build_charts_section()` added: Sankey full-width, pie + DRR bar in two-column grid, before/after bar full-width; only rendered when workload groups exist
+- `pdf_report.py` — second PDF page added via `PageBreak()` + chart flowables; `on_later_pages` callback ensures Dell branded header on page 2
+- `matplotlib>=3.8` confirmed in runtime dependencies; mypy overrides for `matplotlib.*` added
+- 6 i18n keys added across `en.yaml` and `fr.yaml` (`pdf.charts_heading`, `pdf.sankey_title`, `pdf.pie_title`, `pdf.drr_bar_title`, `pdf.before_after_title`, `report.charts_heading`)
+- 227 tests passing, ruff and mypy clean
+
 ### Phase 12: UX Polish (COMPLETE)
 
 - Upload page refactored with spinner, linear progress bar, and `run.io_bound` pipeline offloading for a responsive event loop during 2-10 second processing

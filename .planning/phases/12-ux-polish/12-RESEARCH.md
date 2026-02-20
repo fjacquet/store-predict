@@ -7,6 +7,7 @@
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -247,6 +248,7 @@ df = await run.io_bound(classify_dataframe, df, registry)
 **Why it happens:** `_handle_upload` is currently module-level, taking `e` only. It cannot close over page-local variables.
 
 **How to avoid:** Two options:
+
 1. Move `_handle_upload` to be defined as a local `async def` inside `upload_page()` — it can then close over `spinner`, `progress`, `upload_widget`.
 2. Pass the widgets as outer-scope state using `functools.partial` or a closure wrapper. Option 1 is cleaner.
 
@@ -442,6 +444,7 @@ report:
 | Module-level `_handle_upload` | Local async def inside `upload_page()` | Enables closure over page-scoped widgets |
 
 **Deprecated/outdated in this codebase:**
+
 - `f"Unexpected error: {exc}"` — replace with i18n key in Phase 12
 - Bare `ui.link()` for no-data CTAs — replace with `ui.button()` cards
 
@@ -469,6 +472,7 @@ report:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [NiceGUI ui.spinner docs](https://nicegui.io/documentation/spinner) — spinner element
 - [NiceGUI ui.linear_progress docs](https://nicegui.io/documentation/linear_progress) — linear progress bar
 - [NiceGUI ui.notify docs](https://nicegui.io/documentation/notify) — toast notifications
@@ -476,6 +480,7 @@ report:
 - Codebase direct read: `upload.py`, `review.py`, `report.py`, `layout.py`, `errors.py`, `en.yaml`, `fr.yaml` — baseline gaps identified directly
 
 ### Secondary (MEDIUM confidence)
+
 - [NiceGUI Discussion #2729](https://github.com/zauberzeug/nicegui/discussions/2729) — spinner during background task pattern
 - [NiceGUI Discussion #816](https://github.com/zauberzeug/nicegui/discussions/816) — spinner in event handler
 - [NiceGUI Discussion #2018](https://github.com/zauberzeug/nicegui/discussions/2018) — run.io_bound usage pattern
@@ -483,6 +488,7 @@ report:
 - [NiceGUI Discussion #560](https://github.com/zauberzeug/nicegui/discussions/560) — enable/disable buttons
 
 ### Tertiary (LOW confidence)
+
 - WebSearch synthesis: `ui.notification` attribute update API (`notif.message`, `notif.type`, `notif.spinner`) — needs verification against live NiceGUI source if planner uses it.
 
 ---
@@ -490,6 +496,7 @@ report:
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — NiceGUI built-ins, no new deps, verified against docs
 - Architecture: HIGH — directly read all 3 page files; gaps are clear and specific
 - Pitfalls: HIGH — closure issue and event-loop-blocking are verified common patterns in NiceGUI community

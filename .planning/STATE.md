@@ -35,14 +35,17 @@ v1.1 — i18n, Branding & Intelligence
 - [x] Plan 11-02: LLM fallback wired into upload pipeline, i18n keys, docker-compose env stubs, .env.example
 - [x] Plan 12-01: Upload page spinner, run.io_bound, persistent LLM notification, i18n error keys
 - [x] Plan 12-02: Review/report no-data card-with-CTA, download button guards, logo i18n, notify type audit, 20 UX tests
+- [x] Plan 13-01: charts.py (ECharts option dicts), pdf_charts.py (ReportLab/matplotlib builders), i18n keys, matplotlib dep
+- [x] Plan 13-02: Web UI report page _build_charts_section with 4 interactive ECharts
+- [x] Plan 13-03: PDF page 2 with Sankey + pie + DRR bar + before/after bar, onLaterPages header
 
 ## Current Phase Progress
 
-Phase 12 (UX Polish) — COMPLETE (2/2 plans done)
+Phase 13 (Graphics) — COMPLETE (3/3 plans done)
 
 ## Next Action
 
-Phase 12 complete. Determine next phase to execute.
+Phase 13 complete. v1.1 milestone ready for audit and archiving.
 
 ## Project Reference
 
@@ -196,7 +199,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Phase 13 context gathered
+- **Stopped at:** Phase 13 complete — all 3 plans executed, docs updated, ready for milestone audit
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->

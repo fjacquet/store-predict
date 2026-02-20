@@ -14,6 +14,7 @@ Add data visualizations (charts and diagrams) to both the PDF report and the web
 ## Implementation Decisions
 
 ### What to visualize
+
 - **Sankey diagram** — data reduction flow: Provisioned → Required (the core "savings story")
   - Show both aggregate flow AND per-workload-category breakdown (two representations)
 - **Workload category breakdown** — pie/donut chart: % of capacity per workload type
@@ -23,31 +24,37 @@ Add data visualizations (charts and diagrams) to both the PDF report and the web
 Total: 4 chart types (Sankey aggregate, Sankey breakdown, pie, DRR bar, before/after bar — researcher may merge Sankey representations)
 
 ### Chart placement in PDF
+
 - Add a **second page** dedicated to visuals
 - Page 1 stays unchanged (summary stats + workload breakdown table)
 - Page 2 = all charts
 - Pre-sales can print both pages or present page 2 on screen to customers
 
 ### Chart placement in web UI
+
 - Charts appear on the **report page** alongside existing summary cards and table
 - Interactive (ECharts) in browser, static equivalents embedded in PDF page 2
 
 ### Web UI chart library
+
 - **NiceGUI `ui.echart`** (Apache ECharts) — already in NiceGUI, no extra dep
 - ECharts supports Sankey, bar, pie natively with rich theming
 
 ### PDF chart library
+
 - **ReportLab built-in charts** for bar and pie charts (no extra dep)
 - **matplotlib** for Sankey only — render to PNG buffer via `BytesIO`, embed in PDF via `ImageReader` (same pattern as logo embedding in Phase 10)
 - Maintainability justifies the dep: `matplotlib.sankey.Sankey` is declarative; adding a new workload category is a one-liner. Custom ReportLab primitives would require geometric recalculation.
 - `matplotlib>=3.8` added to runtime dependencies; import isolated to PDF chart module
 
 ### Color scheme
+
 - **Dell blue (#007DB8) as primary**, greys as secondary — consistent with existing PDF header
 - **Sankey node colors:** Dell blue for "provisioned" (before) node, lighter blue/green for "required" (after) node — visually encodes the reduction/savings
 - Workload category charts use Dell blue + grey tones (not per-category distinct colors)
 
 ### Claude's Discretion
+
 - Exact chart dimensions and spacing on PDF page 2
 - ECharts theme/option details for web UI
 - How to handle very small datasets (1-2 workload categories) — researcher/planner decides

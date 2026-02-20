@@ -19,6 +19,7 @@ Research documents produced during project development. Each document captures d
 | [Phase 10](phase-10-pdf-branding.md) | PDF Branding | Pillow mode normalization, Docker-safe Path resolution, base64 decode guard |
 | [Phase 11](phase-11-llm-classification.md) | LLM Classification | litellm.acompletion() async, pydantic-settings SecretStr, circuit breaker pattern |
 | [Phase 12](phase-12-ux-polish.md) | UX Polish | run.io_bound for spinner rendering, ui.notification in-place update, button disable/enable |
+| [Phase 13](phase-13-graphics.md) | Graphics & Charts | ui.echart zero-dep, matplotlib lazy import, Spacer guard for empty PDF image, onLaterPages for page 2 header |
 
 ## Sample Data Analysis
 

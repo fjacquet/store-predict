@@ -116,7 +116,7 @@ Plans:
 
 Plans:
 
-- [ ] 10-01-PLAN.md — PDF engine: logo helpers (_preprocess_logo, validate_logo), Dell static logo asset, _draw_header extension, generate_report_pdf signature, test suite
+- [ ] 10-01-PLAN.md — PDF engine: logo helpers (_preprocess_logo, validate_logo), Dell static logo asset,_draw_header extension, generate_report_pdf signature, test suite
 - [ ] 10-02-PLAN.md — UI wiring: logo upload widget on report page, tab storage, _on_download with company logo bytes, test suite
 
 ---
@@ -186,6 +186,7 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
+
 - [ ] 13-01-PLAN.md — Chart service modules: pyproject.toml matplotlib fix, charts.py (ECharts option builders), pdf_charts.py (ReportLab drawings + matplotlib Sankey), i18n keys
 - [ ] 13-02-PLAN.md — Web UI wiring: ECharts charts section on report page (GFX-01)
 - [ ] 13-03-PLAN.md — PDF page 2 wiring: PageBreak + chart flowables + onLaterPages header (GFX-02 through GFX-06)
