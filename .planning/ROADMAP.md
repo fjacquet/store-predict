@@ -139,11 +139,16 @@ Plans:
 - Response validation against known DRR workload categories
 - 30s timeout, circuit breaker, sanitized logging
 
-**New deps:** litellm >=1.61,<2.0 ; pydantic-settings >=2.13.0,<3.0
+**New deps:** pydantic-settings >=2.13.0,<3.0 (litellm already present)
 
 **Key risks:** Must use `litellm.acompletion()` (async) — sync calls block NiceGUI event loop. Ollama localhost fails in Docker (use `host.docker.internal`). Prompt injection via VM names. OpenRouter model string format needs validation.
 
-**Estimated plans:** 2-3
+**Plans:** 2 plans
+
+Plans:
+
+- [ ] 11-01-PLAN.md — LLMConfig (pydantic-settings + SecretStr) + llm_classifier module (async, circuit breaker, response validation) + unit tests
+- [ ] 11-02-PLAN.md — Upload pipeline wiring, i18n keys (llm: section), docker-compose env stubs
 
 ---
 
@@ -186,5 +191,5 @@ Plans:
 | 8.1. LiveOptics ZIP | v1.1 | Complete    | 2026-02-20 | — |
 | 9. Excel Export | 2/2 | Complete    | 2026-02-20 | — |
 | 10. PDF Branding | 2/2 | Complete    | 2026-02-20 | — |
-| 11. LLM Classification | v1.1 | 0/? | Pending | — |
+| 11. LLM Classification | v1.1 | 0/2 | Pending | — |
 | 12. UX Polish | v1.1 | 0/? | Pending | — |
