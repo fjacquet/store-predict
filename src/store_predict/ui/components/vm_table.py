@@ -50,6 +50,9 @@ def create_vm_table(
     # Use full "Category / Subcategory" labels when available
     dropdown_values = subcategory_labels if subcategory_labels else workload_categories
 
+    # Main columns — the 6 columns needed for classification review.
+    # Supplementary columns (OS, description, in_use, performance) are shown
+    # in the detail bar below the grid when a row is clicked.
     column_defs = [
         {
             "field": "vm_name",
@@ -58,21 +61,6 @@ def create_vm_table(
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
             "minWidth": 200,
-        },
-        {
-            "field": "os_name",
-            "headerName": t("columns.os"),
-            "sortable": True,
-            "filter": "agTextColumnFilter",
-            "floatingFilter": True,
-        },
-        {
-            "field": "vm_description",
-            "headerName": t("columns.description"),
-            "sortable": True,
-            "filter": "agTextColumnFilter",
-            "floatingFilter": True,
-            "minWidth": 150,
         },
         {
             "field": "workload_category",
@@ -118,47 +106,12 @@ def create_vm_table(
             ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
         },
         {
-            "field": "in_use_mib",
-            "headerName": t("columns.in_use_mib"),
-            "sortable": True,
-            "filter": "agNumberColumnFilter",
-            ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
-        },
-        {
             "field": "classification_confidence",
             "headerName": t("columns.confidence"),
             "sortable": True,
             "filter": "agTextColumnFilter",
         },
     ]
-
-    # Insert performance columns before classification_confidence when data available
-    if has_performance_data:
-        perf_cols = [
-            {
-                "field": "peak_iops",
-                "headerName": t("columns.peak_iops"),
-                "sortable": True,
-                "filter": "agNumberColumnFilter",
-                ":valueFormatter": "params => params.value ? Math.round(params.value).toLocaleString() : ''",
-            },
-            {
-                "field": "iops_8k_equivalent",
-                "headerName": t("columns.iops_8k"),
-                "sortable": True,
-                "filter": "agNumberColumnFilter",
-                ":valueFormatter": "params => params.value ? Math.round(params.value).toLocaleString() : ''",
-            },
-            {
-                "field": "peak_throughput_mbs",
-                "headerName": t("columns.peak_mbs"),
-                "sortable": True,
-                "filter": "agNumberColumnFilter",
-                ":valueFormatter": "params => params.value ? params.value.toFixed(1) : ''",
-            },
-        ]
-        # Insert before the last column (classification_confidence)
-        column_defs = column_defs[:-1] + perf_cols + column_defs[-1:]
 
     grid_options: dict[str, Any] = {
         "columnDefs": column_defs,
@@ -173,6 +126,10 @@ def create_vm_table(
         },
         ":getRowId": "params => params.data.vm_name",
         "stopEditingWhenCellsLoseFocus": True,
+        # Empty context prevents AG Grid v34 from injecting its internal
+        # GridContext (circular refs) into event.context, which would break
+        # NiceGUI's JSON serialisation of rowClicked / cellClicked events.
+        "context": {},
     }
 
     # Apply French locale text when locale is 'fr'
@@ -182,8 +139,8 @@ def create_vm_table(
     grid = ui.aggrid(grid_options).classes("w-full").style("height: 600px")
 
     if on_cell_changed:
-        grid.on("cellValueChanged", on_cell_changed)
+        grid.on("cellValueChanged", on_cell_changed, args=["colId", "data", "newValue"])
     if on_row_clicked:
-        grid.on("rowClicked", on_row_clicked)
+        grid.on("rowClicked", on_row_clicked, args=["data", "rowIndex"])
 
     return grid

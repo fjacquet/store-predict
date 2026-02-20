@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import functools
+from typing import Any
 
 import pandas as pd
 from nicegui import app
 
 from store_predict.config import DRR_CSV_PATH
+from store_predict.pipeline.llm_classifier import RuleSuggestion
 from store_predict.services.drr_table import DRRTable
 
 
@@ -41,6 +43,35 @@ def get_project_name() -> str:
 def set_project_name(name: str) -> None:
     """Store project name in tab-scoped session."""
     app.storage.tab["project_name"] = name
+
+
+def save_rule_suggestions(suggestions: list[RuleSuggestion]) -> None:
+    """Persist LLM rule suggestions in tab-scoped session storage."""
+    app.storage.tab["rule_suggestions"] = [
+        {
+            "keyword": s.keyword,
+            "category": s.category,
+            "subcategory": s.subcategory,
+            "vm_examples": s.vm_examples,
+            "count": s.count,
+        }
+        for s in suggestions
+    ]
+
+
+def load_rule_suggestions() -> list[RuleSuggestion]:
+    """Retrieve LLM rule suggestions from session storage."""
+    raw: list[dict[str, Any]] = app.storage.tab.get("rule_suggestions", [])
+    return [
+        RuleSuggestion(
+            keyword=r["keyword"],
+            category=r["category"],
+            subcategory=r["subcategory"],
+            vm_examples=r.get("vm_examples", []),
+            count=r.get("count", 1),
+        )
+        for r in raw
+    ]
 
 
 @functools.cache

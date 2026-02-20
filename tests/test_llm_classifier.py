@@ -43,16 +43,18 @@ def test_classifier_skips_when_disabled(drr_table: DRRTable) -> None:
     """classify_unknown_vms_async returns records unchanged when LLM is disabled."""
     records = [{"vm_name": "UNKNOWN-01", "os_name": "", "classification_confidence": "default"}]
     config = LLMConfig()  # enabled=False
-    result = asyncio.run(classify_unknown_vms_async(records, drr_table, config))
-    assert result[0]["classification_confidence"] == "default"
+    result_records, suggestions = asyncio.run(classify_unknown_vms_async(records, drr_table, config))
+    assert result_records[0]["classification_confidence"] == "default"
+    assert suggestions == []
 
 
 def test_classifier_skips_non_default_records(drr_table: DRRTable) -> None:
     """classify_unknown_vms_async leaves rule-matched records untouched."""
     records = [{"vm_name": "SQL-01", "os_name": "Windows", "classification_confidence": "rule_match"}]
     config = LLMConfig()  # enabled=False
-    result = asyncio.run(classify_unknown_vms_async(records, drr_table, config))
-    assert result[0]["classification_confidence"] == "rule_match"
+    result_records, suggestions = asyncio.run(classify_unknown_vms_async(records, drr_table, config))
+    assert result_records[0]["classification_confidence"] == "rule_match"
+    assert suggestions == []
 
 
 def test_llm_config_max_concurrent_default() -> None:

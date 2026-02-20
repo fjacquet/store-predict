@@ -249,7 +249,10 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Database",
             subcategory="SAP HANA(S4)",
             priority=107,
-            vm_name_patterns=_patterns("HANA", "S4HANA"),
+            # S4[A-Z]\d matches SAP S/4 role suffixes followed by a sequence number:
+            # S4P (prod), S4R (reporting), S4Q (quality), S4D (dev), etc.
+            # Digit required to avoid false positives like S4DM (storage appliance).
+            vm_name_patterns=(*_patterns("HANA", "S4HANA"), *_regex_patterns(r"S4[A-Z]\d")),
         ),
         ClassificationRule(
             name="SAP Traditional",
@@ -273,7 +276,13 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Email",
             subcategory="Domino/Notes, Exchange, Sendmail, Zimbra, etc",
             priority=210,
-            vm_name_patterns=_patterns("EXCHANGE", "DOMINO", "ZIMBRA", "SENDMAIL"),
+            # MSG = Exchange mail-store abbreviation (e.g. swigva01-msg-*)
+            # [-_]EX\d = short Exchange hostname suffix (e.g. CIGES-EX1, CIGES-EX2)
+            #   digit required to avoid matching EXTRANET, EXCEPT, etc.
+            vm_name_patterns=(
+                *_patterns("EXCHANGE", "DOMINO", "ZIMBRA", "SENDMAIL", "MSG"),
+                *_regex_patterns(r"[-_]EX\d"),
+            ),
         ),
         ClassificationRule(
             name="VDI Full Clone / MCS",
@@ -365,10 +374,15 @@ def build_default_rules() -> list[ClassificationRule]:
                 "SPLUNK",
                 "FORTIANALYZER",
                 "FORTIMANAGER",
+                "FAZ",   # FortiAnalyzer short hostname (e.g. CIGES-FAZ)
+                "FMG",   # FortiManager short hostname (e.g. CIGES-FMG)
                 "ZABBIX",
                 "CENTREON",
                 "OBSERVIUM",
                 "GRAFANA",
+                "RSYSLOG",  # syslog collection servers
+                "SYSLOG",
+                "POLLER",   # monitoring pollers (Centreon/Nagios)
             ),
             os_patterns=_patterns("FORTI"),
         ),
@@ -401,7 +415,7 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
             priority=910,
             os_patterns=_regex_patterns(
-                r"linux|ubuntu|centos|debian|red hat|suse|alma|rocky|oracle linux|freebsd",
+                r"linux|ubuntu|centos|debian|red hat|suse|alma|rocky|oracle linux|freebsd|solaris",
             ),
         ),
         ClassificationRule(

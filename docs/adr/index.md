@@ -51,3 +51,7 @@ ADRs document key technical decisions made during StorePredict development.
 | [045](045-echart-for-web-charts.md) | ECharts (NiceGUI ui.echart) for interactive web charts | Accepted | 2026-02-20 |
 | [046](046-pdf-charts-page-two.md) | PDF charts on a dedicated second page | Accepted | 2026-02-20 |
 | [047](047-sankey-reportlab-strategy.md) | matplotlib for Sankey diagram in PDF | Accepted | 2026-02-20 |
+| [048](048-aggrid-community-detail-bar.md) | AG Grid Community constraint — detail bar instead of master-detail | Accepted | 2026-02-20 |
+| [049](049-aggrid-event-args-filter.md) | AG Grid v34 circular context — event args filter | Accepted | 2026-02-20 |
+| [050](050-click-zoom-vs-reclassify.md) | Row click = inspect (zoom), bulk button = reclassify | Accepted | 2026-02-20 |
+| [051](051-llm-rule-suggestion-loop.md) | LLM → keyword extraction → rule suggestion feedback loop | Accepted | 2026-02-20 |

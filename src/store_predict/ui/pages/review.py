@@ -17,6 +17,7 @@ from store_predict.ui.layout import layout
 from store_predict.ui.state import (
     get_project_name,
     get_workload_options,
+    load_rule_suggestions,
     load_session_data,
     save_session_data,
 )
@@ -85,12 +86,17 @@ async def review_page() -> None:
 
         has_perf = any(_has_iops(r.get("peak_iops")) for r in row_data)
 
+        # Detail bar — shows supplementary columns for the clicked VM
+        detail_bar = ui.row().classes("w-full items-start gap-4 p-3 bg-gray-50 border rounded-lg min-h-12")
+        with detail_bar:
+            ui.label(t("detail_bar.placeholder")).classes("text-sm text-gray-400 italic")
+
         # AG Grid table
         grid = create_vm_table(
             row_data,
             categories,
             on_cell_changed=lambda e: _handle_cell_change(e, row_data, drr_table, grid, stats_container),
-            on_row_clicked=lambda e: _handle_row_click(e, row_data, drr_table, workload_options, grid, stats_container),
+            on_row_clicked=lambda e: _handle_row_click(e, detail_bar, has_perf),
             subcategory_labels=subcategory_labels,
             has_performance_data=has_perf,
         )
@@ -113,12 +119,75 @@ async def review_page() -> None:
                 on_click=lambda: ui.navigate.to("/report"),
             ).classes("bg-blue-700 text-white")
 
+        # Proposed rule suggestions from LLM (shown only when suggestions exist)
+        _build_rule_suggestions_panel()
+
 
 def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -> None:
     """Clear and rebuild the summary stats in the container."""
     stats_container.clear()
     with stats_container:
         build_summary_stats(row_data)
+
+
+def _build_rule_suggestions_panel() -> None:
+    """Render a collapsible panel of LLM-proposed classification rules.
+
+    Each suggestion shows a copy-pasteable ``ClassificationRule(...)`` snippet
+    that the developer can add to ``build_default_rules`` in classification.py
+    to avoid future LLM calls for the same keyword pattern.
+
+    The panel is hidden when there are no suggestions this session.
+    """
+    suggestions = load_rule_suggestions()
+    if not suggestions:
+        return
+
+    with ui.expansion(
+        t("rule_suggestions.title"),
+        icon="lightbulb",
+        caption=t("rule_suggestions.subtitle"),
+    ).classes("w-full border border-yellow-300 rounded-lg bg-yellow-50"):
+        ui.label(t("rule_suggestions.description")).classes("text-sm text-gray-600 mb-2")
+
+        for suggestion in suggestions:
+            # Compute a safe rule name from the keyword (title-case)
+            rule_name = suggestion.keyword.title()
+            # Estimate a priority: database → 1xx range, else 3xx (infrastructure)
+            # This is a hint only — the developer will adjust.
+            priority_hint = 110 + len(suggestions) if "Database" in suggestion.category else 360
+
+            snippet = (
+                f"ClassificationRule(\n"
+                f'    name="{rule_name}",\n'
+                f'    category="{suggestion.category}",\n'
+                f'    subcategory="{suggestion.subcategory}",\n'
+                f"    priority={priority_hint},\n"
+                f'    vm_name_patterns=_patterns("{suggestion.keyword}"),\n'
+                f"),"
+            )
+
+            examples_str = ", ".join(suggestion.vm_examples[:3])
+            badge_label = t("rule_suggestions.vm_count", count=suggestion.count)
+
+            with ui.card().classes("w-full p-3 gap-2 bg-white border border-yellow-200"):
+                with ui.row().classes("items-center justify-between w-full"):
+                    with ui.row().classes("items-center gap-2"):
+                        ui.badge(suggestion.keyword).classes("bg-yellow-500 text-white font-mono text-xs")
+                        ui.label(f"→ {suggestion.category}").classes("text-sm font-semibold")
+                        ui.badge(badge_label).classes("bg-gray-200 text-gray-700 text-xs")
+                    ui.button(
+                        t("rule_suggestions.copy"),
+                        icon="content_copy",
+                        on_click=lambda s=snippet: ui.run_javascript(
+                            f"navigator.clipboard.writeText({s!r})"
+                        ),
+                    ).classes("text-xs bg-gray-100 text-gray-700").props("flat dense")
+
+                ui.label(t("rule_suggestions.examples", examples=examples_str)).classes(
+                    "text-xs text-gray-500"
+                )
+                ui.code(snippet, language="python").classes("w-full text-xs")
 
 
 async def _handle_bulk_update(
@@ -261,77 +330,53 @@ async def _handle_cell_change(
     save_session_data(pd.DataFrame(row_data), get_project_name())
 
 
-async def _handle_row_click(
+
+def _update_detail_bar(detail_bar: ui.row, row: dict[str, Any], has_performance_data: bool) -> None:
+    """Rebuild the detail bar with supplementary fields for the clicked VM."""
+
+    def _fmt_mib(val: object) -> str:
+        try:
+            return f"{int(float(val)):,} MiB"  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            return "—"
+
+    def _fmt_num(val: object) -> str:
+        try:
+            return f"{int(float(val)):,}"  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            return "—"
+
+    def _fmt_mbs(val: object) -> str:
+        try:
+            return f"{float(val):.1f} MB/s"  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            return "—"
+
+    detail_bar.clear()
+    with detail_bar:
+        fields: list[tuple[str, str]] = [
+            (t("detail_bar.os"), str(row.get("os_name") or "—")),
+            (t("detail_bar.description"), str(row.get("vm_description") or "—")),
+            (t("detail_bar.in_use"), _fmt_mib(row.get("in_use_mib"))),
+        ]
+        if has_performance_data:
+            fields += [
+                (t("detail_bar.peak_iops"), _fmt_num(row.get("peak_iops"))),
+                (t("detail_bar.iops_8k"), _fmt_num(row.get("iops_8k_equivalent"))),
+                (t("detail_bar.peak_mbs"), _fmt_mbs(row.get("peak_throughput_mbs"))),
+            ]
+        for label, value in fields:
+            with ui.column().classes("gap-0 min-w-28"):
+                ui.label(label).classes("text-xs text-gray-500 font-medium uppercase tracking-wide")
+                ui.label(value).classes("text-sm text-gray-800 font-mono truncate max-w-xs")
+
+
+def _handle_row_click(
     e: object,
-    row_data: list[dict[str, Any]],
-    drr_table: DRRTable,
-    workload_options: list[dict[str, Any]],
-    grid: ui.aggrid,
-    stats_container: ui.column,
+    detail_bar: ui.row,
+    has_performance_data: bool = False,
 ) -> None:
-    """Handle row click -- open multi-select workload dialog."""
+    """Handle row click — update the detail bar with supplementary VM data."""
     args = e.args  # type: ignore[attr-defined]
     row = args.get("data", {})
-    vm_name = row.get("vm_name", "")
-    current_category = row.get("workload_category", "")
-
-    # Build options list for dialog (plain string labels)
-    options_list = [str(opt["label"]) for opt in workload_options]
-
-    # Current selection as list of labels
-    current_labels = []
-    for opt in workload_options:
-        if opt["category"] == current_category:
-            current_labels.append(str(opt["label"]))
-            break
-
-    dialog = WorkloadDialog(vm_name, current_labels, options_list)
-    result = await dialog
-
-    if result is None or len(result) == 0:
-        return
-
-    # Build workload tuples from selected labels for DRR lookup
-    workload_tuples: list[tuple[str, str]] = []
-    first_category = ""
-    first_subcategory = ""
-    for selected_label in result:
-        for opt in workload_options:
-            if opt["label"] == selected_label:
-                cat = str(opt["category"])
-                sub = str(opt["subcategory"])
-                workload_tuples.append((cat, sub))
-                if not first_category:
-                    first_category = cat
-                    first_subcategory = sub
-                break
-
-    # Calculate conservative DRR (minimum across selected workloads)
-    conservative_drr = drr_table.get_conservative_ratio(workload_tuples)
-
-    # Update the row
-    display_category = first_category if len(workload_tuples) == 1 else ", ".join(wt[0] for wt in workload_tuples)
-    for r in row_data:
-        if r.get("vm_name") == vm_name:
-            r["workload_category"] = display_category
-            r["workload_subcategory"] = first_subcategory
-            r["drr"] = conservative_drr
-            break
-
-    # Capture filter/page state before update
-    filter_model = await grid.run_grid_method("getFilterModel")
-    current_page = await grid.run_grid_method("paginationGetCurrentPage")
-
-    # Refresh grid and stats
-    grid.options["rowData"] = row_data
-    grid.update()
-    _rebuild_stats(stats_container, row_data)
-
-    # Restore filter/page state after update
-    if filter_model:
-        await grid.run_grid_method("setFilterModel", filter_model)
-    if current_page is not None and current_page > 0:
-        await grid.run_grid_method("paginationGoToPage", current_page)
-
-    # Persist to session
-    save_session_data(pd.DataFrame(row_data), get_project_name())
+    _update_detail_bar(detail_bar, row, has_performance_data)

@@ -26,7 +26,7 @@ from store_predict.pipeline.zip_extraction import extract_liveoptics_from_zip
 from store_predict.services.drr_table import DRRTable
 from store_predict.services.llm_config import LLMConfig
 from store_predict.ui.layout import layout
-from store_predict.ui.state import set_project_name
+from store_predict.ui.state import save_rule_suggestions, set_project_name
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +134,10 @@ async def upload_page() -> None:
                     try:
                         drr_table_for_llm = DRRTable.from_csv(DRR_CSV_PATH)
                         vm_records: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
-                        vm_records = await classify_unknown_vms_async(vm_records, drr_table_for_llm, llm_cfg)
+                        vm_records, rule_suggestions = await classify_unknown_vms_async(
+                            vm_records, drr_table_for_llm, llm_cfg
+                        )
+                        save_rule_suggestions(rule_suggestions)
                         df = pd.DataFrame(vm_records)
                         llm_count = sum(1 for r in vm_records if r.get("classification_confidence") == "llm")
                         if llm_count > 0:

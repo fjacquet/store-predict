@@ -127,6 +127,23 @@ llm:
   disabled: "Classification IA désactivée (définir LLM_ENABLED=true pour activer)"
   error: "La classification par IA a échoué. Les résultats basés sur les règles seront utilisés."
 
+detail_bar:
+  placeholder: "Cliquez sur une ligne VM pour afficher ses détails supplémentaires ici."
+  os: "OS"
+  description: "Description"
+  in_use: "Utilisé"
+  peak_iops: "IOPS crête"
+  iops_8k: "IOPS 8k"
+  peak_mbs: "MB/s crête"
+
+rule_suggestions:
+  title: "Nouvelles règles de classification proposées"
+  subtitle: "À ajouter dans classification.py pour éviter de futurs appels IA"
+  description: "L'IA a identifié ces mots-clés lors de cette session. Chaque extrait est prêt à coller dans build_default_rules() — vérifiez la priorité et la sous-catégorie avant de valider."
+  copy: "Copier"
+  vm_count: "%{count} VM(s)"
+  examples: "ex. %{examples}"
+
 error:
   unexpected: "Une erreur inattendue s'est produite. Veuillez réessayer."
   logo_upload_failed: "Échec du téléchargement du logo. Veuillez fournir un fichier PNG ou JPEG valide."
