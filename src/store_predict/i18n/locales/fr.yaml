@@ -5,6 +5,7 @@ upload:
   drop_label: "Déposez votre fichier RVTools ou LiveOptics ici (.xlsx, .csv)"
   supported_formats: "Formats supportés : RVTools (.xlsx), LiveOptics (.xlsx, .csv)"
   loaded_notify: "%{count} VM(s) chargées"
+  processing: "Traitement du fichier en cours, veuillez patienter..."
 
 review:
   title: "Révision des classifications"
@@ -113,6 +114,11 @@ llm:
   classified_notify: "L'IA a classifié %{count} VM(s)"
   unavailable: "Classification IA indisponible (vérifier LLM_MODEL / LLM_API_KEY)"
   disabled: "Classification IA désactivée (définir LLM_ENABLED=true pour activer)"
+  error: "La classification par IA a échoué. Les résultats basés sur les règles seront utilisés."
+
+error:
+  unexpected: "Une erreur inattendue s'est produite. Veuillez réessayer."
+  logo_upload_failed: "Échec du téléchargement du logo. Veuillez fournir un fichier PNG ou JPEG valide."
 
 excel:
   sheet_summary: "Résumé"

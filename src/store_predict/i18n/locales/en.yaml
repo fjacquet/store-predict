@@ -5,6 +5,7 @@ upload:
   drop_label: "Drop RVTools or LiveOptics file here (.xlsx, .csv)"
   supported_formats: "Supported formats: RVTools (.xlsx), LiveOptics (.xlsx, .csv)"
   loaded_notify: "Loaded %{count} VM(s)"
+  processing: "Processing file, please wait..."
 
 review:
   title: Review Classifications
@@ -113,6 +114,11 @@ llm:
   classified_notify: "AI classified %{count} VM(s)"
   unavailable: "AI classification unavailable (check LLM_MODEL / LLM_API_KEY)"
   disabled: "AI classification disabled (set LLM_ENABLED=true to enable)"
+  error: "AI classification failed. Rules-based results will be used."
+
+error:
+  unexpected: "An unexpected error occurred. Please try again."
+  logo_upload_failed: "Logo upload failed. Please try a valid PNG or JPEG file."
 
 excel:
   sheet_summary: Summary
