@@ -52,6 +52,17 @@ Plans:
 
 ---
 
+### Phase 08.1: LiveOptics ZIP extraction (INSERTED)
+
+**Goal:** Accept LiveOptics ZIP exports directly on the upload page. Detect .zip uploads, extract the LiveOptics xlsx using a known filename pattern, and pass xlsx bytes through the existing pipeline unchanged.
+
+**Depends on:** Phase 8
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 08.1-01-PLAN.md — ZIP extraction module, validation patch, upload page wiring, and test suite
+
 ### Phase 9: Excel Export
 
 **Goal:** Export VM table with DRR calculations as a styled multi-sheet .xlsx workbook.
@@ -161,7 +172,8 @@ Plans:
 | 5. Calculation & PDF | v1.0 | 3/3 | Complete | 2026-02-19 |
 | 6. Polish & Deploy | v1.0 | 5/5 | Complete | 2026-02-19 |
 | 7. UI Fixes & Report | v1.0 | 5/5 | Complete | 2026-02-19 |
-| 8. i18n Foundation | 3/3 | Complete   | 2026-02-20 | — |
+| 8. i18n Foundation | v1.1 | 3/3 | Complete | 2026-02-20 |
+| 8.1. LiveOptics ZIP | v1.1 | 0/1 | Pending | — |
 | 9. Excel Export | v1.1 | 0/? | Pending | — |
 | 10. PDF Branding | v1.1 | 0/? | Pending | — |
 | 11. LLM Classification | v1.1 | 0/? | Pending | — |
