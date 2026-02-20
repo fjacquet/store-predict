@@ -48,3 +48,6 @@ ADRs document key technical decisions made during StorePredict development.
 | [042](042-web-server-content-included-default.md) | Web servers default to content included (DRR=5) | Accepted | 2026-02-19 |
 | [043](043-i18n-architecture-t-wrapper-yaml.md) | i18n architecture — per-call locale via t() wrapper with YAML files | Accepted | 2026-02-20 |
 | [044](044-language-switch-page-reload.md) | Language switch via full page reload | Accepted | 2026-02-20 |
+| [045](045-echart-for-web-charts.md) | ECharts (NiceGUI ui.echart) for interactive web charts | Accepted | 2026-02-20 |
+| [046](046-pdf-charts-page-two.md) | PDF charts on a dedicated second page | Accepted | 2026-02-20 |
+| [047](047-sankey-reportlab-strategy.md) | Sankey diagram strategy for PDF (ReportLab constraint) | Proposed | 2026-02-20 |
