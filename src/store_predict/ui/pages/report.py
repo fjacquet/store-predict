@@ -8,9 +8,11 @@ from typing import Any
 
 from nicegui import app, ui
 
+from store_predict.config import APP_PORT
 from store_predict.i18n import t
 from store_predict.i18n.locale import get_locale
 from store_predict.pipeline.calculation import CalculationSummary, calculate
+from store_predict.services import playwright_pdf, print_session
 from store_predict.services.charts import (
     echart_before_after_options,
     echart_drr_bar_options,
@@ -20,7 +22,6 @@ from store_predict.services.charts import (
 from store_predict.services.excel_report import generate_report_xlsx
 from store_predict.services.pdf_report import (
     format_storage,
-    generate_report_pdf,
     sanitize_filename,
     validate_logo,
 )
@@ -148,7 +149,7 @@ async def report_page() -> None:
         async def on_download_pdf() -> None:
             pdf_btn.disable()
             try:
-                _on_download(summary, project_name)
+                await _on_download_playwright(summary, project_name, pdf_btn)
             finally:
                 pdf_btn.enable()
 
@@ -197,21 +198,41 @@ def _summary_card(label: str, value: str) -> None:
         ui.label(value).classes("text-xl font-bold")
 
 
-def _on_download(summary: object, project_name: str) -> None:
-    """Generate PDF and trigger browser download."""
+async def _on_download_playwright(summary: object, project_name: str, btn: ui.button) -> None:
+    """Generate PDF via Playwright and trigger browser download."""
     from store_predict.pipeline.calculation import CalculationSummary
 
     assert isinstance(summary, CalculationSummary)
 
     company_logo_b64: str = app.storage.tab.get("company_logo_b64", "")
-    company_logo_bytes: bytes | None = base64.b64decode(company_logo_b64) if company_logo_b64 else None
+    locale = get_locale()
 
-    pdf_bytes = generate_report_pdf(
-        summary,
-        project_name,
-        locale=get_locale(),
-        company_logo_bytes=company_logo_bytes,
-    )
+    data: dict[str, Any] = {
+        "vm_data": [
+            {
+                "vm_name": vm.vm_name,
+                "workload_category": vm.workload_category,
+                "provisioned_mib": vm.provisioned_mib,
+                "in_use_mib": vm.in_use_mib,
+                "drr": vm.drr,
+                "peak_iops": vm.peak_iops,
+                "avg_iops": vm.avg_iops,
+                "peak_throughput_mbs": vm.peak_throughput_mbs,
+                "iops_8k_equivalent": vm.iops_8k_equivalent,
+            }
+            for vm in summary.vm_calculations
+        ],
+        "project_name": project_name,
+        "locale": locale,
+        "company_logo_b64": company_logo_b64,
+    }
+    token = print_session.create(data)
+    try:
+        pdf_bytes = await playwright_pdf.generate_pdf(token, APP_PORT)
+    except Exception:
+        ui.notify(t("error.unexpected"), type="negative")
+        return
+
     safe_name = sanitize_filename(project_name)
     date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
     filename = f"StorePredict_{safe_name}_{date_str}.pdf"

@@ -13,7 +13,7 @@ python -m store_predict.main    # Run the app (port 8080)
 ```bash
 rtk ruff check .                # Lint
 rtk ruff format .               # Format
-rtk mypy src/                   # Type check
+mypy src/                       # Type check (rtk does NOT support mypy)
 ```
 
 ## Testing (always use rtk)

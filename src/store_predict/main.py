@@ -8,6 +8,7 @@ from nicegui import ui
 
 # Import pages to register their routes with NiceGUI
 import store_predict.ui.pages.report
+import store_predict.ui.pages.report_print
 import store_predict.ui.pages.review
 import store_predict.ui.pages.upload  # noqa: F401
 from store_predict.config import APP_PORT, APP_TITLE

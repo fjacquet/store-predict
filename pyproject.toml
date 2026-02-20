@@ -20,6 +20,7 @@ dependencies = [
     "pydantic-settings>=2.13.0,<3.0",
     "pyright>=1.1.408",
     "matplotlib>=3.8",
+    "playwright>=1.40",
 ]
 
 [project.optional-dependencies]
@@ -99,6 +100,10 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "matplotlib.sankey.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "playwright.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
