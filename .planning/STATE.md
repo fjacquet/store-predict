@@ -104,6 +104,9 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 08]: Renamed loop variable t->wt in review.py to avoid shadowing t() import
 - [Phase 08]: :localeText uses NiceGUI JS binding syntax so AG_GRID_LOCALE_FR resolves as JS object not string
 - [Phase 08]: AG Grid FR locale CDN script injected only when locale='fr'
+- [Phase 08]: _i18n.set('locale', locale) once at top of generate_report_pdf() — synchronous, safe
+- [Phase 08]: ReportLab CID encoding means PDF text not searchable in raw bytes; test FR != EN instead
+- [Phase 08]: make_summary fixture is a factory callable in conftest.py for shared PDF test data
 
 ## Performance Metrics
 
@@ -132,6 +135,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 07 P05 | 5min | 2 tasks | 3 files |
 | 08    | 01   | 8min     | 2     | 6     |
 | Phase 08 P02 | 12min | 2 tasks | 8 files |
+| 08    | 03   | 12min    | 2     | 3     |
 
 ## Roadmap Evolution
 
