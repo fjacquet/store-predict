@@ -33,11 +33,11 @@ Requirements for v1.1 milestone. Each maps to roadmap phases (continuing from Ph
 
 ### LLM Classification Fallback (LLM)
 
-- [ ] **LLM-01**: VMs classified as "Unknown Reducible" by rules engine are sent to LLM for classification
+- [x] **LLM-01**: VMs classified as "Unknown Reducible" by rules engine are sent to LLM for classification
 - [x] **LLM-02**: LLM provider configurable via env vars (supports OpenAI, Anthropic, Ollama, OpenRouter via litellm)
 - [x] **LLM-03**: LLM feature disabled by default (`LLM_ENABLED=false`), opt-in via configuration
 - [x] **LLM-04**: LLM calls are async (non-blocking) with 30s timeout and circuit breaker
-- [ ] **LLM-05**: Classification source indicator in AG Grid (rules / LLM / manual) for transparency
+- [x] **LLM-05**: Classification source indicator in AG Grid (rules / LLM / manual) for transparency
 - [x] **LLM-06**: LLM responses validated against known DRR workload categories (reject hallucinated categories)
 - [x] **LLM-07**: API keys managed via pydantic-settings with SecretStr (never logged or exposed in UI)
 
@@ -102,11 +102,11 @@ Deferred to future release. Tracked but not in current roadmap.
 | BRAND-03 | Phase 10 | Complete |
 | BRAND-04 | Phase 10 | Complete |
 | BRAND-05 | Phase 10 | Complete |
-| LLM-01 | Phase 11 | Pending |
+| LLM-01 | Phase 11 | Complete |
 | LLM-02 | Phase 11 | Complete |
 | LLM-03 | Phase 11 | Complete |
 | LLM-04 | Phase 11 | Complete |
-| LLM-05 | Phase 11 | Pending |
+| LLM-05 | Phase 11 | Complete |
 | LLM-06 | Phase 11 | Complete |
 | LLM-07 | Phase 11 | Complete |
 | UX-01 | Phase 12 | Pending |

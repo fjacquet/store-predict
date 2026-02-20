@@ -31,14 +31,16 @@ v1.1 — i18n, Branding & Intelligence
 
 - [x] Plan 06-01: Docker deployment hardening (.dockerignore, HEALTHCHECK, env-var secret)
 - [x] Plan 06-04: MkDocs documentation with architecture Mermaid diagrams, getting-started guide, README
+- [x] Plan 11-01: LLM config (pydantic-settings), async classifier with circuit breaker, LLM tests
+- [x] Plan 11-02: LLM fallback wired into upload pipeline, i18n keys, docker-compose env stubs, .env.example
 
 ## Current Phase Progress
 
-Phase 11 (LLM Classification Fallback) — IN PROGRESS (1/2 plans done)
+Phase 11 (LLM Classification Fallback) — COMPLETE (2/2 plans done)
 
 ## Next Action
 
-Execute Phase 11 Plan 02: wire classify_unknown_vms_async into upload pipeline
+Phase 11 complete. Determine next phase to execute.
 
 ## Project Reference
 
@@ -126,6 +128,8 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 11]: Circuit breaker as module globals — simple, zero-dependency, correct for NiceGUI single-threaded async
 - [Phase 11]: classify_single_vm returns None for invalid LLM responses (not in valid_categories) — conservative sizing
 - [Phase 11]: LLM_ENABLED=false default — feature opt-in via env var, never active in tests or CI
+- [Phase 11]: type: ignore[assignment] on df.to_dict(orient='records') — pandas stubs return Hashable keys but str at runtime
+- [Phase 11]: .env.example tracked in git for operator onboarding; .env gitignored by pre-existing entry
 
 ## Performance Metrics
 
@@ -161,6 +165,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 10 P01 | 20min | 2 tasks | 7 files |
 | Phase 10 P02 | 10min | 2 tasks | 2 files |
 | Phase 11 P01 | 12min | 2 tasks | 4 files |
+| Phase 11 P02 | 8min | 2 tasks | 5 files |
 
 ## Roadmap Evolution
 
@@ -179,7 +184,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Completed 11-01-PLAN.md
+- **Stopped at:** Completed 11-02-PLAN.md
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->
