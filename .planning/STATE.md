@@ -119,6 +119,8 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 10]: _preprocess_logo keeps both RGBA and RGB as-is; only non-RGBA/RGB modes converted to RGBA before ReportLab embedding
 - [Phase 10]: _DELL_LOGO_BYTES loaded at module import time for Docker-safe path resolution and no per-call I/O
 - [Phase 10]: pillow>=12.1.1 added to runtime dependencies (not dev-only) — _preprocess_logo runs in production Docker
+- [Phase 10]: Logo upload section positioned below action buttons to keep primary PDF/Excel/Back buttons prominent
+- [Phase 10]: base64 decode guard: empty string short-circuits to None — avoids empty bytes from b64decode of empty string
 
 ## Performance Metrics
 
@@ -152,6 +154,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 09 P01 | 8min | 2 tasks | 4 files |
 | Phase 09 P02 | 14min | 2 tasks | 5 files |
 | Phase 10 P01 | 20min | 2 tasks | 7 files |
+| Phase 10 P02 | 10min | 2 tasks | 2 files |
 
 ## Roadmap Evolution
 
@@ -170,7 +173,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Completed 10-01-PLAN.md
+- **Stopped at:** Completed 10-02-PLAN.md
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->
