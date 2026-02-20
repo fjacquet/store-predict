@@ -4,6 +4,54 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v2.1.0] - 2026-02-20
+
+Application-level DRR variants, DDVE support, and AI classification UI toggle.
+
+### DRR Reference Table (+14 entries, 28 → 42 total)
+
+New subcategories covering application-layer encryption and compression scenarios
+where PowerStore's inline dedup/compression is partially or fully defeated:
+
+- `Database / Oracle - HCC (App Compressed)` → DRR 2.5
+- `Database / Oracle - TDE (Encrypted)` → DRR 1.5
+- `Database / Oracle - HCC + TDE` → DRR 1.2
+- `Database / Microsoft SQL - Page Compressed` → DRR 2.5
+- `Database / Microsoft SQL - TDE (Encrypted)` → DRR 1.5
+- `Database / Microsoft SQL - Page Compressed + TDE` → DRR 1.2
+- `Database / MongoDB - Encrypted` → DRR 1.3
+- `Database / PostgreSQL - Encrypted` → DRR 1.3
+- `Database / My SQL / NoSQL - Encrypted` → DRR 1.3
+- `Containers / Kubernetes - Encrypted PVs` → DRR 1.3
+- `VM Replication / Commvault` → DRR 1.5
+- `VM Replication / Veeam - Compressed + Dedup` → DRR 1.2
+- `VM Replication / Commvault - Compressed + Dedup` → DRR 1.2
+- `VM Replication / Data Domain Virtual Edition (DDVE)` → DRR 1.0 (already deduplicated — 1:1 at most)
+
+### Classifier (+14 rules, priorities 88–97 and 293–297)
+
+Pattern matching for encrypted/compressed VM naming conventions. Combined scenarios
+(e.g. Oracle HCC + TDE) use regex lookaheads for AND matching. DDVE, Commvault, and
+compressed Veeam/Commvault variants also added.
+
+### AI Classification UI Toggle
+
+Per-session `ui.switch` on the upload page to disable LLM classification without
+server restart. Greyed out with hint when `LLM_ENABLED=false`. State persisted in
+`app.storage.tab["llm_ui_enabled"]`.
+
+### Documentation
+
+- ADR-052: Flat DRR override for non-PowerStore storage models
+- ADR-053: Application-level DRR degradation as CSV subcategory variants
+- ADR-054: AI classification toggle is per-session, not a server restart
+- Research phase 14: application-level data reduction findings with source references
+- `architecture.md` updated: storage model section, DRR/rule counts, session state
+
+### Tests
+
+246 tests passing (up from 230); ruff and mypy clean.
+
 ## [v2.0.0] - 2026-02-20
 
 Multi-platform storage model selection — **breaking UX change**: DRR values now depend on the selected target storage platform, not only on workload type.
