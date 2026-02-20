@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,8 @@ from store_predict.services.drr_table import DRRTable
 from store_predict.services.llm_config import LLMConfig
 from store_predict.ui.layout import layout
 from store_predict.ui.state import set_project_name
+
+logger = logging.getLogger(__name__)
 
 
 @ui.page("/upload")
@@ -115,6 +118,12 @@ async def upload_page() -> None:
 
                 # --- LLM Classification Fallback ---
                 llm_cfg = LLMConfig()
+                logger.info(
+                    "LLM config: enabled=%s model=%s api_base=%s",
+                    llm_cfg.enabled,
+                    llm_cfg.model,
+                    llm_cfg.api_base,
+                )
                 if llm_cfg.enabled:
                     with upload_widget:
                         llm_notif = ui.notification(
