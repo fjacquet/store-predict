@@ -83,7 +83,12 @@ Plans:
 
 **Key risks:** BytesIO seek(0) before download. XlsxWriter cannot modify existing files (write-only). All strings via `t()`.
 
-**Estimated plans:** 1-2
+**Plans:** 2 plans
+
+Plans:
+
+- [ ] 09-01-PLAN.md — Excel service module (excel_report.py), i18n keys, mypy override
+- [ ] 09-02-PLAN.md — Download Excel button wiring in report.py and test suite
 
 ---
 
@@ -174,7 +179,7 @@ Plans:
 | 7. UI Fixes & Report | v1.0 | 5/5 | Complete | 2026-02-19 |
 | 8. i18n Foundation | v1.1 | 3/3 | Complete | 2026-02-20 |
 | 8.1. LiveOptics ZIP | v1.1 | 0/1 | Pending | — |
-| 9. Excel Export | v1.1 | 0/? | Pending | — |
+| 9. Excel Export | v1.1 | 0/2 | Pending | — |
 | 10. PDF Branding | v1.1 | 0/? | Pending | — |
 | 11. LLM Classification | v1.1 | 0/? | Pending | — |
 | 12. UX Polish | v1.1 | 0/? | Pending | — |
