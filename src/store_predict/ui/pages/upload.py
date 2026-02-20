@@ -17,6 +17,7 @@ from store_predict.pipeline.classification import (
 from store_predict.pipeline.errors import IngestionError
 from store_predict.pipeline.ingestion import ingest_file
 from store_predict.pipeline.validation import validate_upload
+from store_predict.pipeline.zip_extraction import extract_liveoptics_from_zip
 from store_predict.services.drr_table import DRRTable
 from store_predict.ui.layout import layout
 from store_predict.ui.state import get_project_name, save_session_data, set_project_name
@@ -32,10 +33,16 @@ async def _handle_upload(e: object) -> None:
         # Write uploaded content to a temp file
         # Read and validate before writing to disk
         content = await e.file.read()  # type: ignore[attr-defined]
-        validate_upload(content, e.file.name)  # type: ignore[attr-defined]
+
+        # Detect ZIP upload and extract LiveOptics xlsx before validation
+        original_filename = e.file.name  # type: ignore[attr-defined]
+        filename = original_filename
+        if filename.lower().endswith(".zip"):
+            content, filename = extract_liveoptics_from_zip(content)
+        validate_upload(content, filename)
 
         with tempfile.NamedTemporaryFile(
-            suffix=Path(e.file.name).suffix,  # type: ignore[attr-defined]
+            suffix=Path(filename).suffix,
             delete=False,
         ) as tmp:
             tmp.write(content)
@@ -97,7 +104,7 @@ async def upload_page() -> None:
                 on_upload=_handle_upload,
                 auto_upload=True,
                 max_file_size=50_000_000,
-            ).props('accept=".xlsx,.csv"').classes("w-full")
+            ).props('accept=".xlsx,.csv,.zip"').classes("w-full")
 
         # Format hints
         ui.label(t("upload.supported_formats")).classes("text-sm text-gray-400")
