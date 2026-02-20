@@ -172,7 +172,12 @@ Plans:
 
 **Key risks:** Must not regress existing functionality. Dark mode Tailwind `dark:` variants unreliable in NiceGUI — use Python conditionals.
 
-**Estimated plans:** 1-2
+**Plans:** 2 plans
+
+Plans:
+
+- [ ] 12-01-PLAN.md — i18n error keys + upload page refactor (spinner, run.io_bound, persistent LLM notification)
+- [ ] 12-02-PLAN.md — review/report page polish (no-data cards, button guards, notify audit) + test_ux_polish.py
 
 ---
 
@@ -192,4 +197,4 @@ Plans:
 | 9. Excel Export | 2/2 | Complete    | 2026-02-20 | — |
 | 10. PDF Branding | 2/2 | Complete    | 2026-02-20 | — |
 | 11. LLM Classification | 2/2 | Complete    | 2026-02-20 | — |
-| 12. UX Polish | v1.1 | 0/? | Pending | — |
+| 12. UX Polish | v1.1 | 0/2 | Pending | — |
