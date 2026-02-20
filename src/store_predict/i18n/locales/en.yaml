@@ -27,6 +27,13 @@ report:
   download_excel: Download Excel Report
   back_to_review: Back to Review
   go_to_upload: Go to Upload
+  upload_logo: "Upload Company Logo"
+  logo_upload_label: "PNG or JPEG, max 200 KB"
+  logo_uploaded: "Logo uploaded successfully"
+  logo_error_format: "Logo must be PNG or JPEG"
+  logo_error_size: "Logo file too large (max 200 KB)"
+  logo_remove: "Remove Logo"
+  logo_removed: "Company logo removed"
 
 columns:
   vm_name: VM Name

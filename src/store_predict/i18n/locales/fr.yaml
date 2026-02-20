@@ -27,6 +27,13 @@ report:
   download_excel: "Télécharger le rapport Excel"
   back_to_review: "Retour à la révision"
   go_to_upload: "Aller au téléchargement"
+  upload_logo: "Télécharger le logo entreprise"
+  logo_upload_label: "PNG ou JPEG, max 200 Ko"
+  logo_uploaded: "Logo chargé avec succès"
+  logo_error_format: "Le logo doit être PNG ou JPEG"
+  logo_error_size: "Fichier logo trop volumineux (max 200 Ko)"
+  logo_remove: "Supprimer le logo"
+  logo_removed: "Logo entreprise supprimé"
 
 columns:
   vm_name: Nom de la VM
