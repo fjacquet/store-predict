@@ -142,16 +142,23 @@ async def classify_unknown_vms_async(
         return records
 
     valid_categories: set[str] = {e.category for e in drr_table.entries}
-    unknown = [r for r in records if r.get("classification_confidence") == "default"]
+    # Include both "default" (no match at all) and "os_fallback" (matched only
+    # via generic OS string) — the LLM may find a more specific category from
+    # the VM name alone.
+    unknown = [
+        r
+        for r in records
+        if r.get("classification_confidence") in {"default", "os_fallback"}
+    ]
 
     logger.info(
-        "LLM classification: %d total VMs, %d with 'default' confidence (will query LLM)",
+        "LLM classification: %d total VMs, %d candidates (default + os_fallback)",
         len(records),
         len(unknown),
     )
 
     if not unknown:
-        logger.info("All VMs already classified by rules — no LLM calls needed")
+        logger.info("All VMs already matched by specific rules — no LLM calls needed")
         return records
 
     semaphore = asyncio.Semaphore(config.max_concurrent)

@@ -13,6 +13,7 @@ import store_predict.ui.pages.review
 import store_predict.ui.pages.upload  # noqa: F401
 from store_predict.config import APP_PORT, APP_TITLE
 from store_predict.i18n import t
+from store_predict.logging_config import setup_logging
 
 
 @ui.page("/")
@@ -32,6 +33,7 @@ def index_page() -> None:
 
 def main() -> None:
     """Start the NiceGUI application."""
+    setup_logging()
     storage_secret = os.environ.get("STORAGE_SECRET", "dev-only-not-for-production")
     ui.run(
         title=APP_TITLE,
