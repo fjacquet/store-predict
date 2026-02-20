@@ -46,3 +46,5 @@ ADRs document key technical decisions made during StorePredict development.
 | [040](040-pyproject-single-config.md) | pyproject.toml as single configuration file | Accepted | 2026-02-19 |
 | [041](041-strict-mypy-type-checking.md) | Strict mypy with TYPE_CHECKING guards | Accepted | 2026-02-19 |
 | [042](042-web-server-content-included-default.md) | Web servers default to content included (DRR=5) | Accepted | 2026-02-19 |
+| [043](043-i18n-architecture-t-wrapper-yaml.md) | i18n architecture — per-call locale via t() wrapper with YAML files | Accepted | 2026-02-20 |
+| [044](044-language-switch-page-reload.md) | Language switch via full page reload | Accepted | 2026-02-20 |

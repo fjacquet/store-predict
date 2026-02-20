@@ -46,9 +46,9 @@ See [v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md) for full details.
 
 Plans:
 
-- [ ] 08-01-PLAN.md — i18n package infrastructure: t() helper, YAML locale files, locale_toggle component
-- [ ] 08-02-PLAN.md — UI string wrapping: all 65 strings in pages/components/layout + AG Grid locale
-- [ ] 08-03-PLAN.md — PDF report locale parameter + i18n unit test suite
+- [x] 08-01-PLAN.md — i18n package infrastructure: t() helper, YAML locale files, locale_toggle component
+- [x] 08-02-PLAN.md — UI string wrapping: all 65 strings in pages/components/layout + AG Grid locale
+- [x] 08-03-PLAN.md — PDF report locale parameter + i18n unit test suite
 
 ---
 
