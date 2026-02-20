@@ -18,8 +18,8 @@ Requirements for v1.1 milestone. Each maps to roadmap phases (continuing from Ph
 ### PDF Branding (BRAND)
 
 - [x] **BRAND-01**: Dell partner logo displayed in PDF report header (static asset shipped with app)
-- [ ] **BRAND-02**: User can upload a custom company logo (PNG/JPEG) via UI
-- [ ] **BRAND-03**: Uploaded logo embedded in PDF report alongside Dell logo
+- [x] **BRAND-02**: User can upload a custom company logo (PNG/JPEG) via UI
+- [x] **BRAND-03**: Uploaded logo embedded in PDF report alongside Dell logo
 - [x] **BRAND-04**: Logo images validated (format, dimensions) and scaled to fit without breaking one-page layout
 - [x] **BRAND-05**: PNG transparency handled correctly (no black background in PDF)
 
@@ -98,8 +98,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | XLSX-04 | Phase 9 | Complete |
 | XLSX-05 | Phase 9 | Complete |
 | BRAND-01 | Phase 10 | Complete |
-| BRAND-02 | Phase 10 | Pending |
-| BRAND-03 | Phase 10 | Pending |
+| BRAND-02 | Phase 10 | Complete |
+| BRAND-03 | Phase 10 | Complete |
 | BRAND-04 | Phase 10 | Complete |
 | BRAND-05 | Phase 10 | Complete |
 | LLM-01 | Phase 11 | Pending |
