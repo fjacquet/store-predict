@@ -15,6 +15,9 @@ dependencies = [
     "python-i18n[YAML]>=0.3.9",
     "xlsxwriter>=3.2.9",
     "pillow>=12.1.1",
+    "litellm>=1.81.13",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.13.0,<3.0",
 ]
 
 [project.optional-dependencies]
@@ -83,6 +86,14 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "xlsxwriter.*"
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "litellm.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pydantic_settings.*"
+ignore_missing_imports = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
