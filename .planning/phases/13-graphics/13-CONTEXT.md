@@ -37,8 +37,10 @@ Total: 4 chart types (Sankey aggregate, Sankey breakdown, pie, DRR bar, before/a
 - ECharts supports Sankey, bar, pie natively with rich theming
 
 ### PDF chart library
-- **ReportLab's built-in charts** where possible (no extra dep)
-- ⚠️ **Tension for researcher:** ReportLab has no native Sankey support. Researcher must investigate: custom ReportLab drawing primitives for Sankey vs. matplotlib only for Sankey vs. another zero-dep approach. User preference is to avoid new deps, but Sankey must be included.
+- **ReportLab built-in charts** for bar and pie charts (no extra dep)
+- **matplotlib** for Sankey only — render to PNG buffer via `BytesIO`, embed in PDF via `ImageReader` (same pattern as logo embedding in Phase 10)
+- Maintainability justifies the dep: `matplotlib.sankey.Sankey` is declarative; adding a new workload category is a one-liner. Custom ReportLab primitives would require geometric recalculation.
+- `matplotlib>=3.8` added to runtime dependencies; import isolated to PDF chart module
 
 ### Color scheme
 - **Dell blue (#007DB8) as primary**, greys as secondary — consistent with existing PDF header

@@ -50,4 +50,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [044](044-language-switch-page-reload.md) | Language switch via full page reload | Accepted | 2026-02-20 |
 | [045](045-echart-for-web-charts.md) | ECharts (NiceGUI ui.echart) for interactive web charts | Accepted | 2026-02-20 |
 | [046](046-pdf-charts-page-two.md) | PDF charts on a dedicated second page | Accepted | 2026-02-20 |
-| [047](047-sankey-reportlab-strategy.md) | Sankey diagram strategy for PDF (ReportLab constraint) | Proposed | 2026-02-20 |
+| [047](047-sankey-reportlab-strategy.md) | matplotlib for Sankey diagram in PDF | Accepted | 2026-02-20 |
