@@ -34,11 +34,11 @@ v1.1 — i18n, Branding & Intelligence
 
 ## Current Phase Progress
 
-Phase 08 (i18n Foundation) — COMPLETE (3/3 plans done)
+Phase 11 (LLM Classification Fallback) — IN PROGRESS (1/2 plans done)
 
 ## Next Action
 
-Begin next milestone phase (all Phase 08 plans complete)
+Execute Phase 11 Plan 02: wire classify_unknown_vms_async into upload pipeline
 
 ## Project Reference
 
@@ -121,6 +121,11 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 - [Phase 10]: pillow>=12.1.1 added to runtime dependencies (not dev-only) — _preprocess_logo runs in production Docker
 - [Phase 10]: Logo upload section positioned below action buttons to keep primary PDF/Excel/Back buttons prominent
 - [Phase 10]: base64 decode guard: empty string short-circuits to None — avoids empty bytes from b64decode of empty string
+- [Phase 11]: pydantic-settings BaseSettings with LLM_ env prefix for typed config; SecretStr for api_key
+- [Phase 11]: DRRTable and LLMConfig in TYPE_CHECKING block in llm_classifier.py (ruff TC001, safe with from __future__ import annotations)
+- [Phase 11]: Circuit breaker as module globals — simple, zero-dependency, correct for NiceGUI single-threaded async
+- [Phase 11]: classify_single_vm returns None for invalid LLM responses (not in valid_categories) — conservative sizing
+- [Phase 11]: LLM_ENABLED=false default — feature opt-in via env var, never active in tests or CI
 
 ## Performance Metrics
 
@@ -155,6 +160,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 | Phase 09 P02 | 14min | 2 tasks | 5 files |
 | Phase 10 P01 | 20min | 2 tasks | 7 files |
 | Phase 10 P02 | 10min | 2 tasks | 2 files |
+| Phase 11 P01 | 12min | 2 tasks | 4 files |
 
 ## Roadmap Evolution
 
@@ -173,7 +179,7 @@ See: .planning/PROJECT.md (updated 2026-02-19)
 
 ## Last Session
 
-- **Stopped at:** Completed 10-02-PLAN.md
+- **Stopped at:** Completed 11-01-PLAN.md
 - **Timestamp:** 2026-02-20
 
 <!-- rtk-instructions v2 -->
