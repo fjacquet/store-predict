@@ -53,10 +53,11 @@ Shipped outside GSD planning:
 ### v3.0 Datastore Layout Recommendations
 
 - [x] **Phase 14: Layout Engine Core** (2 plans) (completed 2026-02-21)
-  - [ ] 14-01-PLAN.md — Data models + Consolidation strategy + BFD core + metrics + default IOPS
-  - [ ] 14-02-PLAN.md — Performance + Uniform strategies + generate_all_proposals orchestrator
-- [ ] **Phase 15: Default IOPS & Research Docs** (1 plan)
-  - Plan 15-01: IOPS estimation table + ADR + research page
+  - [x] 14-01-PLAN.md — Data models + Consolidation strategy + BFD core + metrics + default IOPS
+  - [x] 14-02-PLAN.md — Performance + Uniform strategies + generate_all_proposals orchestrator
+- [ ] **Phase 15: Default IOPS & Research Docs** (2 plans)
+  - [ ] 15-01-PLAN.md — IOPS CSV configurability + CSV loader tests
+  - [ ] 15-02-PLAN.md — ADR-059, research page, architecture update, CHANGELOG v3.0.0
 - [ ] **Phase 16: Layout Page UI** (2 plans)
   - Plan 16-01: Comparison view + Advanced Settings panel
   - Plan 16-02: Detail view + drill-down
@@ -83,8 +84,8 @@ Shipped outside GSD planning:
 | 11. LLM Classification | v1.1 | 2/2 | Complete | 2026-02-20 |
 | 12. UX Polish | v1.1 | 2/2 | Complete | 2026-02-20 |
 | 13. Graphics | v1.1 | 3/3 | Complete | 2026-02-20 |
-| **14. Layout Engine Core** | **v3.0** | **0/2** | **Planned** | |
-| **15. Default IOPS & Docs** | **v3.0** | **0/1** | **Not started** | |
+| **14. Layout Engine Core** | **v3.0** | **2/2** | **Complete** | **2026-02-21** |
+| **15. Default IOPS & Docs** | **v3.0** | **0/2** | **Planned** | |
 | **16. Layout Page UI** | **v3.0** | **0/2** | **Not started** | |
 | **17. PDF & Excel Integration** | **v3.0** | **0/1** | **Not started** | |
 | **18. i18n & Polish** | **v3.0** | **0/1** | **Not started** | |
