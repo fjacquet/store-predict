@@ -1,9 +1,11 @@
-.PHONY: help install dev run stop lint format typecheck test test-cov docs docs-build docker-up docker-down clean
+.PHONY: all help install dev run stop lint format typecheck test test-cov docs docs-build docker-up docker-down clean
 
 PYTHON ?= python
 PORT ?= 8080
 PID_FILE := .store-predict.pid
 VENV := .venv
+
+all: quality ## Run full quality gate (lint + types + tests) — default target
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
