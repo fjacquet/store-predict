@@ -58,3 +58,6 @@ ADRs document key technical decisions made during StorePredict development.
 | [052](052-storage-model-flat-drr-override.md) | Flat DRR override for non-PowerStore storage models | Accepted | 2026-02-20 |
 | [053](053-app-level-drr-as-csv-variants.md) | Application-level DRR degradation as CSV subcategory variants | Accepted | 2026-02-20 |
 | [054](054-llm-toggle-session-scoped.md) | AI classification toggle is per-session, not a server restart | Accepted | 2026-02-20 |
+| [055](055-layout-engine-bfd-heuristic.md) | Multi-dimensional BFD heuristic for datastore layout engine | Accepted | 2026-02-21 |
+| [056](056-three-layout-strategies.md) | Three fixed layout strategies with tunable parameters | Accepted | 2026-02-21 |
+| [057](057-vmfs-not-vvol-layout.md) | VMFS datastore layout, not vVol | Accepted | 2026-02-21 |
