@@ -5,7 +5,7 @@
 ![Release](https://github.com/fjacquet/store-predict/actions/workflows/release.yml/badge.svg)
 [![Coverage](https://codecov.io/gh/fjacquet/store-predict/branch/maincd/graph/badge.svg)](https://codecov.io/gh/fjacquet/store-predict)
 ![Python](https://img.shields.io/badge/python-3.12%2B-blue)
-![Version](https://img.shields.io/badge/version-2.1.0-green)
+![Version](https://img.shields.io/badge/version-2.2.0-green)
 
 Pre-sales sizing tool that analyzes VMware workload exports to predict Data Reduction Ratios (DRR) on Dell PowerStore arrays.
 

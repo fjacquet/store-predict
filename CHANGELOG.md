@@ -4,6 +4,34 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v2.2.0] - 2026-02-21
+
+Observability, developer experience, and project health improvements.
+
+### LLM Classification Improvements
+
+- Live progress counter in UI notification during AI classification: "AI classification: 42 / 496 VMs"
+- `on_progress` callback added to `classify_unknown_vms_async` for UI integration
+- Ready-to-paste `ClassificationRule(...)` snippets now logged to server logs after LLM pass, allowing operators to promote LLM findings to deterministic rules without restarting
+
+### CI / GitHub
+
+- GitHub Release v2.1.0 created (was missing — tag existed but Release page had not been generated)
+- `ci.yml`: added `permissions: contents: read` (workflow security hardening)
+- `ci.yml`: added `codecov/codecov-action@v5` upload step with `CODECOV_TOKEN`
+- `ci.yml`: added `--cov-report=xml` to generate Codecov-compatible report
+- Coverage measurement scoped to testable backend code (UI layer omitted — NiceGUI pages require a live server)
+- Effective coverage: **84%** (up from misleading 51% that included untestable UI)
+
+### README
+
+- Added badges: CI, Docs, Release, Codecov coverage, Python version, Version
+- Fixed stale "29 classification rules" → **43 rules**
+
+### Tests
+
+246 tests passing (unchanged); ruff and mypy clean.
+
 ## [v2.1.0] - 2026-02-20
 
 Application-level DRR variants, DDVE support, and AI classification UI toggle.
