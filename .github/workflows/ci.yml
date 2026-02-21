@@ -31,10 +31,15 @@ jobs:
       - name: Type check
         run: . .venv/bin/activate && mypy src/
       - name: Test
-        run: . .venv/bin/activate && pytest --tb=short
+        run: . .venv/bin/activate && pytest --tb=short --junitxml=junit.xml -o junit_family=legacy
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           fail_ci_if_error: false
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
