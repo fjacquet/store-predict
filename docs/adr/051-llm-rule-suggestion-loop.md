@@ -1,6 +1,6 @@
 # ADR-051: LLM → keyword extraction → rule suggestion feedback loop
 
-**Date:** 2026-02-20  
+**Date:** 2026-02-20
 **Status:** Accepted
 
 ## Context
@@ -15,7 +15,7 @@ calls and improve consistency.
 Extend `classify_single_vm` to return a `(category, keyword | None)` tuple by prompting
 the LLM with:
 
-```
+```text
 Respond with EXACTLY this format: Category|KEYWORD
 KEYWORD = one short UPPERCASE word (max 12 chars) extracted from the VM name that most
 strongly identifies the workload. Use NONE if no clear keyword exists.

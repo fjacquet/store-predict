@@ -26,6 +26,7 @@ The layout engine generates **VMFS datastore recommendations only**. vVol layout
 is out of scope.
 
 Rationale:
+
 1. **Migration continuity**: Customers moving from legacy → PowerStore keep VMFS.
    Proposing vVol adds a second migration dimension (storage paradigm change)
    that complicates the project.

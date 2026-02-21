@@ -7,6 +7,7 @@
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -614,6 +615,7 @@ class LayoutMetrics:
 | vVol per-VM storage policy | VMFS volume-level layout | Project scope decision (ADR-057, Feb 2026) | Snapshot granularity is at DS level; isolation score metric is meaningful |
 
 **Deprecated/outdated:**
+
 - SDRS (Storage DRS): VMware deprecated SDRS I/O balancing in vSphere 8.0 U3. Do not mention SDRS in any output or documentation.
 - SIOC (Storage I/O Control): Same deprecation. Use PowerStore QoS instead.
 
@@ -665,6 +667,7 @@ class LayoutMetrics:
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — confirmed zero new dependencies; existing stdlib patterns from calculation.py apply directly
 - Architecture: HIGH — module placement, naming, and boundary rules are consistent with ADR-029 (three-layer architecture) and all existing pipeline modules
 - BFD algorithm: HIGH — documented in ADR-055 with complexity analysis; standard CS algorithm with known properties

@@ -1,6 +1,6 @@
 # ADR-049: AG Grid v34 circular context — event args filter
 
-**Date:** 2026-02-20  
+**Date:** 2026-02-20
 **Status:** Accepted
 
 ## Context
@@ -8,7 +8,7 @@
 After switching to AG Grid Community and implementing `rowClicked` event handling, all
 row-click events silently failed to reach Python. Playwright captured this browser error:
 
-```
+```text
 TypeError: Converting circular structure to JSON
   --> starting at object with constructor 'Object'
   |     property 'context' -> object with constructor 'Sr'

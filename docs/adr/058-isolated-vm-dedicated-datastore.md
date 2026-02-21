@@ -17,6 +17,7 @@ density caps (10–25 VMs/DS). However, certain mission-critical workloads shoul
 
 Placing a SAP HANA VM alongside 9 other VMs on a "Hot tier" datastore defeats
 the purpose of workload isolation:
+
 - PowerStore volume-level snapshots would capture all 10 VMs, not just HANA
 - QoS policy applies to the shared volume, not just HANA
 - Restore requires mounting the entire 10-VM volume
@@ -29,6 +30,7 @@ a dedicated 1:1 datastore. Remaining VMs proceed through normal Hot/Warm/Cold
 tiered BFD.
 
 Isolation triggers (any one is sufficient):
+
 1. Workload category contains "SAP HANA" or "Exchange"
 2. VM provisioned capacity exceeds 2 TB
 3. VM IOPS exceeds 5,000

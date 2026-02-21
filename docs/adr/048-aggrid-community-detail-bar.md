@@ -1,6 +1,6 @@
 # ADR-048: AG Grid Community constraint — detail bar instead of master-detail
 
-**Date:** 2026-02-20  
+**Date:** 2026-02-20
 **Status:** Accepted
 
 ## Context
@@ -14,7 +14,7 @@ expand icon on each row opening an inline sub-panel.
 
 After implementation, Playwright tests revealed:
 
-```
+```text
 AG Grid: error #200 Unable to use masterDetail as MasterDetailModule is not registered
 AG Grid: error #200 Unable to use agGroupCellRenderer
 ```

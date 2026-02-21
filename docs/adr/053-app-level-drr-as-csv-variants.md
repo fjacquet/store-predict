@@ -29,7 +29,7 @@ adding code logic to the classification engine or calculation layer.
 The existing `(category, subcategory) → DRR float` lookup in `DRRTable` already
 provides the necessary flexibility. New rows such as:
 
-```
+```text
 Database;Oracle - TDE (Encrypted);1.5
 Database;Oracle - HCC + TDE;1.2
 VM Replication;Data Domain Virtual Edition (DDVE);1.0

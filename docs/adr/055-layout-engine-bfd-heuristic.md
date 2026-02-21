@@ -23,6 +23,7 @@ Use **multi-dimensional Best Fit Decreasing (BFD)** with normalized scoring as t
 placement algorithm for all three strategies (Consolidation, Performance, Uniform).
 
 The algorithm:
+
 1. Normalize each VM as `max(capacity_ratio, iops_ratio)` where ratios are relative
    to per-datastore limits
 2. Sort VMs descending by this score (largest/most-demanding first)
