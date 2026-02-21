@@ -5,7 +5,9 @@ Pure pipeline module with zero UI imports.
 
 from __future__ import annotations
 
+import csv
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -25,7 +27,8 @@ __all__ = [
 # Keys match workload_category format: "Category/Subcategory"
 # ---------------------------------------------------------------------------
 
-DEFAULT_IOPS_BY_WORKLOAD: dict[str, float] = {
+# Hardcoded fallback — used when IOPS.csv is missing or empty
+_DEFAULT_IOPS_HARDCODED: dict[str, float] = {
     "Database/Microsoft SQL": 500.0,
     "Database/Oracle": 800.0,
     "Database/SAP HANA(S4)": 1000.0,
@@ -36,7 +39,47 @@ DEFAULT_IOPS_BY_WORKLOAD: dict[str, float] = {
     "Unknown (Reducible)/Unknown (Reducible)": 50.0,
 }
 
+# Path to IOPS CSV: pipeline/ -> store_predict/ -> data/IOPS.csv (package data, always available)
+_IOPS_CSV_PATH: Path = Path(__file__).parent.parent / "data" / "IOPS.csv"
+
 _DEFAULT_IOPS_FALLBACK: float = 50.0
+
+
+def _load_iops_from_csv(path: Path = _IOPS_CSV_PATH) -> dict[str, float]:
+    """Load IOPS defaults from a semicolon-delimited CSV file.
+
+    Falls back to _DEFAULT_IOPS_HARDCODED if the file is missing or empty.
+    Strips whitespace from both key and value fields. Skips rows with non-numeric
+    IOPS values.
+
+    Args:
+        path: Path to the semicolon-delimited CSV with columns:
+              ``Workload Category;IOPS Estimate``
+
+    Returns:
+        dict mapping workload category string to IOPS float.
+    """
+    if not path.exists():
+        return dict(_DEFAULT_IOPS_HARDCODED)
+
+    result: dict[str, float] = {}
+    with path.open(encoding="utf-8") as f:
+        reader = csv.DictReader(f, delimiter=";")
+        for row in reader:
+            category_raw = row.get("Workload Category", "")
+            iops_raw = row.get("IOPS Estimate", "")
+            category = category_raw.strip()
+            try:
+                iops = float(iops_raw.strip())
+            except ValueError:
+                continue
+            if category:
+                result[category] = iops
+
+    return result if result else dict(_DEFAULT_IOPS_HARDCODED)
+
+
+DEFAULT_IOPS_BY_WORKLOAD: dict[str, float] = _load_iops_from_csv()
 
 
 # ---------------------------------------------------------------------------
