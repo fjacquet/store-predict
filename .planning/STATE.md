@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase: 16-layout-page-ui (Plan 2 of 2 — COMPLETE)
+Phase: 17-pdf-excel-integration (Plan 1 of 1 — COMPLETE)
 
 ## Milestone
 
@@ -20,14 +20,15 @@ v3.0 — Datastore Layout Recommendations
 - [x] Phase 15-02: ADR-059, research page, architecture.md (4-stage pipeline), CHANGELOG.md v3.0.0
 - [x] Phase 16-01: /layout page with comparison table, settings panel, 3-strategy comparison view, nav bar integration
 - [x] Phase 16-02: Strategy detail tabs with expandable datastore tables and VM drill-down (REQ-009)
+- [x] Phase 17-01: PDF layout page (page 3) + Excel layout sheet (sheet 4) with 15-metric comparison table (REQ-012, REQ-013)
 
 ## Current Phase Progress
 
-Phase 16: Plan 2/2 complete (16-01-SUMMARY.md + 16-02-SUMMARY.md exist)
+Phase 17: Plan 1/1 complete (17-01-SUMMARY.md exists)
 
 ## Next Action
 
-Execute Phase 17 (PDF/Excel export of layout recommendations)
+Execute Phase 18 (i18n & Polish — online help/tooltips for all UI pages)
 
 ## Project Reference
 
@@ -66,8 +67,11 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 - stdlib csv.DictReader used for IOPS loader (not pandas) — keeps layout_models.py lightweight with zero extra dependencies
 - ADR-059: workload-based IOPS defaults accepted; Linux/Windows IOPS split not implemented (documented as known limitation)
 - mkdocs.yml nav corrected: ADRs 048-058 added, ADRs 015-033 filenames fixed (pre-existing bug resolved)
+- [Phase 17]: _layout_metric_rows in pdf_report.py, imported by excel_report.py — avoids new file, keeps services UI-free
+- [Phase 17]: Layout page/sheet skipped when summary.total_vms == 0 — matches UI empty-state handling
+- [Phase 17]: PDF layout page uses generate_all_proposals() with default PlacementConstraints — no public API change, reproducible defaults for report context
 
 ## Last Session
 
-- **Stopped at:** Completed 16-02-PLAN.md
+- **Stopped at:** Completed 17-01-PLAN.md
 - **Timestamp:** 2026-02-21
