@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase: 17-pdf-excel-integration (Plan 1 of 1 — COMPLETE)
+Phase: 18-i18n-and-polish (Plan 1 of 1 — COMPLETE)
 
 ## Milestone
 
@@ -21,14 +21,15 @@ v3.0 — Datastore Layout Recommendations
 - [x] Phase 16-01: /layout page with comparison table, settings panel, 3-strategy comparison view, nav bar integration
 - [x] Phase 16-02: Strategy detail tabs with expandable datastore tables and VM drill-down (REQ-009)
 - [x] Phase 17-01: PDF layout page (page 3) + Excel layout sheet (sheet 4) with 15-metric comparison table (REQ-012, REQ-013)
+- [x] Phase 18-01: tooltip (15 keys) + chart (5 keys) i18n sections; chart legends localized; slot template fixed; .tooltip() on 9+ UI controls (REQ-011)
 
 ## Current Phase Progress
 
-Phase 17: Plan 1/1 complete (17-01-SUMMARY.md exists)
+Phase 18: Plan 1/1 complete (18-01-SUMMARY.md exists)
 
 ## Next Action
 
-Execute Phase 18 (i18n & Polish — online help/tooltips for all UI pages)
+v3.0 Datastore Layout milestone complete — all 8 plans across 5 phases delivered.
 
 ## Project Reference
 
@@ -70,8 +71,11 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 - [Phase 17]: _layout_metric_rows in pdf_report.py, imported by excel_report.py — avoids new file, keeps services UI-free
 - [Phase 17]: Layout page/sheet skipped when summary.total_vms == 0 — matches UI empty-state handling
 - [Phase 17]: PDF layout page uses generate_all_proposals() with default PlacementConstraints — no public API change, reproducible defaults for report context
+- [Phase 18-i18n-and-polish]: f-string slot template: Vue {{ }} must be escaped to {{{{ }}}} in Python f-strings
+- [Phase 18-i18n-and-polish]: Sankey node/link parity: provisioned_label/required_label variables ensure source/target matches node name regardless of locale
+- [Phase 18-i18n-and-polish]: Tooltip annotations placed inside page render functions (not module level) to respect NiceGUI client context
 
 ## Last Session
 
-- **Stopped at:** Completed 17-01-PLAN.md
+- **Stopped at:** Completed 18-01-PLAN.md
 - **Timestamp:** 2026-02-21
