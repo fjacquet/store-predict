@@ -52,8 +52,8 @@ Shipped outside GSD planning:
 ### v3.0 Datastore Layout Recommendations
 
 - [ ] **Phase 14: Layout Engine Core** (2 plans)
-  - Plan 14-01: Data models + Consolidation strategy + metrics
-  - Plan 14-02: Performance + Uniform strategies + orchestrator
+  - [ ] 14-01-PLAN.md — Data models + Consolidation strategy + BFD core + metrics + default IOPS
+  - [ ] 14-02-PLAN.md — Performance + Uniform strategies + generate_all_proposals orchestrator
 - [ ] **Phase 15: Default IOPS & Research Docs** (1 plan)
   - Plan 15-01: IOPS estimation table + ADR + research page
 - [ ] **Phase 16: Layout Page UI** (2 plans)
@@ -82,7 +82,7 @@ Shipped outside GSD planning:
 | 11. LLM Classification | v1.1 | 2/2 | Complete | 2026-02-20 |
 | 12. UX Polish | v1.1 | 2/2 | Complete | 2026-02-20 |
 | 13. Graphics | v1.1 | 3/3 | Complete | 2026-02-20 |
-| **14. Layout Engine Core** | **v3.0** | **0/2** | **Not started** | |
+| **14. Layout Engine Core** | **v3.0** | **0/2** | **Planned** | |
 | **15. Default IOPS & Docs** | **v3.0** | **0/1** | **Not started** | |
 | **16. Layout Page UI** | **v3.0** | **0/2** | **Not started** | |
 | **17. PDF & Excel Integration** | **v3.0** | **0/1** | **Not started** | |
