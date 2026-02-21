@@ -3,12 +3,14 @@
 ## Overview
 
 StorePredict is a full-Python web application for Dell pre-sales engineers.
-It implements a **3-stage pipeline** that ingests VMware workload exports,
-classifies virtual machines into workload categories, and predicts
-Data Reduction Ratios (DRR) for Dell PowerStore arrays.
+It implements a **4-stage pipeline** that ingests VMware workload exports,
+classifies virtual machines into workload categories, predicts
+Data Reduction Ratios (DRR) for Dell PowerStore arrays, and produces
+datastore layout recommendations using three placement strategies.
 
 The result is a one-page PDF sizing report that pre-sales engineers can
-present to customers with defensible capacity numbers.
+present to customers with defensible capacity numbers and optimal datastore
+layout proposals.
 
 ## Pipeline Architecture
 
@@ -35,7 +37,9 @@ flowchart TD
     Overrides --> Calc["Calculation Engine"]
     Calc --> Summary["SizingSummary"]
 
-    Summary --> PDF["PDF Report<br/>(ReportLab)"]
+    Summary --> Layout["Layout Engine<br/>3 strategies (BFD / tier BFD / LPT)"]
+    Layout --> Proposals["LayoutProposal[]<br/>(consolidation, performance, uniform)"]
+    Proposals --> PDF["PDF Report<br/>(ReportLab)"]
 ```
 
 ## Data Flow
@@ -45,7 +49,8 @@ flowchart LR
     A[".xlsx / .csv<br/>Upload"] --> B["DataFrame<br/>9 canonical columns"]
     B --> C["Classified<br/>DataFrame"]
     C --> D["SizingSummary<br/>per-VM + grouped"]
-    D --> E["PDF Report"]
+    D --> E1["LayoutProposal[]<br/>3 strategies"]
+    E1 --> E["PDF Report"]
 ```
 
 The canonical columns after ingestion are:
@@ -105,6 +110,23 @@ The canonical columns after ingestion are:
 - **`services/calculation.py`** -- Computes per-VM required capacity as
   `Provisioned / DRR`. For multi-workload VMs, uses the lowest (most conservative)
   DRR. Weighted average DRR = `total_provisioned / total_required`.
+
+### Layout Engine
+
+- **`pipeline/layout_models.py`** — Frozen dataclasses for layout domain:
+  `PlacementConstraints` (4 TiB DS, 25 VMs/DS, 100K IOPS/DS defaults),
+  `DatastoreRecommendation` (immutable DS snapshot with assigned VMs),
+  `LayoutMetrics` (15-field aggregate metrics),
+  `LayoutProposal` (strategy name + datastores + metrics).
+  Also provides `DEFAULT_IOPS_BY_WORKLOAD` loaded from `samples/IOPS.csv`.
+
+- **`pipeline/layout_engine.py`** — Three layout strategies producing datastore
+  placement recommendations:
+  - **Consolidation:** Multi-dimensional BFD bin-packing minimizing datastore count
+  - **Performance:** Phase 0 mission-critical isolation (SAP HANA, Exchange, >2 TiB,
+    >5000 IOPS) + three-tier (HOT/WARM/COLD) independent BFD
+  - **Uniform:** LPT (Longest Processing Time) across pre-computed equal-sized bins
+  - `generate_all_proposals()` — Public entry point returning all 3 strategies
 
 ### PDF Report
 

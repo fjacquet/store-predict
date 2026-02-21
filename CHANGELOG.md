@@ -4,6 +4,35 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v3.0.0] - 2026-02-21
+
+Datastore layout recommendations for PowerStore sizing.
+
+### Layout Engine
+
+- Three layout strategies: Consolidation (BFD bin-packing), Performance (mission-critical isolation + tier BFD), Uniform (LPT equal distribution)
+- Multi-dimensional BFD algorithm respecting capacity, IOPS budget, and VM count constraints per datastore
+- Default 4 TiB datastores, 25 VMs/DS, 100K IOPS/DS (all tunable via PlacementConstraints)
+- Oversized VMs (>usable capacity) automatically placed in dedicated datastores
+- `generate_all_proposals()` public API returning all 3 strategy proposals
+
+### Default IOPS Estimates
+
+- Workload-based IOPS estimates for RVTools imports (no LiveOptics performance data)
+- 8 workload categories: Database/SQL (500), Oracle (800), SAP HANA (1000), VDI (30-50), generic VMs (50), File (100)
+- Configurable via `samples/IOPS.csv` (semicolon-delimited, same pattern as DRR.csv)
+- Hardcoded fallback when CSV is missing — tests remain independent
+
+### Documentation
+
+- ADR-059: Workload-based IOPS defaults for RVTools sizing
+- Research page: Default IOPS domain knowledge (sources, conservative bias, peak vs average)
+- Architecture docs updated with layout engine as 4th pipeline stage
+
+### Tests
+
+- 46+ layout engine tests covering BFD packing, 3 strategies, metrics, IOPS injection, CSV loading
+
 ## [v2.2.0] - 2026-02-21
 
 Observability, developer experience, and project health improvements.
