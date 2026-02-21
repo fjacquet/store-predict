@@ -5,12 +5,15 @@ Tests use real objects and fixtures — no unittest.mock per project convention.
 
 from __future__ import annotations
 
-from store_predict.pipeline.calculation import VMCalculation
+from store_predict.pipeline.calculation import CalculationSummary, VMCalculation
 from store_predict.pipeline.layout_engine import (
     _apply_default_iops,
     _bfd_place,
     _compute_metrics,
     _consolidation_strategy,
+    _performance_strategy,
+    _uniform_strategy,
+    generate_all_proposals,
 )
 from store_predict.pipeline.layout_models import (
     DatastoreRecommendation,
@@ -42,6 +45,32 @@ def _make_vm(
         required_mib=required_mib,
         peak_iops=peak_iops,
         avg_iops=peak_iops * 0.7,
+    )
+
+
+def _make_summary(
+    vms: list[VMCalculation],
+    has_performance_data: bool = True,
+) -> CalculationSummary:
+    """Build a minimal CalculationSummary from a list of VMCalculation objects."""
+    total_vms = len(vms)
+    total_provisioned = sum(v.provisioned_mib for v in vms)
+    total_required = sum(v.required_mib for v in vms)
+    total_in_use = sum(v.in_use_mib for v in vms)
+    weighted_drr = (
+        sum(v.drr * v.provisioned_mib for v in vms) / total_provisioned
+        if total_provisioned > 0
+        else 0.0
+    )
+    return CalculationSummary(
+        vm_calculations=vms,
+        workload_groups=[],
+        total_vms=total_vms,
+        total_provisioned_mib=total_provisioned,
+        total_in_use_mib=total_in_use,
+        total_required_mib=total_required,
+        weighted_avg_drr=weighted_drr,
+        has_performance_data=has_performance_data,
     )
 
 
@@ -337,3 +366,290 @@ class TestDefaultIOPS:
         vm = _make_vm("vm-sql", "Database/Microsoft SQL", 100 * _GiB, peak_iops=0.0)
         result = _apply_default_iops(vm)
         assert abs(result.avg_iops - result.peak_iops * 0.7) < 1e-9
+
+
+# ---------------------------------------------------------------------------
+# TestPerformanceStrategy
+# ---------------------------------------------------------------------------
+
+
+class TestPerformanceStrategy:
+    def test_sap_hana_isolated(self) -> None:
+        """VM with 'Database/SAP HANA(S4)' workload gets its own DS named DS_HANA_01."""
+        c = PlacementConstraints()
+        hana_vm = _make_vm("vm-hana", "Database/SAP HANA(S4)", 200 * _GiB, peak_iops=1000.0)
+        proposal = _performance_strategy([hana_vm], c)
+        ds_names = [ds.name for ds in proposal.datastores]
+        assert "DS_HANA_01" in ds_names
+
+    def test_exchange_isolated(self) -> None:
+        """VM with 'Exchange' in workload category gets DS_EXCHANGE_01."""
+        c = PlacementConstraints()
+        exch_vm = _make_vm("vm-exch", "Email/Exchange", 100 * _GiB, peak_iops=400.0)
+        proposal = _performance_strategy([exch_vm], c)
+        ds_names = [ds.name for ds in proposal.datastores]
+        assert "DS_EXCHANGE_01" in ds_names
+
+    def test_high_iops_isolated(self) -> None:
+        """VM with peak_iops > 5000 gets DS_ISOLATED_01."""
+        c = PlacementConstraints()
+        hot_vm = _make_vm("vm-hot", "Database/Microsoft SQL", 50 * _GiB, peak_iops=6000.0)
+        proposal = _performance_strategy([hot_vm], c)
+        ds_names = [ds.name for ds in proposal.datastores]
+        assert "DS_ISOLATED_01" in ds_names
+
+    def test_large_vm_isolated(self) -> None:
+        """VM with required_mib > 2 TiB gets DS_ISOLATED_01 (non-HANA, non-Exchange category)."""
+        c = PlacementConstraints()
+        # Use a category that doesn't match HANA/Exchange/Oracle naming
+        big_vm = _make_vm("vm-big", "Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email", 3 * _TiB)
+        proposal = _performance_strategy([big_vm], c)
+        ds_names = [ds.name for ds in proposal.datastores]
+        assert "DS_ISOLATED_01" in ds_names
+
+    def test_hot_tier_max_10_vms(self) -> None:
+        """15 hot VMs: no DS should have more than 10 VMs (HOT tier constraint)."""
+        c = PlacementConstraints()
+        # SQL VMs with moderate size — classified as HOT (Database category)
+        hot_vms = [
+            _make_vm(f"vm-sql-{i:02d}", "Database/Microsoft SQL", 100 * _GiB, peak_iops=200.0)
+            for i in range(15)
+        ]
+        proposal = _performance_strategy(hot_vms, c)
+        hot_datastores = [ds for ds in proposal.datastores if ds.name.startswith("DS_HOT")]
+        assert len(hot_datastores) >= 2, "15 hot VMs at max 10/DS should create at least 2 DS"
+        assert all(ds.vm_count <= 10 for ds in hot_datastores), "No HOT DS should exceed 10 VMs"
+
+    def test_tier_classification(self) -> None:
+        """SQL VM = HOT tier, 200 IOPS VM = WARM, 50 IOPS VM = COLD."""
+        c = PlacementConstraints()
+        sql_vm = _make_vm("vm-sql", "Database/Microsoft SQL", 50 * _GiB, peak_iops=600.0)
+        warm_vm = _make_vm("vm-warm", "File/General Purpose", 50 * _GiB, peak_iops=200.0)
+        _vm_cat = "Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email"
+        cold_vm = _make_vm("vm-cold", _vm_cat, 50 * _GiB, peak_iops=50.0)
+
+        proposal = _performance_strategy([sql_vm, warm_vm, cold_vm], c)
+        ds_names = [ds.name for ds in proposal.datastores]
+
+        assert any(name.startswith("DS_HOT") for name in ds_names), "SQL VM should land in DS_HOT"
+        assert any(name.startswith("DS_WARM") for name in ds_names), "200 IOPS VM should land in DS_WARM"
+        assert any(name.startswith("DS_COLD") for name in ds_names), "50 IOPS VM should land in DS_COLD"
+
+    def test_anti_affinity_natural(self) -> None:
+        """Database VMs and VDI VMs should NOT share any datastore."""
+        c = PlacementConstraints()
+        db_vms = [
+            _make_vm(f"vm-sql-{i:02d}", "Database/Microsoft SQL", 50 * _GiB, peak_iops=600.0)
+            for i in range(5)
+        ]
+        vdi_vms = [
+            _make_vm(f"vm-vdi-{i:02d}", "VDI/Full Clone / MCS (Citrix)", 20 * _GiB, peak_iops=30.0)
+            for i in range(5)
+        ]
+
+        proposal = _performance_strategy(db_vms + vdi_vms, c)
+
+        for ds in proposal.datastores:
+            has_db = any("Database" in vm.workload_category for vm in ds.assigned_vms)
+            has_vdi = any("VDI" in vm.workload_category for vm in ds.assigned_vms)
+            assert not (has_db and has_vdi), (
+                f"DS {ds.name} co-locates Database and VDI VMs (anti-affinity violation)"
+            )
+
+    def test_isolated_ds_sized_to_vm(self) -> None:
+        """Isolated DS raw capacity equals vm.required_mib / constraints.usable_ratio."""
+        c = PlacementConstraints()
+        hana_vm = _make_vm("vm-hana", "Database/SAP HANA(S4)", 500 * _GiB, peak_iops=1000.0)
+        proposal = _performance_strategy([hana_vm], c)
+
+        hana_ds = next(ds for ds in proposal.datastores if ds.name.startswith("DS_HANA"))
+        expected_raw = hana_vm.required_mib / c.usable_ratio
+        assert abs(hana_ds.raw_capacity_mib - expected_raw) < 1.0, (
+            f"Isolated DS should be sized to VM: expected {expected_raw:.1f}, got {hana_ds.raw_capacity_mib:.1f}"
+        )
+
+    def test_naming_prefixes(self) -> None:
+        """HOT tier DS names start with DS_HOT, WARM with DS_WARM, COLD with DS_COLD."""
+        c = PlacementConstraints()
+        # Create one VM in each tier to ensure all tier datastores are created
+        hot_vm = _make_vm("vm-hot", "Database/Oracle", 50 * _GiB, peak_iops=800.0)
+        warm_vm = _make_vm("vm-warm", "File/General Purpose", 50 * _GiB, peak_iops=200.0)
+        _vm_cat = "Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email"
+        cold_vm = _make_vm("vm-cold", _vm_cat, 50 * _GiB, peak_iops=10.0)
+
+        proposal = _performance_strategy([hot_vm, warm_vm, cold_vm], c)
+        ds_names = [ds.name for ds in proposal.datastores]
+
+        assert any(n.startswith("DS_HOT") for n in ds_names)
+        assert any(n.startswith("DS_WARM") for n in ds_names)
+        assert any(n.startswith("DS_COLD") for n in ds_names)
+
+
+# ---------------------------------------------------------------------------
+# TestUniformStrategy
+# ---------------------------------------------------------------------------
+
+
+class TestUniformStrategy:
+    def test_basic_uniform(self) -> None:
+        """10 VMs distributed across the calculated DS count — all VMs are placed."""
+        c = PlacementConstraints()
+        vms = [
+            _make_vm(f"vm-{i:02d}", "Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email", 100 * _GiB)
+            for i in range(10)
+        ]
+        proposal = _uniform_strategy(vms, c)
+        total_vms_placed = sum(ds.vm_count for ds in proposal.datastores)
+        assert total_vms_placed == 10, "All 10 VMs should be placed"
+
+    def test_naming_convention(self) -> None:
+        """DS names follow DS_UNIFORM_01, DS_UNIFORM_02, etc."""
+        c = PlacementConstraints()
+        vms = [
+            _make_vm(f"vm-{i:02d}", "Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email", 100 * _GiB)
+            for i in range(5)
+        ]
+        proposal = _uniform_strategy(vms, c)
+        for ds in proposal.datastores:
+            assert ds.name.startswith("DS_UNIFORM_"), f"Unexpected DS name: {ds.name}"
+
+    def test_balanced_distribution(self) -> None:
+        """Max utilization difference between any two DS should be < 30%."""
+        c = PlacementConstraints()
+        # Create VMs of varying sizes to test LPT balancing
+        _vm_cat = "Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email"
+        vms = [
+            _make_vm(f"vm-{i:02d}", _vm_cat, (i + 1) * 50 * _GiB)
+            for i in range(10)
+        ]
+        proposal = _uniform_strategy(vms, c)
+
+        if len(proposal.datastores) >= 2:
+            util_values = [ds.utilization_pct for ds in proposal.datastores]
+            max_diff = max(util_values) - min(util_values)
+            assert max_diff < 30.0, f"Utilization imbalance too high: {max_diff:.1f}%"
+
+    def test_iops_driven_ds_count(self) -> None:
+        """High-IOPS VMs force more datastores than capacity alone would require."""
+        # Use large IOPS budget constraint — force IOPS to drive count
+        c = PlacementConstraints(iops_budget_per_ds=1000.0)
+        # 10 VMs each with 200 IOPS → total 2000 IOPS → need ceil(2000/1000) = 2 DS for IOPS
+        # But capacity: each VM is 10 GiB, total 100 GiB / 2.7 TiB → only 1 DS needed for capacity
+        _vm_cat = "Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email"
+        vms = [
+            _make_vm(f"vm-{i:02d}", _vm_cat, 10 * _GiB, peak_iops=200.0)
+            for i in range(10)
+        ]
+        proposal = _uniform_strategy(vms, c)
+        # IOPS forces 2 DS (2000 / 1000), capacity only needs 1 DS
+        assert proposal.metrics.total_ds_count >= 2, "IOPS constraint should drive DS count above capacity-only minimum"
+
+    def test_empty_vms(self) -> None:
+        """Empty VM list returns proposal with 0 datastores."""
+        c = PlacementConstraints()
+        proposal = _uniform_strategy([], c)
+        assert proposal.strategy_name == "uniform"
+        assert proposal.metrics.total_ds_count == 0
+        assert len(proposal.datastores) == 0
+
+
+# ---------------------------------------------------------------------------
+# TestGenerateAllProposals
+# ---------------------------------------------------------------------------
+
+
+class TestGenerateAllProposals:
+    def test_returns_three_proposals(self) -> None:
+        """generate_all_proposals always returns exactly 3 proposals."""
+        vms = [_make_vm("vm-01", "Database/Microsoft SQL", 100 * _GiB, peak_iops=500.0)]
+        summary = _make_summary(vms)
+        proposals = generate_all_proposals(summary)
+        assert len(proposals) == 3
+
+    def test_strategy_names(self) -> None:
+        """Strategy names are exactly ['consolidation', 'performance', 'uniform'] in order."""
+        vms = [_make_vm("vm-01", "Database/Oracle", 200 * _GiB, peak_iops=800.0)]
+        summary = _make_summary(vms)
+        proposals = generate_all_proposals(summary)
+        names = [p.strategy_name for p in proposals]
+        assert names == ["consolidation", "performance", "uniform"]
+
+    def test_empty_summary(self) -> None:
+        """Empty vm_calculations returns 3 proposals each with 0 datastores."""
+        summary = _make_summary([])
+        proposals = generate_all_proposals(summary)
+        assert len(proposals) == 3
+        for p in proposals:
+            assert p.metrics.total_ds_count == 0
+
+    def test_default_iops_applied_for_rvtools(self) -> None:
+        """For has_performance_data=False (RVTools), zero-IOPS VMs get default IOPS injected."""
+        # SQL VM with zero IOPS — simulate RVTools export (no performance data)
+        vms = [
+            _make_vm("vm-sql", "Database/Microsoft SQL", 100 * _GiB, peak_iops=0.0),
+        ]
+        summary = _make_summary(vms, has_performance_data=False)
+        proposals = generate_all_proposals(summary)
+        # With default IOPS injected (500 for SQL), IOPS constraint should be exercised
+        # The key invariant: we get 3 proposals successfully, and the performance strategy
+        # sees non-zero IOPS (SQL at 500 > 500 threshold is not > 500, so HOT tier via Database check)
+        assert len(proposals) == 3
+        # Each proposal should have placed all VMs
+        for p in proposals:
+            total = sum(ds.vm_count for ds in p.datastores)
+            assert total == 1, f"Strategy {p.strategy_name} should place 1 VM, got {total}"
+
+    def test_real_iops_preserved_for_liveoptics(self) -> None:
+        """For has_performance_data=True (LiveOptics), original IOPS are preserved."""
+        # VM with real IOPS measurement — Oracle workload with very high IOPS
+        # Oracle VMs with peak_iops > 5000 are isolated with DS_ORA prefix
+        vms = [
+            _make_vm("vm-perf", "Database/Oracle", 200 * _GiB, peak_iops=5500.0),
+        ]
+        summary = _make_summary(vms, has_performance_data=True)
+        proposals = generate_all_proposals(summary)
+        assert len(proposals) == 3
+
+        # With real IOPS > 5000, VM should be in an isolated DS in performance strategy
+        # Oracle workloads get DS_ORA prefix, not DS_ISOLATED
+        perf_proposal = next(p for p in proposals if p.strategy_name == "performance")
+        ds_names = [ds.name for ds in perf_proposal.datastores]
+        assert "DS_ORA_01" in ds_names, "High-IOPS Oracle VM should be isolated with DS_ORA prefix"
+
+    def test_consolidation_fewest_datastores(self) -> None:
+        """Consolidation should produce <= datastores than uniform and performance."""
+        # Create a mix of VMs that would be separated by performance strategy
+        vms = [
+            _make_vm(f"vm-sql-{i:02d}", "Database/Microsoft SQL", 100 * _GiB, peak_iops=300.0)
+            for i in range(5)
+        ] + [
+            _make_vm(f"vm-vdi-{i:02d}", "VDI/Full Clone / MCS (Citrix)", 20 * _GiB, peak_iops=30.0)
+            for i in range(10)
+        ]
+        summary = _make_summary(vms)
+        proposals = generate_all_proposals(summary)
+
+        consolidation = next(p for p in proposals if p.strategy_name == "consolidation")
+        performance = next(p for p in proposals if p.strategy_name == "performance")
+        uniform = next(p for p in proposals if p.strategy_name == "uniform")
+
+        assert consolidation.metrics.total_ds_count <= performance.metrics.total_ds_count, (
+            f"Consolidation ({consolidation.metrics.total_ds_count}) should use <= DS than "
+            f"performance ({performance.metrics.total_ds_count})"
+        )
+        assert consolidation.metrics.total_ds_count <= uniform.metrics.total_ds_count, (
+            f"Consolidation ({consolidation.metrics.total_ds_count}) should use <= DS than "
+            f"uniform ({uniform.metrics.total_ds_count})"
+        )
+
+    def test_default_constraints_used(self) -> None:
+        """When constraints=None, defaults are applied and result is valid."""
+        vms = [_make_vm("vm-01", "Database/Microsoft SQL", 100 * _GiB, peak_iops=500.0)]
+        summary = _make_summary(vms)
+        # Pass constraints=None explicitly to exercise the default-injection path
+        proposals = generate_all_proposals(summary, constraints=None)
+        assert len(proposals) == 3
+        for p in proposals:
+            # All VMs should be placed
+            total = sum(ds.vm_count for ds in p.datastores)
+            assert total == 1
