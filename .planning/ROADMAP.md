@@ -62,7 +62,7 @@ Shipped outside GSD planning:
   - [x] 16-01-PLAN.md — Comparison view + Advanced Settings panel + navigation/guards
   - [x] 16-02-PLAN.md — Detail view with expandable datastore tables + VM drill-down
 - [ ] **Phase 17: PDF & Excel Integration** (1 plan)
-  - Plan 17-01: PDF layout page + Excel layout sheet
+  - [ ] 17-01-PLAN.md — PDF layout page + Excel layout sheet + i18n keys + tests
 - [ ] **Phase 18: i18n & Polish** (1 plan)
   - Plan 18-01: Full i18n + edge cases + navigation polish
 
