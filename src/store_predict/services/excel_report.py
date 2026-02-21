@@ -66,6 +66,7 @@ def generate_report_xlsx(
     _write_summary_sheet(wb, summary, header_fmt, bold_fmt, number_fmt, int_fmt)
     _write_breakdown_sheet(wb, summary, header_fmt, number_fmt, int_fmt, alt_fmt, alt_right_fmt)
     _write_vm_detail_sheet(wb, summary, header_fmt, number_fmt, alt_fmt, alt_right_fmt)
+    _write_layout_sheet(wb, summary, header_fmt, bold_fmt, number_fmt)
 
     wb.close()
     return buf.getvalue()
@@ -218,6 +219,75 @@ def _write_vm_detail_sheet(
             ws.write(row, 7, vm.avg_iops, num_fmt)
             ws.write(row, 8, vm.peak_throughput_mbs, num_fmt)
             ws.write(row, 9, vm.iops_8k_equivalent, num_fmt)
+
+    ws.freeze_panes(1, 0)
+    ws.autofit()
+
+
+def _write_layout_sheet(
+    wb: xlsxwriter.Workbook,
+    summary: CalculationSummary,
+    header_fmt: Format,
+    bold_fmt: Format,
+    number_fmt: Format,
+) -> None:
+    """Write the Layout Recommendations sheet with strategy comparison and per-strategy detail."""
+    if summary.total_vms == 0:
+        return
+
+    from store_predict.pipeline.layout_engine import generate_all_proposals
+    from store_predict.services.pdf_report import _layout_metric_rows
+
+    proposals = generate_all_proposals(summary)
+
+    ws = wb.add_worksheet(_i18n.t("excel.sheet_layout"))
+
+    # --- Comparison summary at top ---
+    ws.write(0, 0, _i18n.t("layout_page.metric"), header_fmt)
+    ws.write(0, 1, _i18n.t("strategy.consolidation"), header_fmt)
+    ws.write(0, 2, _i18n.t("strategy.performance"), header_fmt)
+    ws.write(0, 3, _i18n.t("strategy.uniform"), header_fmt)
+
+    row = 1
+    for metric_key, c_val, p_val, u_val in _layout_metric_rows(proposals):
+        ws.write(row, 0, _i18n.t(f"metrics.{metric_key}"), bold_fmt)
+        ws.write(row, 1, c_val)
+        ws.write(row, 2, p_val)
+        ws.write(row, 3, u_val)
+        row += 1
+
+    row += 1  # blank separator
+
+    # --- Per-strategy detail sub-tables ---
+    proposal_by_name = {p.strategy_name: p for p in proposals}
+    for strategy_name in ("consolidation", "performance", "uniform"):
+        proposal = proposal_by_name[strategy_name]
+        ws.write(row, 0, _i18n.t(f"strategy.{strategy_name}"), bold_fmt)
+        row += 1
+
+        ds_headers = [
+            _i18n.t("ds.name"),
+            _i18n.t("ds.raw_cap"),
+            _i18n.t("ds.used"),
+            _i18n.t("ds.util"),
+            _i18n.t("ds.vms"),
+            _i18n.t("ds.iops"),
+            _i18n.t("ds.workloads"),
+        ]
+        ws.write_row(row, 0, ds_headers, header_fmt)
+        row += 1
+
+        for ds in proposal.datastores:
+            ws.write(row, 0, ds.name)
+            ws.write(row, 1, ds.raw_capacity_mib / (1024 * 1024), number_fmt)  # TiB
+            ws.write(row, 2, ds.used_capacity_mib / (1024 * 1024), number_fmt)  # TiB
+            ws.write(row, 3, ds.utilization_pct, number_fmt)
+            ws.write(row, 4, ds.vm_count)
+            ws.write(row, 5, ds.total_iops, number_fmt)
+            ws.write(row, 6, ", ".join(sorted(ds.workload_types)))
+            row += 1
+
+        row += 1  # blank separator between strategies
 
     ws.freeze_panes(1, 0)
     ws.autofit()
