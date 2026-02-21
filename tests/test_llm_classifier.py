@@ -10,7 +10,11 @@ import os
 
 import pytest
 
-from store_predict.pipeline.llm_classifier import classify_unknown_vms_async
+from store_predict.pipeline.llm_classifier import (
+    _chunks,
+    _parse_batch_response,
+    classify_unknown_vms_async,
+)
 from store_predict.services.drr_table import DRRTable
 from store_predict.services.llm_config import LLMConfig
 
@@ -77,3 +81,86 @@ def test_get_api_key_returns_string() -> None:
         assert config.get_api_key() == "test-key-value"
     finally:
         del os.environ["LLM_API_KEY"]
+
+
+# ---------------------------------------------------------------------------
+# Batch classification tests (Phase 19-01)
+# ---------------------------------------------------------------------------
+
+
+def test_llm_config_batch_size_default() -> None:
+    """LLMConfig.batch_size defaults to 10."""
+    config = LLMConfig()
+    assert config.batch_size == 10
+
+
+def test_llm_config_batch_size_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """LLM_BATCH_SIZE env var overrides the default batch_size."""
+    monkeypatch.setenv("LLM_BATCH_SIZE", "20")
+    config = LLMConfig()
+    assert config.batch_size == 20
+
+
+def test_parse_batch_response_valid() -> None:
+    """_parse_batch_response parses a valid JSON array correctly."""
+    raw = '[{"id":0,"category":"Database","keyword":"SQL"},{"id":1,"category":"Web Servers","keyword":"NGINX"}]'
+    valid = {"Database", "Web Servers"}
+    result = _parse_batch_response(raw, valid)
+    assert len(result) == 2
+    assert result[0]["id"] == 0
+    assert result[0]["category"] == "Database"
+    assert result[0]["keyword"] == "SQL"
+    assert result[1]["id"] == 1
+    assert result[1]["category"] == "Web Servers"
+    assert result[1]["keyword"] == "NGINX"
+
+
+def test_parse_batch_response_with_fences() -> None:
+    """_parse_batch_response strips markdown code fences before parsing."""
+    raw = '```json\n[{"id":0,"category":"Database","keyword":"SQL"}]\n```'
+    valid = {"Database"}
+    result = _parse_batch_response(raw, valid)
+    assert len(result) == 1
+    assert result[0]["category"] == "Database"
+    assert result[0]["keyword"] == "SQL"
+
+
+def test_parse_batch_response_invalid_json() -> None:
+    """_parse_batch_response returns empty list on unparseable input."""
+    result = _parse_batch_response("not json at all", {"Database"})
+    assert result == []
+
+
+def test_parse_batch_response_invalid_category() -> None:
+    """_parse_batch_response excludes items with categories not in valid set."""
+    raw = '[{"id":0,"category":"InvalidCat","keyword":"FOO"}]'
+    valid = {"Database", "Web Servers"}
+    result = _parse_batch_response(raw, valid)
+    assert result == []
+
+
+def test_parse_batch_response_keyword_normalization() -> None:
+    """_parse_batch_response uppercases keywords."""
+    raw = '[{"id":0,"category":"Database","keyword":"redis"}]'
+    valid = {"Database"}
+    result = _parse_batch_response(raw, valid)
+    assert len(result) == 1
+    assert result[0]["keyword"] == "REDIS"
+
+
+def test_classifier_batch_skips_when_disabled(drr_table: DRRTable) -> None:
+    """classify_unknown_vms_async with batch path returns records unchanged when disabled."""
+    records = [
+        {"vm_name": "UNKNOWN-01", "os_name": "", "classification_confidence": "default"},
+        {"vm_name": "UNKNOWN-02", "os_name": "", "classification_confidence": "default"},
+    ]
+    config = LLMConfig()  # enabled=False
+    result_records, suggestions = asyncio.run(classify_unknown_vms_async(records, drr_table, config))
+    assert all(r["classification_confidence"] == "default" for r in result_records)
+    assert suggestions == []
+
+
+def test_chunks_helper() -> None:
+    """_chunks splits a list into sublists of at most n elements."""
+    result = _chunks([1, 2, 3, 4, 5], 2)
+    assert result == [[1, 2], [3, 4], [5]]
