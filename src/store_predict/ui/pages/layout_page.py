@@ -312,20 +312,20 @@ def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> N
 
     table.add_slot(
         "header",
-        r'''
+        r"""
         <q-tr :props="props">
           <q-th auto-width />
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
         </q-tr>
-        ''',
+        """,
     )
 
     vms_label = t("ds.vm_list")
     table.add_slot(
         "body",
-        f'''
+        f"""
         <q-tr :props="props">
           <q-td auto-width>
             <q-btn
@@ -362,7 +362,7 @@ def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> N
             </div>
           </q-td>
         </q-tr>
-        ''',
+        """,
     )
 
 
@@ -389,12 +389,12 @@ def _build_strategy_detail(proposal: LayoutProposal) -> None:
             ui.label(t("metrics.avg_utilization")).classes("text-xs text-gray-500")
         with ui.card().classes("p-3 text-center min-w-[100px]"):
             ui.label(f"{m.isolation_score:.2f}").classes("text-xl font-bold text-blue-700")
-            ui.label(t("metrics.isolation_score")).classes("text-xs text-gray-500") \
-                .tooltip(t("tooltip.isolation_score"))
+            ui.label(t("metrics.isolation_score")).classes("text-xs text-gray-500").tooltip(
+                t("tooltip.isolation_score")
+            )
         with ui.card().classes("p-3 text-center min-w-[100px]"):
             ui.label(str(m.oversized_vm_count)).classes("text-xl font-bold text-blue-700")
-            ui.label(t("metrics.oversized_vms")).classes("text-xs text-gray-500") \
-                .tooltip(t("tooltip.oversized_vms"))
+            ui.label(t("metrics.oversized_vms")).classes("text-xs text-gray-500").tooltip(t("tooltip.oversized_vms"))
 
     if not proposal.datastores:
         ui.label(t("layout_page.no_datastores")).classes("text-gray-400 italic p-4")
@@ -566,11 +566,14 @@ def _build_settings_panel(
         64 * 1024 * 1024: "64 TB",
     }
 
-    with ui.expansion(
-        t("layout_page.settings_title"),
-        icon="settings",
-        caption=t("layout_page.settings_subtitle"),
-    ).classes("w-full border border-gray-200 rounded-lg"), ui.column().classes("w-full gap-4 p-2"):
+    with (
+        ui.expansion(
+            t("layout_page.settings_title"),
+            icon="settings",
+            caption=t("layout_page.settings_subtitle"),
+        ).classes("w-full border border-gray-200 rounded-lg"),
+        ui.column().classes("w-full gap-4 p-2"),
+    ):
         # 1. Max DS capacity — dropdown
         ui.select(
             options=tb_options,
@@ -583,9 +586,7 @@ def _build_settings_panel(
         with ui.column().classes("w-full gap-1"):
             with ui.row().classes("w-full items-center justify-between"):
                 ui.label(t("layout_page.max_vms_per_ds")).classes("text-sm")
-                max_vms_label = ui.label(str(constraints.max_vms_per_ds)).classes(
-                    "text-sm font-mono w-8 text-right"
-                )
+                max_vms_label = ui.label(str(constraints.max_vms_per_ds)).classes("text-sm font-mono w-8 text-right")
             max_vms_slider = (
                 ui.slider(
                     min=5,

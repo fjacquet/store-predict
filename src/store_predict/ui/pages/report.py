@@ -131,15 +131,23 @@ async def report_page() -> None:
 
         # Action buttons
         with ui.row().classes("gap-4"):
-            pdf_btn = ui.button(
-                t("report.download_pdf"),
-                icon="download",
-            ).classes("bg-blue-700 text-white").tooltip(t("tooltip.download_pdf"))
+            pdf_btn = (
+                ui.button(
+                    t("report.download_pdf"),
+                    icon="download",
+                )
+                .classes("bg-blue-700 text-white")
+                .tooltip(t("tooltip.download_pdf"))
+            )
 
-            excel_btn = ui.button(
-                t("report.download_excel"),
-                icon="table_view",
-            ).classes("bg-green-700 text-white").tooltip(t("tooltip.download_excel"))
+            excel_btn = (
+                ui.button(
+                    t("report.download_excel"),
+                    icon="table_view",
+                )
+                .classes("bg-green-700 text-white")
+                .tooltip(t("tooltip.download_excel"))
+            )
 
             ui.button(
                 t("report.back_to_review"),

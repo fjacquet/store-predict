@@ -62,13 +62,9 @@ class _DatastoreBuilder:
     def to_recommendation(self) -> DatastoreRecommendation:
         """Freeze this builder into an immutable DatastoreRecommendation."""
         utilization_pct = (
-            self.used_capacity_mib / self.usable_capacity_mib * 100.0
-            if self.usable_capacity_mib > 0
-            else 0.0
+            self.used_capacity_mib / self.usable_capacity_mib * 100.0 if self.usable_capacity_mib > 0 else 0.0
         )
-        workload_types: frozenset[str] = frozenset(
-            vm.workload_category for vm in self.assigned_vms
-        )
+        workload_types: frozenset[str] = frozenset(vm.workload_category for vm in self.assigned_vms)
         return DatastoreRecommendation(
             name=self.name,
             raw_capacity_mib=self.raw_capacity_mib,
@@ -241,9 +237,7 @@ def _compute_metrics(datastores: list[DatastoreRecommendation]) -> LayoutMetrics
     iops_values = [ds.total_iops for ds in datastores]
 
     # Isolation score: ratio of datastores that contain only a single workload type
-    single_workload_ds = sum(
-        1 for ds in datastores if len({v.workload_category for v in ds.assigned_vms}) <= 1
-    )
+    single_workload_ds = sum(1 for ds in datastores if len({v.workload_category for v in ds.assigned_vms}) <= 1)
     isolation_score = single_workload_ds / ds_count if ds_count > 0 else 0.0
 
     # Snapshot granularity rating based on average VM density
@@ -256,14 +250,10 @@ def _compute_metrics(datastores: list[DatastoreRecommendation]) -> LayoutMetrics
         snapshot_granularity = "coarse"
 
     # Count oversized VMs (in datastores with _OVER_ in the name)
-    oversized_vm_count = sum(
-        ds.vm_count for ds in datastores if "_OVER_" in ds.name
-    )
+    oversized_vm_count = sum(ds.vm_count for ds in datastores if "_OVER_" in ds.name)
 
     max_iops = max(iops_values, default=0.0)
-    iops_headroom_pct = (
-        (1.0 - max_iops / 100_000.0) * 100.0 if max_iops < 100_000.0 else 0.0
-    )
+    iops_headroom_pct = (1.0 - max_iops / 100_000.0) * 100.0 if max_iops < 100_000.0 else 0.0
 
     return LayoutMetrics(
         total_ds_count=ds_count,
@@ -397,11 +387,7 @@ def _isolate_vms(
         ds_name = f"{prefix}_{prefix_counters[prefix]:02d}"
 
         # Size DS exactly to this VM (not global max)
-        vm_raw_mib = (
-            vm.required_mib / constraints.usable_ratio
-            if constraints.usable_ratio > 0
-            else vm.required_mib
-        )
+        vm_raw_mib = vm.required_mib / constraints.usable_ratio if constraints.usable_ratio > 0 else vm.required_mib
         b = _DatastoreBuilder(
             name=ds_name,
             raw_capacity_mib=vm_raw_mib,
@@ -533,10 +519,7 @@ def _uniform_strategy(
         sorted_vms = sorted(normal_vms, key=lambda vm: vm.required_mib, reverse=True)
         for vm in sorted_vms:
             # Try to find a bin where the VM actually fits
-            eligible = [
-                b for b in uniform_bins
-                if b.used_capacity_mib + vm.required_mib <= b.usable_capacity_mib
-            ]
+            eligible = [b for b in uniform_bins if b.used_capacity_mib + vm.required_mib <= b.usable_capacity_mib]
             if eligible:
                 least_loaded = min(eligible, key=lambda b: b.used_capacity_mib)
                 least_loaded.add_vm(vm)

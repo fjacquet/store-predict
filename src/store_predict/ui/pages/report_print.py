@@ -183,6 +183,7 @@ def _card(label: str, value: str) -> None:
 # Layout print page
 # ---------------------------------------------------------------------------
 
+
 def _fmt_tib(mib: float) -> str:
     """Format MiB as TiB with 2 decimal places."""
     return f"{mib / (1024 * 1024):.2f} TiB"
@@ -220,20 +221,20 @@ def _build_print_datastore_table(datastores: tuple[Any, ...]) -> None:
 
     table.add_slot(
         "header",
-        r'''
+        r"""
         <q-tr :props="props">
           <q-th auto-width />
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
         </q-tr>
-        ''',
+        """,
     )
 
     # Body slot: rows are always expanded for print (no toggle button)
     table.add_slot(
         "body",
-        f'''
+        f"""
         <q-tr :props="props">
           <q-td auto-width />
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
@@ -254,7 +255,7 @@ def _build_print_datastore_table(datastores: tuple[Any, ...]) -> None:
             </div>
           </q-td>
         </q-tr>
-        ''',
+        """,
     )
 
 

@@ -193,14 +193,16 @@ class TestLayoutEnginePerformance:
             "Containers/Kubernetes",
         ]
         for i in range(n):
-            row_data.append({
-                "vm_name": f"{_VM_NAME_PREFIXES[i % len(_VM_NAME_PREFIXES)]}{i:04d}",
-                "os_name": _OS_VALUES[i % len(_OS_VALUES)],
-                "workload_category": categories[i % len(categories)],
-                "provisioned_mib": 50_000.0 + (i % 100) * 100,
-                "in_use_mib": (50_000.0 + (i % 100) * 100) * 0.6,
-                "drr": 3.0 + (i % 5),
-            })
+            row_data.append(
+                {
+                    "vm_name": f"{_VM_NAME_PREFIXES[i % len(_VM_NAME_PREFIXES)]}{i:04d}",
+                    "os_name": _OS_VALUES[i % len(_OS_VALUES)],
+                    "workload_category": categories[i % len(categories)],
+                    "provisioned_mib": 50_000.0 + (i % 100) * 100,
+                    "in_use_mib": (50_000.0 + (i % 100) * 100) * 0.6,
+                    "drr": 3.0 + (i % 5),
+                }
+            )
 
         summary = calculate(row_data)
 

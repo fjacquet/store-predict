@@ -196,9 +196,7 @@ def test_layout_page_slot_uses_ds_vm_list() -> None:
     assert "VMs assigned:" not in source, (
         "layout_page.py still has hardcoded 'VMs assigned:' — use t('ds.vm_list') via f-string"
     )
-    assert "ds.vm_list" in source, (
-        "layout_page.py must reference t('ds.vm_list') for the slot template label"
-    )
+    assert "ds.vm_list" in source, "layout_page.py must reference t('ds.vm_list') for the slot template label"
 
 
 def test_charts_no_hardcoded_legend_strings() -> None:

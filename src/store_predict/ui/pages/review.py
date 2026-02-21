@@ -74,14 +74,18 @@ async def review_page() -> None:
 
         # Storage model selector — switches DRR calculation strategy
         current_model = get_storage_model()
-        storage_toggle = ui.toggle(
-            {
-                StorageModel.POWERSTORE: t("storage_model.powerstore"),
-                StorageModel.POWERFLEX: t("storage_model.powerflex"),
-                StorageModel.POWERVAULT: t("storage_model.powervault"),
-            },
-            value=current_model,
-        ).classes("mb-2").tooltip(t("tooltip.storage_model"))
+        storage_toggle = (
+            ui.toggle(
+                {
+                    StorageModel.POWERSTORE: t("storage_model.powerstore"),
+                    StorageModel.POWERFLEX: t("storage_model.powerflex"),
+                    StorageModel.POWERVAULT: t("storage_model.powervault"),
+                },
+                value=current_model,
+            )
+            .classes("mb-2")
+            .tooltip(t("tooltip.storage_model"))
+        )
 
         async def _on_model_change(new_model: StorageModel) -> None:
             set_storage_model(new_model)

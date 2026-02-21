@@ -104,11 +104,13 @@ def _parse_batch_response(raw: str, valid_categories: set[str]) -> list[dict[str
                 kw = str(raw_keyword).upper()
                 if len(kw) >= 2:
                     keyword = kw
-            results.append({
-                "id": item["id"],
-                "category": category,
-                "keyword": keyword,
-            })
+            results.append(
+                {
+                    "id": item["id"],
+                    "category": category,
+                    "keyword": keyword,
+                }
+            )
         return results
     except (ValueError, KeyError, TypeError):
         return []
@@ -148,10 +150,7 @@ async def classify_batch_vms(
         safe_os = os_name[:50].replace("\n", " ").replace("\r", " ")
         vm_list.append({"id": i, "vm_name": safe_vm, "os": safe_os})
 
-    user_prompt = (
-        f"Categories: {', '.join(sorted(valid_categories))}\n\n"
-        f"VMs to classify:\n{json.dumps(vm_list)}"
-    )
+    user_prompt = f"Categories: {', '.join(sorted(valid_categories))}\n\nVMs to classify:\n{json.dumps(vm_list)}"
 
     messages = [
         {"role": "system", "content": _BATCH_SYSTEM_PROMPT},
@@ -347,10 +346,7 @@ async def classify_unknown_vms_async(
     async def _classify_chunk(chunk: list[dict[str, Any]]) -> None:
         nonlocal classified_count, completed_count
         async with semaphore:
-            batch = [
-                (str(r.get("vm_name", "")), str(r.get("os_name", "")))
-                for r in chunk
-            ]
+            batch = [(str(r.get("vm_name", "")), str(r.get("os_name", ""))) for r in chunk]
             results = await classify_batch_vms(
                 batch=batch,
                 valid_categories=valid_categories,

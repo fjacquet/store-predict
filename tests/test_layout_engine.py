@@ -61,11 +61,7 @@ def _make_summary(
     total_provisioned = sum(v.provisioned_mib for v in vms)
     total_required = sum(v.required_mib for v in vms)
     total_in_use = sum(v.in_use_mib for v in vms)
-    weighted_drr = (
-        sum(v.drr * v.provisioned_mib for v in vms) / total_provisioned
-        if total_provisioned > 0
-        else 0.0
-    )
+    weighted_drr = sum(v.drr * v.provisioned_mib for v in vms) / total_provisioned if total_provisioned > 0 else 0.0
     return CalculationSummary(
         vm_calculations=vms,
         workload_groups=[],
@@ -224,6 +220,7 @@ class TestConsolidationStrategy:
     def test_returns_layout_proposal(self) -> None:
         """Result is a LayoutProposal with strategy_name='consolidation'."""
         from store_predict.pipeline.layout_models import LayoutProposal
+
         c = PlacementConstraints()
         vms = [_make_vm("vm-01", "Database/Oracle", 100 * _GiB)]
         proposal = _consolidation_strategy(vms, c)
@@ -416,8 +413,7 @@ class TestPerformanceStrategy:
         c = PlacementConstraints()
         # SQL VMs with moderate size — classified as HOT (Database category)
         hot_vms = [
-            _make_vm(f"vm-sql-{i:02d}", "Database/Microsoft SQL", 100 * _GiB, peak_iops=200.0)
-            for i in range(15)
+            _make_vm(f"vm-sql-{i:02d}", "Database/Microsoft SQL", 100 * _GiB, peak_iops=200.0) for i in range(15)
         ]
         proposal = _performance_strategy(hot_vms, c)
         hot_datastores = [ds for ds in proposal.datastores if ds.name.startswith("DS_HOT")]
@@ -442,13 +438,9 @@ class TestPerformanceStrategy:
     def test_anti_affinity_natural(self) -> None:
         """Database VMs and VDI VMs should NOT share any datastore."""
         c = PlacementConstraints()
-        db_vms = [
-            _make_vm(f"vm-sql-{i:02d}", "Database/Microsoft SQL", 50 * _GiB, peak_iops=600.0)
-            for i in range(5)
-        ]
+        db_vms = [_make_vm(f"vm-sql-{i:02d}", "Database/Microsoft SQL", 50 * _GiB, peak_iops=600.0) for i in range(5)]
         vdi_vms = [
-            _make_vm(f"vm-vdi-{i:02d}", "VDI/Full Clone / MCS (Citrix)", 20 * _GiB, peak_iops=30.0)
-            for i in range(5)
+            _make_vm(f"vm-vdi-{i:02d}", "VDI/Full Clone / MCS (Citrix)", 20 * _GiB, peak_iops=30.0) for i in range(5)
         ]
 
         proposal = _performance_strategy(db_vms + vdi_vms, c)
@@ -456,9 +448,7 @@ class TestPerformanceStrategy:
         for ds in proposal.datastores:
             has_db = any("Database" in vm.workload_category for vm in ds.assigned_vms)
             has_vdi = any("VDI" in vm.workload_category for vm in ds.assigned_vms)
-            assert not (has_db and has_vdi), (
-                f"DS {ds.name} co-locates Database and VDI VMs (anti-affinity violation)"
-            )
+            assert not (has_db and has_vdi), f"DS {ds.name} co-locates Database and VDI VMs (anti-affinity violation)"
 
     def test_isolated_ds_sized_to_vm(self) -> None:
         """Isolated DS raw capacity equals vm.required_mib / constraints.usable_ratio."""
@@ -522,10 +512,7 @@ class TestUniformStrategy:
         c = PlacementConstraints()
         # Create VMs of varying sizes to test LPT balancing
         _vm_cat = "Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email"
-        vms = [
-            _make_vm(f"vm-{i:02d}", _vm_cat, (i + 1) * 50 * _GiB)
-            for i in range(10)
-        ]
+        vms = [_make_vm(f"vm-{i:02d}", _vm_cat, (i + 1) * 50 * _GiB) for i in range(10)]
         proposal = _uniform_strategy(vms, c)
 
         if len(proposal.datastores) >= 2:
@@ -540,10 +527,7 @@ class TestUniformStrategy:
         # 10 VMs each with 200 IOPS → total 2000 IOPS → need ceil(2000/1000) = 2 DS for IOPS
         # But capacity: each VM is 10 GiB, total 100 GiB / 2.7 TiB → only 1 DS needed for capacity
         _vm_cat = "Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email"
-        vms = [
-            _make_vm(f"vm-{i:02d}", _vm_cat, 10 * _GiB, peak_iops=200.0)
-            for i in range(10)
-        ]
+        vms = [_make_vm(f"vm-{i:02d}", _vm_cat, 10 * _GiB, peak_iops=200.0) for i in range(10)]
         proposal = _uniform_strategy(vms, c)
         # IOPS forces 2 DS (2000 / 1000), capacity only needs 1 DS
         assert proposal.metrics.total_ds_count >= 2, "IOPS constraint should drive DS count above capacity-only minimum"
@@ -574,9 +558,7 @@ class TestUniformStrategy:
         ]
         result = _uniform_strategy(vms, constraints)
         for ds in result.datastores:
-            assert ds.utilization_pct <= 100.0, (
-                f"{ds.name} has {ds.utilization_pct:.1f}% utilization (>100%)"
-            )
+            assert ds.utilization_pct <= 100.0, f"{ds.name} has {ds.utilization_pct:.1f}% utilization (>100%)"
 
     def test_oversized_vm_gets_dedicated_datastore(self) -> None:
         """Oversized VMs should get DS_UNIFORM_OVER_ datastores, not overflow standard bins."""
@@ -664,12 +646,8 @@ class TestGenerateAllProposals:
     def test_consolidation_fewest_datastores(self) -> None:
         """Consolidation should produce <= datastores than uniform and performance."""
         # Create a mix of VMs that would be separated by performance strategy
-        vms = [
-            _make_vm(f"vm-sql-{i:02d}", "Database/Microsoft SQL", 100 * _GiB, peak_iops=300.0)
-            for i in range(5)
-        ] + [
-            _make_vm(f"vm-vdi-{i:02d}", "VDI/Full Clone / MCS (Citrix)", 20 * _GiB, peak_iops=30.0)
-            for i in range(10)
+        vms = [_make_vm(f"vm-sql-{i:02d}", "Database/Microsoft SQL", 100 * _GiB, peak_iops=300.0) for i in range(5)] + [
+            _make_vm(f"vm-vdi-{i:02d}", "VDI/Full Clone / MCS (Citrix)", 20 * _GiB, peak_iops=30.0) for i in range(10)
         ]
         summary = _make_summary(vms)
         proposals = generate_all_proposals(summary)
@@ -730,9 +708,7 @@ class TestLoadIOPSFromCSV:
         """Rows with non-numeric IOPS values are skipped; valid rows are loaded."""
         csv_file = tmp_path / "IOPS.csv"
         csv_file.write_text(
-            "Workload Category;IOPS Estimate\n"
-            "Database/Oracle;800\n"
-            "BadCategory;notanumber\n",
+            "Workload Category;IOPS Estimate\nDatabase/Oracle;800\nBadCategory;notanumber\n",
             encoding="utf-8",
         )
         result = _load_iops_from_csv(csv_file)
