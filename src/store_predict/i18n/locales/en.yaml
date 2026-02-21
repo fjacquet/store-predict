@@ -106,6 +106,8 @@ pdf:
   pie_title: "Workload Distribution"
   drr_bar_title: "DRR by Workload Category"
   before_after_title: "Capacity: Before vs After DRR"
+  layout_heading: "Datastore Layout Recommendations"
+  layout_strategy_label: "Strategy"
 
 layout:
   home: Home
@@ -214,6 +216,7 @@ excel:
   sheet_summary: Summary
   sheet_breakdown: Workload Breakdown
   sheet_vm_detail: VM Detail
+  sheet_layout: "Layout Recommendations"
   col_metric: Metric
   col_value: Value
   col_category: Category

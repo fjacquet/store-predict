@@ -106,6 +106,8 @@ pdf:
   pie_title: "Distribution des charges"
   drr_bar_title: "DRR par catégorie"
   before_after_title: "Capacité : avant vs après DRR"
+  layout_heading: "Recommandations de disposition des datastores"
+  layout_strategy_label: "Stratégie"
 
 layout:
   home: Accueil
@@ -214,6 +216,7 @@ excel:
   sheet_summary: "Résumé"
   sheet_breakdown: "Répartition"
   sheet_vm_detail: "Détail VMs"
+  sheet_layout: "Recommandations de disposition"
   col_metric: "Métrique"
   col_value: "Valeur"
   col_category: "Catégorie"

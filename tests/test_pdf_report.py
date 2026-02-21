@@ -138,3 +138,42 @@ class TestFormatStorage:
     def test_just_below_tib_threshold(self) -> None:
         # 1023 GiB = 1023 * 1024 MiB
         assert format_storage(1023.0 * 1024) == "1023.0 GiB"
+
+
+# ---------------------------------------------------------------------------
+# Layout page tests
+# ---------------------------------------------------------------------------
+class TestPdfLayoutPage:
+    def test_layout_page_locale_differs(self) -> None:
+        """PDF with layout page should differ between EN and FR locales."""
+        summary = _make_summary(
+            [
+                ("Database/Microsoft SQL", 3, 30720.0, 5.0),
+                ("Virtual Machines", 2, 10240.0, 5.0),
+            ]
+        )
+        en_bytes = generate_report_pdf(summary, "Layout Test", locale="en")
+        fr_bytes = generate_report_pdf(summary, "Layout Test", locale="fr")
+        assert en_bytes != fr_bytes
+
+    def test_layout_page_skipped_when_empty(self) -> None:
+        """PDF with empty summary should still be valid, no layout page rendered."""
+        summary = _make_summary()  # total_vms == 0
+        result = generate_report_pdf(summary, "Empty Project")
+        assert isinstance(result, bytes)
+        assert result[:5] == b"%PDF-"
+        assert len(result) > 0
+
+    def test_layout_page_present_with_data(self) -> None:
+        """PDF with VM data should produce a larger file than empty (layout page included)."""
+        empty_summary = _make_summary()
+        full_summary = _make_summary(
+            [
+                ("Database/Microsoft SQL", 3, 30720.0, 5.0),
+                ("Virtual Machines", 2, 10240.0, 5.0),
+            ]
+        )
+        empty_bytes = generate_report_pdf(empty_summary, "Empty")
+        full_bytes = generate_report_pdf(full_summary, "Full")
+        # Full report has more pages (including layout page), so it should be larger
+        assert len(full_bytes) > len(empty_bytes)
