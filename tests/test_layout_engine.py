@@ -556,6 +556,47 @@ class TestUniformStrategy:
         assert proposal.metrics.total_ds_count == 0
         assert len(proposal.datastores) == 0
 
+    def test_no_datastore_exceeds_capacity(self) -> None:
+        """Regression: uniform strategy must never produce >100% utilization."""
+        # Create VMs with very uneven sizes — one large VM close to usable capacity
+        constraints = PlacementConstraints(
+            max_ds_capacity_mib=4 * 1024 * 1024,
+            snapshot_reserve_pct=15.0,
+            growth_margin_pct=20.0,
+        )
+        usable = constraints.usable_capacity_mib  # ~2.72 TiB
+        vms = [
+            _make_vm("big1", "Email", required_mib=usable * 0.95),
+            _make_vm("big2", "Email", required_mib=usable * 0.90),
+            _make_vm("big3", "Email", required_mib=usable * 0.85),
+            _make_vm("small1", "Email", required_mib=usable * 0.20),
+            _make_vm("small2", "Email", required_mib=usable * 0.15),
+        ]
+        result = _uniform_strategy(vms, constraints)
+        for ds in result.datastores:
+            assert ds.utilization_pct <= 100.0, (
+                f"{ds.name} has {ds.utilization_pct:.1f}% utilization (>100%)"
+            )
+
+    def test_oversized_vm_gets_dedicated_datastore(self) -> None:
+        """Oversized VMs should get DS_UNIFORM_OVER_ datastores, not overflow standard bins."""
+        constraints = PlacementConstraints(max_ds_capacity_mib=4 * 1024 * 1024)
+        usable = constraints.usable_capacity_mib
+        vms = [
+            _make_vm("huge", "Email", required_mib=usable * 2.5),  # 2.5x usable — definitely oversized
+            _make_vm("normal1", "Email", required_mib=usable * 0.3),
+            _make_vm("normal2", "Email", required_mib=usable * 0.3),
+        ]
+        result = _uniform_strategy(vms, constraints)
+        over_ds = [ds for ds in result.datastores if "_OVER_" in ds.name]
+        assert len(over_ds) == 1
+        assert over_ds[0].vm_count == 1
+        assert over_ds[0].assigned_vms[0].vm_name == "huge"
+        # Standard bins should not be overloaded
+        for ds in result.datastores:
+            if "_OVER_" not in ds.name:
+                assert ds.utilization_pct <= 100.0
+
 
 # ---------------------------------------------------------------------------
 # TestGenerateAllProposals

@@ -112,7 +112,7 @@ The `workload_category` field â€” the only lookup key available at layout time â
 does not distinguish OS for generic VMs. Both Linux and Windows VMs that are
 unclassified as database/VDI/file share the single category:
 
-```
+```text
 Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email
 ```
 

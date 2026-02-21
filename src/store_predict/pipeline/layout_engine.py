@@ -344,11 +344,14 @@ def _is_mission_critical(vm: VMCalculation) -> bool:
 def _classify_tier(vm: VMCalculation) -> PerformanceTier:
     """Classify a VM into a performance tier.
 
-    HOT: peak_iops > 500 or workload contains "Database"
+    HOT: peak_iops > 500 or workload category starts with "Database"
     WARM: 100 <= peak_iops <= 500
     COLD: otherwise (low IOPS, non-Database)
+
+    Uses startswith("Database") rather than "in" to avoid false positive on
+    categories like "Virtual Machines/... - No Database, File nor Email".
     """
-    if vm.peak_iops > 500 or "Database" in vm.workload_category:
+    if vm.peak_iops > 500 or vm.workload_category.startswith("Database"):
         return PerformanceTier.HOT
     if 100.0 <= vm.peak_iops <= 500.0:
         return PerformanceTier.WARM
@@ -470,6 +473,9 @@ def _uniform_strategy(
     DS count is driven by whichever dimension (capacity or IOPS) requires more datastores.
     LPT (Longest Processing Time): sort VMs by required_mib descending, assign each to
     the least-loaded bin. This produces balanced utilization across datastores.
+
+    Oversized VMs (required_mib > usable_capacity_mib) get dedicated datastores,
+    same as BFD strategies — they can never fit in a standard bin.
     """
     if not vms:
         return LayoutProposal(
@@ -478,31 +484,73 @@ def _uniform_strategy(
             metrics=_compute_metrics([]),
         )
 
-    total_cap = sum(vm.required_mib for vm in vms)
-    total_iops = sum(vm.peak_iops for vm in vms)
     usable = constraints.usable_capacity_mib
     iops_budget = constraints.iops_budget_per_ds
 
-    # DS count is max of capacity-driven and IOPS-driven requirements
-    ds_count_cap = ceil(total_cap / usable) if usable > 0 else 1
-    ds_count_iops = ceil(total_iops / iops_budget) if iops_budget > 0 else 1
-    ds_count = max(ds_count_cap, ds_count_iops, 1)
+    # Separate oversized VMs — they can never fit in a standard bin
+    normal_vms: list[VMCalculation] = []
+    oversized_vms: list[VMCalculation] = []
+    for vm in vms:
+        if vm.required_mib > usable:
+            oversized_vms.append(vm)
+        else:
+            normal_vms.append(vm)
 
-    # Create equal-sized bins upfront
-    bins: list[_DatastoreBuilder] = [
-        _DatastoreBuilder(
-            name=f"DS_UNIFORM_{idx:02d}",
-            raw_capacity_mib=constraints.max_ds_capacity_mib,
-            usable_capacity_mib=usable,
+    bins: list[_DatastoreBuilder] = []
+
+    # Give each oversized VM a dedicated datastore sized to the VM
+    for idx, vm in enumerate(oversized_vms, start=1):
+        vm_raw_mib = vm.required_mib / constraints.usable_ratio if constraints.usable_ratio > 0 else vm.required_mib
+        ds_name = f"DS_UNIFORM_OVER_{idx:02d}"
+        b = _DatastoreBuilder(
+            name=ds_name,
+            raw_capacity_mib=vm_raw_mib,
+            usable_capacity_mib=vm.required_mib,
         )
-        for idx in range(1, ds_count + 1)
-    ]
+        b.add_vm(vm)
+        bins.append(b)
 
-    # LPT: largest VMs first, always assign to least-loaded bin
-    sorted_vms = sorted(vms, key=lambda vm: vm.required_mib, reverse=True)
-    for vm in sorted_vms:
-        least_loaded = min(bins, key=lambda b: b.used_capacity_mib)
-        least_loaded.add_vm(vm)
+    if normal_vms:
+        total_cap = sum(vm.required_mib for vm in normal_vms)
+        total_iops = sum(vm.peak_iops for vm in normal_vms)
+
+        # DS count is max of capacity-driven and IOPS-driven requirements
+        ds_count_cap = ceil(total_cap / usable) if usable > 0 else 1
+        ds_count_iops = ceil(total_iops / iops_budget) if iops_budget > 0 else 1
+        ds_count = max(ds_count_cap, ds_count_iops, 1)
+
+        # Create equal-sized bins upfront
+        uniform_bins: list[_DatastoreBuilder] = [
+            _DatastoreBuilder(
+                name=f"DS_UNIFORM_{idx:02d}",
+                raw_capacity_mib=constraints.max_ds_capacity_mib,
+                usable_capacity_mib=usable,
+            )
+            for idx in range(1, ds_count + 1)
+        ]
+
+        # LPT: largest VMs first, assign to least-loaded bin that can still fit
+        sorted_vms = sorted(normal_vms, key=lambda vm: vm.required_mib, reverse=True)
+        for vm in sorted_vms:
+            # Try to find a bin where the VM actually fits
+            eligible = [
+                b for b in uniform_bins
+                if b.used_capacity_mib + vm.required_mib <= b.usable_capacity_mib
+            ]
+            if eligible:
+                least_loaded = min(eligible, key=lambda b: b.used_capacity_mib)
+                least_loaded.add_vm(vm)
+            else:
+                # All existing bins would overflow — open a new one
+                new_bin = _DatastoreBuilder(
+                    name=f"DS_UNIFORM_{len(uniform_bins) + 1:02d}",
+                    raw_capacity_mib=constraints.max_ds_capacity_mib,
+                    usable_capacity_mib=usable,
+                )
+                new_bin.add_vm(vm)
+                uniform_bins.append(new_bin)
+
+        bins.extend(uniform_bins)
 
     recommendations = [b.to_recommendation() for b in bins]
     metrics = _compute_metrics(recommendations)
