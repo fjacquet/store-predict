@@ -112,8 +112,60 @@ layout:
   upload: Upload
   review: Review
   report: Report
+  layout: Layout
   dark_mode: Dark Mode
   language: "FR"
+
+layout_page:
+  title: Datastore Layout Recommendations
+  no_data: No calculation data available. Please upload a file first.
+  settings_title: Advanced Settings
+  settings_subtitle: Adjust constraints to regenerate layouts
+  max_ds_capacity: Max Datastore Capacity
+  max_vms_per_ds: Max VMs per Datastore
+  iops_budget: IOPS Budget per Datastore
+  snapshot_reserve: "Snapshot Reserve %"
+  growth_margin: "Growth Margin %"
+  metric: Metric
+  recommended: Recommended
+  comparison_heading: Strategy Comparison
+  detail_heading: "Strategy Detail: %{strategy}"
+  no_datastores: No datastores generated for this strategy.
+
+strategy:
+  consolidation: Consolidation
+  performance: Performance
+  uniform: Uniform
+  consolidation_desc: Minimize datastore count
+  performance_desc: Maximize workload isolation
+  uniform_desc: Balanced utilization
+
+metrics:
+  ds_count: Datastore Count
+  raw_capacity: "Raw Capacity (TiB)"
+  usable_capacity: "Usable Capacity (TiB)"
+  used_capacity: "Used Capacity (TiB)"
+  avg_utilization: "Avg Utilization %"
+  min_utilization: "Min Utilization %"
+  max_utilization: "Max Utilization %"
+  avg_vm_density: Avg VMs/Datastore
+  max_vm_density: Max VMs/Datastore
+  total_iops: Total IOPS Placed
+  max_iops_ds: Max IOPS (single DS)
+  iops_headroom: "IOPS Headroom %"
+  isolation_score: Isolation Score
+  snapshot_rating: Snapshot Granularity
+  oversized_vms: Oversized VMs
+
+ds:
+  name: Datastore
+  raw_cap: Raw Capacity
+  used: Used
+  util: "Utilization %"
+  vms: VMs
+  iops: IOPS
+  workloads: Workload Types
+  vm_list: Assigned VMs
 
 dialog:
   workloads_for: "Workloads for %{vm_name}"

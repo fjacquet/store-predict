@@ -112,8 +112,60 @@ layout:
   upload: "Télécharger"
   review: "Révision"
   report: Rapport
+  layout: Disposition
   dark_mode: "Mode sombre"
   language: "EN"
+
+layout_page:
+  title: "Recommandations de disposition des datastores"
+  no_data: "Aucune donnée de calcul disponible. Veuillez d'abord télécharger un fichier."
+  settings_title: "Paramètres avancés"
+  settings_subtitle: "Ajustez les contraintes pour régénérer les dispositions"
+  max_ds_capacity: "Capacité maximale du datastore"
+  max_vms_per_ds: "Nombre max de VMs par datastore"
+  iops_budget: "Budget IOPS par datastore"
+  snapshot_reserve: "Réserve snapshot %"
+  growth_margin: "Marge de croissance %"
+  metric: Métrique
+  recommended: Recommandé
+  comparison_heading: "Comparaison des stratégies"
+  detail_heading: "Détail de la stratégie : %{strategy}"
+  no_datastores: "Aucun datastore généré pour cette stratégie."
+
+strategy:
+  consolidation: Consolidation
+  performance: Performance
+  uniform: Uniforme
+  consolidation_desc: "Minimiser le nombre de datastores"
+  performance_desc: "Maximiser l'isolation des charges"
+  uniform_desc: "Utilisation équilibrée"
+
+metrics:
+  ds_count: "Nombre de datastores"
+  raw_capacity: "Capacité brute (Tio)"
+  usable_capacity: "Capacité utilisable (Tio)"
+  used_capacity: "Capacité utilisée (Tio)"
+  avg_utilization: "Utilisation moyenne %"
+  min_utilization: "Utilisation minimale %"
+  max_utilization: "Utilisation maximale %"
+  avg_vm_density: "Densité moy. VMs/datastore"
+  max_vm_density: "Densité max VMs/datastore"
+  total_iops: "Total IOPS placées"
+  max_iops_ds: "IOPS max (datastore unique)"
+  iops_headroom: "Marge IOPS %"
+  isolation_score: "Score d'isolation"
+  snapshot_rating: "Granularité des snapshots"
+  oversized_vms: "VMs surdimensionnées"
+
+ds:
+  name: Datastore
+  raw_cap: "Capacité brute"
+  used: Utilisé
+  util: "Utilisation %"
+  vms: VMs
+  iops: IOPS
+  workloads: "Types de charge"
+  vm_list: "VMs assignées"
 
 dialog:
   workloads_for: "Charges de travail pour %{vm_name}"
