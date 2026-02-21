@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase: 18-i18n-and-polish (Plan 1 of 1 — COMPLETE)
+Phase: 19-batch-llm-classification (Plan 2 of 2 — COMPLETE)
 
 ## Milestone
 
@@ -22,14 +22,20 @@ v3.0 — Datastore Layout Recommendations
 - [x] Phase 16-02: Strategy detail tabs with expandable datastore tables and VM drill-down (REQ-009)
 - [x] Phase 17-01: PDF layout page (page 3) + Excel layout sheet (sheet 4) with 15-metric comparison table (REQ-012, REQ-013)
 - [x] Phase 18-01: tooltip (15 keys) + chart (5 keys) i18n sections; chart legends localized; slot template fixed; .tooltip() on 9+ UI controls (REQ-011)
+- [x] Phase 19-01: Batch LLM classification (classify_batch_vm) for reduced latency on unknown VMs
+- [x] Phase 19-02: Tech debt cleanup — orphaned tooltip keys deleted, NFR-001 benchmark test added
 
 ## Current Phase Progress
 
-Phase 18: Plan 1/1 complete (18-01-SUMMARY.md exists)
+Phase 19: Plan 2/2 complete (19-01-SUMMARY.md, 19-02-SUMMARY.md exist)
 
 ## Next Action
 
-v3.0 Datastore Layout milestone complete — all 8 plans across 5 phases delivered.
+Phase 19 complete. All v3.0 milestone phases finished.
+
+## Roadmap Evolution
+
+- Phase 19 added: Batch LLM Classification — send multiple unknown VMs per LLM call to reduce latency
 
 ## Project Reference
 
@@ -74,8 +80,10 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 - [Phase 18-i18n-and-polish]: f-string slot template: Vue {{ }} must be escaped to {{{{ }}}} in Python f-strings
 - [Phase 18-i18n-and-polish]: Sankey node/link parity: provisioned_label/required_label variables ensure source/target matches node name regardless of locale
 - [Phase 18-i18n-and-polish]: Tooltip annotations placed inside page render functions (not module level) to respect NiceGUI client context
+- [Phase 19-02]: Orphaned tooltip keys (iops_headroom, snapshot_rating) deleted -- ui.table does not support per-cell tooltips
+- [Phase 19-02]: IOPS.csv path fixes already applied in commit 02609f6; no additional doc edits needed
 
 ## Last Session
 
-- **Stopped at:** Completed 18-01-PLAN.md
+- **Stopped at:** Re-executed 19-01-PLAN.md (batch LLM classification)
 - **Timestamp:** 2026-02-21

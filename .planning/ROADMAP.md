@@ -65,7 +65,7 @@ Shipped outside GSD planning:
   - [ ] 17-01-PLAN.md — PDF layout page + Excel layout sheet + i18n keys + tests
 - [x] **Phase 18: i18n & Polish** (1 plan) (completed 2026-02-21)
   - [ ] 18-01-PLAN.md — YAML tooltip+chart keys, fix slot/chart hardcodes, .tooltip() wiring, test coverage
-- [ ] **Phase 19: Batch LLM Classification** (2 plans)
+- [x] **Phase 19: Batch LLM Classification** (2 plans) (completed 2026-02-21)
   - [ ] 19-01-PLAN.md — Prompt-level batch LLM classification with JSON response parsing
   - [ ] 19-02-PLAN.md — Tech debt: stale doc paths, orphaned i18n keys, NFR-001 benchmark
 
