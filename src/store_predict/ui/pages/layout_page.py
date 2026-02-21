@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any
 
 from nicegui import app, ui
 
+from store_predict.config import APP_PORT
 from store_predict.i18n import t
-from store_predict.pipeline.calculation import calculate
+from store_predict.i18n.locale import get_locale
+from store_predict.pipeline.calculation import CalculationSummary, calculate
 from store_predict.pipeline.layout_engine import generate_all_proposals
 from store_predict.pipeline.layout_models import DatastoreRecommendation, LayoutProposal, PlacementConstraints
+from store_predict.services import playwright_pdf, print_session
+from store_predict.services.excel_report import generate_report_xlsx
+from store_predict.services.pdf_report import sanitize_filename
 from store_predict.ui.layout import layout
 
 # ---------------------------------------------------------------------------
@@ -255,6 +261,27 @@ def _build_comparison_table(proposals: list[LayoutProposal]) -> None:
 
 def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> None:
     """Render a ui.table with expandable rows for VM drill-down."""
+    # Expand All / Collapse All buttons
+    with ui.row().classes("gap-2 mb-2"):
+        ui.button(
+            t("layout_page.expand_all"),
+            icon="unfold_more",
+            on_click=lambda: ui.run_javascript(
+                "document.querySelectorAll('.q-table .q-btn .q-icon').forEach(i => {"
+                "  if (i.textContent.trim() === 'expand_more') i.closest('button').click();"
+                "})"
+            ),
+        ).props("flat dense size=sm")
+        ui.button(
+            t("layout_page.collapse_all"),
+            icon="unfold_less",
+            on_click=lambda: ui.run_javascript(
+                "document.querySelectorAll('.q-table .q-btn .q-icon').forEach(i => {"
+                "  if (i.textContent.trim() === 'expand_less') i.closest('button').click();"
+                "})"
+            ),
+        ).props("flat dense size=sm")
+
     columns = [
         {"name": "expand", "label": "", "field": "expand", "align": "left"},
         {"name": "name", "label": t("ds.name"), "field": "name", "align": "left"},
@@ -435,6 +462,68 @@ def _rebuild_layout(
 
 
 # ---------------------------------------------------------------------------
+# Download helpers
+# ---------------------------------------------------------------------------
+
+
+async def _on_download_layout_pdf(summary: CalculationSummary, project_name: str) -> None:
+    """Generate layout PDF via Playwright layout print page and trigger download."""
+    locale = get_locale()
+    constraints = _load_constraints()
+
+    data: dict[str, Any] = {
+        "vm_data": [
+            {
+                "vm_name": vm.vm_name,
+                "workload_category": vm.workload_category,
+                "provisioned_mib": vm.provisioned_mib,
+                "in_use_mib": vm.in_use_mib,
+                "drr": vm.drr,
+                "peak_iops": vm.peak_iops,
+                "avg_iops": vm.avg_iops,
+                "peak_throughput_mbs": vm.peak_throughput_mbs,
+                "iops_8k_equivalent": vm.iops_8k_equivalent,
+            }
+            for vm in summary.vm_calculations
+        ],
+        "project_name": project_name,
+        "locale": locale,
+        "constraints": {
+            "max_ds_capacity_mib": constraints.max_ds_capacity_mib,
+            "max_vms_per_ds": constraints.max_vms_per_ds,
+            "iops_budget_per_ds": constraints.iops_budget_per_ds,
+            "snapshot_reserve_pct": constraints.snapshot_reserve_pct,
+            "growth_margin_pct": constraints.growth_margin_pct,
+        },
+    }
+    token = print_session.create(data)
+    try:
+        pdf_bytes = await playwright_pdf.generate_layout_pdf(token, APP_PORT)
+    except Exception:
+        ui.notify(t("error.unexpected"), type="negative")
+        return
+
+    safe_name = sanitize_filename(project_name)
+    date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
+    filename = f"StorePredict_Layout_{safe_name}_{date_str}.pdf"
+    ui.download(pdf_bytes, filename=filename, media_type="application/pdf")
+
+
+def _on_download_layout_excel(summary: CalculationSummary, project_name: str) -> None:
+    """Generate Excel workbook (including layout sheet) and trigger download."""
+    locale = get_locale()
+    xlsx_bytes = generate_report_xlsx(summary, project_name, locale=locale)
+    safe_name = sanitize_filename(project_name)
+    date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
+    filename = f"StorePredict_Layout_{safe_name}_{date_str}.xlsx"
+    ui.download(
+        xlsx_bytes,
+        filename=filename,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
+# ---------------------------------------------------------------------------
 # Settings panel
 # ---------------------------------------------------------------------------
 
@@ -594,9 +683,37 @@ async def layout_page() -> None:
     constraints = _load_constraints()
     summary = calculate(vm_data)
     proposals = generate_all_proposals(summary, constraints)
+    project_name: str = str(app.storage.tab.get("project_name", ""))
 
     with layout("StorePredict - Layout"), ui.column().classes("w-full p-4 gap-4"):
-        ui.label(t("layout_page.title")).classes("text-2xl font-bold")
+        with ui.row().classes("w-full items-center justify-between"):
+            ui.label(t("layout_page.title")).classes("text-2xl font-bold")
+            with ui.row().classes("gap-2"):
+                pdf_btn = ui.button(
+                    t("layout_page.download_pdf"),
+                    icon="picture_as_pdf",
+                ).classes("bg-blue-700 text-white")
+                excel_btn = ui.button(
+                    t("layout_page.download_excel"),
+                    icon="table_view",
+                ).classes("bg-green-700 text-white")
+
+        async def _on_pdf() -> None:
+            pdf_btn.disable()
+            try:
+                await _on_download_layout_pdf(summary, project_name)
+            finally:
+                pdf_btn.enable()
+
+        def _on_excel() -> None:
+            excel_btn.disable()
+            try:
+                _on_download_layout_excel(summary, project_name)
+            finally:
+                excel_btn.enable()
+
+        pdf_btn.on("click", _on_pdf)
+        excel_btn.on("click", _on_excel)
 
         # Results container — holds comparison table; updated on settings change
         results_container = ui.column().classes("w-full")

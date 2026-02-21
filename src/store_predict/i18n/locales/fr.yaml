@@ -134,6 +134,10 @@ layout_page:
   detail_heading: "Détail de la stratégie : %{strategy}"
   detail_tabs_heading: "Détail des stratégies"
   no_datastores: "Aucun datastore généré pour cette stratégie."
+  download_pdf: "Télécharger le PDF de disposition"
+  download_excel: "Télécharger l'Excel de disposition"
+  expand_all: "Tout déplier"
+  collapse_all: "Tout replier"
 
 strategy:
   consolidation: Consolidation

@@ -62,11 +62,13 @@ def generate_report_xlsx(
     int_fmt = wb.add_format({"num_format": "0", "align": "right"})
     alt_fmt = wb.add_format({"bg_color": _LIGHT_GREY})
     alt_right_fmt = wb.add_format({"bg_color": _LIGHT_GREY, "num_format": "0.00", "align": "right"})
+    indent_fmt = wb.add_format({"indent": 2, "font_color": "#555555"})
+    indent_num_fmt = wb.add_format({"indent": 1, "font_color": "#555555", "num_format": "0.00", "align": "right"})
 
     _write_summary_sheet(wb, summary, header_fmt, bold_fmt, number_fmt, int_fmt)
     _write_breakdown_sheet(wb, summary, header_fmt, number_fmt, int_fmt, alt_fmt, alt_right_fmt)
     _write_vm_detail_sheet(wb, summary, header_fmt, number_fmt, alt_fmt, alt_right_fmt)
-    _write_layout_sheet(wb, summary, header_fmt, bold_fmt, number_fmt)
+    _write_layout_sheet(wb, summary, header_fmt, bold_fmt, number_fmt, indent_fmt, indent_num_fmt)
 
     wb.close()
     return buf.getvalue()
@@ -230,6 +232,8 @@ def _write_layout_sheet(
     header_fmt: Format,
     bold_fmt: Format,
     number_fmt: Format,
+    indent_fmt: Format,
+    indent_num_fmt: Format,
 ) -> None:
     """Write the Layout Recommendations sheet with strategy comparison and per-strategy detail."""
     if summary.total_vms == 0:
@@ -286,6 +290,17 @@ def _write_layout_sheet(
             ws.write(row, 5, ds.total_iops, number_fmt)
             ws.write(row, 6, ", ".join(sorted(ds.workload_types)))
             row += 1
+
+            # VM detail rows (indented)
+            for vm in ds.assigned_vms:
+                ws.write(row, 0, vm.vm_name, indent_fmt)
+                ws.write(row, 1, vm.provisioned_mib / (1024 * 1024), indent_num_fmt)  # TiB
+                ws.write(row, 2, vm.required_mib / (1024 * 1024), indent_num_fmt)  # TiB
+                ws.write(row, 3, None)
+                ws.write(row, 4, None)
+                ws.write(row, 5, None)
+                ws.write(row, 6, vm.workload_category, indent_fmt)
+                row += 1
 
         row += 1  # blank separator between strategies
 
