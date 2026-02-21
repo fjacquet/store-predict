@@ -1,8 +1,12 @@
 name: docs
 on:
   push:
-    branches: [maincd]
     tags: ["v*"]
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 jobs:

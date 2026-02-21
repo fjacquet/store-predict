@@ -5,6 +5,10 @@ on:
   pull_request:
     branches: [maincd]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
