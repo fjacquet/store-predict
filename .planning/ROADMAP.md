@@ -51,7 +51,7 @@ Shipped outside GSD planning:
 
 ### v3.0 Datastore Layout Recommendations
 
-- [ ] **Phase 14: Layout Engine Core** (2 plans)
+- [x] **Phase 14: Layout Engine Core** (2 plans) (completed 2026-02-21)
   - [ ] 14-01-PLAN.md — Data models + Consolidation strategy + BFD core + metrics + default IOPS
   - [ ] 14-02-PLAN.md — Performance + Uniform strategies + generate_all_proposals orchestrator
 - [ ] **Phase 15: Default IOPS & Research Docs** (1 plan)

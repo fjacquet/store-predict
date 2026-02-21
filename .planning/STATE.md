@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase: 14-layout-engine-core (Plan 2 of 2)
+Phase: 14-layout-engine-core (Plan 2 of 2 — COMPLETE)
 
 ## Milestone
 
@@ -15,14 +15,15 @@ v3.0 — Datastore Layout Recommendations
 - [x] REQUIREMENTS.md written (14 REQs + 4 NFRs)
 - [x] ROADMAP.md written (5 phases, 7 plans)
 - [x] Phase 14-01: layout_models.py + layout_engine.py (consolidation strategy, BFD core)
+- [x] Phase 14-02: Performance strategy (Phase 0 isolation + tier BFD) + Uniform strategy (LPT) + generate_all_proposals() orchestrator
 
 ## Current Phase Progress
 
-Phase 14: Plan 1/2 complete (14-01-SUMMARY.md exists)
+Phase 14: Plan 2/2 complete (14-01-SUMMARY.md and 14-02-SUMMARY.md exist)
 
 ## Next Action
 
-Execute Plan 14-02: Performance and Uniform strategies.
+Execute Phase 15 (next phase per ROADMAP.md)
 
 ## Project Reference
 
@@ -44,9 +45,11 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 - Default IOPS estimates for RVTools imports (no performance data)
 - TYPE_CHECKING guard for VMCalculation/CalculationSummary imports in layout modules (safe with from __future__ import annotations)
 - Oversized VM datastores use _OVER_ in name as the distinguishing marker
-- generate_all_proposals() returns consolidation only in Plan 14-01; Performance/Uniform added in 14-02
+- generate_all_proposals() returns all 3 strategies (consolidation, performance, uniform)
+- _classify_tier uses startswith("Database") not "in" — avoids false HOT match on "No Database, File nor Email" category string
+- Workload-based prefix (DS_ORA, DS_HANA, DS_EXCHANGE) takes priority over generic DS_ISOLATED in _isolate_vms()
 
 ## Last Session
 
-- **Stopped at:** Completed 14-01-PLAN.md — layout engine data models and consolidation strategy
+- **Stopped at:** Completed 14-02-PLAN.md — Performance strategy, Uniform strategy, and generate_all_proposals orchestrator
 - **Timestamp:** 2026-02-21
