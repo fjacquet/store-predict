@@ -43,6 +43,7 @@ See [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md) for full details.
 <summary>✅ v2.x Storage Models, DRR Variants, Observability — SHIPPED 2026-02-20/21</summary>
 
 Shipped outside GSD planning:
+
 - v2.0: Multi-platform storage model selection (PowerStore/PowerFlex/PowerVault)
 - v2.1: Application-level DRR variants (+14 entries), DDVE, AI classification UI toggle
 - v2.2: LLM progress counter, rule suggestions in logs, Codecov, CI lean, README badges

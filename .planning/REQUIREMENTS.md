@@ -11,6 +11,7 @@ Transform StorePredict from a sizing tool into a **migration planning tool** by 
 ### REQ-001: Layout Engine — Data Models
 
 Define dataclasses for the layout recommendation domain:
+
 - `PlacementConstraints` — configurable parameters (max DS capacity, max VMs/DS, IOPS budget, snapshot reserve %, growth margin %)
 - `DatastoreRecommendation` — single datastore: name, size, usable capacity, assigned VMs, computed metrics (utilization, IOPS, VM count)
 - `LayoutProposal` — named strategy with list of datastores
@@ -19,6 +20,7 @@ Define dataclasses for the layout recommendation domain:
 ### REQ-002: Layout Engine — Consolidation Strategy
 
 Multi-dimensional Best Fit Decreasing (BFD) algorithm:
+
 - Sort VMs by `max(capacity_ratio, iops_ratio)` descending
 - Place each VM in the datastore with least remaining space that still fits (capacity + IOPS + VM count)
 - When no fit, create new datastore
@@ -28,6 +30,7 @@ Multi-dimensional Best Fit Decreasing (BFD) algorithm:
 ### REQ-003: Layout Engine — Performance Strategy
 
 Three-phase workload-aware placement:
+
 - Phase 0: **Isolate mission-critical VMs** — 1 VM = 1 dedicated datastore
   - SAP HANA, Exchange, large Oracle (configurable isolation list)
   - These VMs bypass BFD entirely — they get their own named datastore
@@ -44,6 +47,7 @@ Three-phase workload-aware placement:
 - Goal: maximize performance isolation, minimize contention
 
 Isolation criteria (default, configurable):
+
 - Workload category contains "SAP HANA" or "Exchange"
 - VM provisioned capacity > 2 TB (likely a large DB)
 - VM IOPS > 5,000 (extremely hot workload)
@@ -51,6 +55,7 @@ Isolation criteria (default, configurable):
 ### REQ-004: Layout Engine — Uniform Strategy
 
 Balanced placement across equal-sized datastores:
+
 - Determine datastore count from `max(ceil(total_cap/usable), ceil(total_iops/budget))`
 - Use Longest Processing Time (LPT) algorithm: sort VMs descending, assign each to least-loaded DS
 - Goal: all datastores approximately same utilization, predictable management
@@ -58,6 +63,7 @@ Balanced placement across equal-sized datastores:
 ### REQ-005: Layout Engine — Comparison Metrics
 
 For each proposal, compute:
+
 - Total datastores
 - Total raw capacity (TiB)
 - Total usable capacity (TiB)
@@ -71,6 +77,7 @@ For each proposal, compute:
 ### REQ-006: Datastore Naming Convention
 
 Systematic names encoding strategy and workload:
+
 - Consolidation: `DS_CONSOL_01`, `DS_CONSOL_02`, ...
 - Performance: `DS_HOT_SQL_01`, `DS_HOT_ORA_01`, `DS_WARM_APP_01`, `DS_COLD_GEN_01`, ...
 - Uniform: `DS_UNIFORM_01`, `DS_UNIFORM_02`, ...
@@ -78,6 +85,7 @@ Systematic names encoding strategy and workload:
 ### REQ-007: Advanced Settings Panel
 
 Collapsible UI panel with tunable parameters:
+
 - **Max datastore capacity** — dropdown: 2 TB, 4 TB, 8 TB, 16 TB, 32 TB, 64 TB (default: 4 TB)
 - **Max VMs per datastore** — slider: 5–50 (default: 25)
 - **IOPS budget per datastore** — input: default 100,000
@@ -89,6 +97,7 @@ Collapsible UI panel with tunable parameters:
 ### REQ-008: Layout Page — Comparison View
 
 Dedicated `/layout` page accessible from navigation after Report:
+
 - Comparison table showing all three strategies side-by-side with REQ-005 metrics
 - Visual indicator (icon/color) for the recommended strategy based on workload mix
 - Toggle/tabs to switch between strategies for detail view
@@ -96,6 +105,7 @@ Dedicated `/layout` page accessible from navigation after Report:
 ### REQ-009: Layout Page — Detail View
 
 Per-strategy detailed view:
+
 - AG Grid or table listing each datastore: name, size, used, utilization %, VM count, total IOPS, workload types
 - Expandable rows or drill-down to see individual VMs assigned to each datastore
 - Per-datastore mini stats (capacity bar, IOPS indicator)
@@ -109,6 +119,7 @@ Per-strategy detailed view:
 ### REQ-011: i18n
 
 All new UI strings through `t()`:
+
 - Strategy names, metric labels, column headers, advanced settings labels
 - Both `en.yaml` and `fr.yaml`
 - Estimated ~30-40 new i18n keys
@@ -116,6 +127,7 @@ All new UI strings through `t()`:
 ### REQ-012: PDF Layout Summary
 
 Add a layout summary section to the existing PDF report:
+
 - One-row-per-strategy comparison table (compact version of REQ-005 metrics)
 - Appears after the charts section on a new PDF page
 - Respects locale setting
@@ -123,6 +135,7 @@ Add a layout summary section to the existing PDF report:
 ### REQ-013: Excel Layout Sheet
 
 Add a "Layout Recommendations" sheet to the Excel export:
+
 - Comparison summary at top
 - Followed by per-datastore detail for each strategy (3 sub-tables)
 - Same brand styling as existing sheets
@@ -130,6 +143,7 @@ Add a "Layout Recommendations" sheet to the Excel export:
 ### REQ-014: Default IOPS Estimates
 
 When LiveOptics performance data is not available (RVTools import), use workload-based IOPS estimates:
+
 - Database/Microsoft SQL: 500 IOPS
 - Database/Oracle: 800 IOPS
 - Database/SAP HANA: 1,000 IOPS

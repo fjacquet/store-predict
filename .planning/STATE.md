@@ -35,6 +35,7 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Decisions
 
 (Carried from previous milestones — see v1.0/v1.1 archives)
+
 - Multi-dimensional BFD chosen over ILP/OR-Tools (fast, no dependency, within 10-15% of optimal)
 - Three fixed strategies with tunable parameters (Consolidation/Performance/Uniform)
 - VMFS focus, not vVol (practical reality for migration projects)
@@ -43,7 +44,7 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 - SDRS/SIOC deprecated in vSphere 8.0 U3 — use PowerStore QoS instead
 - No PowerStore model recommendation (layout-only scope per user decision)
 - Default IOPS estimates for RVTools imports (no performance data)
-- TYPE_CHECKING guard for VMCalculation/CalculationSummary imports in layout modules (safe with from __future__ import annotations)
+- TYPE_CHECKING guard for VMCalculation/CalculationSummary imports in layout modules (safe with from **future** import annotations)
 - Oversized VM datastores use _OVER_ in name as the distinguishing marker
 - generate_all_proposals() returns all 3 strategies (consolidation, performance, uniform)
 - _classify_tier uses startswith("Database") not "in" — avoids false HOT match on "No Database, File nor Email" category string
