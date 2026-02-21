@@ -62,3 +62,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [056](056-three-layout-strategies.md) | Three fixed layout strategies with tunable parameters | Accepted | 2026-02-21 |
 | [057](057-vmfs-not-vvol-layout.md) | VMFS datastore layout, not vVol | Accepted | 2026-02-21 |
 | [058](058-isolated-vm-dedicated-datastore.md) | Dedicated datastore for mission-critical VMs | Accepted | 2026-02-21 |
+| [059](059-default-iops-estimates.md) | Workload-based IOPS defaults for RVTools sizing | Accepted | 2026-02-21 |
