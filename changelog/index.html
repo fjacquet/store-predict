@@ -980,6 +980,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v220-2026-02-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v2.2.0] - 2026-02-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v2.2.0] - 2026-02-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#llm-classification-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM Classification Improvements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ci-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI / GitHub
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        README
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v210-2026-02-20" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1036,7 +1097,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
+  <a href="#tests_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Tests
@@ -2718,6 +2779,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v220-2026-02-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v2.2.0] - 2026-02-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v2.2.0] - 2026-02-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#llm-classification-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM Classification Improvements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ci-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI / GitHub
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        README
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v210-2026-02-20" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2774,7 +2896,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
+  <a href="#tests_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Tests
@@ -3028,6 +3150,30 @@
 <h1 id="changelog">Changelog</h1>
 <p>All notable changes to StorePredict are documented here.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h2 id="v220-2026-02-21">[v2.2.0] - 2026-02-21</h2>
+<p>Observability, developer experience, and project health improvements.</p>
+<h3 id="llm-classification-improvements">LLM Classification Improvements</h3>
+<ul>
+<li>Live progress counter in UI notification during AI classification: "AI classification: 42 / 496 VMs"</li>
+<li><code>on_progress</code> callback added to <code>classify_unknown_vms_async</code> for UI integration</li>
+<li>Ready-to-paste <code>ClassificationRule(...)</code> snippets now logged to server logs after LLM pass, allowing operators to promote LLM findings to deterministic rules without restarting</li>
+</ul>
+<h3 id="ci-github">CI / GitHub</h3>
+<ul>
+<li>GitHub Release v2.1.0 created (was missing — tag existed but Release page had not been generated)</li>
+<li><code>ci.yml</code>: added <code>permissions: contents: read</code> (workflow security hardening)</li>
+<li><code>ci.yml</code>: added <code>codecov/codecov-action@v5</code> upload step with <code>CODECOV_TOKEN</code></li>
+<li><code>ci.yml</code>: added <code>--cov-report=xml</code> to generate Codecov-compatible report</li>
+<li>Coverage measurement scoped to testable backend code (UI layer omitted — NiceGUI pages require a live server)</li>
+<li>Effective coverage: <strong>84%</strong> (up from misleading 51% that included untestable UI)</li>
+</ul>
+<h3 id="readme">README</h3>
+<ul>
+<li>Added badges: CI, Docs, Release, Codecov coverage, Python version, Version</li>
+<li>Fixed stale "29 classification rules" → <strong>43 rules</strong></li>
+</ul>
+<h3 id="tests">Tests</h3>
+<p>246 tests passing (unchanged); ruff and mypy clean.</p>
 <h2 id="v210-2026-02-20">[v2.1.0] - 2026-02-20</h2>
 <p>Application-level DRR variants, DDVE support, and AI classification UI toggle.</p>
 <h3 id="drr-reference-table-14-entries-28-42-total">DRR Reference Table (+14 entries, 28 → 42 total)</h3>
@@ -3065,7 +3211,7 @@ server restart. Greyed out with hint when <code>LLM_ENABLED=false</code>. State 
 <li>Research phase 14: application-level data reduction findings with source references</li>
 <li><code>architecture.md</code> updated: storage model section, DRR/rule counts, session state</li>
 </ul>
-<h3 id="tests">Tests</h3>
+<h3 id="tests_1">Tests</h3>
 <p>246 tests passing (up from 230); ruff and mypy clean.</p>
 <h2 id="v200-2026-02-20">[v2.0.0] - 2026-02-20</h2>
 <p>Multi-platform storage model selection — <strong>breaking UX change</strong>: DRR values now depend on the selected target storage platform, not only on workload type.</p>
