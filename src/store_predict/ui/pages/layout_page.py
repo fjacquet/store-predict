@@ -295,9 +295,10 @@ def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> N
         ''',
     )
 
+    vms_label = t("ds.vm_list")
     table.add_slot(
         "body",
-        r'''
+        f'''
         <q-tr :props="props">
           <q-td auto-width>
             <q-btn
@@ -311,25 +312,25 @@ def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> N
             />
           </q-td>
           <q-td v-for="col in props.cols" :key="col.name" :props="props"
-            :class="{
+            :class="{{
               'text-red-600 font-bold': col.name === 'util_pct' && props.row.util_pct_raw > 80,
               'text-yellow-600': col.name === 'util_pct' && props.row.util_pct_raw > 60 && props.row.util_pct_raw <= 80,
               'text-green-600': col.name === 'util_pct' && props.row.util_pct_raw <= 60
-            }"
+            }}"
           >
-            {{ col.value }}
+            {{{{ col.value }}}}
           </q-td>
         </q-tr>
         <q-tr v-show="props.expand" :props="props">
           <q-td colspan="100%" class="bg-gray-50">
             <div class="p-2">
-              <div class="text-sm font-semibold text-gray-600 mb-1">VMs assigned:</div>
+              <div class="text-sm font-semibold text-gray-600 mb-1">{vms_label}:</div>
               <div
                 v-for="vm in props.row.vm_names"
                 :key="vm"
                 class="text-sm text-gray-700 ml-2"
               >
-                {{ vm }}
+                {{{{ vm }}}}
               </div>
             </div>
           </q-td>
