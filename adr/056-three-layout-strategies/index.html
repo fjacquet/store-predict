@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../001-nicegui-framework/">
+        <link rel="prev" href="../055-layout-engine-bfd-heuristic/">
       
       
-        <link rel="next" href="../003-alias-not-fuzzy-matching/">
+        <link rel="next" href="../057-vmfs-not-vvol-layout/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>002 - DRR CSV Reference - StorePredict</title>
+        <title>056 - Three Layout Strategies - StorePredict</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-002-drr-ratios-from-csv-not-hardcoded" class="md-skip">
+        <a href="#adr-056-three-fixed-layout-strategies-with-tunable-parameters" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              002 - DRR CSV Reference
+              056 - Three Layout Strategies
             
           </span>
         </div>
@@ -1099,37 +1099,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    002 - DRR CSV Reference
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../002-drr-csv-reference/" class="md-nav__link">
         
   
   
@@ -1145,70 +1118,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consequences
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2702,10 +2611,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../056-three-layout-strategies/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    056 - Three Layout Strategies
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2721,6 +2657,109 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Decision">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#strategy-1-consolidation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategy 1: Consolidation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-2-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategy 2: Performance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-3-uniform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategy 3: Uniform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tunable-parameters-advanced-settings-panel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tunable parameters (Advanced Settings panel)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2863,16 +2902,55 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
+    <nav class="md-nav" aria-label="Decision">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#strategy-1-consolidation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rationale
+        Strategy 1: Consolidation
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-2-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategy 2: Performance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strategy-3-uniform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategy 3: Uniform
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tunable-parameters-advanced-settings-panel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tunable parameters (Advanced Settings panel)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2907,25 +2985,64 @@
   
 
 
-<h1 id="adr-002-drr-ratios-from-csv-not-hardcoded">ADR-002: DRR Ratios from CSV, Not Hardcoded</h1>
-<p><strong>Status:</strong> Accepted
-<strong>Date:</strong> 2026-02-18</p>
+<h1 id="adr-056-three-fixed-layout-strategies-with-tunable-parameters">ADR-056: Three fixed layout strategies with tunable parameters</h1>
+<p><strong>Date:</strong> 2026-02-21
+<strong>Status:</strong> Accepted</p>
 <h2 id="context">Context</h2>
-<p>DRR (Data Reduction Ratio) values vary by workload category. Pre-sales engineers may need to update ratios as Dell publishes new benchmarks.</p>
-<h2 id="decision">Decision</h2>
-<p>Load DRR reference data from <code>samples/DRR.csv</code> at runtime, not hardcoded in source.</p>
-<h2 id="rationale">Rationale</h2>
+<p>Pre-sales engineers need datastore layout recommendations but have different
+priorities depending on the customer conversation:</p>
 <ul>
-<li>Users can update ratios without code changes</li>
-<li>CSV is human-readable and editable</li>
-<li>Same format as vendor reference documentation</li>
-<li>Easy to version and diff</li>
+<li>Some customers prioritize <strong>cost</strong> (fewest datastores, lowest management overhead)</li>
+<li>Some prioritize <strong>performance</strong> (workload isolation, latency guarantees)</li>
+<li>Some prioritize <strong>operational simplicity</strong> (uniform sizing, predictable management)</li>
+</ul>
+<p>A single "best" layout cannot satisfy all three goals simultaneously.</p>
+<h2 id="decision">Decision</h2>
+<p>Generate <strong>three alternative layouts</strong> in parallel, each optimized for a different
+priority. The user sees a side-by-side comparison and picks the one that fits their
+customer's priorities.</p>
+<h3 id="strategy-1-consolidation">Strategy 1: Consolidation</h3>
+<ul>
+<li><strong>Goal</strong>: Minimize datastore count</li>
+<li><strong>Algorithm</strong>: Multi-dimensional BFD packing VMs as tightly as possible</li>
+<li><strong>Trade-off</strong>: Higher contention risk, coarser snapshot granularity</li>
+</ul>
+<h3 id="strategy-2-performance">Strategy 2: Performance</h3>
+<ul>
+<li><strong>Goal</strong>: Maximize workload isolation and minimize I/O contention</li>
+<li><strong>Algorithm</strong>: Two-phase placement — classify VMs into Hot/Warm/Cold tiers,
+  then BFD each tier separately with tier-specific constraints</li>
+<li><strong>Rules</strong>: Hot tier (databases, &gt;500 IOPS) limited to 15 VMs/DS; anti-affinity
+  prevents co-locating Database and VDI workloads</li>
+<li><strong>Trade-off</strong>: More datastores, lower capacity utilization</li>
+</ul>
+<h3 id="strategy-3-uniform">Strategy 3: Uniform</h3>
+<ul>
+<li><strong>Goal</strong>: All datastores same size, balanced utilization</li>
+<li><strong>Algorithm</strong>: LPT (Longest Processing Time) balanced assignment across a
+  pre-computed number of equal-sized datastores</li>
+<li><strong>Trade-off</strong>: Doesn't adapt to workload skew, may waste space on light DS</li>
+</ul>
+<h3 id="tunable-parameters-advanced-settings-panel">Tunable parameters (Advanced Settings panel)</h3>
+<p>All three strategies share the same configurable constraints:</p>
+<ul>
+<li>Max datastore capacity (default: 4 TB — Dell best practice sweet spot)</li>
+<li>Max VMs per datastore (default: 25 — Dell recommendation)</li>
+<li>IOPS budget per datastore (default: 100,000)</li>
+<li>Snapshot reserve % (default: 15%)</li>
+<li>Growth margin % (default: 20%)</li>
 </ul>
 <h2 id="consequences">Consequences</h2>
 <ul>
-<li>Must handle CSV parsing edge cases (embedded newlines, trailing rows)</li>
-<li>File must be present at runtime</li>
-<li>28 valid entries verified, not 30 as initially estimated</li>
+<li>The user always sees three options — no single "magic answer" that may be wrong
+  for their specific customer context.</li>
+<li>Comparison metrics (DS count, utilization, isolation score, snapshot granularity)
+  help the user explain the trade-offs to customers.</li>
+<li>Default values are sourced from Dell's VMware vSphere Best Practices (H18116)
+  and validated by domain research. Pre-sales engineers can override via the
+  Advanced Settings panel.</li>
+<li>Adding a fourth strategy in future is straightforward: implement a new function
+  and add it to <code>generate_all_proposals()</code>.</li>
 </ul>
 
 

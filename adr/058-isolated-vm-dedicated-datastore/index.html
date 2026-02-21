@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../001-nicegui-framework/">
+        <link rel="prev" href="../057-vmfs-not-vvol-layout/">
       
       
-        <link rel="next" href="../003-alias-not-fuzzy-matching/">
+        <link rel="next" href="../059-default-iops-estimates/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>002 - DRR CSV Reference - StorePredict</title>
+        <title>058 - Isolated VM Dedicated Datastore - StorePredict</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-002-drr-ratios-from-csv-not-hardcoded" class="md-skip">
+        <a href="#adr-058-dedicated-datastore-for-mission-critical-vms" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              002 - DRR CSV Reference
+              058 - Isolated VM Dedicated Datastore
             
           </span>
         </div>
@@ -1099,37 +1099,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    002 - DRR CSV Reference
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../002-drr-csv-reference/" class="md-nav__link">
         
   
   
@@ -1145,70 +1118,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consequences
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2758,10 +2667,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../058-isolated-vm-dedicated-datastore/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    058 - Isolated VM Dedicated Datastore
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2777,6 +2713,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2866,17 +2855,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#consequences" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2907,25 +2885,54 @@
   
 
 
-<h1 id="adr-002-drr-ratios-from-csv-not-hardcoded">ADR-002: DRR Ratios from CSV, Not Hardcoded</h1>
-<p><strong>Status:</strong> Accepted
-<strong>Date:</strong> 2026-02-18</p>
+<h1 id="adr-058-dedicated-datastore-for-mission-critical-vms">ADR-058: Dedicated datastore for mission-critical VMs</h1>
+<p><strong>Date:</strong> 2026-02-21
+<strong>Status:</strong> Accepted</p>
 <h2 id="context">Context</h2>
-<p>DRR (Data Reduction Ratio) values vary by workload category. Pre-sales engineers may need to update ratios as Dell publishes new benchmarks.</p>
-<h2 id="decision">Decision</h2>
-<p>Load DRR reference data from <code>samples/DRR.csv</code> at runtime, not hardcoded in source.</p>
-<h2 id="rationale">Rationale</h2>
+<p>The Performance strategy uses BFD to pack VMs into datastores with tier-specific
+density caps (10–25 VMs/DS). However, certain mission-critical workloads should
+<strong>never share a datastore</strong> with other VMs:</p>
 <ul>
-<li>Users can update ratios without code changes</li>
-<li>CSV is human-readable and editable</li>
-<li>Same format as vendor reference documentation</li>
-<li>Easy to version and diff</li>
+<li><strong>SAP HANA</strong>: Multi-TB memory footprint, extreme IOPS, requires dedicated
+  snapshot/backup windows. Best practice is separate volumes for data/log/shared.</li>
+<li><strong>Exchange</strong>: Latency-sensitive mailbox I/O, large databases, requires isolated
+  backup granularity for DAG recovery.</li>
+<li><strong>Large Oracle RAC</strong>: Similar profile — dedicated QoS, independent snapshot scope.</li>
 </ul>
+<p>Placing a SAP HANA VM alongside 9 other VMs on a "Hot tier" datastore defeats
+the purpose of workload isolation:</p>
+<ul>
+<li>PowerStore volume-level snapshots would capture all 10 VMs, not just HANA</li>
+<li>QoS policy applies to the shared volume, not just HANA</li>
+<li>Restore requires mounting the entire 10-VM volume</li>
+</ul>
+<h2 id="decision">Decision</h2>
+<p>Add a <strong>Phase 0 isolation pass</strong> to the Performance strategy: before BFD
+placement begins, extract VMs that match isolation criteria and assign each to
+a dedicated 1:1 datastore. Remaining VMs proceed through normal Hot/Warm/Cold
+tiered BFD.</p>
+<p>Isolation triggers (any one is sufficient):</p>
+<ol>
+<li>Workload category contains "SAP HANA" or "Exchange"</li>
+<li>VM provisioned capacity exceeds 2 TB</li>
+<li>VM IOPS exceeds 5,000</li>
+</ol>
+<p>These thresholds are configurable via the Advanced Settings panel. The isolation
+list can be extended by adding workload category patterns.</p>
+<p>Isolated datastores are sized to the individual VM (with growth margin and
+snapshot reserve applied), not to the global max datastore size. A 3 TB HANA VM
+gets a ~4.6 TB datastore (3 TB / 0.65 usable ratio), not a 4 TB standard DS.</p>
 <h2 id="consequences">Consequences</h2>
 <ul>
-<li>Must handle CSV parsing edge cases (embedded newlines, trailing rows)</li>
-<li>File must be present at runtime</li>
-<li>28 valid entries verified, not 30 as initially estimated</li>
+<li>The Performance strategy now has three phases: isolate → classify tiers → BFD
+  per tier. This matches how storage architects actually design layouts.</li>
+<li>Isolated VMs contribute to total datastore count and raw capacity metrics but
+  have utilization close to 100% and isolation score = 1.0.</li>
+<li>The Consolidation and Uniform strategies do <strong>not</strong> apply isolation — by design,
+  they prioritize density and balance respectively. A user who wants isolation
+  should choose the Performance strategy.</li>
+<li>The comparison table naturally shows the impact: Performance strategy will have
+  more datastores but better isolation score and finer snapshot granularity.</li>
 </ul>
 
 

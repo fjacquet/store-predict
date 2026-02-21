@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../001-nicegui-framework/">
+        <link rel="prev" href="../056-three-layout-strategies/">
       
       
-        <link rel="next" href="../003-alias-not-fuzzy-matching/">
+        <link rel="next" href="../058-isolated-vm-dedicated-datastore/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>002 - DRR CSV Reference - StorePredict</title>
+        <title>057 - VMFS Not vVol Layout - StorePredict</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-002-drr-ratios-from-csv-not-hardcoded" class="md-skip">
+        <a href="#adr-057-vmfs-datastore-layout-not-vvol" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              002 - DRR CSV Reference
+              057 - VMFS Not vVol Layout
             
           </span>
         </div>
@@ -1099,37 +1099,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    002 - DRR CSV Reference
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../002-drr-csv-reference/" class="md-nav__link">
         
   
   
@@ -1145,70 +1118,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consequences
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2730,10 +2639,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../057-vmfs-not-vvol-layout/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    057 - VMFS Not vVol Layout
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2749,6 +2685,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2866,17 +2855,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#consequences" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2907,25 +2885,77 @@
   
 
 
-<h1 id="adr-002-drr-ratios-from-csv-not-hardcoded">ADR-002: DRR Ratios from CSV, Not Hardcoded</h1>
-<p><strong>Status:</strong> Accepted
-<strong>Date:</strong> 2026-02-18</p>
+<h1 id="adr-057-vmfs-datastore-layout-not-vvol">ADR-057: VMFS datastore layout, not vVol</h1>
+<p><strong>Date:</strong> 2026-02-21
+<strong>Status:</strong> Accepted</p>
 <h2 id="context">Context</h2>
-<p>DRR (Data Reduction Ratio) values vary by workload category. Pre-sales engineers may need to update ratios as Dell publishes new benchmarks.</p>
+<p>Dell PowerStore supports two VMware storage paradigms:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>VMFS Datastores</th>
+<th>vVol Datastores</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Snapshot granularity</td>
+<td>Volume-level (all VMs)</td>
+<td>Per-VM via VASA</td>
+</tr>
+<tr>
+<td>QoS</td>
+<td>Per-volume</td>
+<td>Per-VM (SPBM)</td>
+</tr>
+<tr>
+<td>Operational maturity</td>
+<td>Very mature</td>
+<td>Newer, fewer admins</td>
+</tr>
+<tr>
+<td>Backup tool support</td>
+<td>Universal</td>
+<td>Growing but incomplete</td>
+</tr>
+<tr>
+<td>Dell recommendation</td>
+<td>Supported</td>
+<td>Preferred for new deployments</td>
+</tr>
+</tbody>
+</table>
+<p>Dell's own documentation recommends vVols for new deployments. However, the
+practical reality for migration projects is different: most customers migrating
+from legacy arrays (VNX2, SC Series, Unity) have VMFS datastores today and will
+continue using VMFS on PowerStore.</p>
 <h2 id="decision">Decision</h2>
-<p>Load DRR reference data from <code>samples/DRR.csv</code> at runtime, not hardcoded in source.</p>
-<h2 id="rationale">Rationale</h2>
-<ul>
-<li>Users can update ratios without code changes</li>
-<li>CSV is human-readable and editable</li>
-<li>Same format as vendor reference documentation</li>
-<li>Easy to version and diff</li>
-</ul>
+<p>The layout engine generates <strong>VMFS datastore recommendations only</strong>. vVol layout
+is out of scope.</p>
+<p>Rationale:</p>
+<ol>
+<li><strong>Migration continuity</strong>: Customers moving from legacy → PowerStore keep VMFS.
+   Proposing vVol adds a second migration dimension (storage paradigm change)
+   that complicates the project.</li>
+<li><strong>Snapshot/backup implications matter</strong>: VMFS volume-level snapshots make
+   datastore layout directly impactful for RPO/RTO. With vVols, per-VM snapshots
+   make layout less critical — the engine's value proposition is weaker.</li>
+<li><strong>SDRS/SIOC deprecation</strong>: VMware deprecated SDRS I/O balancing and SIOC in
+   vSphere 8.0 U3 (June 2024). This means VMFS layouts can no longer rely on
+   automatic I/O rebalancing, making manual layout planning (what our engine does)
+   more valuable than ever.</li>
+<li><strong>Pre-sales reality</strong>: The target user is proposing a migration, not a greenfield
+   deployment. VMFS is what they'll present to the customer.</li>
+</ol>
 <h2 id="consequences">Consequences</h2>
 <ul>
-<li>Must handle CSV parsing edge cases (embedded newlines, trailing rows)</li>
-<li>File must be present at runtime</li>
-<li>28 valid entries verified, not 30 as initially estimated</li>
+<li>The layout engine operates in terms of VMFS datastores (volumes), not vVol
+  storage containers.</li>
+<li>Snapshot granularity ratings in comparison metrics are meaningful because VMFS
+  snapshots are volume-scoped.</li>
+<li>A future version could add vVol recommendations as a fourth strategy or a
+  separate mode, but this is deferred.</li>
 </ul>
 
 

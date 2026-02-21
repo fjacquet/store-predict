@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../001-nicegui-framework/">
+        <link rel="prev" href="../054-llm-toggle-session-scoped/">
       
       
-        <link rel="next" href="../003-alias-not-fuzzy-matching/">
+        <link rel="next" href="../056-three-layout-strategies/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>002 - DRR CSV Reference - StorePredict</title>
+        <title>055 - Layout Engine BFD Heuristic - StorePredict</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-002-drr-ratios-from-csv-not-hardcoded" class="md-skip">
+        <a href="#adr-055-multi-dimensional-bfd-heuristic-for-datastore-layout-engine" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              002 - DRR CSV Reference
+              055 - Layout Engine BFD Heuristic
             
           </span>
         </div>
@@ -1099,37 +1099,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    002 - DRR CSV Reference
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../002-drr-csv-reference/" class="md-nav__link">
         
   
   
@@ -1145,70 +1118,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consequences
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2674,10 +2583,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../055-layout-engine-bfd-heuristic/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    055 - Layout Engine BFD Heuristic
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2693,6 +2629,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2866,17 +2855,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#consequences" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2907,25 +2885,66 @@
   
 
 
-<h1 id="adr-002-drr-ratios-from-csv-not-hardcoded">ADR-002: DRR Ratios from CSV, Not Hardcoded</h1>
-<p><strong>Status:</strong> Accepted
-<strong>Date:</strong> 2026-02-18</p>
+<h1 id="adr-055-multi-dimensional-bfd-heuristic-for-datastore-layout-engine">ADR-055: Multi-dimensional BFD heuristic for datastore layout engine</h1>
+<p><strong>Date:</strong> 2026-02-21
+<strong>Status:</strong> Accepted</p>
 <h2 id="context">Context</h2>
-<p>DRR (Data Reduction Ratio) values vary by workload category. Pre-sales engineers may need to update ratios as Dell publishes new benchmarks.</p>
+<p>StorePredict v3.0 adds a datastore layout recommendation engine. Given classified
+VMs with capacity, IOPS, and workload data, the engine must assign VMs to datastores
+while respecting three simultaneous constraints: capacity, IOPS budget, and VM count
+per datastore. This is a <strong>multi-dimensional bin packing</strong> problem (NP-hard).</p>
+<p>Two families of approaches were considered:</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ILP solver</strong> (PuLP, OR-Tools)</td>
+<td>Provably optimal</td>
+<td>Heavy dependency (50+ MB), slow for &gt;500 VMs, complex to maintain</td>
+</tr>
+<tr>
+<td><strong>BFD heuristic</strong> (Best Fit Decreasing)</td>
+<td>Pure Python, fast (&lt;2s for 1,000 VMs), within 10-15% of optimal</td>
+<td>Not provably optimal</td>
+</tr>
+</tbody>
+</table>
 <h2 id="decision">Decision</h2>
-<p>Load DRR reference data from <code>samples/DRR.csv</code> at runtime, not hardcoded in source.</p>
-<h2 id="rationale">Rationale</h2>
-<ul>
-<li>Users can update ratios without code changes</li>
-<li>CSV is human-readable and editable</li>
-<li>Same format as vendor reference documentation</li>
-<li>Easy to version and diff</li>
-</ul>
+<p>Use <strong>multi-dimensional Best Fit Decreasing (BFD)</strong> with normalized scoring as the
+placement algorithm for all three strategies (Consolidation, Performance, Uniform).</p>
+<p>The algorithm:</p>
+<ol>
+<li>Normalize each VM as <code>max(capacity_ratio, iops_ratio)</code> where ratios are relative
+   to per-datastore limits</li>
+<li>Sort VMs descending by this score (largest/most-demanding first)</li>
+<li>For each VM, place in the datastore with the <strong>least remaining capacity</strong> that
+   still satisfies all three constraints (capacity + IOPS + VM count)</li>
+<li>When no datastore fits, create a new one</li>
+</ol>
+<p>For the <strong>Uniform strategy</strong>, a variant (LPT — Longest Processing Time) is used
+instead: pre-compute the number of datastores, then assign each VM to the
+least-loaded datastore for balanced utilization.</p>
 <h2 id="consequences">Consequences</h2>
 <ul>
-<li>Must handle CSV parsing edge cases (embedded newlines, trailing rows)</li>
-<li>File must be present at runtime</li>
-<li>28 valid entries verified, not 30 as initially estimated</li>
+<li><strong>No new dependencies</strong>: Pure Python dataclasses + list operations. No numpy,
+  PuLP, or OR-Tools. Keeps Docker image small and CI fast.</li>
+<li><strong>Performance</strong>: O(n × m) where n = VMs and m = datastores. For 1,000 VMs and
+  ~40 datastores, this is ~40,000 comparisons — trivial.</li>
+<li><strong>Quality</strong>: BFD is well-studied and consistently produces solutions within
+  11/9 × OPT for single-dimension packing. Multi-dimensional quality is typically
+  within 10-15% of ILP optimal for real-world VM distributions.</li>
+<li><strong>Extensibility</strong>: Adding a fourth strategy (e.g., workload-segregated with
+  affinity rules) only requires a new function that calls the same <code>_bfd_place()</code>
+  core with different constraints.</li>
+<li><strong>Trade-off accepted</strong>: We sacrifice provably optimal packing for zero-dependency
+  simplicity and sub-second execution. For pre-sales sizing (not production
+  automation), 10-15% suboptimality is acceptable.</li>
 </ul>
 
 

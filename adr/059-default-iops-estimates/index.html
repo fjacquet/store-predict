@@ -11,10 +11,8 @@
       
       
       
-        <link rel="prev" href="../001-nicegui-framework/">
+        <link rel="prev" href="../058-isolated-vm-dedicated-datastore/">
       
-      
-        <link rel="next" href="../003-alias-not-fuzzy-matching/">
       
       
         
@@ -25,7 +23,7 @@
     
     
       
-        <title>002 - DRR CSV Reference - StorePredict</title>
+        <title>059 - Default IOPS Estimates - StorePredict</title>
       
     
     
@@ -76,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-002-drr-ratios-from-csv-not-hardcoded" class="md-skip">
+        <a href="#adr-059-workload-based-iops-defaults-for-rvtools-sizing" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              002 - DRR CSV Reference
+              059 - Default IOPS Estimates
             
           </span>
         </div>
@@ -1099,37 +1097,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    002 - DRR CSV Reference
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../002-drr-csv-reference/" class="md-nav__link">
         
   
   
@@ -1145,70 +1116,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consequences
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2786,10 +2693,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../059-default-iops-estimates/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    059 - Default IOPS Estimates
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2805,6 +2739,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2866,17 +2853,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#consequences" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2907,25 +2883,100 @@
   
 
 
-<h1 id="adr-002-drr-ratios-from-csv-not-hardcoded">ADR-002: DRR Ratios from CSV, Not Hardcoded</h1>
-<p><strong>Status:</strong> Accepted
-<strong>Date:</strong> 2026-02-18</p>
+<h1 id="adr-059-workload-based-iops-defaults-for-rvtools-sizing">ADR-059: Workload-based IOPS defaults for RVTools sizing</h1>
+<p><strong>Date:</strong> 2026-02-21
+<strong>Status:</strong> Accepted</p>
 <h2 id="context">Context</h2>
-<p>DRR (Data Reduction Ratio) values vary by workload category. Pre-sales engineers may need to update ratios as Dell publishes new benchmarks.</p>
+<p>RVTools exports do not include performance data (IOPS, throughput). When the
+layout engine processes an RVTools import, every <code>VMCalculation</code> object has
+<code>peak_iops=0</code> and <code>avg_iops=0</code>. Without IOPS estimates, the datastore IOPS
+budget constraint (default: 100,000 IOPS/DS) becomes inactive, producing
+layouts that ignore I/O contention entirely. Pre-sales sizing requires
+defensible IOPS estimates even without measured performance data.</p>
+<p>The layout engine already evaluates three placement strategies
+(Consolidation/Performance/Uniform) against per-datastore IOPS budgets. If
+all VMs report 0 IOPS, every VM fits any datastore and the IOPS constraint
+never triggers — resulting in unrealistic proposals that would be repudiated
+during a customer proof-of-concept.</p>
 <h2 id="decision">Decision</h2>
-<p>Load DRR reference data from <code>samples/DRR.csv</code> at runtime, not hardcoded in source.</p>
-<h2 id="rationale">Rationale</h2>
-<ul>
-<li>Users can update ratios without code changes</li>
-<li>CSV is human-readable and editable</li>
-<li>Same format as vendor reference documentation</li>
-<li>Easy to version and diff</li>
-</ul>
+<p>When <code>CalculationSummary.has_performance_data</code> is <code>False</code>, apply
+workload-based IOPS estimates via <code>_apply_default_iops()</code> before layout
+placement. The estimates are loaded from <code>src/store_predict/data/IOPS.csv</code>
+(semicolon-delimited), falling back to hardcoded constants if the file is
+missing. This follows the same pattern established by <code>samples/DRR.csv</code> for
+DRR configuration.</p>
+<p><strong>Default values (all conservative — peak IOPS, not average):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>Default IOPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Database/Microsoft SQL</td>
+<td>500</td>
+</tr>
+<tr>
+<td>Database/Oracle</td>
+<td>800</td>
+</tr>
+<tr>
+<td>Database/SAP HANA(S4)</td>
+<td>1,000</td>
+</tr>
+<tr>
+<td>VDI/Full Clone / MCS (Citrix)</td>
+<td>30</td>
+</tr>
+<tr>
+<td>VDI/Linked Clone / PVS (Citrix)</td>
+<td>50</td>
+</tr>
+<tr>
+<td>Virtual Machines (generic)</td>
+<td>50</td>
+</tr>
+<tr>
+<td>File/General Purpose</td>
+<td>100</td>
+</tr>
+<tr>
+<td>Unknown (Reducible)</td>
+<td>50</td>
+</tr>
+</tbody>
+</table>
+<p><code>avg_iops</code> is estimated as 70% of peak. The 70% ratio is used only for
+reporting metrics; constraint evaluation always uses <code>peak_iops</code>.</p>
+<p><strong>Known limitation — Linux vs. Windows IOPS split:</strong> REQ-014 specifies
+separate IOPS values for Linux (40) and Windows (50) generic VMs. This split
+is <strong>not implemented</strong>. The <code>workload_category</code> field does not distinguish OS
+at the generic VM level — both Linux and Windows VMs map to the single
+<code>Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email</code>
+category string from <code>DRR.csv</code>. Implementing the split would require a
+sub-classification pass on the OS field, which is out of scope. The
+conservative value of 50 IOPS is applied to all generic VMs.</p>
 <h2 id="consequences">Consequences</h2>
+<p><strong>Positive:</strong></p>
 <ul>
-<li>Must handle CSV parsing edge cases (embedded newlines, trailing rows)</li>
-<li>File must be present at runtime</li>
-<li>28 valid entries verified, not 30 as initially estimated</li>
+<li>RVTools imports produce realistic datastore layout proposals — IOPS budget
+  constraints are active and reflect expected workload patterns.</li>
+<li>Pre-sales engineers can adjust IOPS estimates without code changes by editing
+  <code>src/store_predict/data/IOPS.csv</code> — same operator workflow as adjusting DRR values.</li>
+<li>Conservative (peak) values prevent under-provisioning in pre-sales quotes.</li>
+<li>Hardcoded fallback keeps unit tests independent of the CSV file.</li>
+</ul>
+<p><strong>Negative:</strong></p>
+<ul>
+<li>Estimated IOPS may over-provision for genuinely low-I/O workloads (e.g.,
+  archival databases classified as SQL at 500 IOPS may need only 50).</li>
+<li>No OS-level IOPS differentiation is possible without a data model change;
+  Linux and Windows generic VMs receive the same 50 IOPS estimate.</li>
+<li>If a customer's <code>IOPS.csv</code> keys drift from <code>DRR.csv</code> workload_category
+  strings, the lookup silently falls back to the 50 IOPS constant; operators
+  must keep key names in sync.</li>
 </ul>
 
 
