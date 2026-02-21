@@ -5,7 +5,7 @@
 - ✅ **v1.0 MVP Sizing Tool** — Phases 1-7 (shipped 2026-02-19) — [Archive](milestones/v1.0-ROADMAP.md)
 - ✅ **v1.1 i18n, Branding & Intelligence** — Phases 8-13 (shipped 2026-02-20) — [Archive](milestones/v1.1-ROADMAP.md)
 - ✅ **v2.x Storage Models, DRR Variants, Observability** — shipped outside GSD (v2.0–v2.2, 2026-02-20/21)
-- 🚧 **v3.0 Datastore Layout Recommendations** — Phases 14-18 (planning)
+- 🚧 **v3.0 Datastore Layout Recommendations** — Phases 14-19 (planning)
 
 ## Phases
 
@@ -65,6 +65,9 @@ Shipped outside GSD planning:
   - [ ] 17-01-PLAN.md — PDF layout page + Excel layout sheet + i18n keys + tests
 - [x] **Phase 18: i18n & Polish** (1 plan) (completed 2026-02-21)
   - [ ] 18-01-PLAN.md — YAML tooltip+chart keys, fix slot/chart hardcodes, .tooltip() wiring, test coverage
+- [ ] **Phase 19: Batch LLM Classification** (2 plans)
+  - [ ] 19-01-PLAN.md — Prompt-level batch LLM classification with JSON response parsing
+  - [ ] 19-02-PLAN.md — Tech debt: stale doc paths, orphaned i18n keys, NFR-001 benchmark
 
 ## Progress
 
@@ -89,3 +92,4 @@ Shipped outside GSD planning:
 | **16. Layout Page UI** | **v3.0** | **2/2** | **Complete** | **2026-02-21** |
 | **17. PDF & Excel Integration** | **v3.0** | **0/1** | **Not started** | |
 | **18. i18n & Polish** | **v3.0** | **0/1** | **Not started** | |
+| **19. Batch LLM Classification** | **v3.0** | **0/2** | **Not started** | |
