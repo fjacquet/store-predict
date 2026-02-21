@@ -232,3 +232,27 @@ excel:
   col_avg_iops: "IOPS moyennes"
   col_peak_mbs: "Débit de pointe (Mo/s)"
   col_iops_8k: "IOPS éq. 8K"
+
+tooltip:
+  llm_toggle: "Activer la classification par IA (LLM) pour les VMs inconnues"
+  bulk_update: "Appliquer une catégorie de charge à toutes les lignes sélectionnées"
+  storage_model: "Sélectionner la plateforme de stockage Dell cible — affecte les coefficients DRR"
+  download_pdf: "Télécharger un rapport de dimensionnement d'une page en PDF"
+  download_excel: "Télécharger toutes les données en classeur Excel (4 feuilles)"
+  upload_logo: "Ajouter le logo de votre entreprise à l'en-tête du rapport PDF"
+  max_ds_capacity: "Capacité brute maximale par datastore (TiB)"
+  max_vms_per_ds: "Nombre maximum de VMs pouvant partager un même datastore"
+  iops_budget: "Charge IOPS maximale par datastore avant division"
+  snapshot_reserve: "Pourcentage de la capacité du datastore réservé aux snapshots"
+  growth_margin: "Marge de capacité supplémentaire pour la croissance future"
+  isolation_score: "0.0 = toutes les charges mélangées ; 1.0 = toutes les charges isolées"
+  snapshot_rating: "Évaluation qualitative : à quel point les snapshots peuvent cibler finement ce layout"
+  oversized_vms: "VMs trop grandes pour un datastore standard — reçoivent des datastores dédiés"
+  iops_headroom: "Capacité IOPS restante après le placement des charges"
+
+chart:
+  provisioned: "Provisionné"
+  required: "Requis"
+  single_category: "Catégorie unique"
+  drr_axis: "DRR"
+  gib_axis: "Gio"

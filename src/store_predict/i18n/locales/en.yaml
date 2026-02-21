@@ -232,3 +232,27 @@ excel:
   col_avg_iops: Avg IOPS
   col_peak_mbs: "Peak MB/s"
   col_iops_8k: "8K Eq. IOPS"
+
+tooltip:
+  llm_toggle: "Enable AI (LLM) classification for unknown VMs"
+  bulk_update: "Apply a workload category to all selected rows"
+  storage_model: "Select the target Dell storage platform — affects DRR coefficients"
+  download_pdf: "Download a one-page sizing report as PDF"
+  download_excel: "Download full data as Excel workbook (4 sheets)"
+  upload_logo: "Add your company logo to the PDF report header"
+  max_ds_capacity: "Maximum raw capacity per datastore (TiB)"
+  max_vms_per_ds: "Maximum number of VMs that can share one datastore"
+  iops_budget: "Maximum IOPS workload per datastore before splitting"
+  snapshot_reserve: "Percentage of datastore capacity reserved for snapshots"
+  growth_margin: "Additional capacity buffer for future growth"
+  isolation_score: "0.0 = all workloads mixed; 1.0 = all workloads isolated"
+  snapshot_rating: "Qualitative rating: how granularly snapshots can target this layout"
+  oversized_vms: "VMs too large to fit in a standard-sized datastore — given dedicated datastores"
+  iops_headroom: "Remaining IOPS capacity after workload placement"
+
+chart:
+  provisioned: "Provisioned"
+  required: "Required"
+  single_category: "Single category"
+  drr_axis: "DRR"
+  gib_axis: "GiB"
