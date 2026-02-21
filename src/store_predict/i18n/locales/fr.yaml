@@ -130,6 +130,7 @@ layout_page:
   recommended: Recommandé
   comparison_heading: "Comparaison des stratégies"
   detail_heading: "Détail de la stratégie : %{strategy}"
+  detail_tabs_heading: "Détail des stratégies"
   no_datastores: "Aucun datastore généré pour cette stratégie."
 
 strategy:

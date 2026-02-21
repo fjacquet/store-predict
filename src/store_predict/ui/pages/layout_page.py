@@ -9,7 +9,7 @@ from nicegui import app, ui
 from store_predict.i18n import t
 from store_predict.pipeline.calculation import calculate
 from store_predict.pipeline.layout_engine import generate_all_proposals
-from store_predict.pipeline.layout_models import LayoutProposal, PlacementConstraints
+from store_predict.pipeline.layout_models import DatastoreRecommendation, LayoutProposal, PlacementConstraints
 from store_predict.ui.layout import layout
 
 # ---------------------------------------------------------------------------
@@ -249,13 +249,162 @@ def _build_comparison_table(proposals: list[LayoutProposal]) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Results rendering (comparison + placeholder for plan 16-02 detail tabs)
+# Expandable datastore table
+# ---------------------------------------------------------------------------
+
+
+def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> None:
+    """Render a ui.table with expandable rows for VM drill-down."""
+    columns = [
+        {"name": "expand", "label": "", "field": "expand", "align": "left"},
+        {"name": "name", "label": t("ds.name"), "field": "name", "align": "left"},
+        {"name": "raw_cap", "label": t("ds.raw_cap"), "field": "raw_cap", "align": "right"},
+        {"name": "used", "label": t("ds.used"), "field": "used", "align": "right"},
+        {"name": "util_pct", "label": t("ds.util"), "field": "util_pct", "align": "right"},
+        {"name": "vm_count", "label": t("ds.vms"), "field": "vm_count", "align": "right"},
+        {"name": "iops", "label": t("ds.iops"), "field": "iops", "align": "right"},
+        {"name": "workloads", "label": t("ds.workloads"), "field": "workloads", "align": "left"},
+    ]
+
+    rows = [
+        {
+            "name": ds.name,
+            "raw_cap": _fmt_tib(ds.raw_capacity_mib),
+            "used": _fmt_tib(ds.used_capacity_mib),
+            "util_pct": f"{ds.utilization_pct:.1f}%",
+            "util_pct_raw": ds.utilization_pct,
+            "vm_count": ds.vm_count,
+            "iops": f"{ds.total_iops:,.0f}",
+            "workloads": ", ".join(sorted(ds.workload_types)),
+            "vm_names": [vm.vm_name for vm in ds.assigned_vms],
+        }
+        for ds in datastores
+    ]
+
+    table = ui.table(columns=columns, rows=rows, row_key="name").classes("w-full")
+
+    table.add_slot(
+        "header",
+        r'''
+        <q-tr :props="props">
+          <q-th auto-width />
+          <q-th v-for="col in props.cols" :key="col.name" :props="props">
+            {{ col.label }}
+          </q-th>
+        </q-tr>
+        ''',
+    )
+
+    table.add_slot(
+        "body",
+        r'''
+        <q-tr :props="props">
+          <q-td auto-width>
+            <q-btn
+              @click="props.expand = !props.expand"
+              :icon="props.expand ? 'expand_less' : 'expand_more'"
+              size="sm"
+              color="primary"
+              round
+              dense
+              flat
+            />
+          </q-td>
+          <q-td v-for="col in props.cols" :key="col.name" :props="props"
+            :class="{
+              'text-red-600 font-bold': col.name === 'util_pct' && props.row.util_pct_raw > 80,
+              'text-yellow-600': col.name === 'util_pct' && props.row.util_pct_raw > 60 && props.row.util_pct_raw <= 80,
+              'text-green-600': col.name === 'util_pct' && props.row.util_pct_raw <= 60
+            }"
+          >
+            {{ col.value }}
+          </q-td>
+        </q-tr>
+        <q-tr v-show="props.expand" :props="props">
+          <q-td colspan="100%" class="bg-gray-50">
+            <div class="p-2">
+              <div class="text-sm font-semibold text-gray-600 mb-1">VMs assigned:</div>
+              <div
+                v-for="vm in props.row.vm_names"
+                :key="vm"
+                class="text-sm text-gray-700 ml-2"
+              >
+                {{ vm }}
+              </div>
+            </div>
+          </q-td>
+        </q-tr>
+        ''',
+    )
+
+
+# ---------------------------------------------------------------------------
+# Per-strategy detail view
+# ---------------------------------------------------------------------------
+
+
+def _build_strategy_detail(proposal: LayoutProposal) -> None:
+    """Render description, summary stats, and expandable datastore table for one strategy."""
+    desc_key = f"strategy.{proposal.strategy_name}_desc"
+    ui.label(t(desc_key)).classes("text-sm text-gray-500 mb-2")
+
+    m = proposal.metrics
+    with ui.row().classes("gap-4 mb-4 flex-wrap"):
+        with ui.card().classes("p-3 text-center min-w-[100px]"):
+            ui.label(str(m.total_ds_count)).classes("text-2xl font-bold text-blue-700")
+            ui.label(t("metrics.ds_count")).classes("text-xs text-gray-500")
+        with ui.card().classes("p-3 text-center min-w-[120px]"):
+            ui.label(_fmt_tib(m.total_raw_capacity_mib)).classes("text-xl font-bold text-blue-700")
+            ui.label(t("metrics.raw_capacity")).classes("text-xs text-gray-500")
+        with ui.card().classes("p-3 text-center min-w-[100px]"):
+            ui.label(_fmt_pct(m.avg_utilization_pct)).classes("text-xl font-bold text-blue-700")
+            ui.label(t("metrics.avg_utilization")).classes("text-xs text-gray-500")
+
+    if not proposal.datastores:
+        ui.label(t("layout_page.no_datastores")).classes("text-gray-400 italic p-4")
+        return
+
+    _build_datastore_table(proposal.datastores)
+
+
+# ---------------------------------------------------------------------------
+# Strategy tabs (three-tab detail view)
+# ---------------------------------------------------------------------------
+
+
+def _build_strategy_tabs(proposals: list[LayoutProposal]) -> None:
+    """Render three strategy tabs (Consolidation/Performance/Uniform) with per-datastore detail."""
+    ui.label(t("layout_page.detail_tabs_heading")).classes("text-xl font-semibold mt-6")
+
+    # Map strategy names to proposals for easy lookup
+    by_name: dict[str, LayoutProposal] = {p.strategy_name: p for p in proposals}
+
+    with ui.tabs().classes("w-full") as tabs:
+        tab_consol = ui.tab("consolidation", label=t("strategy.consolidation"), icon="compress")
+        tab_perf = ui.tab("performance", label=t("strategy.performance"), icon="speed")
+        tab_unif = ui.tab("uniform", label=t("strategy.uniform"), icon="balance")
+
+    with ui.tab_panels(tabs, value=tab_consol).classes("w-full"):
+        with ui.tab_panel(tab_consol):
+            if "consolidation" in by_name:
+                _build_strategy_detail(by_name["consolidation"])
+        with ui.tab_panel(tab_perf):
+            if "performance" in by_name:
+                _build_strategy_detail(by_name["performance"])
+        with ui.tab_panel(tab_unif):
+            if "uniform" in by_name:
+                _build_strategy_detail(by_name["uniform"])
+
+
+# ---------------------------------------------------------------------------
+# Results rendering (comparison + detail tabs)
 # ---------------------------------------------------------------------------
 
 
 def _render_results(proposals: list[LayoutProposal]) -> None:
-    """Render comparison table inside the results container."""
+    """Render comparison table and strategy detail tabs inside the results container."""
     _build_comparison_table(proposals)
+    _build_strategy_tabs(proposals)
 
 
 # ---------------------------------------------------------------------------
