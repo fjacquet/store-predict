@@ -5,6 +5,8 @@ Tests use real objects and fixtures — no unittest.mock per project convention.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from store_predict.pipeline.calculation import CalculationSummary, VMCalculation
 from store_predict.pipeline.layout_engine import (
     _apply_default_iops,
@@ -16,8 +18,10 @@ from store_predict.pipeline.layout_engine import (
     generate_all_proposals,
 )
 from store_predict.pipeline.layout_models import (
+    _DEFAULT_IOPS_HARDCODED,
     DatastoreRecommendation,
     PlacementConstraints,
+    _load_iops_from_csv,
 )
 
 # ---------------------------------------------------------------------------
@@ -653,3 +657,51 @@ class TestGenerateAllProposals:
             # All VMs should be placed
             total = sum(ds.vm_count for ds in p.datastores)
             assert total == 1
+
+
+# ---------------------------------------------------------------------------
+# TestLoadIOPSFromCSV
+# ---------------------------------------------------------------------------
+
+
+class TestLoadIOPSFromCSV:
+    def test_load_iops_from_csv_returns_dict(self) -> None:
+        """CSV loader returns dict with at least 8 entries and correct SQL value."""
+        result = _load_iops_from_csv()
+        assert isinstance(result, dict)
+        assert len(result) >= 8
+        assert result["Database/Microsoft SQL"] == 500.0
+
+    def test_load_iops_from_csv_fallback_when_missing(self) -> None:
+        """Missing CSV path returns _DEFAULT_IOPS_HARDCODED values unchanged."""
+        result = _load_iops_from_csv(Path("/nonexistent/IOPS.csv"))
+        assert result == _DEFAULT_IOPS_HARDCODED
+
+    def test_load_iops_from_csv_strips_whitespace(self, tmp_path: Path) -> None:
+        """Keys and values with surrounding whitespace are stripped before parsing."""
+        csv_file = tmp_path / "IOPS.csv"
+        csv_file.write_text("Workload Category;IOPS Estimate\n Database/Oracle ; 800 \n", encoding="utf-8")
+        result = _load_iops_from_csv(csv_file)
+        assert "Database/Oracle" in result
+        assert result["Database/Oracle"] == 800.0
+
+    def test_load_iops_from_csv_skips_bad_rows(self, tmp_path: Path) -> None:
+        """Rows with non-numeric IOPS values are skipped; valid rows are loaded."""
+        csv_file = tmp_path / "IOPS.csv"
+        csv_file.write_text(
+            "Workload Category;IOPS Estimate\n"
+            "Database/Oracle;800\n"
+            "BadCategory;notanumber\n",
+            encoding="utf-8",
+        )
+        result = _load_iops_from_csv(csv_file)
+        assert "Database/Oracle" in result
+        assert result["Database/Oracle"] == 800.0
+        assert "BadCategory" not in result
+
+    def test_load_iops_from_csv_empty_file_uses_fallback(self, tmp_path: Path) -> None:
+        """CSV with only a header row (no data) returns _DEFAULT_IOPS_HARDCODED."""
+        csv_file = tmp_path / "IOPS.csv"
+        csv_file.write_text("Workload Category;IOPS Estimate\n", encoding="utf-8")
+        result = _load_iops_from_csv(csv_file)
+        assert result == _DEFAULT_IOPS_HARDCODED
