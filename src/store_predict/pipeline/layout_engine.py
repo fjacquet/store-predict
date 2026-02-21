@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import dataclasses
 from dataclasses import dataclass, field
+from enum import StrEnum
+from math import ceil
 from typing import TYPE_CHECKING
 
 from store_predict.pipeline.layout_models import (
@@ -307,6 +309,212 @@ def _consolidation_strategy(
 
 
 # ---------------------------------------------------------------------------
+# Performance strategy — Phase 0 isolation + tier-based BFD
+# ---------------------------------------------------------------------------
+
+
+class PerformanceTier(StrEnum):
+    """Three-tier workload classification for the Performance strategy."""
+
+    HOT = "HOT"
+    WARM = "WARM"
+    COLD = "COLD"
+
+
+# Mission-critical isolation thresholds (Phase 0)
+_ISOLATION_CAPACITY_THRESHOLD_MIB: float = 2 * 1024 * 1024  # 2 TiB
+_ISOLATION_IOPS_THRESHOLD: float = 5_000.0
+
+
+def _is_mission_critical(vm: VMCalculation) -> bool:
+    """Return True if VM qualifies for Phase 0 dedicated isolation.
+
+    Criteria:
+    - Workload contains "SAP HANA" or "Exchange" (business-critical applications)
+    - required_mib > 2 TiB (very large VMs)
+    - peak_iops > 5000 (very high IOPS demand)
+    """
+    if "SAP HANA" in vm.workload_category or "Exchange" in vm.workload_category:
+        return True
+    if vm.required_mib > _ISOLATION_CAPACITY_THRESHOLD_MIB:
+        return True
+    return vm.peak_iops > _ISOLATION_IOPS_THRESHOLD
+
+
+def _classify_tier(vm: VMCalculation) -> PerformanceTier:
+    """Classify a VM into a performance tier.
+
+    HOT: peak_iops > 500 or workload contains "Database"
+    WARM: 100 <= peak_iops <= 500
+    COLD: otherwise (low IOPS, non-Database)
+    """
+    if vm.peak_iops > 500 or "Database" in vm.workload_category:
+        return PerformanceTier.HOT
+    if 100.0 <= vm.peak_iops <= 500.0:
+        return PerformanceTier.WARM
+    return PerformanceTier.COLD
+
+
+def _isolate_vms(
+    vms: list[VMCalculation],
+    constraints: PlacementConstraints,
+) -> tuple[list[_DatastoreBuilder], list[VMCalculation]]:
+    """Phase 0: separate mission-critical VMs into 1:1 dedicated datastores.
+
+    Each isolated VM gets its own datastore sized exactly to that VM
+    (not the global max DS size). Naming uses workload-based prefixes with
+    per-prefix independent counters.
+
+    Returns:
+        (isolated_bins, remaining_vms) — remaining VMs go through tier BFD.
+    """
+    isolated_bins: list[_DatastoreBuilder] = []
+    remaining_vms: list[VMCalculation] = []
+
+    # Per-prefix naming counters (independent per Pitfall 5)
+    prefix_counters: dict[str, int] = {}
+
+    for vm in vms:
+        if not _is_mission_critical(vm):
+            remaining_vms.append(vm)
+            continue
+
+        # Determine naming prefix from workload
+        wcat = vm.workload_category
+        if "SAP HANA" in wcat or "HANA" in wcat:
+            prefix = "DS_HANA"
+        elif "Exchange" in wcat:
+            prefix = "DS_EXCHANGE"
+        elif "Oracle" in wcat:
+            prefix = "DS_ORA"
+        else:
+            prefix = "DS_ISOLATED"
+
+        prefix_counters[prefix] = prefix_counters.get(prefix, 0) + 1
+        ds_name = f"{prefix}_{prefix_counters[prefix]:02d}"
+
+        # Size DS exactly to this VM (not global max)
+        vm_raw_mib = (
+            vm.required_mib / constraints.usable_ratio
+            if constraints.usable_ratio > 0
+            else vm.required_mib
+        )
+        b = _DatastoreBuilder(
+            name=ds_name,
+            raw_capacity_mib=vm_raw_mib,
+            usable_capacity_mib=vm.required_mib,
+        )
+        b.add_vm(vm)
+        isolated_bins.append(b)
+
+    return isolated_bins, remaining_vms
+
+
+def _performance_strategy(
+    vms: list[VMCalculation],
+    constraints: PlacementConstraints,
+) -> LayoutProposal:
+    """Performance strategy with Phase 0 isolation and three-tier BFD.
+
+    Phase 0: Mission-critical VMs → dedicated per-VM datastores.
+    Phase 1: Classify remaining VMs into HOT / WARM / COLD tiers.
+    Phase 2: BFD within each tier using tier-specific constraints (independent bins).
+
+    Anti-affinity between Database and VDI is naturally enforced because each
+    tier runs a completely independent _bfd_place() call.
+    """
+    # Phase 0 — isolate mission-critical VMs
+    isolated_builders, remaining = _isolate_vms(vms, constraints)
+
+    # Phase 1 — classify remaining VMs by tier
+    hot_vms: list[VMCalculation] = []
+    warm_vms: list[VMCalculation] = []
+    cold_vms: list[VMCalculation] = []
+
+    for vm in remaining:
+        tier = _classify_tier(vm)
+        if tier == PerformanceTier.HOT:
+            hot_vms.append(vm)
+        elif tier == PerformanceTier.WARM:
+            warm_vms.append(vm)
+        else:
+            cold_vms.append(vm)
+
+    # Phase 2 — independent BFD per tier
+    hot_builders = _bfd_place(hot_vms, constraints, "DS_HOT", max_vms_override=10)
+    warm_builders = _bfd_place(warm_vms, constraints, "DS_WARM")
+    cold_builders = _bfd_place(cold_vms, constraints, "DS_COLD")
+
+    all_builders = isolated_builders + hot_builders + warm_builders + cold_builders
+    recommendations = [b.to_recommendation() for b in all_builders]
+    metrics = _compute_metrics(recommendations)
+
+    return LayoutProposal(
+        strategy_name="performance",
+        datastores=tuple(recommendations),
+        metrics=metrics,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Uniform strategy — LPT distribution across equal-sized datastores
+# ---------------------------------------------------------------------------
+
+
+def _uniform_strategy(
+    vms: list[VMCalculation],
+    constraints: PlacementConstraints,
+) -> LayoutProposal:
+    """Uniform strategy: distribute VMs evenly across equal-sized datastores using LPT.
+
+    DS count is driven by whichever dimension (capacity or IOPS) requires more datastores.
+    LPT (Longest Processing Time): sort VMs by required_mib descending, assign each to
+    the least-loaded bin. This produces balanced utilization across datastores.
+    """
+    if not vms:
+        return LayoutProposal(
+            strategy_name="uniform",
+            datastores=(),
+            metrics=_compute_metrics([]),
+        )
+
+    total_cap = sum(vm.required_mib for vm in vms)
+    total_iops = sum(vm.peak_iops for vm in vms)
+    usable = constraints.usable_capacity_mib
+    iops_budget = constraints.iops_budget_per_ds
+
+    # DS count is max of capacity-driven and IOPS-driven requirements
+    ds_count_cap = ceil(total_cap / usable) if usable > 0 else 1
+    ds_count_iops = ceil(total_iops / iops_budget) if iops_budget > 0 else 1
+    ds_count = max(ds_count_cap, ds_count_iops, 1)
+
+    # Create equal-sized bins upfront
+    bins: list[_DatastoreBuilder] = [
+        _DatastoreBuilder(
+            name=f"DS_UNIFORM_{idx:02d}",
+            raw_capacity_mib=constraints.max_ds_capacity_mib,
+            usable_capacity_mib=usable,
+        )
+        for idx in range(1, ds_count + 1)
+    ]
+
+    # LPT: largest VMs first, always assign to least-loaded bin
+    sorted_vms = sorted(vms, key=lambda vm: vm.required_mib, reverse=True)
+    for vm in sorted_vms:
+        least_loaded = min(bins, key=lambda b: b.used_capacity_mib)
+        least_loaded.add_vm(vm)
+
+    recommendations = [b.to_recommendation() for b in bins]
+    metrics = _compute_metrics(recommendations)
+
+    return LayoutProposal(
+        strategy_name="uniform",
+        datastores=tuple(recommendations),
+        metrics=metrics,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
 
@@ -315,17 +523,16 @@ def generate_all_proposals(
     summary: CalculationSummary,
     constraints: PlacementConstraints | None = None,
 ) -> list[LayoutProposal]:
-    """Generate layout proposals for available strategies.
+    """Generate layout proposals for all three strategies.
 
-    Currently implements: Consolidation strategy.
-    Performance and Uniform strategies are added in Plan 14-02.
+    Strategies returned (in order): consolidation, performance, uniform.
 
     Args:
         summary: Output from pipeline/calculation.py calculate().
         constraints: Tunable parameters; uses defaults if None.
 
     Returns:
-        List of LayoutProposal objects, one per strategy.
+        List of exactly 3 LayoutProposal objects, one per strategy.
     """
     if constraints is None:
         constraints = PlacementConstraints()
@@ -336,6 +543,16 @@ def generate_all_proposals(
     if not summary.has_performance_data:
         vms = [_apply_default_iops(vm) for vm in vms]
 
+    if not vms:
+        empty_metrics = _compute_metrics([])
+        return [
+            LayoutProposal(strategy_name="consolidation", datastores=(), metrics=empty_metrics),
+            LayoutProposal(strategy_name="performance", datastores=(), metrics=empty_metrics),
+            LayoutProposal(strategy_name="uniform", datastores=(), metrics=empty_metrics),
+        ]
+
     return [
         _consolidation_strategy(vms, constraints),
+        _performance_strategy(vms, constraints),
+        _uniform_strategy(vms, constraints),
     ]
