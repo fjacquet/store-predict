@@ -64,7 +64,7 @@ Shipped outside GSD planning:
 - [x] **Phase 17: PDF & Excel Integration** (1 plan) (completed 2026-02-21)
   - [ ] 17-01-PLAN.md — PDF layout page + Excel layout sheet + i18n keys + tests
 - [ ] **Phase 18: i18n & Polish** (1 plan)
-  - Plan 18-01: Full i18n + edge cases + navigation polish
+  - [ ] 18-01-PLAN.md — YAML tooltip+chart keys, fix slot/chart hardcodes, .tooltip() wiring, test coverage
 
 ## Progress
 
