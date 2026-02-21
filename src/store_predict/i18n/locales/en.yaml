@@ -246,9 +246,7 @@ tooltip:
   snapshot_reserve: "Percentage of datastore capacity reserved for snapshots"
   growth_margin: "Additional capacity buffer for future growth"
   isolation_score: "0.0 = all workloads mixed; 1.0 = all workloads isolated"
-  snapshot_rating: "Qualitative rating: how granularly snapshots can target this layout"
   oversized_vms: "VMs too large to fit in a standard-sized datastore — given dedicated datastores"
-  iops_headroom: "Remaining IOPS capacity after workload placement"
 
 chart:
   provisioned: "Provisioned"
