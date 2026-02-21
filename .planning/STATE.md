@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase: 15-default-iops-and-docs (Plan 1 of 2 — COMPLETE)
+Phase: 15-default-iops-and-docs (Plan 2 of 2 — COMPLETE)
 
 ## Milestone
 
@@ -17,14 +17,15 @@ v3.0 — Datastore Layout Recommendations
 - [x] Phase 14-01: layout_models.py + layout_engine.py (consolidation strategy, BFD core)
 - [x] Phase 14-02: Performance strategy (Phase 0 isolation + tier BFD) + Uniform strategy (LPT) + generate_all_proposals() orchestrator
 - [x] Phase 15-01: IOPS.csv package data + CSV loader for configurable IOPS defaults (REQ-014)
+- [x] Phase 15-02: ADR-059, research page, architecture.md (4-stage pipeline), CHANGELOG.md v3.0.0
 
 ## Current Phase Progress
 
-Phase 15: Plan 1/2 complete (15-01-SUMMARY.md exists)
+Phase 15: Plan 2/2 complete (15-01-SUMMARY.md and 15-02-SUMMARY.md exist)
 
 ## Next Action
 
-Execute Phase 15 Plan 02 (15-02-PLAN.md — documentation)
+Execute Phase 16 (next phase per ROADMAP.md)
 
 ## Project Reference
 
@@ -53,8 +54,10 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 - Online help/tooltips added to Phase 18 (i18n & Polish) — all UI pages, FR+EN keys
 - IOPS.csv stored in src/store_predict/data/ alongside DRR.csv (package data, not samples/) — samples/ is gitignored for customer data privacy
 - stdlib csv.DictReader used for IOPS loader (not pandas) — keeps layout_models.py lightweight with zero extra dependencies
+- ADR-059: workload-based IOPS defaults accepted; Linux/Windows IOPS split not implemented (documented as known limitation)
+- mkdocs.yml nav corrected: ADRs 048-058 added, ADRs 015-033 filenames fixed (pre-existing bug resolved)
 
 ## Last Session
 
-- **Stopped at:** Completed 15-01-PLAN.md — IOPS.csv configurable defaults with CSV loader and fallback
+- **Stopped at:** Completed 15-02-PLAN.md
 - **Timestamp:** 2026-02-21

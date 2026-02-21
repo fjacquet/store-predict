@@ -55,7 +55,7 @@ Shipped outside GSD planning:
 - [x] **Phase 14: Layout Engine Core** (2 plans) (completed 2026-02-21)
   - [x] 14-01-PLAN.md — Data models + Consolidation strategy + BFD core + metrics + default IOPS
   - [x] 14-02-PLAN.md — Performance + Uniform strategies + generate_all_proposals orchestrator
-- [ ] **Phase 15: Default IOPS & Research Docs** (2 plans)
+- [x] **Phase 15: Default IOPS & Research Docs** (2 plans) (completed 2026-02-21)
   - [ ] 15-01-PLAN.md — IOPS CSV configurability + CSV loader tests
   - [ ] 15-02-PLAN.md — ADR-059, research page, architecture update, CHANGELOG v3.0.0
 - [ ] **Phase 16: Layout Page UI** (2 plans)
