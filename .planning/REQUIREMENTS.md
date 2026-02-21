@@ -27,16 +27,26 @@ Multi-dimensional Best Fit Decreasing (BFD) algorithm:
 
 ### REQ-003: Layout Engine — Performance Strategy
 
-Two-phase workload-aware placement:
-- Phase 1: Classify VMs into performance tiers (Hot/Warm/Cold) based on IOPS and workload category
-  - Hot: >500 IOPS or Database workloads (SQL, Oracle, SAP HANA)
+Three-phase workload-aware placement:
+- Phase 0: **Isolate mission-critical VMs** — 1 VM = 1 dedicated datastore
+  - SAP HANA, Exchange, large Oracle (configurable isolation list)
+  - These VMs bypass BFD entirely — they get their own named datastore
+  - Naming: `DS_HANA_01`, `DS_EXCHANGE_01`, `DS_ORA_01`
+  - Rationale: dedicated QoS, snapshot granularity = 1 VM, backup/restore isolation
+- Phase 1: Classify remaining VMs into performance tiers (Hot/Warm/Cold) based on IOPS and workload category
+  - Hot: >500 IOPS or Database workloads (SQL, Oracle, SAP HANA not already isolated)
   - Warm: 100-500 IOPS (app servers, mixed)
   - Cold: <100 IOPS (file servers, archive, dev/test, general VMs)
 - Phase 2: Place each tier separately using BFD with tier-specific constraints
-  - Hot: max 15 VMs/DS (lower density for latency isolation)
+  - Hot: max 10 VMs/DS (lower density for latency isolation)
   - Warm/Cold: standard constraints
 - Anti-affinity: never co-locate Database and VDI on same datastore
 - Goal: maximize performance isolation, minimize contention
+
+Isolation criteria (default, configurable):
+- Workload category contains "SAP HANA" or "Exchange"
+- VM provisioned capacity > 2 TB (likely a large DB)
+- VM IOPS > 5,000 (extremely hot workload)
 
 ### REQ-004: Layout Engine — Uniform Strategy
 
