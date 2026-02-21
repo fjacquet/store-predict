@@ -54,6 +54,8 @@ nav:
     - Phase 11 - LLM Classification: research/phase-11-llm-classification.md
     - Phase 12 - UX Polish: research/phase-12-ux-polish.md
     - Phase 13 - Graphics: research/phase-13-graphics.md
+    - Phase 14 - App-Level DRR Variants: research/phase-14-app-level-drr-variants.md
+    - Phase 15 - Default IOPS: research/phase-15-default-iops.md
   - Changelog: changelog.md
   - ADR:
     - Overview: adr/index.md
@@ -71,25 +73,25 @@ nav:
     - 012 - Priority Ordered Rules: adr/012-priority-ordered-rules.md
     - 013 - Weighted Average DRR: adr/013-weighted-average-drr.md
     - 014 - DRR Guard: adr/014-drr-guard.md
-    - 015 - Calculation Dataclass: adr/015-calculation-dataclass.md
-    - 016 - ReportLab Platypus: adr/016-reportlab-platypus.md
-    - 017 - Vera Fonts: adr/017-vera-fonts.md
-    - 018 - BytesIO PDF: adr/018-bytesio-pdf.md
-    - 019 - Docker Compose: adr/019-docker-compose.md
-    - 020 - File Validation: adr/020-file-validation.md
-    - 021 - CI GitHub Actions: adr/021-ci-github-actions.md
-    - 022 - Performance Benchmarks: adr/022-performance-benchmarks.md
-    - 023 - AG Grid Advanced Features: adr/023-aggrid-advanced-features.md
-    - 024 - NiceGUI Component Patterns: adr/024-nicegui-component-patterns.md
-    - 025 - Performance Columns NaN: adr/025-performance-columns-nan.md
-    - 026 - Two Pass Classification: adr/026-two-pass-classification.md
-    - 027 - 8K IOPS Formula: adr/027-8k-iops-formula.md
-    - 028 - i18n Per-Call Locale: adr/028-i18n-per-call-locale.md
-    - 029 - AG Grid FR Locale: adr/029-aggrid-fr-locale.md
-    - 030 - Language Switch Reload: adr/030-language-switch-reload.md
-    - 031 - ZIP Extraction: adr/031-zip-extraction.md
-    - 032 - Excel XlsxWriter: adr/032-excel-xlsxwriter.md
-    - 033 - Pillow Logo Normalization: adr/033-pillow-logo-normalization.md
+    - 015 - Canonical DataFrame Schema: adr/015-canonical-dataframe-schema.md
+    - 016 - Template Filter Orchestrator: adr/016-template-filter-orchestrator.md
+    - 017 - RVTools MB as MiB: adr/017-rvtools-mb-as-mib.md
+    - 018 - openpyxl Read-Only Detection: adr/018-openpyxl-read-only-detection.md
+    - 019 - Shared LiveOptics Helper: adr/019-shared-liveoptics-helper.md
+    - 020 - Dark Mode User Storage: adr/020-dark-mode-user-storage.md
+    - 021 - Dual Workload Edit: adr/021-dual-workload-edit.md
+    - 022 - Stats Clear Rebuild: adr/022-stats-clear-rebuild.md
+    - 023 - Page Routes Side Effects: adr/023-page-routes-side-effects.md
+    - 024 - Workload Dialog Props: adr/024-workload-dialog-props.md
+    - 025 - ReportLab Platypus: adr/025-reportlab-platypus.md
+    - 026 - Vera TTF Fonts: adr/026-vera-ttf-fonts.md
+    - 027 - PDF In-Memory BytesIO: adr/027-pdf-in-memory-bytesio.md
+    - 028 - UI Table Report Page: adr/028-ui-table-report-page.md
+    - 029 - Three-Layer Architecture: adr/029-three-layer-architecture.md
+    - 030 - Docker Single Container: adr/030-docker-single-container.md
+    - 031 - Magic Byte Validation: adr/031-magic-byte-validation.md
+    - 032 - Log Sanitization: adr/032-log-sanitization.md
+    - 033 - Context Manager Layout: adr/033-context-manager-layout.md
     - 034 - SAP Word Boundary: adr/034-sap-word-boundary.md
     - 035 - Postgres MySQL Before SQL: adr/035-postgres-mysql-before-sql.md
     - 036 - Citrix Full Clone Default: adr/036-citrix-full-clone-default.md
@@ -104,3 +106,15 @@ nav:
     - 045 - ECharts for Web Charts: adr/045-echart-for-web-charts.md
     - 046 - PDF Charts Page Two: adr/046-pdf-charts-page-two.md
     - 047 - Sankey matplotlib Strategy: adr/047-sankey-reportlab-strategy.md
+    - 048 - AG Grid Community Detail Bar: adr/048-aggrid-community-detail-bar.md
+    - 049 - AG Grid Event Args Filter: adr/049-aggrid-event-args-filter.md
+    - 050 - Click Zoom vs Reclassify: adr/050-click-zoom-vs-reclassify.md
+    - 051 - LLM Rule Suggestion Loop: adr/051-llm-rule-suggestion-loop.md
+    - 052 - Storage Model Flat DRR Override: adr/052-storage-model-flat-drr-override.md
+    - 053 - App-Level DRR CSV Variants: adr/053-app-level-drr-as-csv-variants.md
+    - 054 - LLM Toggle Session Scoped: adr/054-llm-toggle-session-scoped.md
+    - 055 - Layout Engine BFD Heuristic: adr/055-layout-engine-bfd-heuristic.md
+    - 056 - Three Layout Strategies: adr/056-three-layout-strategies.md
+    - 057 - VMFS Not vVol Layout: adr/057-vmfs-not-vvol-layout.md
+    - 058 - Isolated VM Dedicated Datastore: adr/058-isolated-vm-dedicated-datastore.md
+    - 059 - Default IOPS Estimates: adr/059-default-iops-estimates.md

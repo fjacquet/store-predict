@@ -42,6 +42,8 @@ class LLMConfig(BaseSettings):
         api_base: Optional custom API base URL (e.g. OpenRouter endpoint).
         timeout: Per-request timeout in seconds. Defaults to ``30``.
         max_concurrent: Maximum simultaneous LLM calls. Defaults to ``5``.
+        batch_size: Number of VMs to classify in a single LLM prompt.
+            Defaults to ``10``. Env var: ``LLM_BATCH_SIZE``.
     """
 
     model_config = SettingsConfigDict(env_prefix="LLM_", case_sensitive=False)
@@ -52,6 +54,7 @@ class LLMConfig(BaseSettings):
     api_base: str | None = None
     timeout: int = 30
     max_concurrent: int = 5
+    batch_size: int = 10
 
     def get_api_key(self) -> str:
         """Return raw key string ONLY at call site — never log the return value."""

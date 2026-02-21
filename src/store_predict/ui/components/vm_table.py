@@ -73,7 +73,7 @@ def create_vm_table(
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
-            "minWidth": 250,
+            "minWidth": 350,
         },
         {
             "field": "workload_subcategory",
@@ -86,7 +86,7 @@ def create_vm_table(
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
-            "minWidth": 250,
+            "minWidth": 350,
         },
         {
             "field": "drr",

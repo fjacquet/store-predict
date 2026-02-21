@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from store_predict.i18n import t
+
 if TYPE_CHECKING:
     from store_predict.pipeline.calculation import CalculationSummary
 
@@ -32,16 +34,19 @@ def echart_sankey_options(summary: CalculationSummary) -> dict[str, Any]:
     if len(summary.workload_groups) < 2:
         return echart_before_after_options(summary)
 
-    nodes = [{"name": "Provisioned", "itemStyle": {"color": DELL_BLUE}}]
+    provisioned_label = t("chart.provisioned")
+    required_label = t("chart.required")
+
+    nodes = [{"name": provisioned_label, "itemStyle": {"color": DELL_BLUE}}]
     for grp in summary.workload_groups:
         nodes.append({"name": grp.category, "itemStyle": {"color": LIGHT_GREY}})
-    nodes.append({"name": "Required", "itemStyle": {"color": LIGHT_BLUE}})
+    nodes.append({"name": required_label, "itemStyle": {"color": LIGHT_BLUE}})
 
     links = []
     for grp in summary.workload_groups:
         links.append(
             {
-                "source": "Provisioned",
+                "source": provisioned_label,
                 "target": grp.category,
                 "value": round(grp.total_provisioned_mib / 1024, 1),
             }
@@ -49,7 +54,7 @@ def echart_sankey_options(summary: CalculationSummary) -> dict[str, Any]:
         links.append(
             {
                 "source": grp.category,
-                "target": "Required",
+                "target": required_label,
                 "value": round(grp.total_required_mib / 1024, 1),
             }
         )
@@ -76,7 +81,7 @@ def echart_pie_options(summary: CalculationSummary) -> dict[str, Any]:
         {"value": round(grp.total_provisioned_mib / 1024, 1), "name": grp.category} for grp in summary.workload_groups
     ]
 
-    subtitle = "" if len(summary.workload_groups) >= 2 else "Single category"
+    subtitle = "" if len(summary.workload_groups) >= 2 else t("chart.single_category")
 
     return {
         "color": DELL_PALETTE,
@@ -105,7 +110,7 @@ def echart_drr_bar_options(summary: CalculationSummary) -> dict[str, Any]:
             "data": categories,
             "axisLabel": {"rotate": 30, "overflow": "truncate", "width": 80},
         },
-        "yAxis": {"type": "value", "name": "DRR"},
+        "yAxis": {"type": "value", "name": t("chart.drr_axis")},
         "series": [
             {
                 "type": "bar",
@@ -130,9 +135,9 @@ def echart_before_after_options(summary: CalculationSummary) -> dict[str, Any]:
             "data": categories,
             "axisLabel": {"rotate": 30, "overflow": "truncate", "width": 80},
         },
-        "yAxis": {"type": "value", "name": "GiB"},
+        "yAxis": {"type": "value", "name": t("chart.gib_axis")},
         "series": [
-            {"name": "Provisioned", "type": "bar", "data": provisioned, "itemStyle": {"color": DELL_BLUE}},
-            {"name": "Required", "type": "bar", "data": required, "itemStyle": {"color": LIGHT_BLUE}},
+            {"name": t("chart.provisioned"), "type": "bar", "data": provisioned, "itemStyle": {"color": DELL_BLUE}},
+            {"name": t("chart.required"), "type": "bar", "data": required, "itemStyle": {"color": LIGHT_BLUE}},
         ],
     }

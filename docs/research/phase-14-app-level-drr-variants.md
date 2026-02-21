@@ -167,12 +167,12 @@ See ADR-053 for the architectural decision behind the CSV-variant approach.
 
 | Source | URL |
 |---|---|
-| Dell PowerStore KB — DRR less than expected | https://www.dell.com/support/kbdoc/en-us/000267460 |
-| Dell PowerStore 5:1 DRR guarantee | https://www.delltechnologies.com/asset/en-us/products/cross-company/industry-market/principled-technologies-dell-powerstore-data-reduction-ratio-vs-5-competitors.pdf |
-| Oracle TDE on PowerMax — real-world case | https://infohub.delltechnologies.com/l/deployment-best-practices-for-oracle-databases-with-dell-emc-powermax-5/compression-and-deduplication-of-an-encrypted-oracle-database-5/ |
-| Oracle HCC — PowerStore RAC BP | https://infohub.delltechnologies.com/en-ca/l/oracle-rac-high-availability-on-powerstore-t/powerstore-data-efficiencies/ |
-| Oracle HCC DML pitfalls | https://blog.sqlora.com/en/when-compression-expands-the-hidden-pitfalls-of-hcc/ |
-| SQL Server data compression | https://learn.microsoft.com/en-us/sql/relational-databases/data-compression/data-compression?view=sql-server-ver17 |
-| SQL Server storage efficiency (NetApp) | https://docs.netapp.com/us-en/ontap-apps-dbs/mssql/mssql-storage-efficiency.html |
-| MongoDB WiredTiger compression benchmark | https://www.percona.com/blog/compression-methods-in-mongodb-snappy-vs-zstd/ |
-| Veeam BP — deduplication appliances | https://bp.veeam.com/vbr/3_Build_structures/B_Veeam_Components/B_backup_repositories/deduplication.html |
+| Dell PowerStore KB — DRR less than expected | <https://www.dell.com/support/kbdoc/en-us/000267460> |
+| Dell PowerStore 5:1 DRR guarantee | <https://www.delltechnologies.com/asset/en-us/products/cross-company/industry-market/principled-technologies-dell-powerstore-data-reduction-ratio-vs-5-competitors.pdf> |
+| Oracle TDE on PowerMax — real-world case | <https://infohub.delltechnologies.com/l/deployment-best-practices-for-oracle-databases-with-dell-emc-powermax-5/compression-and-deduplication-of-an-encrypted-oracle-database-5/> |
+| Oracle HCC — PowerStore RAC BP | <https://infohub.delltechnologies.com/en-ca/l/oracle-rac-high-availability-on-powerstore-t/powerstore-data-efficiencies/> |
+| Oracle HCC DML pitfalls | <https://blog.sqlora.com/en/when-compression-expands-the-hidden-pitfalls-of-hcc/> |
+| SQL Server data compression | <https://learn.microsoft.com/en-us/sql/relational-databases/data-compression/data-compression?view=sql-server-ver17> |
+| SQL Server storage efficiency (NetApp) | <https://docs.netapp.com/us-en/ontap-apps-dbs/mssql/mssql-storage-efficiency.html> |
+| MongoDB WiredTiger compression benchmark | <https://www.percona.com/blog/compression-methods-in-mongodb-snappy-vs-zstd/> |
+| Veeam BP — deduplication appliances | <https://bp.veeam.com/vbr/3_Build_structures/B_Veeam_Components/B_backup_repositories/deduplication.html> |

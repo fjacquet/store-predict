@@ -81,7 +81,7 @@ async def review_page() -> None:
                 StorageModel.POWERVAULT: t("storage_model.powervault"),
             },
             value=current_model,
-        ).classes("mb-2")
+        ).classes("mb-2").tooltip(t("tooltip.storage_model"))
 
         async def _on_model_change(new_model: StorageModel) -> None:
             set_storage_model(new_model)
@@ -139,7 +139,7 @@ async def review_page() -> None:
                     stats_container,
                 ),
                 icon="edit",
-            ).classes("bg-orange-700 text-white")
+            ).classes("bg-orange-700 text-white").tooltip(t("tooltip.bulk_update"))
             ui.button(
                 t("review.generate_report"),
                 on_click=lambda: ui.navigate.to("/report"),

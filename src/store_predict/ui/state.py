@@ -103,12 +103,15 @@ def get_workload_options() -> list[dict[str, object]]:
     Result is cached since DRR table is static reference data.
     """
     drr_table = DRRTable.from_csv(DRR_CSV_PATH)
-    return [
-        {
-            "category": entry.category,
-            "subcategory": entry.subcategory,
-            "label": f"{entry.category} / {entry.subcategory}",
-            "drr": entry.ratio,
-        }
-        for entry in drr_table.entries
-    ]
+    return sorted(
+        [
+            {
+                "category": entry.category,
+                "subcategory": entry.subcategory,
+                "label": f"{entry.category} / {entry.subcategory}",
+                "drr": entry.ratio,
+            }
+            for entry in drr_table.entries
+        ],
+        key=lambda e: str(e["label"]),
+    )

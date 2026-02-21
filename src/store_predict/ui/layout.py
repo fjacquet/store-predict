@@ -25,6 +25,7 @@ def layout(title: str = "StorePredict") -> Iterator[None]:
             ui.link(t("layout.upload"), "/upload").classes("text-white no-underline hover:underline")
             ui.link(t("layout.review"), "/review").classes("text-white no-underline hover:underline")
             ui.link(t("layout.report"), "/report").classes("text-white no-underline hover:underline")
+            ui.link(t("layout.layout"), "/layout").classes("text-white no-underline hover:underline")
             add_dark_mode_toggle()
             add_locale_toggle()
     yield

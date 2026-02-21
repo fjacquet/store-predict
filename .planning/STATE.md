@@ -2,47 +2,35 @@
 
 ## Current Phase
 
-Phase: Not started (roadmap approved, ready for Phase 14)
+No active phase — v3.0 milestone complete.
 
 ## Milestone
 
-v3.0 — Datastore Layout Recommendations
+v3.0 Datastore Layout Recommendations — SHIPPED 2026-02-21
 
 ## Completed
 
-- [x] PROJECT.md updated for v3.0
-- [x] Research: PowerStore layout best practices, VM placement algorithms
-- [x] REQUIREMENTS.md written (14 REQs + 4 NFRs)
-- [x] ROADMAP.md written (5 phases, 7 plans)
-
-## Current Phase Progress
-
-(Not started)
+- [x] v1.0 MVP Sizing Tool (Phases 1-7)
+- [x] v1.1 i18n, Branding & Intelligence (Phases 8-13)
+- [x] v2.x Storage Models, DRR Variants, Observability
+- [x] v3.0 Datastore Layout Recommendations (Phases 14-19, 10 plans)
 
 ## Next Action
 
-`/gsd:plan-phase 14` to start layout engine implementation.
+Planning next milestone. Use `/gsd:new-milestone` to start.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout recommendations
-**Current focus:** v3.0 — Datastore Layout Recommendations
+**Current focus:** Planning next milestone
 
 ## Decisions
 
-(Carried from previous milestones — see v1.0/v1.1 archives)
-- Multi-dimensional BFD chosen over ILP/OR-Tools (fast, no dependency, within 10-15% of optimal)
-- Three fixed strategies with tunable parameters (Consolidation/Performance/Uniform)
-- VMFS focus, not vVol (practical reality for migration projects)
-- 4 TB default datastore size (Dell best practice sweet spot)
-- 15-25 VMs/datastore default (Dell recommendation, queue depth validated)
-- SDRS/SIOC deprecated in vSphere 8.0 U3 — use PowerStore QoS instead
-- No PowerStore model recommendation (layout-only scope per user decision)
-- Default IOPS estimates for RVTools imports (no performance data)
+See PROJECT.md Key Decisions table and milestone archives for full history.
 
 ## Last Session
 
-- **Stopped at:** Milestone planning complete — roadmap approved
+- **Stopped at:** v3.0 milestone archived
 - **Timestamp:** 2026-02-21

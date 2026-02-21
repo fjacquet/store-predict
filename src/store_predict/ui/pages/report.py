@@ -134,12 +134,12 @@ async def report_page() -> None:
             pdf_btn = ui.button(
                 t("report.download_pdf"),
                 icon="download",
-            ).classes("bg-blue-700 text-white")
+            ).classes("bg-blue-700 text-white").tooltip(t("tooltip.download_pdf"))
 
             excel_btn = ui.button(
                 t("report.download_excel"),
                 icon="table_view",
-            ).classes("bg-green-700 text-white")
+            ).classes("bg-green-700 text-white").tooltip(t("tooltip.download_excel"))
 
             ui.button(
                 t("report.back_to_review"),
@@ -248,7 +248,7 @@ def _build_logo_upload_section() -> None:
             on_upload=_handle_logo_upload,
             auto_upload=True,
             max_file_size=200_000,
-        ).props('accept=".png,.jpg,.jpeg"').classes("w-full")
+        ).props('accept=".png,.jpg,.jpeg"').classes("w-full").tooltip(t("tooltip.upload_logo"))
         ui.button(
             t("report.logo_remove"),
             on_click=_remove_logo,

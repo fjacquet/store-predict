@@ -106,14 +106,73 @@ pdf:
   pie_title: "Distribution des charges"
   drr_bar_title: "DRR par catégorie"
   before_after_title: "Capacité : avant vs après DRR"
+  layout_heading: "Recommandations de disposition des datastores"
+  layout_strategy_label: "Stratégie"
 
 layout:
   home: Accueil
   upload: "Télécharger"
   review: "Révision"
   report: Rapport
+  layout: Disposition
   dark_mode: "Mode sombre"
   language: "EN"
+
+layout_page:
+  title: "Recommandations de disposition des datastores"
+  no_data: "Aucune donnée de calcul disponible. Veuillez d'abord télécharger un fichier."
+  settings_title: "Paramètres avancés"
+  settings_subtitle: "Ajustez les contraintes pour régénérer les dispositions"
+  max_ds_capacity: "Capacité maximale du datastore"
+  max_vms_per_ds: "Nombre max de VMs par datastore"
+  iops_budget: "Budget IOPS par datastore"
+  snapshot_reserve: "Réserve snapshot %"
+  growth_margin: "Marge de croissance %"
+  metric: Métrique
+  recommended: Recommandé
+  comparison_heading: "Comparaison des stratégies"
+  detail_heading: "Détail de la stratégie : %{strategy}"
+  detail_tabs_heading: "Détail des stratégies"
+  no_datastores: "Aucun datastore généré pour cette stratégie."
+  download_pdf: "Télécharger le PDF de disposition"
+  download_excel: "Télécharger l'Excel de disposition"
+  expand_all: "Tout déplier"
+  collapse_all: "Tout replier"
+
+strategy:
+  consolidation: Consolidation
+  performance: Performance
+  uniform: Uniforme
+  consolidation_desc: "Minimiser le nombre de datastores"
+  performance_desc: "Maximiser l'isolation des charges"
+  uniform_desc: "Utilisation équilibrée"
+
+metrics:
+  ds_count: "Nombre de datastores"
+  raw_capacity: "Capacité brute (Tio)"
+  usable_capacity: "Capacité utilisable (Tio)"
+  used_capacity: "Capacité utilisée (Tio)"
+  avg_utilization: "Utilisation moyenne %"
+  min_utilization: "Utilisation minimale %"
+  max_utilization: "Utilisation maximale %"
+  avg_vm_density: "Densité moy. VMs/datastore"
+  max_vm_density: "Densité max VMs/datastore"
+  total_iops: "Total IOPS placées"
+  max_iops_ds: "IOPS max (datastore unique)"
+  iops_headroom: "Marge IOPS %"
+  isolation_score: "Score d'isolation"
+  snapshot_rating: "Granularité des snapshots"
+  oversized_vms: "VMs surdimensionnées"
+
+ds:
+  name: Datastore
+  raw_cap: "Capacité brute"
+  used: Utilisé
+  util: "Utilisation %"
+  vms: VMs
+  iops: IOPS
+  workloads: "Types de charge"
+  vm_list: "VMs assignées"
 
 dialog:
   workloads_for: "Charges de travail pour %{vm_name}"
@@ -161,6 +220,7 @@ excel:
   sheet_summary: "Résumé"
   sheet_breakdown: "Répartition"
   sheet_vm_detail: "Détail VMs"
+  sheet_layout: "Recommandations de disposition"
   col_metric: "Métrique"
   col_value: "Valeur"
   col_category: "Catégorie"
@@ -176,3 +236,25 @@ excel:
   col_avg_iops: "IOPS moyennes"
   col_peak_mbs: "Débit de pointe (Mo/s)"
   col_iops_8k: "IOPS éq. 8K"
+
+tooltip:
+  llm_toggle: "Activer la classification par IA (LLM) pour les VMs inconnues"
+  bulk_update: "Appliquer une catégorie de charge à toutes les lignes sélectionnées"
+  storage_model: "Sélectionner la plateforme de stockage Dell cible — affecte les coefficients DRR"
+  download_pdf: "Télécharger un rapport de dimensionnement d'une page en PDF"
+  download_excel: "Télécharger toutes les données en classeur Excel (4 feuilles)"
+  upload_logo: "Ajouter le logo de votre entreprise à l'en-tête du rapport PDF"
+  max_ds_capacity: "Capacité brute maximale par datastore (TiB)"
+  max_vms_per_ds: "Nombre maximum de VMs pouvant partager un même datastore"
+  iops_budget: "Charge IOPS maximale par datastore avant division"
+  snapshot_reserve: "Pourcentage de la capacité du datastore réservé aux snapshots"
+  growth_margin: "Marge de capacité supplémentaire pour la croissance future"
+  isolation_score: "0.0 = toutes les charges mélangées ; 1.0 = toutes les charges isolées"
+  oversized_vms: "VMs trop grandes pour un datastore standard — reçoivent des datastores dédiés"
+
+chart:
+  provisioned: "Provisionné"
+  required: "Requis"
+  single_category: "Catégorie unique"
+  drr_axis: "DRR"
+  gib_axis: "Gio"

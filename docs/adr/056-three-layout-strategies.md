@@ -21,11 +21,13 @@ priority. The user sees a side-by-side comparison and picks the one that fits th
 customer's priorities.
 
 ### Strategy 1: Consolidation
+
 - **Goal**: Minimize datastore count
 - **Algorithm**: Multi-dimensional BFD packing VMs as tightly as possible
 - **Trade-off**: Higher contention risk, coarser snapshot granularity
 
 ### Strategy 2: Performance
+
 - **Goal**: Maximize workload isolation and minimize I/O contention
 - **Algorithm**: Two-phase placement — classify VMs into Hot/Warm/Cold tiers,
   then BFD each tier separately with tier-specific constraints
@@ -34,13 +36,16 @@ customer's priorities.
 - **Trade-off**: More datastores, lower capacity utilization
 
 ### Strategy 3: Uniform
+
 - **Goal**: All datastores same size, balanced utilization
 - **Algorithm**: LPT (Longest Processing Time) balanced assignment across a
   pre-computed number of equal-sized datastores
 - **Trade-off**: Doesn't adapt to workload skew, may waste space on light DS
 
 ### Tunable parameters (Advanced Settings panel)
+
 All three strategies share the same configurable constraints:
+
 - Max datastore capacity (default: 4 TB — Dell best practice sweet spot)
 - Max VMs per datastore (default: 25 — Dell recommendation)
 - IOPS budget per datastore (default: 100,000)

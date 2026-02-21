@@ -200,7 +200,7 @@ class TestExcelPerformanceGuard:
 # Sheet count / structure tests
 # ---------------------------------------------------------------------------
 class TestExcelSheetCount:
-    def test_workbook_has_three_sheets(self) -> None:
+    def test_workbook_has_four_sheets(self) -> None:
         summary = _make_summary(
             [
                 ("Database/Microsoft SQL", 3, 30720.0, 5.0),
@@ -213,3 +213,42 @@ class TestExcelSheetCount:
         assert "xl/worksheets/sheet1.xml" in names
         assert "xl/worksheets/sheet2.xml" in names
         assert "xl/worksheets/sheet3.xml" in names
+        assert "xl/worksheets/sheet4.xml" in names
+
+
+# ---------------------------------------------------------------------------
+# Layout sheet tests
+# ---------------------------------------------------------------------------
+class TestExcelLayoutSheet:
+    def test_layout_sheet_exists(self) -> None:
+        """Workbook with VM data should have a fourth sheet (layout)."""
+        summary = _make_summary(
+            [
+                ("Database/Microsoft SQL", 3, 30720.0, 5.0),
+                ("Virtual Machines", 2, 10240.0, 5.0),
+            ]
+        )
+        xlsx_bytes = generate_report_xlsx(summary, "Layout Sheet Test")
+        zf = zipfile.ZipFile(io.BytesIO(xlsx_bytes))
+        assert "xl/worksheets/sheet4.xml" in zf.namelist()
+
+    def test_layout_sheet_locale_differs(self) -> None:
+        """Layout sheet content should differ between EN and FR locales."""
+        summary = _make_summary(
+            [
+                ("Database/Microsoft SQL", 3, 30720.0, 5.0),
+                ("Virtual Machines", 2, 10240.0, 5.0),
+            ]
+        )
+        en_bytes = generate_report_xlsx(summary, "X", locale="en")
+        fr_bytes = generate_report_xlsx(summary, "X", locale="fr")
+        assert en_bytes != fr_bytes
+
+    def test_layout_sheet_skipped_when_empty(self) -> None:
+        """Empty summary (0 VMs) should produce a 3-sheet workbook (layout sheet skipped)."""
+        summary = _make_summary()  # total_vms == 0
+        xlsx_bytes = generate_report_xlsx(summary, "Empty Test")
+        zf = zipfile.ZipFile(io.BytesIO(xlsx_bytes))
+        names = zf.namelist()
+        assert "xl/worksheets/sheet3.xml" in names
+        assert "xl/worksheets/sheet4.xml" not in names

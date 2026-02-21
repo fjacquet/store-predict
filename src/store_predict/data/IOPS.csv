@@ -1,0 +1,9 @@
+Workload Category;IOPS Estimate
+Database/Microsoft SQL;500
+Database/Oracle;800
+Database/SAP HANA(S4);1000
+VDI/Full Clone / MCS (Citrix);30
+VDI/Linked Clone / PVS (Citrix);50
+Virtual Machines/VMware / Hyper-V / KVM - No Database, File nor Email;50
+File/General Purpose;100
+Unknown (Reducible)/Unknown (Reducible);50

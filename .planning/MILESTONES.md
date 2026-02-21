@@ -61,19 +61,26 @@
 5. Rule suggestions in logs — ready-to-paste ClassificationRule snippets logged after LLM pass
 6. CI/CD hardening — Codecov coverage badge (84%), JUnit test analytics, workflow deduplication, permissions
 
-## v3.0 — Datastore Layout Recommendations (ACTIVE)
+## v3.0 — Datastore Layout Recommendations
 
-**Started:** 2026-02-21
-**Phases:** 14-18 (7 plans)
-**Goal:** Transform StorePredict from sizing tool into migration planning tool
+**Shipped:** 2026-02-21
+**Phases:** 14-19 (10 plans)
+**Source:** 6,802 LOC Python + 353 tests passing, 86% coverage
 
-### Planned Capabilities
+### Key Accomplishments
 
-1. Layout engine — 3 strategies (Consolidation, Performance, Uniform) using multi-dimensional bin packing
-2. Dedicated /layout page — comparison table + per-datastore detail view with drill-down
-3. Advanced settings — tunable placement parameters (DS size, VMs/DS, IOPS budget, reserves)
-4. PDF/Excel integration — layout comparison in exports
-5. Default IOPS estimates — workload-based fallback when no LiveOptics performance data
-6. Full FR/EN localization for all new UI elements
+1. Layout engine — Multi-dimensional BFD with 3 strategies (Consolidation, Performance, Uniform), pure Python heuristics, 1000 VMs in <2s
+2. Performance strategy — Mission-critical VM isolation (SAP HANA, Exchange, large DB), tier-based placement (Hot/Warm/Cold), anti-affinity rules
+3. Interactive /layout page — Side-by-side comparison table, expandable datastore tables with VM drill-down, reactive advanced settings panel
+4. PDF & Excel integration — Dedicated layout print page with always-expanded VM detail, Excel layout sheet with indented VM rows under datastores
+5. Full i18n & tooltips — 50+ new FR/EN keys, tooltips on all UI controls, chart legends localized, Quasar slot templates i18n-aware
+6. Batch LLM classification — Prompt-level batching for unknown VMs reduces latency; tech debt cleanup (orphaned keys, benchmark test)
+
+### Archives
+
+- [v3.0-ROADMAP.md](milestones/v3.0-ROADMAP.md)
+- [v3.0-REQUIREMENTS.md](milestones/v3.0-REQUIREMENTS.md)
+- [v3.0-MILESTONE-AUDIT.md](milestones/v3.0-MILESTONE-AUDIT.md)
 
 ---
+

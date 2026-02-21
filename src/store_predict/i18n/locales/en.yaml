@@ -106,14 +106,73 @@ pdf:
   pie_title: "Workload Distribution"
   drr_bar_title: "DRR by Workload Category"
   before_after_title: "Capacity: Before vs After DRR"
+  layout_heading: "Datastore Layout Recommendations"
+  layout_strategy_label: "Strategy"
 
 layout:
   home: Home
   upload: Upload
   review: Review
   report: Report
+  layout: Layout
   dark_mode: Dark Mode
   language: "FR"
+
+layout_page:
+  title: Datastore Layout Recommendations
+  no_data: No calculation data available. Please upload a file first.
+  settings_title: Advanced Settings
+  settings_subtitle: Adjust constraints to regenerate layouts
+  max_ds_capacity: Max Datastore Capacity
+  max_vms_per_ds: Max VMs per Datastore
+  iops_budget: IOPS Budget per Datastore
+  snapshot_reserve: "Snapshot Reserve %"
+  growth_margin: "Growth Margin %"
+  metric: Metric
+  recommended: Recommended
+  comparison_heading: Strategy Comparison
+  detail_heading: "Strategy Detail: %{strategy}"
+  detail_tabs_heading: Strategy Detail
+  no_datastores: No datastores generated for this strategy.
+  download_pdf: Download Layout PDF
+  download_excel: Download Layout Excel
+  expand_all: Expand All
+  collapse_all: Collapse All
+
+strategy:
+  consolidation: Consolidation
+  performance: Performance
+  uniform: Uniform
+  consolidation_desc: Minimize datastore count
+  performance_desc: Maximize workload isolation
+  uniform_desc: Balanced utilization
+
+metrics:
+  ds_count: Datastore Count
+  raw_capacity: "Raw Capacity (TiB)"
+  usable_capacity: "Usable Capacity (TiB)"
+  used_capacity: "Used Capacity (TiB)"
+  avg_utilization: "Avg Utilization %"
+  min_utilization: "Min Utilization %"
+  max_utilization: "Max Utilization %"
+  avg_vm_density: Avg VMs/Datastore
+  max_vm_density: Max VMs/Datastore
+  total_iops: Total IOPS Placed
+  max_iops_ds: Max IOPS (single DS)
+  iops_headroom: "IOPS Headroom %"
+  isolation_score: Isolation Score
+  snapshot_rating: Snapshot Granularity
+  oversized_vms: Oversized VMs
+
+ds:
+  name: Datastore
+  raw_cap: Raw Capacity
+  used: Used
+  util: "Utilization %"
+  vms: VMs
+  iops: IOPS
+  workloads: Workload Types
+  vm_list: Assigned VMs
 
 dialog:
   workloads_for: "Workloads for %{vm_name}"
@@ -161,6 +220,7 @@ excel:
   sheet_summary: Summary
   sheet_breakdown: Workload Breakdown
   sheet_vm_detail: VM Detail
+  sheet_layout: "Layout Recommendations"
   col_metric: Metric
   col_value: Value
   col_category: Category
@@ -176,3 +236,25 @@ excel:
   col_avg_iops: Avg IOPS
   col_peak_mbs: "Peak MB/s"
   col_iops_8k: "8K Eq. IOPS"
+
+tooltip:
+  llm_toggle: "Enable AI (LLM) classification for unknown VMs"
+  bulk_update: "Apply a workload category to all selected rows"
+  storage_model: "Select the target Dell storage platform — affects DRR coefficients"
+  download_pdf: "Download a one-page sizing report as PDF"
+  download_excel: "Download full data as Excel workbook (4 sheets)"
+  upload_logo: "Add your company logo to the PDF report header"
+  max_ds_capacity: "Maximum raw capacity per datastore (TiB)"
+  max_vms_per_ds: "Maximum number of VMs that can share one datastore"
+  iops_budget: "Maximum IOPS workload per datastore before splitting"
+  snapshot_reserve: "Percentage of datastore capacity reserved for snapshots"
+  growth_margin: "Additional capacity buffer for future growth"
+  isolation_score: "0.0 = all workloads mixed; 1.0 = all workloads isolated"
+  oversized_vms: "VMs too large to fit in a standard-sized datastore — given dedicated datastores"
+
+chart:
+  provisioned: "Provisioned"
+  required: "Required"
+  single_category: "Single category"
+  drr_axis: "DRR"
+  gib_axis: "GiB"

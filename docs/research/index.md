@@ -21,6 +21,7 @@ Research documents produced during project development. Each document captures d
 | [Phase 12](phase-12-ux-polish.md) | UX Polish | run.io_bound for spinner rendering, ui.notification in-place update, button disable/enable |
 | [Phase 13](phase-13-graphics.md) | Graphics & Charts | ui.echart zero-dep, matplotlib lazy import, Spacer guard for empty PDF image, onLaterPages for page 2 header |
 | [Phase 14](phase-14-app-level-drr-variants.md) | Application-Level DRR Variants | App compression halves DRR (Oracle HCC → 2.5), encryption defeats dedup (TDE → 1.5, combined → 1.2), DDVE stores already-deduplicated data (DRR = 1.0) |
+| [Phase 15](phase-15-default-iops.md) | Default IOPS Estimates | Workload-based IOPS for RVTools imports, conservative peak values, CSV configurability |
 
 ## Sample Data Analysis
 
