@@ -110,6 +110,13 @@ ignore_missing_imports = true
 module = "pydantic_settings.*"
 ignore_missing_imports = false
 
+[tool.coverage.run]
+omit = [
+    "src/store_predict/ui/*",
+    "src/store_predict/main.py",
+    "src/store_predict/logging_config.py",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=store_predict --cov-report=term-missing"
+addopts = "--cov=store_predict --cov-report=term-missing --cov-report=xml"

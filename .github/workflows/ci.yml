@@ -28,3 +28,8 @@ jobs:
         run: . .venv/bin/activate && mypy src/
       - name: Test
         run: . .venv/bin/activate && pytest --tb=short
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false

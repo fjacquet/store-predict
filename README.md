@@ -3,6 +3,7 @@
 ![CI](https://github.com/fjacquet/store-predict/actions/workflows/ci.yml/badge.svg?branch=maincd)
 ![Docs](https://github.com/fjacquet/store-predict/actions/workflows/docs.yml/badge.svg?branch=maincd)
 ![Release](https://github.com/fjacquet/store-predict/actions/workflows/release.yml/badge.svg)
+[![Coverage](https://codecov.io/gh/fjacquet/store-predict/branch/maincd/graph/badge.svg)](https://codecov.io/gh/fjacquet/store-predict)
 ![Python](https://img.shields.io/badge/python-3.12%2B-blue)
 ![Version](https://img.shields.io/badge/version-2.1.0-green)
 
