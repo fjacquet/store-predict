@@ -124,6 +124,7 @@ dialog:
 
 llm:
   classifying: "Classifying unknown VMs with AI..."
+  classifying_progress: "AI classification: %{done} / %{total} VMs"
   classified_notify: "AI classified %{count} VM(s)"
   unavailable: "AI classification unavailable (check LLM_MODEL / LLM_API_KEY)"
   disabled: "AI classification disabled (set LLM_ENABLED=true to enable)"

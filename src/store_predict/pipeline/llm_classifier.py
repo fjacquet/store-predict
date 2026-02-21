@@ -25,6 +25,8 @@ from typing import TYPE_CHECKING, Any
 import litellm
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from store_predict.services.drr_table import DRRTable
     from store_predict.services.llm_config import LLMConfig
 
@@ -157,6 +159,7 @@ async def classify_unknown_vms_async(
     records: list[dict[str, Any]],
     drr_table: DRRTable,
     config: LLMConfig,
+    on_progress: Callable[[int, int], None] | None = None,
 ) -> tuple[list[dict[str, Any]], list[RuleSuggestion]]:
     """Classify VMs with ``classification_confidence == "default"`` using LLM.
 
@@ -167,6 +170,8 @@ async def classify_unknown_vms_async(
         records: List of VM record dicts (modified in place for classified VMs).
         drr_table: DRR reference table providing valid category names.
         config: Active LLM configuration.
+        on_progress: Optional callback called after each VM with ``(done, total)``.
+            Useful for updating a UI progress indicator.
 
     Returns:
         A ``(records, suggestions)`` tuple.  ``records`` is the same list with
@@ -204,11 +209,12 @@ async def classify_unknown_vms_async(
 
     semaphore = asyncio.Semaphore(config.max_concurrent)
     classified_count = 0
+    completed_count = 0
     # keyword → {category, subcategory, count, vm_examples}
     _keyword_acc: dict[str, dict[str, Any]] = {}
 
     async def _classify_one(record: dict[str, Any]) -> None:
-        nonlocal classified_count
+        nonlocal classified_count, completed_count
         async with semaphore:
             result = await classify_single_vm(
                 vm_name=str(record.get("vm_name", "")),
@@ -238,6 +244,10 @@ async def classify_unknown_vms_async(
                     if len(acc["vm_examples"]) < 3:
                         acc["vm_examples"].append(vm_name)
 
+            completed_count += 1
+            if on_progress is not None:
+                on_progress(completed_count, len(unknown))
+
     await asyncio.gather(*[_classify_one(r) for r in unknown])
 
     logger.info(
@@ -256,4 +266,17 @@ async def classify_unknown_vms_async(
         )
         for kw, acc in sorted(_keyword_acc.items(), key=lambda x: -x[1]["count"])
     ]
+
+    if suggestions:
+        logger.info("LLM rule suggestions — copy into build_default_rules() to eliminate future LLM calls:")
+        for s in suggestions:
+            rule_name = s.keyword.title()
+            priority_hint = 110 if "Database" in s.category else 360
+            snippet = (
+                f'ClassificationRule(name="{rule_name}", category="{s.category}", '
+                f'subcategory="{s.subcategory}", priority={priority_hint}, '
+                f'vm_name_patterns=_patterns("{s.keyword}")),  # {s.count} VM(s)'
+            )
+            logger.info("  %s", snippet)
+
     return records, suggestions

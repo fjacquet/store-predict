@@ -152,8 +152,12 @@ async def upload_page() -> None:
                     try:
                         drr_table_for_llm = DRRTable.from_csv(DRR_CSV_PATH)
                         vm_records: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
+
+                        def _llm_progress(done: int, total: int) -> None:
+                            llm_notif.message = t("llm.classifying_progress", done=done, total=total)
+
                         vm_records, rule_suggestions = await classify_unknown_vms_async(
-                            vm_records, drr_table_for_llm, llm_cfg
+                            vm_records, drr_table_for_llm, llm_cfg, on_progress=_llm_progress
                         )
                         save_rule_suggestions(rule_suggestions)
                         df = pd.DataFrame(vm_records)
