@@ -85,7 +85,7 @@ async def upload_page() -> None:
                 t("upload.llm_toggle"),
                 value=get_llm_ui_enabled(),
                 on_change=lambda e: set_llm_ui_enabled(e.value),
-            )
+            ).tooltip(t("tooltip.llm_toggle"))
             if not llm_cfg.enabled:
                 llm_switch.disable()
                 ui.label(t("upload.llm_disabled_hint")).classes("text-xs text-gray-400 italic")

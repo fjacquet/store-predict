@@ -360,6 +360,14 @@ def _build_strategy_detail(proposal: LayoutProposal) -> None:
         with ui.card().classes("p-3 text-center min-w-[100px]"):
             ui.label(_fmt_pct(m.avg_utilization_pct)).classes("text-xl font-bold text-blue-700")
             ui.label(t("metrics.avg_utilization")).classes("text-xs text-gray-500")
+        with ui.card().classes("p-3 text-center min-w-[100px]"):
+            ui.label(f"{m.isolation_score:.2f}").classes("text-xl font-bold text-blue-700")
+            ui.label(t("metrics.isolation_score")).classes("text-xs text-gray-500") \
+                .tooltip(t("tooltip.isolation_score"))
+        with ui.card().classes("p-3 text-center min-w-[100px]"):
+            ui.label(str(m.oversized_vm_count)).classes("text-xl font-bold text-blue-700")
+            ui.label(t("metrics.oversized_vms")).classes("text-xs text-gray-500") \
+                .tooltip(t("tooltip.oversized_vms"))
 
     if not proposal.datastores:
         ui.label(t("layout_page.no_datastores")).classes("text-gray-400 italic p-4")
@@ -480,7 +488,7 @@ def _build_settings_panel(
             value=int(constraints.max_ds_capacity_mib),
             label=t("layout_page.max_ds_capacity"),
             on_change=_on_ds_capacity_change,
-        ).classes("w-full")
+        ).classes("w-full").tooltip(t("tooltip.max_ds_capacity"))
 
         # 2. Max VMs per DS — slider
         with ui.column().classes("w-full gap-1"):
@@ -489,12 +497,17 @@ def _build_settings_panel(
                 max_vms_label = ui.label(str(constraints.max_vms_per_ds)).classes(
                     "text-sm font-mono w-8 text-right"
                 )
-            max_vms_slider = ui.slider(
-                min=5,
-                max=50,
-                step=1,
-                value=constraints.max_vms_per_ds,
-            ).classes("w-full").props("label-always")
+            max_vms_slider = (
+                ui.slider(
+                    min=5,
+                    max=50,
+                    step=1,
+                    value=constraints.max_vms_per_ds,
+                )
+                .classes("w-full")
+                .props("label-always")
+                .tooltip(t("tooltip.max_vms_per_ds"))
+            )
             max_vms_label.bind_text_from(max_vms_slider, "value", backward=str)
             max_vms_slider.on("change", _on_max_vms_change)
 
@@ -506,7 +519,7 @@ def _build_settings_panel(
             max=1_000_000,
             step=10_000,
             on_change=_on_iops_budget_change,
-        ).classes("w-full")
+        ).classes("w-full").tooltip(t("tooltip.iops_budget"))
 
         # 4. Snapshot reserve % — slider
         with ui.column().classes("w-full gap-1"):
@@ -515,12 +528,17 @@ def _build_settings_panel(
                 snap_label = ui.label(f"{constraints.snapshot_reserve_pct:.0f}%").classes(
                     "text-sm font-mono w-8 text-right"
                 )
-            snap_slider = ui.slider(
-                min=0,
-                max=30,
-                step=1,
-                value=int(constraints.snapshot_reserve_pct),
-            ).classes("w-full").props("label-always")
+            snap_slider = (
+                ui.slider(
+                    min=0,
+                    max=30,
+                    step=1,
+                    value=int(constraints.snapshot_reserve_pct),
+                )
+                .classes("w-full")
+                .props("label-always")
+                .tooltip(t("tooltip.snapshot_reserve"))
+            )
             snap_label.bind_text_from(snap_slider, "value", backward=lambda v: f"{v}%")
             snap_slider.on("change", _on_snapshot_change)
 
@@ -531,12 +549,17 @@ def _build_settings_panel(
                 growth_label = ui.label(f"{constraints.growth_margin_pct:.0f}%").classes(
                     "text-sm font-mono w-8 text-right"
                 )
-            growth_slider = ui.slider(
-                min=0,
-                max=40,
-                step=1,
-                value=int(constraints.growth_margin_pct),
-            ).classes("w-full").props("label-always")
+            growth_slider = (
+                ui.slider(
+                    min=0,
+                    max=40,
+                    step=1,
+                    value=int(constraints.growth_margin_pct),
+                )
+                .classes("w-full")
+                .props("label-always")
+                .tooltip(t("tooltip.growth_margin"))
+            )
             growth_label.bind_text_from(growth_slider, "value", backward=lambda v: f"{v}%")
             growth_slider.on("change", _on_growth_change)
 

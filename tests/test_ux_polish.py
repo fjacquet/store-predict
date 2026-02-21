@@ -153,3 +153,59 @@ def test_upload_has_persistent_llm_notification() -> None:
     """upload.py must use ui.notification (persistent) for LLM classification, not ui.notify."""
     source = _page_source("upload")
     assert "ui.notification" in source, "upload.py must use ui.notification with spinner=True for LLM classification"
+
+
+# ---------------------------------------------------------------------------
+# Phase 18: tooltip and chart i18n keys exist in both locales
+# ---------------------------------------------------------------------------
+
+PHASE_18_KEYS = [
+    "tooltip.llm_toggle",
+    "tooltip.bulk_update",
+    "tooltip.storage_model",
+    "tooltip.download_pdf",
+    "tooltip.download_excel",
+    "tooltip.upload_logo",
+    "tooltip.max_ds_capacity",
+    "tooltip.max_vms_per_ds",
+    "tooltip.iops_budget",
+    "tooltip.snapshot_reserve",
+    "tooltip.growth_margin",
+    "tooltip.isolation_score",
+    "tooltip.snapshot_rating",
+    "tooltip.oversized_vms",
+    "tooltip.iops_headroom",
+    "chart.provisioned",
+    "chart.required",
+    "chart.single_category",
+    "chart.drr_axis",
+    "chart.gib_axis",
+]
+
+
+@pytest.mark.parametrize("locale", ["en", "fr"])
+@pytest.mark.parametrize("key", PHASE_18_KEYS)
+def test_phase18_i18n_key_present(locale: str, key: str) -> None:
+    """All Phase 18 i18n keys must exist in both locales."""
+    flat = _load_yaml(locale)
+    assert key in flat, f"Missing key '{key}' in {locale}.yaml"
+    assert flat[key], f"Key '{key}' in {locale}.yaml is empty"
+
+
+def test_layout_page_slot_uses_ds_vm_list() -> None:
+    """layout_page.py slot template must not hardcode 'VMs assigned:' string."""
+    source = (Path("src/store_predict/ui/pages") / "layout_page.py").read_text()
+    assert "VMs assigned:" not in source, (
+        "layout_page.py still has hardcoded 'VMs assigned:' — use t('ds.vm_list') via f-string"
+    )
+    assert "ds.vm_list" in source, (
+        "layout_page.py must reference t('ds.vm_list') for the slot template label"
+    )
+
+
+def test_charts_no_hardcoded_legend_strings() -> None:
+    """charts.py must not contain hardcoded 'Provisioned' or 'Required' string literals."""
+    source = (Path("src/store_predict/services") / "charts.py").read_text()
+    assert '"Provisioned"' not in source, "charts.py still has hardcoded 'Provisioned'"
+    assert '"Required"' not in source, "charts.py still has hardcoded 'Required'"
+    assert "chart.provisioned" in source, "charts.py must use t('chart.provisioned')"
