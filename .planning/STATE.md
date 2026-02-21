@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase: 16-layout-page-ui (Plan 1 of 2 — IN PROGRESS)
+Phase: 16-layout-page-ui (Plan 2 of 2 — COMPLETE)
 
 ## Milestone
 
@@ -18,14 +18,16 @@ v3.0 — Datastore Layout Recommendations
 - [x] Phase 14-02: Performance strategy (Phase 0 isolation + tier BFD) + Uniform strategy (LPT) + generate_all_proposals() orchestrator
 - [x] Phase 15-01: IOPS.csv package data + CSV loader for configurable IOPS defaults (REQ-014)
 - [x] Phase 15-02: ADR-059, research page, architecture.md (4-stage pipeline), CHANGELOG.md v3.0.0
+- [x] Phase 16-01: /layout page with comparison table, settings panel, 3-strategy comparison view, nav bar integration
+- [x] Phase 16-02: Strategy detail tabs with expandable datastore tables and VM drill-down (REQ-009)
 
 ## Current Phase Progress
 
-Phase 16: Plan 1/2 complete (16-01-SUMMARY.md exists)
+Phase 16: Plan 2/2 complete (16-01-SUMMARY.md + 16-02-SUMMARY.md exist)
 
 ## Next Action
 
-Execute Phase 16 Plan 02 (Detail View — per-datastore table with expandable rows)
+Execute Phase 17 (PDF/Excel export of layout recommendations)
 
 ## Project Reference
 
@@ -56,6 +58,10 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 - Layout page (16-01): slider events wired via .on("change") not on_change parameter for correct NiceGUI event handling
 - Layout page (16-01): recommended strategy: isolation_score > 0.5 -> performance; single workload -> consolidation; else -> uniform
 - Layout page (16-01): ds.* i18n keys added in 16-01 alongside other sections for consolidated translation work
+- Layout page (16-02): props.expand used for expandable rows (not ui.teleport, not ui.aggrid enterprise-only master-detail)
+- Layout page (16-02): utilization color logic embedded in full body slot ternary :class binding (not separate body-cell slot — conflicts with full body slot)
+- Layout page (16-02): tab variables named tab_consol/tab_perf/tab_unif to avoid shadowing t() i18n import
+- Layout page (16-02): detail_tabs_heading added as new static i18n key (detail_heading uses %{strategy} interpolation, not suitable for static heading)
 - IOPS.csv stored in src/store_predict/data/ alongside DRR.csv (package data, not samples/) — samples/ is gitignored for customer data privacy
 - stdlib csv.DictReader used for IOPS loader (not pandas) — keeps layout_models.py lightweight with zero extra dependencies
 - ADR-059: workload-based IOPS defaults accepted; Linux/Windows IOPS split not implemented (documented as known limitation)
@@ -63,5 +69,5 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 
 ## Last Session
 
-- **Stopped at:** Completed 16-01-PLAN.md
+- **Stopped at:** Completed 16-02-PLAN.md
 - **Timestamp:** 2026-02-21

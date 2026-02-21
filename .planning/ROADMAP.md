@@ -58,9 +58,9 @@ Shipped outside GSD planning:
 - [x] **Phase 15: Default IOPS & Research Docs** (2 plans) (completed 2026-02-21)
   - [ ] 15-01-PLAN.md — IOPS CSV configurability + CSV loader tests
   - [ ] 15-02-PLAN.md — ADR-059, research page, architecture update, CHANGELOG v3.0.0
-- [ ] **Phase 16: Layout Page UI** (2 plans)
+- [x] **Phase 16: Layout Page UI** (2 plans) (completed 2026-02-21)
   - [x] 16-01-PLAN.md — Comparison view + Advanced Settings panel + navigation/guards
-  - [ ] 16-02-PLAN.md — Detail view with expandable datastore tables + VM drill-down
+  - [x] 16-02-PLAN.md — Detail view with expandable datastore tables + VM drill-down
 - [ ] **Phase 17: PDF & Excel Integration** (1 plan)
   - Plan 17-01: PDF layout page + Excel layout sheet
 - [ ] **Phase 18: i18n & Polish** (1 plan)
@@ -86,6 +86,6 @@ Shipped outside GSD planning:
 | 13. Graphics | v1.1 | 3/3 | Complete | 2026-02-20 |
 | **14. Layout Engine Core** | **v3.0** | **2/2** | **Complete** | **2026-02-21** |
 | **15. Default IOPS & Docs** | **v3.0** | **2/2** | **Complete** | **2026-02-21** |
-| **16. Layout Page UI** | **v3.0** | **1/2** | **In Progress** | |
+| **16. Layout Page UI** | **v3.0** | **2/2** | **Complete** | **2026-02-21** |
 | **17. PDF & Excel Integration** | **v3.0** | **0/1** | **Not started** | |
 | **18. i18n & Polish** | **v3.0** | **0/1** | **Not started** | |
