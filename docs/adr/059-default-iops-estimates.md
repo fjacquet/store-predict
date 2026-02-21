@@ -22,7 +22,7 @@ during a customer proof-of-concept.
 
 When `CalculationSummary.has_performance_data` is `False`, apply
 workload-based IOPS estimates via `_apply_default_iops()` before layout
-placement. The estimates are loaded from `samples/IOPS.csv`
+placement. The estimates are loaded from `src/store_predict/data/IOPS.csv`
 (semicolon-delimited), falling back to hardcoded constants if the file is
 missing. This follows the same pattern established by `samples/DRR.csv` for
 DRR configuration.
@@ -59,7 +59,7 @@ conservative value of 50 IOPS is applied to all generic VMs.
 - RVTools imports produce realistic datastore layout proposals — IOPS budget
   constraints are active and reflect expected workload patterns.
 - Pre-sales engineers can adjust IOPS estimates without code changes by editing
-  `samples/IOPS.csv` — same operator workflow as adjusting DRR values.
+  `src/store_predict/data/IOPS.csv` — same operator workflow as adjusting DRR values.
 - Conservative (peak) values prevent under-provisioning in pre-sales quotes.
 - Hardcoded fallback keeps unit tests independent of the CSV file.
 

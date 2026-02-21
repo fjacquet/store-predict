@@ -75,7 +75,7 @@ toward more datastores with lower VM density.
 
 ## CSV Configurability
 
-IOPS defaults are loaded from `samples/IOPS.csv` (semicolon-delimited),
+IOPS defaults are loaded from `src/store_predict/data/IOPS.csv` (semicolon-delimited),
 following the same pattern as `samples/DRR.csv`. Pre-sales engineers can
 adjust estimates without code changes:
 
@@ -91,7 +91,7 @@ File/General Purpose;100
 Unknown (Reducible)/Unknown (Reducible);50
 ```
 
-**Operator workflow:** Edit `samples/IOPS.csv` and restart the application.
+**Operator workflow:** Edit `src/store_predict/data/IOPS.csv` and restart the application.
 The loader strips whitespace and skips invalid rows. If the file is missing,
 the hardcoded constants take effect — unit tests remain independent.
 

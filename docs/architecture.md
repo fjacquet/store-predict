@@ -118,7 +118,7 @@ The canonical columns after ingestion are:
   `DatastoreRecommendation` (immutable DS snapshot with assigned VMs),
   `LayoutMetrics` (15-field aggregate metrics),
   `LayoutProposal` (strategy name + datastores + metrics).
-  Also provides `DEFAULT_IOPS_BY_WORKLOAD` loaded from `samples/IOPS.csv`.
+  Also provides `DEFAULT_IOPS_BY_WORKLOAD` loaded from `src/store_predict/data/IOPS.csv`.
 
 - **`pipeline/layout_engine.py`** — Three layout strategies producing datastore
   placement recommendations:

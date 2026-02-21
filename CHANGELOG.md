@@ -20,7 +20,7 @@ Datastore layout recommendations for PowerStore sizing.
 
 - Workload-based IOPS estimates for RVTools imports (no LiveOptics performance data)
 - 8 workload categories: Database/SQL (500), Oracle (800), SAP HANA (1000), VDI (30-50), generic VMs (50), File (100)
-- Configurable via `samples/IOPS.csv` (semicolon-delimited, same pattern as DRR.csv)
+- Configurable via `src/store_predict/data/IOPS.csv` (semicolon-delimited, same pattern as DRR.csv)
 - Hardcoded fallback when CSV is missing — tests remain independent
 
 ### Documentation
