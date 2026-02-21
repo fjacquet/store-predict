@@ -63,6 +63,7 @@ No TODO/FIXME/placeholder comments, no stub return values, no empty implementati
 ### Human Verification Required
 
 No items require human verification. All observable behaviors are testable programmatically and have passing tests:
+
 - Locale output difference: validated by test assertions on byte inequality
 - Empty-state skip: validated by zipfile structure checks and PDF validity assertions
 - Layout page content presence: validated by byte size comparison tests

@@ -2,88 +2,35 @@
 
 ## Current Phase
 
-Phase: 19-batch-llm-classification (Plan 2 of 2 — COMPLETE)
+No active phase — v3.0 milestone complete.
 
 ## Milestone
 
-v3.0 — Datastore Layout Recommendations
+v3.0 Datastore Layout Recommendations — SHIPPED 2026-02-21
 
 ## Completed
 
-- [x] PROJECT.md updated for v3.0
-- [x] Research: PowerStore layout best practices, VM placement algorithms
-- [x] REQUIREMENTS.md written (14 REQs + 4 NFRs)
-- [x] ROADMAP.md written (5 phases, 7 plans)
-- [x] Phase 14-01: layout_models.py + layout_engine.py (consolidation strategy, BFD core)
-- [x] Phase 14-02: Performance strategy (Phase 0 isolation + tier BFD) + Uniform strategy (LPT) + generate_all_proposals() orchestrator
-- [x] Phase 15-01: IOPS.csv package data + CSV loader for configurable IOPS defaults (REQ-014)
-- [x] Phase 15-02: ADR-059, research page, architecture.md (4-stage pipeline), CHANGELOG.md v3.0.0
-- [x] Phase 16-01: /layout page with comparison table, settings panel, 3-strategy comparison view, nav bar integration
-- [x] Phase 16-02: Strategy detail tabs with expandable datastore tables and VM drill-down (REQ-009)
-- [x] Phase 17-01: PDF layout page (page 3) + Excel layout sheet (sheet 4) with 15-metric comparison table (REQ-012, REQ-013)
-- [x] Phase 18-01: tooltip (15 keys) + chart (5 keys) i18n sections; chart legends localized; slot template fixed; .tooltip() on 9+ UI controls (REQ-011)
-- [x] Phase 19-01: Batch LLM classification (classify_batch_vm) for reduced latency on unknown VMs
-- [x] Phase 19-02: Tech debt cleanup — orphaned tooltip keys deleted, NFR-001 benchmark test added
-
-## Current Phase Progress
-
-Phase 19: Plan 2/2 complete (19-01-SUMMARY.md, 19-02-SUMMARY.md exist)
+- [x] v1.0 MVP Sizing Tool (Phases 1-7)
+- [x] v1.1 i18n, Branding & Intelligence (Phases 8-13)
+- [x] v2.x Storage Models, DRR Variants, Observability
+- [x] v3.0 Datastore Layout Recommendations (Phases 14-19, 10 plans)
 
 ## Next Action
 
-Phase 19 complete. All v3.0 milestone phases finished.
-
-## Roadmap Evolution
-
-- Phase 19 added: Batch LLM Classification — send multiple unknown VMs per LLM call to reduce latency
+Planning next milestone. Use `/gsd:new-milestone` to start.
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout recommendations
-**Current focus:** v3.0 — Datastore Layout Recommendations
+**Current focus:** Planning next milestone
 
 ## Decisions
 
-(Carried from previous milestones — see v1.0/v1.1 archives)
-
-- Multi-dimensional BFD chosen over ILP/OR-Tools (fast, no dependency, within 10-15% of optimal)
-- Three fixed strategies with tunable parameters (Consolidation/Performance/Uniform)
-- VMFS focus, not vVol (practical reality for migration projects)
-- 4 TB default datastore size (Dell best practice sweet spot)
-- 15-25 VMs/datastore default (Dell recommendation, queue depth validated)
-- SDRS/SIOC deprecated in vSphere 8.0 U3 — use PowerStore QoS instead
-- No PowerStore model recommendation (layout-only scope per user decision)
-- Default IOPS estimates for RVTools imports (no performance data)
-- TYPE_CHECKING guard for VMCalculation/CalculationSummary imports in layout modules (safe with from **future** import annotations)
-- Oversized VM datastores use _OVER_ in name as the distinguishing marker
-- generate_all_proposals() returns all 3 strategies (consolidation, performance, uniform)
-- _classify_tier uses startswith("Database") not "in" — avoids false HOT match on "No Database, File nor Email" category string
-- Workload-based prefix (DS_ORA, DS_HANA, DS_EXCHANGE) takes priority over generic DS_ISOLATED in _isolate_vms()
-- Online help/tooltips added to Phase 18 (i18n & Polish) — all UI pages, FR+EN keys
-- Layout page (16-01): settings panel receives results_container as closure to enable reactive re-generation
-- Layout page (16-01): slider events wired via .on("change") not on_change parameter for correct NiceGUI event handling
-- Layout page (16-01): recommended strategy: isolation_score > 0.5 -> performance; single workload -> consolidation; else -> uniform
-- Layout page (16-01): ds.* i18n keys added in 16-01 alongside other sections for consolidated translation work
-- Layout page (16-02): props.expand used for expandable rows (not ui.teleport, not ui.aggrid enterprise-only master-detail)
-- Layout page (16-02): utilization color logic embedded in full body slot ternary :class binding (not separate body-cell slot — conflicts with full body slot)
-- Layout page (16-02): tab variables named tab_consol/tab_perf/tab_unif to avoid shadowing t() i18n import
-- Layout page (16-02): detail_tabs_heading added as new static i18n key (detail_heading uses %{strategy} interpolation, not suitable for static heading)
-- IOPS.csv stored in src/store_predict/data/ alongside DRR.csv (package data, not samples/) — samples/ is gitignored for customer data privacy
-- stdlib csv.DictReader used for IOPS loader (not pandas) — keeps layout_models.py lightweight with zero extra dependencies
-- ADR-059: workload-based IOPS defaults accepted; Linux/Windows IOPS split not implemented (documented as known limitation)
-- mkdocs.yml nav corrected: ADRs 048-058 added, ADRs 015-033 filenames fixed (pre-existing bug resolved)
-- [Phase 17]: _layout_metric_rows in pdf_report.py, imported by excel_report.py — avoids new file, keeps services UI-free
-- [Phase 17]: Layout page/sheet skipped when summary.total_vms == 0 — matches UI empty-state handling
-- [Phase 17]: PDF layout page uses generate_all_proposals() with default PlacementConstraints — no public API change, reproducible defaults for report context
-- [Phase 18-i18n-and-polish]: f-string slot template: Vue {{ }} must be escaped to {{{{ }}}} in Python f-strings
-- [Phase 18-i18n-and-polish]: Sankey node/link parity: provisioned_label/required_label variables ensure source/target matches node name regardless of locale
-- [Phase 18-i18n-and-polish]: Tooltip annotations placed inside page render functions (not module level) to respect NiceGUI client context
-- [Phase 19-02]: Orphaned tooltip keys (iops_headroom, snapshot_rating) deleted -- ui.table does not support per-cell tooltips
-- [Phase 19-02]: IOPS.csv path fixes already applied in commit 02609f6; no additional doc edits needed
+See PROJECT.md Key Decisions table and milestone archives for full history.
 
 ## Last Session
 
-- **Stopped at:** Re-executed 19-01-PLAN.md (batch LLM classification)
+- **Stopped at:** v3.0 milestone archived
 - **Timestamp:** 2026-02-21

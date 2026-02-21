@@ -36,13 +36,17 @@ Accurately predict real-world PowerStore DRR per workload and **recommend optima
 - Multi-platform storage model selection (PowerStore/PowerFlex/PowerVault) — v2.0
 - Application-level DRR variants (encrypted, compressed, DDVE) — v2.1
 - AI classification UI toggle + LLM progress counter + rule suggestions in logs — v2.2
+- Datastore layout recommendation engine — 3 strategies (Consolidation, Performance, Uniform) with BFD placement — v3.0
+- Dedicated /layout page with comparison table, expandable datastore tables, and VM drill-down — v3.0
+- Advanced settings panel (growth margin, snapshot reserve, VMs/DS limit, IOPS budget) with reactive regeneration — v3.0
+- Layout summary in PDF (dedicated print page) and Excel exports (layout sheet with VM detail) — v3.0
+- Default IOPS estimates from configurable CSV for RVTools imports — v3.0
+- Full i18n with tooltips on all UI controls — v3.0
+- Batch LLM classification for reduced latency on unknown VMs — v3.0
 
 ### Active
 
-- Datastore layout recommendation engine (3 strategies) — v3.0
-- Dedicated /layout page with comparison table and per-datastore detail — v3.0
-- Advanced settings panel (growth margin, snapshot reserve, VMs/DS limit, IOPS budget) — v3.0
-- Layout summary in PDF and Excel exports — v3.0
+(None — planning next milestone)
 
 ### Out of Scope
 
@@ -63,9 +67,10 @@ Accurately predict real-world PowerStore DRR per workload and **recommend optima
 
 ## Context
 
-Shipped v2.2.0 with 246 tests passing, 84% backend coverage.
-Tech stack: NiceGUI, pandas, openpyxl, ReportLab, AG Grid, XlsxWriter, Pillow, litellm, matplotlib, python-i18n.
+Shipped v3.0 with 353 tests passing, 86% backend coverage, 6,802 LOC Python.
+Tech stack: NiceGUI, pandas, openpyxl, ReportLab, AG Grid, XlsxWriter, Pillow, litellm, matplotlib, python-i18n, Playwright.
 Docker Compose deployment, MkDocs on GitHub Pages, GitHub Actions CI with Codecov.
+Layout engine adds migration planning capability — tool now sizes AND recommends datastore layouts.
 
 ## Constraints
 
@@ -74,7 +79,7 @@ Docker Compose deployment, MkDocs on GitHub Pages, GitHub Actions CI with Codeco
 - **PDF generation:** ReportLab Platypus with Vera fonts
 - **Deployment:** Docker Compose, single container, port 8080
 - **Documentation:** MkDocs with Material theme + Mermaid diagrams
-- **Code quality:** ruff + mypy strict + pytest (246 tests, 84% coverage)
+- **Code quality:** ruff + mypy strict + pytest (353 tests, 86% coverage)
 - **CI/CD:** GitHub Actions (lint, test, docs deploy, Codecov)
 - **Layout engine:** Pure Python heuristics (no external optimization libraries)
 
@@ -92,11 +97,13 @@ Docker Compose deployment, MkDocs on GitHub Pages, GitHub Actions CI with Codeco
 | LLM disabled by default (LLM_ENABLED=false) | Safest default; opt-in reduces surprise costs | Good |
 | ECharts for web charts (NiceGUI ui.echart) | Native NiceGUI support, interactive, no JS dependencies | Good |
 | ReportLab + matplotlib for PDF charts | ReportLab for bar/pie, matplotlib for Sankey | Good |
-| Multi-dimensional BFD for VM placement | Best tradeoff: fast, good packing quality, pure Python | Pending |
-| Three strategies not one | Different customers have different priorities; choice is the value | Pending |
-| VMFS focus (not vVol) | Practical reality for migration projects; vVol adoption is nascent | Pending |
-| 4 TB default datastore size | Dell best practice sweet spot; balances density, snapshots, management | Pending |
-| 15-25 VMs/datastore default | Dell recommendation; validated by queue depth and VMFS metadata analysis | Pending |
+| Multi-dimensional BFD for VM placement | Best tradeoff: fast, good packing quality, pure Python | Good |
+| Three strategies not one | Different customers have different priorities; choice is the value | Good |
+| VMFS focus (not vVol) | Practical reality for migration projects; vVol adoption is nascent | Good |
+| 4 TB default datastore size | Dell best practice sweet spot; balances density, snapshots, management | Good |
+| 15-25 VMs/datastore default | Dell recommendation; validated by queue depth and VMFS metadata analysis | Good |
+| Playwright for layout PDF | Dedicated /layout/print route, always-expanded VM detail for print | Good |
+| IOPS.csv as package data | Configurable defaults without code changes; CSV lives in src/data/ | Good |
 
 ---
-*Last updated: 2026-02-21 after v2.2 — planning v3.0 milestone*
+*Last updated: 2026-02-21 after v3.0 milestone*

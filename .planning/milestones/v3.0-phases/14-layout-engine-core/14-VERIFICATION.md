@@ -44,7 +44,7 @@ re_verification: false
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `src/store_predict/pipeline/layout_models.py` | PlacementConstraints, DatastoreRecommendation, LayoutProposal, LayoutMetrics dataclasses | VERIFIED | All 4 frozen dataclasses present; DEFAULT_IOPS_BY_WORKLOAD dict and _DEFAULT_IOPS_FALLBACK constant present; 111 lines, substantive |
+| `src/store_predict/pipeline/layout_models.py` | PlacementConstraints, DatastoreRecommendation, LayoutProposal, LayoutMetrics dataclasses | VERIFIED | All 4 frozen dataclasses present; DEFAULT_IOPS_BY_WORKLOAD dict and_DEFAULT_IOPS_FALLBACK constant present; 111 lines, substantive |
 | `src/store_predict/pipeline/layout_engine.py` | Consolidation strategy, BFD core, Performance strategy, Uniform strategy, generate_all_proposals orchestrator | VERIFIED | 562 lines; all strategies, `_bfd_place`, `_apply_default_iops`, `_compute_metrics`, `generate_all_proposals` implemented |
 | `tests/test_layout_engine.py` | Unit tests for all models, strategies, metrics, default IOPS, and edge cases | VERIFIED | 656 lines; 46 tests across 7 test classes covering all strategies, edge cases, and anti-affinity |
 
@@ -58,7 +58,7 @@ re_verification: false
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| `layout_engine.py` | `layout_models.py` | `from store_predict.pipeline.layout_models import` | WIRED | Line 16: imports PlacementConstraints, DatastoreRecommendation, LayoutMetrics, LayoutProposal, DEFAULT_IOPS_BY_WORKLOAD, _DEFAULT_IOPS_FALLBACK |
+| `layout_engine.py` | `layout_models.py` | `from store_predict.pipeline.layout_models import` | WIRED | Line 16: imports PlacementConstraints, DatastoreRecommendation, LayoutMetrics, LayoutProposal, DEFAULT_IOPS_BY_WORKLOAD,_DEFAULT_IOPS_FALLBACK |
 | `layout_engine.py` | `calculation.py` | `from store_predict.pipeline.calculation import CalculationSummary, VMCalculation` | WIRED | Line 26 (TYPE_CHECKING + runtime usage in `generate_all_proposals` signature and body) |
 | `generate_all_proposals` | `CalculationSummary` | `def generate_all_proposals(summary: CalculationSummary, ...)` | WIRED | Function signature at line 525; `summary.vm_calculations` and `summary.has_performance_data` consumed |
 | `generate_all_proposals` | `LayoutProposal` | Returns `list[LayoutProposal]` | WIRED | All 3 strategy functions return `LayoutProposal`; orchestrator returns list of 3 |
@@ -86,6 +86,7 @@ No orphaned requirements found. REQ-007 through REQ-013 are scoped to later phas
 ### Anti-Patterns Found
 
 No anti-patterns detected. Scanned `layout_models.py`, `layout_engine.py`, and `test_layout_engine.py` for:
+
 - TODO/FIXME/PLACEHOLDER/HACK comments
 - Empty implementations (return null, return {}, return [])
 - Stub patterns
@@ -127,5 +128,5 @@ No gaps. All 14 must-have truths verified. All 7 requirement IDs satisfied. All 
 
 ---
 
-_Verified: 2026-02-21T08:23:00Z_
-_Verifier: Claude (gsd-verifier)_
+*Verified: 2026-02-21T08:23:00Z*
+*Verifier: Claude (gsd-verifier)*

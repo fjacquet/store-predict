@@ -7,6 +7,7 @@
 ---
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -34,6 +35,7 @@ Both services need `generate_all_proposals()` called with the same `CalculationS
 ## Standard Stack
 
 ### Core (already in project)
+
 | Library | Version | Purpose | Why Standard |
 |---------|---------|---------|--------------|
 | reportlab | >=4.0 | PDF generation via Platypus flowables | Already used; Platypus `story` list + `PageBreak` + `Table` = exact pattern needed |
@@ -43,11 +45,13 @@ Both services need `generate_all_proposals()` called with the same `CalculationS
 | store_predict.pipeline.layout_models | (project) | `LayoutProposal`, `LayoutMetrics`, `DatastoreRecommendation`, `PlacementConstraints` | Frozen dataclasses — safe to import from services |
 
 ### Supporting
+
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
 | openpyxl | >=3.1.2 | Excel reading (used by ingestion) | NOT used for writing — use xlsxwriter only |
 
 ### Alternatives Considered
+
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
 | Extending `generate_report_pdf()` | New `generate_layout_pdf()` function | Separate function would require callers to combine two PDFs (extra complexity); extending keeps one PDF per report |
@@ -60,6 +64,7 @@ Both services need `generate_all_proposals()` called with the same `CalculationS
 ### Recommended Project Structure
 
 No new files needed. All changes are confined to:
+
 ```
 src/store_predict/
 ├── services/
@@ -221,36 +226,42 @@ This helper can live in `pdf_report.py` (and be imported by `excel_report.py`) o
 ## Common Pitfalls
 
 ### Pitfall 1: XlsxWriter Format Objects Are Workbook-Scoped
+
 **What goes wrong:** Creating a Format object outside the `wb` workbook (e.g., at module level) causes a runtime error or silent wrong output.
 **Why it happens:** XlsxWriter Format objects track their parent workbook internally.
 **How to avoid:** Always create formats with `wb.add_format({...})` inside the function that has access to `wb`. Existing helpers in `excel_report.py` receive formats as parameters — the same approach must be used for `_write_layout_sheet()`.
 **Warning signs:** `AttributeError` or wrong formatting in the produced sheet.
 
 ### Pitfall 2: `generate_all_proposals()` Called with Wrong Summary
+
 **What goes wrong:** Calling with an empty `CalculationSummary` returns three empty `LayoutProposal` objects — the layout page renders with no data and no errors.
 **Why it happens:** The engine handles empty input gracefully (returns `LayoutProposal` with empty `datastores` tuple).
 **How to avoid:** Defensive check: if `summary.total_vms == 0`, skip the layout page/sheet rather than rendering an empty table.
 **Warning signs:** Layout page appears with only a header row in the comparison table.
 
 ### Pitfall 3: Proposals Order Assumption
+
 **What goes wrong:** Accessing `proposals[0]` as consolidation, `proposals[1]` as performance, `proposals[2]` as uniform breaks if the engine order changes.
 **Why it happens:** `generate_all_proposals()` currently returns `[consolidation, performance, uniform]` (documented), but order could change.
 **How to avoid:** Use `{p.strategy_name: p for p in proposals}` dict lookup, same as `layout_page.py`'s `_build_strategy_tabs()`.
 **Warning signs:** Wrong strategy columns in comparison table.
 
 ### Pitfall 4: PDF Page 3 Header Duplication
+
 **What goes wrong:** If the header callback draws redundant titles or the `topMargin` is not large enough for the header bar, content overlaps.
 **Why it happens:** `_draw_header()` is already wired as `onLaterPages` — it runs on every page including the new layout page. The `topMargin = margin + 55` is already accounted for.
 **How to avoid:** Do not change `topMargin` or header callbacks. The existing setup is correct for all pages.
 **Warning signs:** Content visually overlaps with the header bar on page 3.
 
 ### Pitfall 5: Missing i18n Keys
+
 **What goes wrong:** `t("pdf.layout_heading")` or `_i18n.t("excel.sheet_layout")` raises `KeyError` or returns the raw key string.
 **Why it happens:** New keys added to `en.yaml` but not `fr.yaml` (or vice versa).
 **How to avoid:** Add keys to BOTH locale files in the same commit. Run the existing `test_i18n.py` — it verifies key parity between locales.
 **Warning signs:** Raw key string appears in PDF/Excel output (e.g., `"pdf.layout_heading"`).
 
 ### Pitfall 6: Excel Sheet Count Test Breaks
+
 **What goes wrong:** `test_excel_report.py::TestExcelSheetCount::test_workbook_has_three_sheets` fails because the workbook now has four sheets.
 **Why it happens:** The existing test checks for exactly three sheets.
 **How to avoid:** Update the test to check for four sheets. Add a new assertion for `sheet4.xml`. The test is in `tests/test_excel_report.py` lines 202-215.
@@ -263,6 +274,7 @@ This helper can live in `pdf_report.py` (and be imported by `excel_report.py`) o
 Verified patterns from official sources and existing codebase:
 
 ### PDF: Adding a New Page to Existing Story
+
 ```python
 # Source: existing pdf_report.py lines 384-406 (charts section — same pattern)
 story.append(PageBreak())
@@ -289,6 +301,7 @@ story.append(table)
 ```
 
 ### Excel: Adding a Fourth Sheet
+
 ```python
 # Source: existing excel_report.py lines 66-70 pattern
 _write_summary_sheet(wb, summary, header_fmt, bold_fmt, number_fmt, int_fmt)
@@ -300,6 +313,7 @@ return buf.getvalue()
 ```
 
 ### Excel: Multiple Sub-Tables via Row Counter
+
 ```python
 # Source: Context7 XlsxWriter docs — add_worksheet + write_row pattern
 ws = wb.add_worksheet(_i18n.t("excel.sheet_layout"))
@@ -326,6 +340,7 @@ ws.autofit()
 ```
 
 ### Testing: Locale Comparison for PDF (NOT text search)
+
 ```python
 # Source: existing test_pdf_report.py convention
 def test_layout_page_locale_differs(self) -> None:
@@ -336,6 +351,7 @@ def test_layout_page_locale_differs(self) -> None:
 ```
 
 ### Testing: Excel Sheet Count
+
 ```python
 # Source: existing test_excel_report.py::TestExcelSheetCount (to be updated)
 def test_workbook_has_four_sheets(self) -> None:
@@ -400,6 +416,7 @@ The following keys already exist in both `en.yaml` and `fr.yaml` and cover all l
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Existing codebase: `src/store_predict/services/pdf_report.py` — full ReportLab Platypus usage, `PageBreak`, `Table`, `TableStyle`, `_BRAND_BLUE`, font registration
 - Existing codebase: `src/store_predict/services/excel_report.py` — full XlsxWriter usage, `add_worksheet`, `write_row`, `add_format`, sheet helpers
 - Existing codebase: `src/store_predict/ui/pages/layout_page.py` — `_build_comparison_table()` with all 15 metric rows and formatting helpers
@@ -409,6 +426,7 @@ The following keys already exist in both `en.yaml` and `fr.yaml` and cover all l
 - Context7 `/websites/reportlab` — `PageBreak`, `Table`, `TableStyle`, `Paragraph`, `Spacer` in Platypus story
 
 ### Secondary (MEDIUM confidence)
+
 - `tests/test_excel_report.py` — confirms `zipfile` approach for sheet count testing and locale comparison approach
 - `tests/test_pdf_report.py` — confirms `result[:5] == b"%PDF-"` and EN vs FR byte comparison approach
 
@@ -417,6 +435,7 @@ The following keys already exist in both `en.yaml` and `fr.yaml` and cover all l
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — both libraries are already in production use in this project; APIs verified via codebase inspection and Context7
 - Architecture: HIGH — extending existing functions with proven patterns; no new libraries or patterns introduced
 - Pitfalls: HIGH — pitfalls identified from direct code inspection (existing test at line 202-215, CIDFont encoding note in CLAUDE.md, XlsxWriter format scoping from Context7)
