@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase: 14-layout-engine-core (Plan 2 of 2 — COMPLETE)
+Phase: 15-default-iops-and-docs (Plan 1 of 2 — COMPLETE)
 
 ## Milestone
 
@@ -16,14 +16,15 @@ v3.0 — Datastore Layout Recommendations
 - [x] ROADMAP.md written (5 phases, 7 plans)
 - [x] Phase 14-01: layout_models.py + layout_engine.py (consolidation strategy, BFD core)
 - [x] Phase 14-02: Performance strategy (Phase 0 isolation + tier BFD) + Uniform strategy (LPT) + generate_all_proposals() orchestrator
+- [x] Phase 15-01: IOPS.csv package data + CSV loader for configurable IOPS defaults (REQ-014)
 
 ## Current Phase Progress
 
-Phase 14: Plan 2/2 complete (14-01-SUMMARY.md and 14-02-SUMMARY.md exist)
+Phase 15: Plan 1/2 complete (15-01-SUMMARY.md exists)
 
 ## Next Action
 
-Execute Phase 15 (next phase per ROADMAP.md)
+Execute Phase 15 Plan 02 (15-02-PLAN.md — documentation)
 
 ## Project Reference
 
@@ -49,8 +50,11 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 - generate_all_proposals() returns all 3 strategies (consolidation, performance, uniform)
 - _classify_tier uses startswith("Database") not "in" — avoids false HOT match on "No Database, File nor Email" category string
 - Workload-based prefix (DS_ORA, DS_HANA, DS_EXCHANGE) takes priority over generic DS_ISOLATED in _isolate_vms()
+- Online help/tooltips added to Phase 18 (i18n & Polish) — all UI pages, FR+EN keys
+- IOPS.csv stored in src/store_predict/data/ alongside DRR.csv (package data, not samples/) — samples/ is gitignored for customer data privacy
+- stdlib csv.DictReader used for IOPS loader (not pandas) — keeps layout_models.py lightweight with zero extra dependencies
 
 ## Last Session
 
-- **Stopped at:** Completed 14-02-PLAN.md — Performance strategy, Uniform strategy, and generate_all_proposals orchestrator
+- **Stopped at:** Completed 15-01-PLAN.md — IOPS.csv configurable defaults with CSV loader and fallback
 - **Timestamp:** 2026-02-21
