@@ -46,5 +46,34 @@
 - [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md)
 - [v1.1-REQUIREMENTS.md](milestones/v1.1-REQUIREMENTS.md)
 
----
+## v2.x — Storage Models, DRR Variants, Observability
 
+**Shipped:** 2026-02-20/21 (v2.0, v2.1, v2.2)
+**Phases:** shipped outside GSD planning
+**Source:** 246 tests passing, 84% backend coverage
+
+### Key Accomplishments
+
+1. Multi-platform storage model selection — PowerStore (full DRR), PowerFlex (flat 2.0), PowerVault (flat 1.0)
+2. Application-level DRR variants — +14 DRR entries for encrypted/compressed scenarios (Oracle HCC/TDE, SQL TDE, DDVE)
+3. AI classification UI toggle — per-session switch, greyed out when LLM_ENABLED=false
+4. LLM progress counter — live "42 / 496 VMs" notification during AI classification
+5. Rule suggestions in logs — ready-to-paste ClassificationRule snippets logged after LLM pass
+6. CI/CD hardening — Codecov coverage badge (84%), JUnit test analytics, workflow deduplication, permissions
+
+## v3.0 — Datastore Layout Recommendations (ACTIVE)
+
+**Started:** 2026-02-21
+**Phases:** 14-18 (7 plans)
+**Goal:** Transform StorePredict from sizing tool into migration planning tool
+
+### Planned Capabilities
+
+1. Layout engine — 3 strategies (Consolidation, Performance, Uniform) using multi-dimensional bin packing
+2. Dedicated /layout page — comparison table + per-datastore detail view with drill-down
+3. Advanced settings — tunable placement parameters (DS size, VMs/DS, IOPS budget, reserves)
+4. PDF/Excel integration — layout comparison in exports
+5. Default IOPS estimates — workload-based fallback when no LiveOptics performance data
+6. Full FR/EN localization for all new UI elements
+
+---

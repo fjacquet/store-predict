@@ -1,0 +1,181 @@
+# Requirements — v3.0 Datastore Layout Recommendations
+
+## Milestone Goal
+
+Transform StorePredict from a sizing tool into a **migration planning tool** by adding datastore layout recommendations. Given classified VMs with capacity, IOPS, and workload data, generate three alternative datastore layouts optimized for different priorities, and present them in a dedicated UI page with comparison metrics.
+
+---
+
+## Functional Requirements
+
+### REQ-001: Layout Engine — Data Models
+
+Define dataclasses for the layout recommendation domain:
+- `PlacementConstraints` — configurable parameters (max DS capacity, max VMs/DS, IOPS budget, snapshot reserve %, growth margin %)
+- `DatastoreRecommendation` — single datastore: name, size, usable capacity, assigned VMs, computed metrics (utilization, IOPS, VM count)
+- `LayoutProposal` — named strategy with list of datastores
+- `LayoutMetrics` — comparison metrics: total DS count, raw/usable/used capacity, utilization stats, VM density, IOPS stats, isolation score, snapshot granularity rating
+
+### REQ-002: Layout Engine — Consolidation Strategy
+
+Multi-dimensional Best Fit Decreasing (BFD) algorithm:
+- Sort VMs by `max(capacity_ratio, iops_ratio)` descending
+- Place each VM in the datastore with least remaining space that still fits (capacity + IOPS + VM count)
+- When no fit, create new datastore
+- Goal: minimize datastore count
+- Apply growth margin and snapshot reserve to reduce usable capacity
+
+### REQ-003: Layout Engine — Performance Strategy
+
+Two-phase workload-aware placement:
+- Phase 1: Classify VMs into performance tiers (Hot/Warm/Cold) based on IOPS and workload category
+  - Hot: >500 IOPS or Database workloads (SQL, Oracle, SAP HANA)
+  - Warm: 100-500 IOPS (app servers, mixed)
+  - Cold: <100 IOPS (file servers, archive, dev/test, general VMs)
+- Phase 2: Place each tier separately using BFD with tier-specific constraints
+  - Hot: max 15 VMs/DS (lower density for latency isolation)
+  - Warm/Cold: standard constraints
+- Anti-affinity: never co-locate Database and VDI on same datastore
+- Goal: maximize performance isolation, minimize contention
+
+### REQ-004: Layout Engine — Uniform Strategy
+
+Balanced placement across equal-sized datastores:
+- Determine datastore count from `max(ceil(total_cap/usable), ceil(total_iops/budget))`
+- Use Longest Processing Time (LPT) algorithm: sort VMs descending, assign each to least-loaded DS
+- Goal: all datastores approximately same utilization, predictable management
+
+### REQ-005: Layout Engine — Comparison Metrics
+
+For each proposal, compute:
+- Total datastores
+- Total raw capacity (TiB)
+- Total usable capacity (TiB)
+- Average / min / max utilization %
+- Average / max VM density (VMs per datastore)
+- Total IOPS placed
+- Max IOPS on any single datastore + headroom %
+- Workload isolation score (0-1: ratio of single-workload datastores)
+- Snapshot granularity rating (fine/medium/coarse based on avg VM density)
+
+### REQ-006: Datastore Naming Convention
+
+Systematic names encoding strategy and workload:
+- Consolidation: `DS_CONSOL_01`, `DS_CONSOL_02`, ...
+- Performance: `DS_HOT_SQL_01`, `DS_HOT_ORA_01`, `DS_WARM_APP_01`, `DS_COLD_GEN_01`, ...
+- Uniform: `DS_UNIFORM_01`, `DS_UNIFORM_02`, ...
+
+### REQ-007: Advanced Settings Panel
+
+Collapsible UI panel with tunable parameters:
+- **Max datastore capacity** — dropdown: 2 TB, 4 TB, 8 TB, 16 TB, 32 TB, 64 TB (default: 4 TB)
+- **Max VMs per datastore** — slider: 5–50 (default: 25)
+- **IOPS budget per datastore** — input: default 100,000
+- **Snapshot reserve %** — slider: 0–30% (default: 15%)
+- **Growth margin %** — slider: 0–40% (default: 20%)
+- Changes trigger re-generation of all three layouts
+- Values stored in `app.storage.tab` for session persistence
+
+### REQ-008: Layout Page — Comparison View
+
+Dedicated `/layout` page accessible from navigation after Report:
+- Comparison table showing all three strategies side-by-side with REQ-005 metrics
+- Visual indicator (icon/color) for the recommended strategy based on workload mix
+- Toggle/tabs to switch between strategies for detail view
+
+### REQ-009: Layout Page — Detail View
+
+Per-strategy detailed view:
+- AG Grid or table listing each datastore: name, size, used, utilization %, VM count, total IOPS, workload types
+- Expandable rows or drill-down to see individual VMs assigned to each datastore
+- Per-datastore mini stats (capacity bar, IOPS indicator)
+
+### REQ-010: Layout Page — Navigation and Guards
+
+- Link in navigation bar: Upload → Review → Report → **Layout**
+- Empty-state card if no calculation data available (redirect to upload)
+- Layout page reads from `app.storage.tab` — same session as review/report
+
+### REQ-011: i18n
+
+All new UI strings through `t()`:
+- Strategy names, metric labels, column headers, advanced settings labels
+- Both `en.yaml` and `fr.yaml`
+- Estimated ~30-40 new i18n keys
+
+### REQ-012: PDF Layout Summary
+
+Add a layout summary section to the existing PDF report:
+- One-row-per-strategy comparison table (compact version of REQ-005 metrics)
+- Appears after the charts section on a new PDF page
+- Respects locale setting
+
+### REQ-013: Excel Layout Sheet
+
+Add a "Layout Recommendations" sheet to the Excel export:
+- Comparison summary at top
+- Followed by per-datastore detail for each strategy (3 sub-tables)
+- Same brand styling as existing sheets
+
+### REQ-014: Default IOPS Estimates
+
+When LiveOptics performance data is not available (RVTools import), use workload-based IOPS estimates:
+- Database/Microsoft SQL: 500 IOPS
+- Database/Oracle: 800 IOPS
+- Database/SAP HANA: 1,000 IOPS
+- VDI/Full Clone: 30 IOPS (steady state)
+- VDI/Linked Clone: 50 IOPS
+- Virtual Machines/Windows: 50 IOPS
+- Virtual Machines/Linux: 40 IOPS
+- File/Print Server: 100 IOPS
+- Unknown Reducible: 50 IOPS
+- Configurable via CSV or code constants
+
+---
+
+## Non-Functional Requirements
+
+### NFR-001: Performance
+
+Layout generation for 1,000 VMs must complete in <2 seconds (BFD heuristics are O(n*m), no external solver needed).
+
+### NFR-002: No New Dependencies
+
+Use only Python stdlib + existing dependencies. No PuLP, OR-Tools, or numpy for the placement engine. Pure dataclass + list operations.
+
+### NFR-003: Test Coverage
+
+- Unit tests for each strategy algorithm (edge cases: 0 VMs, 1 VM, VM larger than DS, IOPS-constrained placement)
+- Integration test: full pipeline from ingestion through layout generation
+- Comparison metrics accuracy tests
+- Target: maintain 84%+ backend coverage
+
+### NFR-004: Documentation
+
+- ADR for layout engine architecture decisions
+- Research page documenting domain knowledge (PowerStore limits, VMware best practices)
+- Architecture.md update with layout engine section
+
+---
+
+## Dependencies
+
+| Requirement | Depends On |
+|-------------|-----------|
+| REQ-002/003/004 | REQ-001 (data models) |
+| REQ-005 | REQ-002/003/004 (proposals to measure) |
+| REQ-008/009 | REQ-005 + REQ-007 (metrics + settings) |
+| REQ-012/013 | REQ-005 (metrics data) |
+| REQ-014 | REQ-001 (referenced by strategies when no perf data) |
+
+---
+
+## Acceptance Criteria
+
+1. Given classified VMs from a LiveOptics upload, the Layout page shows 3 strategies with different datastore counts
+2. Consolidation always produces ≤ datastores than Uniform or Performance
+3. Performance strategy never co-locates Database and VDI VMs
+4. Changing Advanced Settings immediately regenerates all 3 layouts
+5. PDF report includes a layout comparison table on a new page
+6. All strings are localized in FR and EN
+7. 246+ tests passing, ruff and mypy clean

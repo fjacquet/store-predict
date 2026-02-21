@@ -4,6 +4,8 @@
 
 - ✅ **v1.0 MVP Sizing Tool** — Phases 1-7 (shipped 2026-02-19) — [Archive](milestones/v1.0-ROADMAP.md)
 - ✅ **v1.1 i18n, Branding & Intelligence** — Phases 8-13 (shipped 2026-02-20) — [Archive](milestones/v1.1-ROADMAP.md)
+- ✅ **v2.x Storage Models, DRR Variants, Observability** — shipped outside GSD (v2.0–v2.2, 2026-02-20/21)
+- 🚧 **v3.0 Datastore Layout Recommendations** — Phases 14-18 (planning)
 
 ## Phases
 
@@ -37,6 +39,31 @@ See [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md) for full details.
 
 </details>
 
+<details>
+<summary>✅ v2.x Storage Models, DRR Variants, Observability — SHIPPED 2026-02-20/21</summary>
+
+Shipped outside GSD planning:
+- v2.0: Multi-platform storage model selection (PowerStore/PowerFlex/PowerVault)
+- v2.1: Application-level DRR variants (+14 entries), DDVE, AI classification UI toggle
+- v2.2: LLM progress counter, rule suggestions in logs, Codecov, CI lean, README badges
+
+</details>
+
+### v3.0 Datastore Layout Recommendations
+
+- [ ] **Phase 14: Layout Engine Core** (2 plans)
+  - Plan 14-01: Data models + Consolidation strategy + metrics
+  - Plan 14-02: Performance + Uniform strategies + orchestrator
+- [ ] **Phase 15: Default IOPS & Research Docs** (1 plan)
+  - Plan 15-01: IOPS estimation table + ADR + research page
+- [ ] **Phase 16: Layout Page UI** (2 plans)
+  - Plan 16-01: Comparison view + Advanced Settings panel
+  - Plan 16-02: Detail view + drill-down
+- [ ] **Phase 17: PDF & Excel Integration** (1 plan)
+  - Plan 17-01: PDF layout page + Excel layout sheet
+- [ ] **Phase 18: i18n & Polish** (1 plan)
+  - Plan 18-01: Full i18n + edge cases + navigation polish
+
 ## Progress
 
 | Phase | Milestone | Plans | Status | Completed |
@@ -55,3 +82,8 @@ See [v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md) for full details.
 | 11. LLM Classification | v1.1 | 2/2 | Complete | 2026-02-20 |
 | 12. UX Polish | v1.1 | 2/2 | Complete | 2026-02-20 |
 | 13. Graphics | v1.1 | 3/3 | Complete | 2026-02-20 |
+| **14. Layout Engine Core** | **v3.0** | **0/2** | **Not started** | |
+| **15. Default IOPS & Docs** | **v3.0** | **0/1** | **Not started** | |
+| **16. Layout Page UI** | **v3.0** | **0/2** | **Not started** | |
+| **17. PDF & Excel Integration** | **v3.0** | **0/1** | **Not started** | |
+| **18. i18n & Polish** | **v3.0** | **0/1** | **Not started** | |
