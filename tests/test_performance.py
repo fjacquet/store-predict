@@ -8,18 +8,21 @@ from __future__ import annotations
 import tempfile
 import time
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
 from store_predict.pipeline.calculation import (
     CalculationSummary,
     WorkloadGroupResult,
+    calculate,
 )
 from store_predict.pipeline.classification import (
     RuleRegistry,
     build_default_rules,
     classify_dataframe,
 )
+from store_predict.pipeline.layout_engine import generate_all_proposals
 from store_predict.services.pdf_report import generate_report_pdf
 
 # ---------------------------------------------------------------------------
@@ -171,3 +174,39 @@ class TestPDFGenerationPerformance:
         finally:
             if tmp_path and tmp_path.exists():
                 tmp_path.unlink()
+
+
+class TestLayoutEnginePerformance:
+    """NFR-001: generate_all_proposals() for 1000+ VMs completes in under 2s."""
+
+    def test_generate_all_proposals_1000_vms_under_2s(self) -> None:
+        n = 1000
+        row_data: list[dict[str, Any]] = []
+        categories = [
+            "Database/Microsoft SQL",
+            "Database/Oracle",
+            "Virtual Machines",
+            "VDI/Full Clone",
+            "Email/Exchange",
+            "Web Servers",
+            "File/General Purpose",
+            "Containers/Kubernetes",
+        ]
+        for i in range(n):
+            row_data.append({
+                "vm_name": f"{_VM_NAME_PREFIXES[i % len(_VM_NAME_PREFIXES)]}{i:04d}",
+                "os_name": _OS_VALUES[i % len(_OS_VALUES)],
+                "workload_category": categories[i % len(categories)],
+                "provisioned_mib": 50_000.0 + (i % 100) * 100,
+                "in_use_mib": (50_000.0 + (i % 100) * 100) * 0.6,
+                "drr": 3.0 + (i % 5),
+            })
+
+        summary = calculate(row_data)
+
+        start = time.perf_counter()
+        proposals = generate_all_proposals(summary)
+        elapsed = time.perf_counter() - start
+
+        assert len(proposals) == 3, f"Expected 3 proposals, got {len(proposals)}"
+        assert elapsed < 2.0, f"generate_all_proposals() took {elapsed:.2f}s, exceeds 2s limit"
