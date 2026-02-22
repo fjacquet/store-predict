@@ -4,6 +4,28 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v3.2.0] - 2026-02-22
+
+Annotation-based VM classification for healthcare and application workloads.
+
+### Classifier
+
+- Fix two-pass classification logic: OS-fallback rules (priority ≥ 900) are now
+  skipped in pass 1 when an annotation (`vm_description`) is present, allowing
+  pass 2 to match richer annotation content before falling back to OS heuristics
+- Expand HealthCare/EMR-EHR rule with 25+ application keywords:
+  - Radiology & imaging: PACS, INTELLISPACE, GLEAMER, AZMED, RAYVOLVE, TRAUMACAD
+  - Hospital IS (French/Swiss & European ecosystem): OPALE, CARIATIDE, HANDYLIFE,
+    POLYPOINT, MEDIDATA, DATABICS, PROCAMED, SEDIA, DGLAB, STERIGEST, WINSCRIBE,
+    SYNLAB, EXOLIS, SCENARA, MIRTH, KODIP
+  - Regex anchors: `\bRIS\b` (Radiology IS), `\bSIEMS\b`, `\bHESTIA\b`, `Bloc-?Op`
+- Add `TOMCAT`, `FORTIWEB` to Web Servers rule
+- Add `PRTG` to Logging/Analytics rule
+- Add `APP VOLUMES` / `APPVOL` to VDI Profiles rule
+- Add `ALFRESCO` to File Content Servers rule
+- Add `FILEMAKER`, `CLARIS`, `SQLITE` to MySQL/NoSQL rule
+- Word-boundary guards: SIEMS (avoids SIEMENS), HESTIA (avoids HestiaCP)
+
 ## [v3.0.0] - 2026-02-21
 
 Datastore layout recommendations for PowerStore sizing.
