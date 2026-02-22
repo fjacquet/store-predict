@@ -1,608 +1,845 @@
 # Architecture Research
 
-**Domain:** Data processing web tool — milestone 2 feature integration (i18n, LLM classification, PDF branding, Excel export, UX polish)
-**Researched:** 2026-02-19
-**Confidence:** HIGH (existing code verified; libraries confirmed via web search)
+**Domain:** Data processing web tool — v4.0 feature integration (compute sizing, health checks, per-VM IOPS, grid UX, classification improvements)
+**Researched:** 2026-02-22
+**Confidence:** HIGH (all integration points verified against actual source code)
 
-## Context: Existing Architecture Snapshot
+---
 
-The app is production-stable with 30 modules. Before mapping new features, the concrete existing structure matters:
+## Context: Existing Architecture Snapshot (as of v3.0)
+
+The current production structure after v3.0. This is the baseline for all v4.0 integration analysis.
 
 ```
 src/store_predict/
   main.py                          # ui.run(), page route imports
-  config.py                        # Paths, APP_PORT, COMPANY_PREFIX_PATTERNS
-  logging_config.py                # Logger; never log VM names
-  data/DRR.csv                     # Reference ratios (shipped in package)
+  config.py                        # Paths, APP_PORT, StorageModel enum
+  logging_config.py                # Logger; never log VM names or DataFrames
 
   pipeline/                        # Pure functions — zero UI imports
-    ingestion.py                   # RVTools / LiveOptics parsing
+    ingestion.py                   # ingest_file() — detect + dispatch to parser
     classification.py              # RuleRegistry, ClassificationRule, classify_dataframe()
-    calculation.py                 # CalculationSummary, WorkloadGroupResult, calculate()
-    models.py
-    validation.py
-    errors.py
+    calculation.py                 # CalculationSummary, calculate()
+    layout_engine.py               # generate_all_proposals() — BFD placement
+    layout_models.py               # DatastoreRecommendation, LayoutProposal, PlacementConstraints
+    models.py                      # FileFormat enum
+    validation.py                  # File extension + magic bytes checks
+    errors.py                      # IngestionError
+    llm_classifier.py              # LLM fallback for unmatched VMs
+    zip_extraction.py              # .zip auto-extraction for LiveOptics archives
     parsers/
+      __init__.py                  # re-exports parse_rvtools, parse_liveoptics_*
+      columns.py                   # CANONICAL_COLUMNS, RVTOOLS_ALIASES, LIVEOPTICS_ALIASES
+      rvtools.py                   # parse_rvtools() — reads vInfo sheet
+      liveoptics.py                # parse_liveoptics_xlsx/csv() — reads VMs + VM Performance sheets
 
   services/
-    drr_table.py                   # DRRTable.from_csv(), get_ratio(), get_conservative_ratio()
+    drr_table.py                   # DRRTable.from_csv(), get_ratio(), apply_storage_model()
     pdf_report.py                  # generate_report_pdf(summary, project_name) -> bytes
+    pdf_charts.py                  # ReportLab chart helpers
+    excel_report.py                # generate_excel_report() -> bytes
+    charts.py                      # ECharts helpers for web UI
+    llm_config.py                  # LLM provider config dataclass
+    playwright_pdf.py              # Playwright-based layout PDF generation
+    print_session.py               # Print session token management
+
+  i18n/                            # Translation infrastructure
+    __init__.py                    # t() helper, get_locale(), set_locale()
+    locales/en.yaml                # English string catalog
+    locales/fr.yaml                # French string catalog (primary locale)
 
   ui/
-    layout.py                      # layout() contextmanager — header, nav, dark toggle
+    layout.py                      # layout() context manager — header, nav, dark toggle, locale toggle
     state.py                       # save/load session via app.storage.tab (JSON-serialized dicts)
     pages/
-      upload.py                    # /upload — ingestion + classification trigger
+      upload.py                    # /upload — file upload, ingestion + classification trigger
       review.py                    # /review — AG Grid edit, workload dialogs, bulk update
-      report.py                    # /report — summary cards, PDF download
+      report.py                    # /report — summary cards, PDF/Excel download
+      report_print.py              # /report/print — printable report page
+      layout_page.py               # /layout — datastore layout recommendations, 3 strategies
     components/
       vm_table.py                  # create_vm_table() — AG Grid with inline editors
       workload_dialog.py           # WorkloadDialog — async multi-select dialog
       summary_stats.py             # build_summary_stats() — live metric cards
       dark_mode_toggle.py
+      locale_toggle.py
+
+  data/
+    DRR.csv                        # Reference DRR ratios (28 workload categories)
+    IOPS.csv                       # Default IOPS estimates by workload (fallback for RVTools)
 ```
 
-**Critical contracts:**
+**CANONICAL_COLUMNS (the DataFrame schema crossing pipeline stages):**
 
-- `pipeline/` never imports from `ui/` — the pipeline is UI-free and fully testable
+```python
+CANONICAL_COLUMNS = [
+    "vm_name", "os_name",
+    "num_cpus", "memory_mib",              # Already extracted from both RVTools and LiveOptics
+    "provisioned_mib", "in_use_mib",
+    "datacenter", "cluster",
+    "is_template", "is_powered_on",
+    "source_format", "vm_description",
+    "peak_iops", "avg_iops",               # Per-VM IOPS — exists in schema, populated for LiveOptics
+    "peak_throughput_mbs", "avg_throughput_mbs",
+    "peak_latency_ms", "avg_read_latency_ms", "avg_write_latency_ms",
+    "iops_8k_equivalent",
+]
+```
+
+**Critical architecture contracts (must not be violated):**
+
+- `pipeline/` never imports from `ui/` — pipeline is fully testable without NiceGUI
 - Session state lives in `app.storage.tab` as JSON-serializable `list[dict]`
-- `classify_dataframe()` adds four columns: `workload_category`, `workload_subcategory`, `classification_rule`, `classification_confidence`
-- `calculate()` accepts `list[dict[str, Any]]` (the session row_data), returns `CalculationSummary`
-- `generate_report_pdf(summary, project_name)` returns `bytes`
+- `classify_dataframe()` adds: `workload_category`, `workload_subcategory`, `classification_rule`, `classification_confidence`
+- `calculate()` accepts `list[dict[str, Any]]` (row_data from session), returns `CalculationSummary`
+- `generate_all_proposals()` accepts `CalculationSummary` + `PlacementConstraints`, returns `list[LayoutProposal]`
 
 ---
 
-## Feature Integration Map
-
-### Feature 1: i18n (FR/EN runtime switching)
-
-**Integration approach:** Python-layer translation dict + NiceGUI session storage for locale preference.
-
-NiceGUI has no native i18n API as of version 3.4.x. The Quasar framework underneath has a language pack concept (`Quasar.lang.set()`), but this only affects Quasar component labels (date pickers, pagination text). App-level string translation requires a Python-side solution.
-
-**Recommended approach:** `python-i18n` library with YAML translation files. It provides `i18n.t('key')` with placeholders, pluralization, and runtime locale switching via `i18n.set('locale', 'fr')`. The locale is stored per-tab in `app.storage.tab['locale']`.
-
-**New modules required:**
+## System Overview
 
 ```
-src/store_predict/
-  i18n/                            # NEW — translation infrastructure
-    __init__.py                    # t() helper, set_locale(), get_locale()
-    locales/
-      en.yaml                      # English strings
-      fr.yaml                      # French strings
-```
-
-**Integration points:**
-
-```
-ui/layout.py                       # MODIFIED: add language toggle button in header
-                                   # Calls set_locale(), triggers page refresh
-ui/state.py                        # MODIFIED: add get_locale() / set_locale()
-                                   # that reads/writes app.storage.tab['locale']
-ui/pages/*.py                      # MODIFIED: all user-facing strings wrapped in t()
-ui/components/*.py                 # MODIFIED: column headers, button labels, notifications
-services/pdf_report.py             # MODIFIED: PDF section headings use t() or locale param
-```
-
-**Data flow:**
-
-```
-User clicks FR/EN toggle in header
-    -> set_locale('fr') writes app.storage.tab['locale'] = 'fr'
-    -> ui.navigate.reload() or page re-render
-    -> All t('key') calls return French strings
-    -> PDF generation reads locale from session or explicit param
-```
-
-**Key constraint:** `app.storage.tab` is per-browser-tab; locale must be read from there on every page render, not from a process-global. Use `i18n.config.set('locale', get_locale())` at the top of each page handler function, before any `t()` calls.
-
-**Pattern:**
-
-```python
-# i18n/__init__.py
-import i18n
-from store_predict.ui.state import get_locale
-
-_LOCALES_DIR = Path(__file__).parent / "locales"
-i18n.set("load_path", [str(_LOCALES_DIR)])
-i18n.set("fallback", "en")
-
-def t(key: str, **kwargs: object) -> str:
-    locale = get_locale()  # reads app.storage.tab
-    i18n.set("locale", locale)
-    return i18n.t(key, **kwargs)
-```
-
----
-
-### Feature 2: LLM Classification Fallback
-
-**Integration approach:** New `pipeline/llm_classifier.py` module called after the rules-based pass for VMs with `classification_confidence == "default"`.
-
-The LLM fallback is a pipeline concern, not a UI concern. It fits cleanly after `classify_dataframe()` and before DRR lookup. LiteLLM is the right library — it provides a single `completion()` / `acompletion()` call that routes to OpenAI, Anthropic Claude, or a local Ollama endpoint based on a model-string prefix.
-
-**New modules required:**
-
-```
-src/store_predict/
-  pipeline/
-    llm_classifier.py              # NEW — LLM fallback for unmatched VMs
-  services/
-    llm_config.py                  # NEW — provider config (model, base_url, api_key)
-```
-
-**Integration point — upload.py (existing):**
-
-The upload handler in `ui/pages/upload.py` currently does:
-
-```python
-df = classify_dataframe(df, registry)
-```
-
-With LLM fallback, it becomes:
-
-```python
-df = classify_dataframe(df, registry)
-if llm_enabled():
-    df = await classify_unmatched_vms_with_llm(df, drr_table)
-```
-
-This is the only change to existing code. The LLM classifier operates only on rows where `classification_confidence == "default"`, leaving all rule-matched rows untouched.
-
-**New component: `pipeline/llm_classifier.py`:**
-
-```python
-async def classify_unmatched_vms_with_llm(
-    df: pd.DataFrame,
-    drr_table: DRRTable,
-    config: LLMConfig,
-) -> pd.DataFrame:
-    """For VMs with confidence='default', ask LLM to classify.
-
-    Returns df with updated workload_category, workload_subcategory,
-    classification_confidence='llm_fallback' for reclassified rows.
-    """
-    unmatched_mask = df["classification_confidence"] == "default"
-    if not unmatched_mask.any():
-        return df
-
-    categories_json = [{"category": e.category, "subcategory": e.subcategory}
-                       for e in drr_table.entries]
-
-    tasks = []
-    for idx, row in df[unmatched_mask].iterrows():
-        tasks.append(_classify_one_vm(idx, row, categories_json, config))
-
-    results = await asyncio.gather(*tasks, return_exceptions=True)
-    # Apply results back to df ...
-    return df
-```
-
-**LLM config via `config.py` or environment:**
-
-```python
-# config.py additions
-LLM_ENABLED: bool = bool(os.environ.get("LLM_ENABLED", ""))
-LLM_MODEL: str = os.environ.get("LLM_MODEL", "ollama/llama3.2")
-LLM_BASE_URL: str | None = os.environ.get("LLM_BASE_URL")  # for Ollama
-LLM_API_KEY: str | None = os.environ.get("LLM_API_KEY")
-```
-
-LiteLLM model string format:
-
-- OpenAI: `"gpt-4o-mini"`
-- Anthropic: `"claude-3-haiku-20240307"`
-- Ollama: `"ollama/llama3.2"` with `base_url="http://localhost:11434"`
-
-**Structured output approach:** Send the full DRR category list as JSON in the system prompt. Request JSON response with `{"category": "...", "subcategory": "..."}`. Validate against known categories before applying. Fall back to "default" if LLM returns invalid category.
-
-**UI surface:** Settings page or environment variables only. Do not expose model selection in the per-session UI — it is an admin concern, not a user concern.
-
----
-
-### Feature 3: PDF Branding (Dell partner logo + customer logo)
-
-**Integration point:** `services/pdf_report.py` — the `_draw_header()` function and `generate_report_pdf()` signature.
-
-**Approach:** ReportLab's `canvas.drawImage()` accepts a file path or an `ImageReader` wrapping `BytesIO`. Logo images are stored on disk (configurable paths in `config.py`), loaded once, and drawn in the header callback.
-
-**Signature change to `generate_report_pdf()`:**
-
-```python
-def generate_report_pdf(
-    summary: CalculationSummary,
-    project_name: str,
-    partner_logo_path: Path | None = None,
-    customer_logo_path: Path | None = None,
-) -> bytes:
-```
-
-**Header layout with logos:**
-
-```
-┌─────────────────────────────────────────────────────┐
-│ [Partner Logo left]   Title text   [Customer Logo right] │
-│─────────────────────────────────────────────────────│
-│ Project: ...   |   Date: 2026-02-19                  │
-└─────────────────────────────────────────────────────┘
-```
-
-**`_draw_header()` modification:**
-
-```python
-def _draw_header(canvas, doc, project_name, partner_logo_path, customer_logo_path):
-    canvas.saveState()
-    width, height = A4
-    bar_height = 55
-
-    # Dark blue bar
-    canvas.setFillColor(_BRAND_BLUE)
-    canvas.rect(0, height - bar_height, width, bar_height, fill=1, stroke=0)
-
-    # Partner logo (left side of bar)
-    if partner_logo_path and partner_logo_path.exists():
-        canvas.drawImage(str(partner_logo_path),
-                         10 * mm, height - bar_height + 5,
-                         width=35 * mm, height=12 * mm,
-                         preserveAspectRatio=True, mask="auto")
-
-    # Title (center)
-    canvas.setFillColor(colors.white)
-    canvas.setFont("VeraBd", 16)
-    canvas.drawCentredString(width / 2, height - 32, t("report.title"))
-
-    # Customer logo (right side)
-    if customer_logo_path and customer_logo_path.exists():
-        canvas.drawImage(str(customer_logo_path),
-                         width - 50 * mm, height - bar_height + 5,
-                         width=35 * mm, height=12 * mm,
-                         preserveAspectRatio=True, mask="auto")
-    canvas.restoreState()
-```
-
-**Logo upload in UI:** The report page gains two optional file upload inputs for logos. Uploaded logo bytes are stored in `app.storage.tab['partner_logo_bytes']` and `app.storage.tab['customer_logo_bytes']`. The report page writes them to temp files before calling `generate_report_pdf()`, then cleans up.
-
-**Config-level defaults:** `config.py` may specify `PARTNER_LOGO_PATH` and `CUSTOMER_LOGO_DEFAULT_PATH` pointing to static assets shipped with the package. If session overrides are absent, defaults apply.
-
-**Logo storage and session handling:**
-
-```python
-# state.py additions
-def save_logo(key: str, data: bytes) -> None:
-    import base64
-    app.storage.tab[key] = base64.b64encode(data).decode()
-
-def load_logo(key: str) -> bytes | None:
-    import base64
-    encoded = app.storage.tab.get(key)
-    return base64.b64decode(encoded) if encoded else None
-```
-
----
-
-### Feature 4: Excel Export
-
-**Integration approach:** New `services/excel_export.py` module. The report page gains a "Download Excel" button alongside "Download PDF".
-
-Excel export requires `openpyxl` (already in dependencies) or `xlsxwriter` (not currently). Use `openpyxl` via `pandas.ExcelWriter` to leverage the existing dependency — no new package needed.
-
-**New module: `services/excel_export.py`:**
-
-```python
-from io import BytesIO
-import pandas as pd
-from store_predict.pipeline.calculation import CalculationSummary
-
-def generate_excel_report(summary: CalculationSummary, project_name: str) -> bytes:
-    """Generate Excel workbook with multiple sheets, return bytes."""
-    buf = BytesIO()
-    with pd.ExcelWriter(buf, engine="openpyxl") as writer:
-        # Sheet 1: Summary metrics (key/value pairs)
-        summary_rows = [...]
-        pd.DataFrame(summary_rows).to_excel(writer, sheet_name="Summary", index=False)
-
-        # Sheet 2: Workload breakdown
-        breakdown_rows = [...]
-        pd.DataFrame(breakdown_rows).to_excel(writer, sheet_name="Workload Breakdown", index=False)
-
-        # Sheet 3: All VMs (detailed)
-        vm_rows = [...]
-        pd.DataFrame(vm_rows).to_excel(writer, sheet_name="VM Detail", index=False)
-
-    return buf.getvalue()
-```
-
-**Integration point — `ui/pages/report.py`:**
-
-Add a second download button:
-
-```python
-ui.button(
-    t("report.download_excel"),
-    on_click=lambda: _on_download_excel(summary, project_name),
-    icon="table_view",
-).classes("bg-green-700 text-white")
-```
-
-```python
-def _on_download_excel(summary: CalculationSummary, project_name: str) -> None:
-    from store_predict.services.excel_export import generate_excel_report
-    xlsx_bytes = generate_excel_report(summary, project_name)
-    safe_name = sanitize_filename(project_name)
-    date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
-    ui.download(xlsx_bytes, f"StorePredict_{safe_name}_{date_str}.xlsx",
-                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-```
-
-**No changes to pipeline/calculation.py** — `CalculationSummary` already has all the data needed.
-
----
-
-## Updated System Architecture with New Features
-
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                          UI Layer (NiceGUI)                           │
-│                                                                      │
-│  ui/layout.py  ←──────────── i18n/t()  ←── app.storage.tab['locale']│
-│       │                                                              │
-│  ┌────┴────┐  ┌──────────┐  ┌──────────┐                            │
-│  │ /upload │  │ /review  │  │ /report  │                            │
-│  └────┬────┘  └────┬─────┘  └─────┬────┘                           │
-│       │            │              │                                  │
-│       │            │         ┌────┴──────────────┐                  │
-│       │            │         │  Download buttons  │                  │
-│       │            │         │  PDF  |  Excel     │                  │
-│       │            │         └────┬──────────┬────┘                 │
-└───────┼────────────┼──────────────┼──────────┼──────────────────────┘
-        │            │              │          │
-        v            v              v          v
-┌──────────────────────────────────────────────────────────────────────┐
-│                       Pipeline / Services Layer                       │
-│                                                                      │
-│  pipeline/ingestion.py          services/pdf_report.py               │
-│  pipeline/classification.py     (+ logo paths)                       │
-│  pipeline/llm_classifier.py  ←─ LiteLLM ←── OpenAI/Claude/Ollama   │
-│  pipeline/calculation.py        services/excel_export.py             │
-│                                 (openpyxl via pandas.ExcelWriter)    │
-│                                 services/drr_table.py                │
-└──────────────────────────────────────────────────────────────────────┘
-        │
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           UI Layer (NiceGUI)                                 │
+│                                                                              │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────────┐   │
+│  │ /upload  │  │ /review  │  │ /report  │  │ /layout  │  │ /concerns   │   │
+│  │ (exists) │  │ (exists) │  │ (exists) │  │ (exists) │  │   (NEW v4)  │   │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘  └──────┬──────┘   │
+│       │             │             │              │                │          │
+│  ┌────┴─────────────────────────────────────────────────────────┴──────┐    │
+│  │                          /compute (NEW v4)                           │    │
+│  └──────────────────────────────────────────────────────────────────────┘    │
+└───────┬─────────────────────────────────────────────────────────────────────┘
+        │  reads/writes session state
         v
-┌──────────────────────────────────────────────────────────────────────┐
-│                         State Layer                                   │
-│  app.storage.tab:  vm_data, project_name, locale,                    │
-│                    partner_logo_bytes, customer_logo_bytes            │
-└──────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        State Layer (app.storage.tab)                         │
+│                                                                              │
+│   vm_data (list[dict])   project_name   storage_model   llm_ui_enabled      │
+│   layout_proposals (NEW v3 — list[dict])                                     │
+└───────┬─────────────────────────────────────────────────────────────────────┘
+        │  session row_data fed to
+        v
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       Pipeline / Services Layer                               │
+│                                                                              │
+│  pipeline/ingestion.py          ← MODIFIED: per-VM IOPS via LiveOptics       │
+│  pipeline/classification.py     ← MODIFIED: new OS-fallback rules            │
+│  pipeline/calculation.py        ← UNCHANGED                                  │
+│  pipeline/layout_engine.py      ← UNCHANGED                                  │
+│  pipeline/health_checks.py      ← NEW: analyze DataFrame → HealthFinding[]   │
+│  pipeline/compute_sizing.py     ← NEW: vCPU/RAM → ComputeSizingResult        │
+│                                                                              │
+│  services/pdf_report.py         ← UNCHANGED (initially)                     │
+│  services/excel_report.py       ← MODIFIED: add concerns + compute sheets   │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## New vs Modified Modules
+## Component Responsibilities
 
-| Module | Status | Change |
-|--------|--------|--------|
-| `i18n/__init__.py` | NEW | `t()` helper, locale management |
-| `i18n/locales/en.yaml` | NEW | English translation catalog |
-| `i18n/locales/fr.yaml` | NEW | French translation catalog |
-| `pipeline/llm_classifier.py` | NEW | LLM fallback classification |
-| `services/llm_config.py` | NEW | LiteLLM provider config dataclass |
-| `services/excel_export.py` | NEW | Multi-sheet Excel generation |
-| `config.py` | MODIFIED | Add `LLM_*` env vars, `PARTNER_LOGO_PATH`, `CUSTOMER_LOGO_DEFAULT_PATH` |
-| `services/pdf_report.py` | MODIFIED | `generate_report_pdf()` gains logo params, `_draw_header()` draws images |
-| `ui/state.py` | MODIFIED | Add `get_locale()`, `set_locale()`, `save_logo()`, `load_logo()` |
-| `ui/layout.py` | MODIFIED | Add language toggle (FR/EN) button to header |
-| `ui/pages/upload.py` | MODIFIED | Optionally call `classify_unmatched_vms_with_llm()` after rules pass |
-| `ui/pages/report.py` | MODIFIED | Add Excel download button, logo upload inputs, wrap strings in `t()` |
-| `ui/pages/review.py` | MODIFIED | Wrap strings in `t()` |
-| `ui/pages/upload.py` | MODIFIED | Wrap strings in `t()` |
-| `ui/components/vm_table.py` | MODIFIED | Column headers wrapped in `t()` |
-| `pyproject.toml` | MODIFIED | Add `python-i18n`, `litellm` as optional dep or core dep |
+| Component | Responsibility | Status |
+|-----------|----------------|--------|
+| `pipeline/ingestion.py` | Format detection, dispatch to parser | UNCHANGED |
+| `pipeline/parsers/liveoptics.py` | Extract per-VM IOPS from VM Performance sheet | ALREADY DONE — peak_iops, avg_iops in CANONICAL_COLUMNS |
+| `pipeline/classification.py` | Rules-based VM workload matching | MODIFIED: OS-fallback rules, more patterns |
+| `pipeline/calculation.py` | Required capacity math, workload grouping | UNCHANGED |
+| `pipeline/health_checks.py` | Scan DataFrame for data quality/risk flags | NEW |
+| `pipeline/compute_sizing.py` | Host count recommendations from vCPU+RAM | NEW |
+| `pipeline/layout_engine.py` | BFD datastore placement strategies | UNCHANGED |
+| `ui/pages/review.py` | AG Grid with inline workload editor | MODIFIED: per-VM IOPS column, filter/group/search UX |
+| `ui/components/vm_table.py` | AG Grid column definitions | MODIFIED: add iops columns, column visibility toggle |
+| `ui/pages/concerns.py` | Health check findings display | NEW |
+| `ui/pages/compute.py` | Compute sizing recommendations display | NEW |
+| `ui/state.py` | Tab-scoped session storage helpers | MODIFIED: add compute_result storage |
 
 ---
 
-## Suggested Build Order
+## v4.0 Feature Integration Map
 
-The features have dependency relationships that dictate build order:
+### Feature 1: Per-VM IOPS in the Grid
 
-### Phase 1: i18n Foundation (must be first)
+**Status of data extraction:** The per-VM IOPS fields (`peak_iops`, `avg_iops`, `iops_8k_equivalent`) are **already extracted** and in `CANONICAL_COLUMNS`. For LiveOptics xlsx, `parse_liveoptics_xlsx()` joins the VM Performance sheet per-VM. For RVTools, these columns default to `NaN` (no performance data in RVTools exports).
 
-**Rationale:** Every other feature's UI strings need to go through `t()`. Building i18n last means retroactively wrapping every string — double the effort. Do it first with the two simplest strings, then string-wrap naturally as each feature is built.
+**What is missing:** The IOPS columns are NOT shown in the AG Grid. The `create_vm_table()` in `vm_table.py` shows only: `vm_name`, `workload_category`, `workload_subcategory`, `drr`, `provisioned_mib`, `classification_confidence`. IOPS data is only shown in the detail bar (below-grid click panel).
 
-Steps:
+**Integration approach:** Add IOPS columns to the AG Grid column definitions. They should default to hidden (using `hide: True` in AG Grid columnDef) and be toggleable via column visibility controls.
 
-1. Add `python-i18n` dependency
-2. Create `i18n/` package with `t()` wrapper and `get_locale()` / `set_locale()` on `app.storage.tab`
-3. Create `en.yaml` and `fr.yaml` with placeholder keys for all existing UI strings
-4. Replace strings in `layout.py` and one page to validate the pattern
-5. Add FR/EN toggle to header
-6. Expand YAML with all strings across all pages
+**Files modified:**
 
-### Phase 2: Excel Export (low risk, high value)
+```
+ui/components/vm_table.py          MODIFIED: add peak_iops, avg_iops, iops_8k_equivalent columnDefs
+                                             add columnDefs with hide:true by default
+                                             add sidebar with columnsToolPanel for visibility toggle
+review.py                          MODIFIED: pass has_performance_data flag to create_vm_table (already done)
+                                             update detail bar: when column is visible, remove from detail bar
+```
 
-**Rationale:** Pure new service module with a new button. Zero risk to existing functionality. `openpyxl` is already a dependency. Fast to deliver, validates the download button pattern before PDF branding work.
+**New column definitions (to add to vm_table.py):**
 
-Steps:
+```python
+{
+    "field": "peak_iops",
+    "headerName": t("columns.peak_iops"),
+    "sortable": True,
+    "filter": "agNumberColumnFilter",
+    "hide": True,                  # Hidden by default; toggled via sidebar
+    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
+},
+{
+    "field": "avg_iops",
+    "headerName": t("columns.avg_iops"),
+    "sortable": True,
+    "filter": "agNumberColumnFilter",
+    "hide": True,
+    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
+},
+{
+    "field": "iops_8k_equivalent",
+    "headerName": t("columns.iops_8k_eq"),
+    "sortable": True,
+    "filter": "agNumberColumnFilter",
+    "hide": True,
+    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
+},
+```
 
-1. Create `services/excel_export.py` with three-sheet workbook
-2. Add Download Excel button to `report.py`
-3. Test with existing `CalculationSummary` data
-4. Wrap button label in `t()` (benefits from Phase 1)
+**AG Grid sidebar for column visibility (add to grid_options):**
 
-### Phase 3: PDF Branding (moderate risk, isolated change)
+```python
+"sideBar": {
+    "toolPanels": [
+        {
+            "id": "columns",
+            "labelDefault": "Columns",
+            "labelKey": "columns",
+            "iconKey": "columns",
+            "toolPanel": "agColumnsToolPanel",
+            "toolPanelParams": {
+                "suppressRowGroups": True,
+                "suppressValues": True,
+                "suppressPivots": True,
+                "suppressPivotMode": True,
+            }
+        }
+    ]
+},
+```
 
-**Rationale:** Modifies an existing service but is well-isolated. The signature change to `generate_report_pdf()` is backwards-compatible (optional kwargs with defaults). The logo loading via session state is the riskiest part — base64 encoding large images in `app.storage.tab` needs size limits.
-
-Steps:
-
-1. Extend `config.py` with logo path constants
-2. Add `save_logo()` / `load_logo()` to `state.py`
-3. Add logo upload inputs to `report.py`
-4. Modify `_draw_header()` in `pdf_report.py` to draw images conditionally
-5. Extend `generate_report_pdf()` signature with optional logo path params
-6. Test with and without logos; test with PNG and SVG inputs (SVG not supported by ReportLab — PNG only)
-
-### Phase 4: LLM Classification Fallback (highest risk, optional feature)
-
-**Rationale:** Builds last because it is optional, network-dependent, and has the most failure modes. By this point, the rest of the app is stable. The LLM path is disabled by default (`LLM_ENABLED` env var). It modifies only one line in the existing upload flow.
-
-Steps:
-
-1. Add `litellm` as optional dependency in `pyproject.toml`
-2. Create `services/llm_config.py` with config dataclass
-3. Create `pipeline/llm_classifier.py` with async classify function
-4. Extend `config.py` with `LLM_*` env vars
-5. Modify `upload.py` to call LLM fallback when enabled
-6. Add UI indicator (e.g., notification) when LLM reclassification ran and how many VMs changed
-7. Add `LLM_ENABLED=true` / model config to Docker Compose docs
-
-### Phase 5: UX Polish (last, informed by all prior phases)
-
-**Rationale:** UX polish touches every page. Do it last so the full feature set is in place. Avoid polishing pages that will change.
-
-Scope: Loading indicators for LLM async work, confidence column color coding, column visibility toggles in AG Grid, improved empty-state pages.
+**No pipeline changes required** — data is already in the session row_data dict.
 
 ---
 
-## Component Boundary Rules (unchanged)
+### Feature 2: Grid UX Enhancements
 
-These rules from the original architecture must be maintained:
+**Integration approach:** All changes are within `vm_table.py` column definitions and `grid_options`. No pipeline changes.
+
+**What to add to `create_vm_table()`:**
+
+| Enhancement | AG Grid Config Change |
+|-------------|----------------------|
+| Column grouping by workload | `"rowGroupPanelShow": "always"` in grid_options |
+| Quick search / filter bar | `"quickFilterText"` reactive binding via `ui.input` above grid |
+| Column visibility toggle | `"sideBar"` with `agColumnsToolPanel` (see above) |
+| Better bulk actions | No grid change — button label/icon polish in `review.py` |
+| num_cpus + memory_mib columns | Add hidden columnDefs, visible via sidebar |
+
+**Adding CPU + memory columns (already in row_data from RVTools):**
+
+```python
+{
+    "field": "num_cpus",
+    "headerName": t("columns.num_cpus"),
+    "sortable": True,
+    "filter": "agNumberColumnFilter",
+    "hide": True,
+},
+{
+    "field": "memory_mib",
+    "headerName": t("columns.memory_mib"),
+    "sortable": True,
+    "filter": "agNumberColumnFilter",
+    "hide": True,
+    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
+},
+```
+
+**Quick search implementation in `review.py`:**
+
+```python
+search_input = ui.input(
+    placeholder=t("review.search_placeholder"),
+    on_change=lambda e: grid.run_grid_method("setGridOption", "quickFilterText", e.value),
+).classes("w-64")
+```
+
+**Files modified:**
+
+```
+ui/components/vm_table.py          MODIFIED: add sidebar, rowGroupPanelShow, new hidden columns
+ui/pages/review.py                 MODIFIED: add search input above grid
+```
+
+**No pipeline changes required.**
+
+---
+
+### Feature 3: Classification Rule Improvements
+
+**Integration approach:** Changes are entirely within `pipeline/classification.py`, specifically the `build_default_rules()` function. No UI or pipeline structure changes.
+
+**What is needed:** OS-based fallback rules to reduce "Unknown (Reducible)" VMs. When VM name has no matches, fall back to OS field alone.
+
+**Current classification flow:**
+
+```python
+def classify_vm(vm_name: str, os_name: str, description: str, registry: RuleRegistry) -> tuple[str, str, str, str]:
+    for rule in registry.rules_by_priority:
+        if rule.matches(vm_name, os_name, description):
+            return rule.category, rule.subcategory, rule.name, "rule"
+    return "Unknown (Reducible)", "Unknown (Reducible)", "default", "default"
+```
+
+**New rules to add (OS-based fallbacks, lower priority than existing rules):**
+
+```python
+# Priority 900+ — OS-only fallbacks (checked only when no name-based rule matched)
+ClassificationRule(
+    name="Windows Server OS fallback",
+    category="Virtual Machines",
+    subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
+    priority=900,
+    os_patterns=_regex_patterns(r"windows server", r"microsoft windows server"),
+    match_mode="any",
+),
+ClassificationRule(
+    name="Linux OS fallback",
+    category="Virtual Machines",
+    subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
+    priority=901,
+    os_patterns=_regex_patterns(r"red hat", r"centos", r"ubuntu", r"debian", r"suse", r"oracle linux"),
+    match_mode="any",
+),
+```
+
+**Files modified:**
+
+```
+pipeline/classification.py         MODIFIED: add OS-fallback rules to build_default_rules()
+                                             review priority ordering with new rules
+```
+
+**Pipeline contract maintained:** `classify_dataframe()` signature and return columns are unchanged. Only new rules are added.
+
+---
+
+### Feature 4: Health Check / Concerns Page
+
+**Integration approach:** New pure pipeline module + new UI page. Follows the same pattern as `layout_engine.py` — accepts `pd.DataFrame` or `list[dict]`, returns typed result objects, no UI imports.
+
+**New module: `pipeline/health_checks.py`**
+
+This module scans the session VM DataFrame for issues in three categories:
+
+1. **Data quality flags:** VMs with zero provisioned storage, zero IOPS when IOPS expected, empty OS names, very high or very low DRR values
+2. **Sizing risks:** Total required capacity near typical PowerStore limits, no performance data for layout sizing
+3. **VMware best practice violations:** Oversized VMs (>32 vCPUs typical), VMs without cluster assignment, powered-off VMs included in sizing
+
+**Data model:**
+
+```python
+# pipeline/health_checks.py
+
+from dataclasses import dataclass
+from enum import StrEnum
+
+class Severity(StrEnum):
+    ERROR = "error"      # Must fix — affects sizing validity
+    WARNING = "warning"  # Should review — may affect accuracy
+    INFO = "info"        # Advisory — best practice note
+
+class CheckCategory(StrEnum):
+    DATA_QUALITY = "data_quality"
+    SIZING_RISK = "sizing_risk"
+    BEST_PRACTICE = "best_practice"
+
+@dataclass(frozen=True)
+class HealthFinding:
+    """A single finding from a health check."""
+    check_id: str           # Stable identifier, e.g. "zero_provisioned_storage"
+    severity: Severity
+    category: CheckCategory
+    title: str              # Short label for display
+    detail: str             # Full explanation
+    affected_vms: list[str] # VM names affected (empty for aggregate checks)
+    count: int              # Number of affected items
+
+@dataclass(frozen=True)
+class HealthCheckResult:
+    """All findings from running health checks on a dataset."""
+    findings: list[HealthFinding]
+    total_vms: int
+    errors: int
+    warnings: int
+    infos: int
+
+def run_health_checks(row_data: list[dict[str, Any]]) -> HealthCheckResult:
+    """Run all health checks and return consolidated findings."""
+    ...
+```
+
+**Health checks to implement:**
+
+| Check ID | Severity | Description |
+|----------|----------|-------------|
+| `zero_provisioned_storage` | ERROR | VMs with provisioned_mib = 0 |
+| `no_os_name` | WARNING | VMs with empty os_name |
+| `unknown_workload` | WARNING | VMs still classified as Unknown (Reducible) |
+| `no_performance_data` | INFO | All VMs lack IOPS data (RVTools source) |
+| `powered_off_vms` | INFO | VMs with is_powered_on = False included in sizing |
+| `oversized_vm_cpu` | WARNING | VMs with num_cpus > 32 |
+| `oversized_vm_memory` | WARNING | VMs with memory_mib > 1,048,576 (1 TB) |
+| `no_cluster_assignment` | INFO | VMs without cluster name (can't be placed in cluster) |
+| `high_drr_custom` | WARNING | VMs with manually overridden DRR > 10 (unusually optimistic) |
+| `very_low_drr` | INFO | VMs with DRR < 1.2 (near incompressible — expected for some workloads) |
+
+**New UI page: `ui/pages/concerns.py`**
+
+```python
+@ui.page("/concerns")
+async def concerns_page() -> None:
+    """Health check findings for the current dataset."""
+    df_records = load_session_data()
+    if df_records is None:
+        # redirect to upload
+        ...
+
+    result = run_health_checks(df_records.to_dict(orient="records"))
+
+    with layout("StorePredict - Concerns"):
+        # Summary badge row: N errors, N warnings, N infos
+        # Findings list grouped by category with severity icons
+        # Affected VMs shown as inline chip list (clickable to filter review grid)
+```
+
+**Route registration in `main.py`:**
+
+```python
+import store_predict.ui.pages.concerns  # noqa: F401
+```
+
+**Navigation integration:** Add "Concerns" link to `layout.py` nav bar after "Review" (or surface it as a badge count on the nav icon so user knows issues exist without visiting).
+
+**Files added/modified:**
+
+```
+pipeline/health_checks.py          NEW: HealthFinding, HealthCheckResult, run_health_checks()
+ui/pages/concerns.py               NEW: /concerns page
+main.py                            MODIFIED: import concerns page to register route
+ui/layout.py                       MODIFIED: add /concerns nav link
+```
+
+**State:** No new state required. Health checks are computed on-demand from existing session row_data. If the dataset changes (user edits workloads in review), concerns page recomputes on next visit.
+
+---
+
+### Feature 5: Compute Sizing Page
+
+**Integration approach:** New pure pipeline module + new UI page. The vCPU and RAM data is **already extracted** by both parsers (see `CANONICAL_COLUMNS`: `num_cpus`, `memory_mib`) and is in `CalculationSummary.total_cpus`, `total_memory_mib`, `avg_vm_cpus`, `avg_vm_memory_mib`.
+
+**New module: `pipeline/compute_sizing.py`**
+
+This module takes aggregate compute totals and returns host count recommendations for different Dell server configurations.
+
+**Data model:**
+
+```python
+# pipeline/compute_sizing.py
+
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class HostConfig:
+    """A Dell server host configuration option."""
+    model: str                  # e.g. "PowerEdge R760"
+    sockets: int                # e.g. 2
+    cores_per_socket: int       # e.g. 28
+    total_vcpus: int            # sockets * cores_per_socket * ht_factor
+    ram_gib: int                # e.g. 512
+
+@dataclass(frozen=True)
+class ClusterSizingResult:
+    """Host count recommendation for one host config."""
+    host_config: HostConfig
+    host_count_cpu: int         # Hosts needed to satisfy vCPU demand
+    host_count_ram: int         # Hosts needed to satisfy RAM demand
+    recommended_host_count: int # max(cpu, ram) + HA spare
+    with_ha_spare: int          # recommended + 1 for N+1 HA
+    vmsc_host_count: int        # vMSC: 2x recommended (active/active stretched)
+    ap_host_count: int          # Active/Passive: recommended + 1 site standby
+    vcpu_utilization_pct: float # vCPU fill factor at recommended count
+    ram_utilization_pct: float  # RAM fill factor at recommended count
+    notes: str                  # Any notable conditions
+
+@dataclass(frozen=True)
+class ComputeSizingResult:
+    """Full compute sizing output."""
+    total_vcpus: int
+    total_ram_gib: float
+    avg_vcpus_per_vm: float
+    avg_ram_gib_per_vm: float
+    vm_count: int
+    has_compute_data: bool      # False for LiveOptics imports lacking vCPU/RAM
+    sizing_options: list[ClusterSizingResult]
+    overcommit_ratio: float     # vCPU:pCPU ratio used (default 4:1)
+    ram_overcommit_ratio: float # RAM ratio (default 1.0 — no RAM overcommit)
+
+def compute_sizing(
+    total_vcpus: int,
+    total_memory_mib: float,
+    vm_count: int,
+    host_configs: list[HostConfig] | None = None,
+    overcommit_ratio: float = 4.0,
+    ha_n_plus: int = 1,
+) -> ComputeSizingResult:
+    """Calculate host count recommendations for given compute totals."""
+    ...
+```
+
+**Default host configurations (shipped as `data/HOST_CONFIGS.csv` or hardcoded initial list):**
+
+| Model | Sockets | Cores/Socket | HT | Total vCPUs | RAM GiB |
+|-------|---------|-------------|-----|-------------|---------|
+| PowerEdge R760 | 2 | 28 | 2x | 112 | 512 |
+| PowerEdge R760 | 2 | 32 | 2x | 128 | 1024 |
+| PowerEdge R860 | 4 | 28 | 2x | 224 | 1536 |
+| PowerEdge R960 | 4 | 32 | 2x | 256 | 2048 |
+
+**Sizing math:**
+
+```
+hosts_for_vcpu  = ceil(total_vcpus / (host_vcpus * overcommit_ratio))
+hosts_for_ram   = ceil(total_ram_gib / (host_ram_gib * ram_overcommit_ratio))
+raw_host_count  = max(hosts_for_vcpu, hosts_for_ram)
+with_ha         = raw_host_count + ha_n_plus
+vmsc_count      = with_ha * 2          # Two identical sites for vMSC
+ap_count        = with_ha + ceil(with_ha / 2)  # Active + Passive standby site
+```
+
+**New UI page: `ui/pages/compute.py`**
+
+```python
+@ui.page("/compute")
+async def compute_page() -> None:
+    """Compute sizing recommendations from vCPU and RAM totals."""
+    df = load_session_data()
+    if df is None:
+        # redirect to upload
+        ...
+
+    # Aggregate compute data from session
+    summary = calculate(df.to_dict(orient="records"))
+    result = compute_sizing(
+        total_vcpus=summary.total_cpus,
+        total_memory_mib=summary.total_memory_mib,
+        vm_count=summary.total_vms,
+    )
+
+    with layout("StorePredict - Compute Sizing"):
+        # Data availability notice if RVTools has no vCPU/RAM
+        # Aggregate metrics: total vCPUs, total RAM, avg per VM
+        # Host sizing table: one row per HostConfig, columns: hosts needed, with HA, vMSC, A/P
+        # Overcommit ratio input (reactive — adjusts host counts on change)
+        # HA N+ input (reactive)
+        # Toggle: show vMSC configuration (doubled site count)
+        # Toggle: show Active/Passive configuration
+```
+
+**State:** Compute results are computed on-demand from session data. No new state keys required. The `CalculationSummary.total_cpus` and `total_memory_mib` fields are already computed.
+
+**Route registration:**
+
+```python
+# main.py
+import store_predict.ui.pages.compute  # noqa: F401
+```
+
+**Navigation:** Add "Compute" link to `layout.py` nav bar.
+
+**Files added/modified:**
+
+```
+pipeline/compute_sizing.py         NEW: HostConfig, ComputeSizingResult, compute_sizing()
+ui/pages/compute.py                NEW: /compute page
+main.py                            MODIFIED: import compute page to register route
+ui/layout.py                       MODIFIED: add /compute nav link
+```
+
+---
+
+## Updated System Architecture with v4.0 Features
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                               UI Layer (NiceGUI)                                 │
+│                                                                                  │
+│  /upload    /review    /report    /layout    /concerns(NEW)    /compute(NEW)      │
+│     │           │          │          │              │                │           │
+│     │     AG Grid UX       │          │          HealthCheck      ComputeResult   │
+│     │     (MODIFIED):      │          │          findings          display        │
+│     │     + IOPS cols      │          │                                           │
+│     │     + search bar     │          │                                           │
+│     │     + col sidebar    │          │                                           │
+└─────┼───────────┼──────────┼──────────┼──────────────┼────────────────┼──────────┘
+      │           │          │          │              │                │
+      ↓           ↓          ↓          ↓              ↓                ↓
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         State Layer (app.storage.tab)                            │
+│                                                                                  │
+│   vm_data (list[dict])     project_name     storage_model     llm_ui_enabled     │
+│   layout_proposals                                                               │
+│   (no new state keys needed for v4.0 — compute and health run from vm_data)      │
+└─────┬───────────────────────────────────────────────────────────────────────────┘
+      │
+      ↓
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        Pipeline / Services Layer                                  │
+│                                                                                  │
+│  UNCHANGED:                          NEW for v4.0:                               │
+│  pipeline/ingestion.py               pipeline/health_checks.py                   │
+│  pipeline/parsers/liveoptics.py      pipeline/compute_sizing.py                   │
+│  pipeline/calculation.py                                                          │
+│  pipeline/layout_engine.py                                                        │
+│                                                                                  │
+│  MODIFIED for v4.0:                                                               │
+│  pipeline/classification.py  ←── OS-fallback rules (900+ priority range)         │
+│                                                                                  │
+│  MODIFIED for v4.0 (optional, later):                                             │
+│  services/excel_report.py    ←── add Concerns sheet + Compute sheet              │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## New vs Modified Components
+
+| Module | Status | Change Scope |
+|--------|--------|--------------|
+| `pipeline/health_checks.py` | NEW | HealthFinding, HealthCheckResult, run_health_checks() |
+| `pipeline/compute_sizing.py` | NEW | HostConfig, ComputeSizingResult, compute_sizing() |
+| `ui/pages/concerns.py` | NEW | /concerns page — health findings grouped by category |
+| `ui/pages/compute.py` | NEW | /compute page — host count table with HA/vMSC/A-P toggles |
+| `pipeline/classification.py` | MODIFIED | Add OS-fallback rules at priority 900+ in build_default_rules() |
+| `ui/components/vm_table.py` | MODIFIED | Add IOPS + CPU + memory columnDefs (hidden by default), add sideBar, add rowGroupPanelShow |
+| `ui/pages/review.py` | MODIFIED | Add search input above grid |
+| `ui/layout.py` | MODIFIED | Add /concerns and /compute nav links |
+| `main.py` | MODIFIED | Import concerns and compute pages to register routes |
+| `services/excel_report.py` | MODIFIED (optional) | Add Concerns and Compute sheets |
+
+**Unchanged:**
+
+- `pipeline/ingestion.py` — per-VM IOPS already extracted in v3.0
+- `pipeline/parsers/rvtools.py` — num_cpus and memory_mib already extracted
+- `pipeline/parsers/liveoptics.py` — num_cpus, memory_mib, IOPS all already extracted
+- `pipeline/calculation.py` — already sums total_cpus and total_memory_mib
+- `pipeline/layout_engine.py`
+- `pipeline/layout_models.py`
+- `ui/pages/upload.py`
+- `ui/pages/report.py`
+- `ui/pages/layout_page.py`
+- All `services/*.py` except excel_report.py (optional)
+
+---
+
+## Data Flows
+
+### Per-VM IOPS in Grid Flow
+
+```
+File uploaded (LiveOptics xlsx)
+    -> parse_liveoptics_xlsx() joins VM Performance sheet per-VM
+    -> peak_iops, avg_iops, iops_8k_equivalent populated in CANONICAL_COLUMNS DataFrame
+    -> classify_dataframe() adds workload columns
+    -> save_session_data() serializes to app.storage.tab['vm_data']
+    -> /review page loads row_data from session
+    -> create_vm_table(row_data, ...) — row_data already contains iops fields
+    -> AG Grid renders hidden IOPS columns
+    -> User clicks "Columns" sidebar → shows/hides peak_iops, avg_iops, iops_8k_eq columns
+```
+
+For RVTools imports, the IOPS columns contain `null` (NaN serialized to None). The column formatter renders `null` as `—` to avoid blank cells looking broken.
+
+### Health Check Flow
+
+```
+User navigates to /concerns
+    -> concerns_page() calls load_session_data() -> row_data list[dict]
+    -> run_health_checks(row_data) -> HealthCheckResult
+    -> Findings rendered: severity icon + title + detail + affected VM count
+    -> Click on finding -> links to /review with pre-applied filter
+```
+
+### Compute Sizing Flow
+
+```
+User navigates to /compute
+    -> compute_page() calls load_session_data() -> df
+    -> calculate(df.to_dict()) -> CalculationSummary (total_cpus, total_memory_mib)
+    -> has_compute_data = summary.total_cpus > 0
+    -> compute_sizing(total_vcpus, total_memory_mib, vm_count) -> ComputeSizingResult
+    -> Table rendered: one row per HostConfig
+    -> Overcommit ratio input: on_change -> recompute sizing -> update table
+    -> vMSC toggle: show/hide vmsc_host_count column
+    -> A/P toggle: show/hide ap_host_count column
+```
+
+---
+
+## Recommended Build Order
+
+Dependencies dictate this sequence:
+
+### Phase 1: Grid UX + Per-VM IOPS Columns (no pipeline work)
+
+**Rationale:** Entirely UI changes to `vm_table.py` and `review.py`. Zero pipeline risk. The IOPS data is already in row_data — it just needs to be surfaced. This delivers immediate user value (can see IOPS per VM) while being the lowest-risk change. AG Grid sidebar and search input are additive; no existing functionality is altered.
+
+**Steps:**
+
+1. Update `vm_table.py`: add hidden IOPS column defs, add `sideBar` with columns tool panel
+2. Update `vm_table.py`: add hidden `num_cpus` and `memory_mib` column defs
+3. Update `vm_table.py`: add `rowGroupPanelShow: "always"` for workload grouping
+4. Update `review.py`: add quick search input above grid
+5. Update i18n YAML with new column header keys
+
+**Dependencies:** None — uses existing row_data.
+
+---
+
+### Phase 2: Classification Rule Improvements
+
+**Rationale:** Pure pipeline change with no UI side effects. Adds OS-fallback rules to `classification.py`. Must be done before the health check phase, because health checks will flag "Unknown (Reducible)" VMs — reducing unknowns first makes the health check signal more actionable. No new dependencies.
+
+**Steps:**
+
+1. Audit current Unknown (Reducible) rates on test datasets
+2. Add OS-pattern rules at priority 900+ (Windows Server, Linux distros, macOS, Solaris)
+3. Add VM name pattern rules for commonly missed workloads (backup agents, monitoring VMs, etc.)
+4. Run test suite — `classify_dataframe()` signature and output columns are unchanged
+5. Update test fixtures if expected classifications change
+
+**Dependencies:** None. Self-contained.
+
+---
+
+### Phase 3: Health Check Module + Concerns Page
+
+**Rationale:** New pure pipeline module following the established `layout_engine.py` pattern. No changes to existing pipeline modules. The new `ui/pages/concerns.py` follows the same page structure as `layout_page.py`. Do this before compute sizing because health checks are simpler (no new math, just DataFrame scanning) and validate the new-page pattern.
+
+**Steps:**
+
+1. Create `pipeline/health_checks.py` with `HealthFinding`, `HealthCheckResult`, `run_health_checks()`
+2. Implement 10 health check functions (see check table above)
+3. Write tests: one test per check function, verify finding severity and affected_vms
+4. Create `ui/pages/concerns.py` with findings display
+5. Register route in `main.py`
+6. Add /concerns nav link to `layout.py`
+7. Add i18n keys for all finding titles and detail strings
+
+**Dependencies:** Phase 2 (so Unknown classifications are already reduced before health checks flag them).
+
+---
+
+### Phase 4: Compute Sizing Module + Page
+
+**Rationale:** New pure pipeline module + new UI page. The data (`total_cpus`, `total_memory_mib`) already exists in `CalculationSummary`. The compute math is straightforward but has the most user-facing complexity (toggles, overcommit ratio inputs, reactive table). Build last of the four features so the simpler patterns (health checks, grid UX) have already been validated.
+
+**Steps:**
+
+1. Create `pipeline/compute_sizing.py` with `HostConfig`, `ComputeSizingResult`, `compute_sizing()`
+2. Hardcode initial host config list (4 PowerEdge configs)
+3. Write tests: verify host count math at various vCPU/RAM totals
+4. Create `ui/pages/compute.py` with host sizing table
+5. Add overcommit ratio input with reactive recompute
+6. Add vMSC and Active/Passive column toggles
+7. Register route in `main.py`
+8. Add /compute nav link to `layout.py`
+9. Add i18n keys for all UI strings
+
+**Dependencies:** Phase 1 (nav patterns validated), Phase 3 (page structure pattern established).
+
+---
+
+## Component Boundary Rules (maintained from prior milestones)
 
 | Rule | Why |
 |------|-----|
 | `pipeline/` never imports from `ui/` | Keeps pipeline testable without NiceGUI |
-| `i18n/t()` is safe to call from pipeline | Only if locale is passed as param; do not read `app.storage.tab` from pipeline modules |
-| LLM config comes from env vars, not session | Provider credentials are server-side admin concerns |
-| Logo bytes stored as base64 in `app.storage.tab` | NiceGUI tab storage is JSON; bytes must be encoded |
-| `generate_report_pdf()` accepts file paths for logos, not bytes | Keeps function signature simple; caller handles temp files |
-
----
-
-## Data Flows with New Features
-
-### i18n Data Flow
-
-```
-Browser tab loads page
-    -> page handler calls get_locale() -> reads app.storage.tab['locale']
-    -> i18n.set('locale', locale)
-    -> all t('key') calls return locale-appropriate string
-    -> user clicks FR toggle
-    -> set_locale('fr') writes app.storage.tab['locale'] = 'fr'
-    -> ui.navigate.reload() re-runs page handler with new locale
-```
-
-### LLM Fallback Data Flow
-
-```
-File uploaded
-    -> ingest_file() -> raw DataFrame
-    -> classify_dataframe(df, registry) -> classified DataFrame
-    -> [if LLM_ENABLED] classify_unmatched_vms_with_llm(df, drr_table)
-          -> filter rows where classification_confidence == 'default'
-          -> for each unmatched VM: litellm.acompletion(model, prompt)
-          -> parse JSON response, validate category against DRR table
-          -> update row: workload_category, workload_subcategory,
-                         classification_confidence = 'llm_fallback'
-    -> DRR lookup applied
-    -> save_session_data(df, project_name)
-    -> navigate to /review
-```
-
-### PDF Branding Data Flow
-
-```
-User uploads partner logo on /report page
-    -> logo bytes base64-encoded into app.storage.tab['partner_logo_bytes']
-User clicks Download PDF
-    -> load_logo('partner_logo_bytes') -> bytes or None
-    -> write bytes to NamedTemporaryFile
-    -> generate_report_pdf(summary, project_name,
-                           partner_logo_path=tmp_path)
-    -> _draw_header() calls canvas.drawImage(partner_logo_path, ...)
-    -> temp file deleted
-    -> PDF bytes served to browser
-```
-
-### Excel Export Data Flow
-
-```
-User clicks Download Excel on /report page
-    -> generate_excel_report(summary, project_name)
-    -> pd.ExcelWriter(BytesIO(), engine='openpyxl')
-    -> Sheet 1: Summary (project name, date, totals)
-    -> Sheet 2: Workload Breakdown (one row per workload group)
-    -> Sheet 3: VM Detail (one row per VM calculation)
-    -> buf.getvalue() -> bytes
-    -> ui.download(bytes, filename, media_type)
-```
+| `health_checks.py` accepts `list[dict]` not `pd.DataFrame` | Consistent with `calculate()` pattern; JSON-serializable input |
+| `compute_sizing.py` accepts scalar totals not a DataFrame | Decouples from session format; easier to test |
+| New pages call `calculate()` rather than accessing totals directly | Reuses existing aggregation logic; single source of truth |
+| Health findings do not reference session state | Pipeline is stateless; findings are computed fresh on each page visit |
+| Compute page does not persist results to session | Results are deterministic from vm_data; recomputing is cheaper than cache invalidation |
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Global locale state
+### Anti-Pattern 1: Adding logic to the UI page that belongs in the pipeline
 
-**What people do:** Set `i18n.set('locale', ...)` at process level in a request handler.
-**Why wrong:** NiceGUI is multi-user; one tab's locale change pollutes another tab's translations mid-render.
-**Do this instead:** Always set locale at the top of each page handler from `app.storage.tab['locale']`, immediately before any `t()` calls.
+**What goes wrong:** `concerns.py` iterates the row_data and builds finding strings inline.
+**Why wrong:** Untestable without NiceGUI; duplicates logic if Excel export also needs findings.
+**Do this instead:** `run_health_checks()` in `pipeline/health_checks.py`; `concerns.py` only renders `HealthFinding` objects.
 
-### Anti-Pattern 2: LLM calls in the calculation module
+### Anti-Pattern 2: Adding IOPS columns as always-visible
 
-**What people do:** Call the LLM when calculating DRR because "it's already processing".
-**Why wrong:** Calculation is a pure, synchronous, testable function. LLM calls are async, network-dependent, and slow.
-**Do this instead:** LLM fallback lives in `pipeline/llm_classifier.py`, called by the upload handler after `classify_dataframe()`, before `calculate()`.
+**What goes wrong:** IOPS columns are added to the AG Grid without `hide: True`.
+**Why wrong:** The grid becomes unreadably wide for RVTools imports where IOPS is all `—`. Users who don't have LiveOptics data see a broken-looking table.
+**Do this instead:** Default `hide: True` on all new columns. User enables via sidebar. The `has_performance_data` flag can pre-show IOPS columns when data is present.
 
-### Anti-Pattern 3: Storing logo bytes in app.storage.tab as raw bytes
+### Anti-Pattern 3: Compute sizing that bypasses `calculate()`
 
-**What people do:** `app.storage.tab['logo'] = image_bytes`
-**Why wrong:** `app.storage.tab` is JSON-backed; raw bytes are not JSON-serializable. Silently fails or errors.
-**Do this instead:** `app.storage.tab['logo'] = base64.b64encode(image_bytes).decode()` with matching decode on read.
+**What goes wrong:** `compute.py` reads `vm_data` from session and sums `num_cpus` itself.
+**Why wrong:** `calculate()` already does this aggregation into `CalculationSummary.total_cpus`; duplicating the logic creates a divergence bug when DRR or workload changes.
+**Do this instead:** Call `calculate(load_session_data().to_dict(orient="records"))` in the compute page, then pass `summary.total_cpus` and `summary.total_memory_mib` to `compute_sizing()`.
 
-### Anti-Pattern 4: Hardcoding translations in `t()` calls
+### Anti-Pattern 4: Health checks as blocking pipeline step
 
-**What people do:** `t("Total VMs")` using the display string as the key.
-**Why wrong:** Key collisions, case-sensitivity bugs, impossible to have French keys.
-**Do this instead:** Use dot-notation keys: `t("report.totals.vm_count")` mapping to `"Total VMs"` in `en.yaml`.
+**What goes wrong:** `run_health_checks()` is called in `upload.py` after classification and its results stored in session.
+**Why wrong:** Health check results go stale when the user edits workloads in the review grid. They should always reflect the current state of the data.
+**Do this instead:** Run health checks on-demand when the user visits `/concerns`. No caching in session.
 
-### Anti-Pattern 5: SVG logos in ReportLab
+### Anti-Pattern 5: Nav links without route guards
 
-**What people do:** Upload an SVG logo and pass its path to `canvas.drawImage()`.
-**Why wrong:** ReportLab's `drawImage()` does not support SVG natively — it silently fails or raises an obscure error.
-**Do this instead:** Accept only PNG, JPEG, and GIF formats for logos. Validate file extension and magic bytes at upload time. Document this limitation in the UI.
+**What goes wrong:** Nav links to `/concerns` and `/compute` appear even before a file is uploaded.
+**Why wrong:** Clicking them before upload shows an error/empty state, which is confusing.
+**Do this instead:** Nav links to data-dependent pages (`/review`, `/report`, `/layout`, `/concerns`, `/compute`) should check `load_session_data() is not None` and redirect to `/upload` if no data — the same guard already in `review.py`.
 
 ---
 
 ## Integration Points Summary
 
-| New Feature | Touches Existing Module | Change Scope |
-|-------------|------------------------|--------------|
-| i18n | `layout.py`, all pages, all components | Additive — wrap strings in `t()` |
-| i18n | `state.py` | Add 2 functions |
-| LLM fallback | `upload.py` | 3-line addition (guard + one await call) |
-| LLM fallback | `config.py` | Add 4 env vars |
-| PDF branding | `pdf_report.py` | 2 optional kwargs, `_draw_header()` extended |
-| PDF branding | `state.py` | Add `save_logo()`, `load_logo()` |
-| PDF branding | `report.py` | Add logo upload inputs |
-| Excel export | `report.py` | Add one button + handler |
-
-The pipeline modules `ingestion.py`, `classification.py`, `calculation.py`, `drr_table.py` are all unchanged.
+| Feature | New Files | Modified Files | Pipeline Changes |
+|---------|-----------|----------------|-----------------|
+| Per-VM IOPS in grid | none | `vm_table.py` | none (data already present) |
+| Grid UX enhancements | none | `vm_table.py`, `review.py` | none |
+| Classification improvements | none | `classification.py` | rules-only, signature unchanged |
+| Health checks | `health_checks.py`, `concerns.py` | `main.py`, `layout.py` | new pure module |
+| Compute sizing | `compute_sizing.py`, `compute.py` | `main.py`, `layout.py` | new pure module |
 
 ---
 
 ## Sources
 
-- [NiceGUI i18n Discussion](https://github.com/zauberzeug/nicegui/discussions/389) — community patterns for locale switching
-- [NiceGUI Dynamic Language Discussion](https://github.com/zauberzeug/nicegui/discussions/4295) — Quasar.lang.set() approach
-- [python-i18n on PyPI](https://pypi.org/project/python-i18n/) — YAML/JSON translation library
-- [LiteLLM Documentation](https://docs.litellm.ai/docs/) — unified LLM provider API
-- [LiteLLM Structured Outputs](https://docs.litellm.ai/docs/completion/json_mode) — JSON mode for classification
-- [ReportLab canvas.drawImage](https://docs.reportlab.com/reportlab/userguide/ch2_graphics/) — image placement in PDF
-- [pandas.ExcelWriter](https://pandas.pydata.org/docs/reference/api/pandas.ExcelWriter.html) — openpyxl engine for Excel export
-- [XlsxWriter with Pandas](https://xlsxwriter.readthedocs.io/working_with_pandas.html) — alternative engine reference
+- Verified against source: `src/store_predict/pipeline/parsers/columns.py` — CANONICAL_COLUMNS includes num_cpus, memory_mib, peak_iops, avg_iops (HIGH confidence)
+- Verified against source: `src/store_predict/pipeline/calculation.py` — CalculationSummary.total_cpus and total_memory_mib already computed (HIGH confidence)
+- Verified against source: `src/store_predict/pipeline/parsers/rvtools.py` and `liveoptics.py` — num_cpus, memory_mib extracted from both formats (HIGH confidence)
+- Verified against source: `src/store_predict/ui/components/vm_table.py` — IOPS columns not in grid columnDefs (HIGH confidence)
+- AG Grid Community v34 sidebar API: sideBar with agColumnsToolPanel is standard Community feature (HIGH confidence — used in v3.0 layout_page.py with AG Grid v34)
+- NiceGUI `grid.run_grid_method("setGridOption", "quickFilterText", ...)` is the documented way to set reactive grid options from Python (MEDIUM confidence — verified against NiceGUI AG Grid docs pattern)
 
 ---
 
-*Architecture research for: StorePredict milestone 2 — i18n, LLM fallback, PDF branding, Excel export*
-*Researched: 2026-02-19*
+*Architecture research for: StorePredict v4.0 — compute sizing, health checks, per-VM IOPS, grid UX, classification improvements*
+*Researched: 2026-02-22*
