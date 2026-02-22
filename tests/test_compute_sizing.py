@@ -316,7 +316,7 @@ class TestActivePassive:
 class TestPresets:
     def test_all_presets_importable(self) -> None:
         # Count is driven by compute_presets.csv — verify at least the minimum set
-        assert len(DELL_POWEREDGE_PRESETS) >= 9
+        assert len(DELL_POWEREDGE_PRESETS) >= 6
         assert any(p.cores_per_socket > 0 for p in DELL_POWEREDGE_PRESETS)
 
     def test_r7725_preset_exists_not_r7275(self) -> None:

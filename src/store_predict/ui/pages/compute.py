@@ -43,7 +43,7 @@ class _ComputeConfig(TypedDict):
 
 _PRESET_NAMES = [p.name for p in DELL_POWEREDGE_PRESETS]
 _PRESET_BY_NAME = {p.name: p for p in DELL_POWEREDGE_PRESETS}
-_DEFAULT_PRESET = _PRESET_NAMES[0]  # "R760 — Platinum 8558U"
+_DEFAULT_PRESET = _PRESET_NAMES[0]  # "R760"
 
 
 def _load_compute_config() -> _ComputeConfig:
