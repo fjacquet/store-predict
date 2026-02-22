@@ -348,35 +348,35 @@ def build_default_rules() -> list[ClassificationRule]:
                 *_patterns("EPIC", "MCKESSON", "EMR", "EHR"),
                 # Radiology & medical imaging
                 *_patterns(
-                    "PACS",         # Picture Archiving and Communication System
-                    "INTELLISPACE", # Philips IntelliSpace radiology platform
-                    "GLEAMER",      # AI radiology (chest/bone X-ray)
-                    "AZMED",        # Azmed AI medical imaging
-                    "RAYVOLVE",     # Azmed Rayvolve imaging product
-                    "TRAUMACAD",    # Brainlab orthopedic surgical planning
+                    "PACS",  # Picture Archiving and Communication System
+                    "INTELLISPACE",  # Philips IntelliSpace radiology platform
+                    "GLEAMER",  # AI radiology (chest/bone X-ray)
+                    "AZMED",  # Azmed AI medical imaging
+                    "RAYVOLVE",  # Azmed Rayvolve imaging product
+                    "TRAUMACAD",  # Brainlab orthopedic surgical planning
                 ),
                 # Hospital IS / clinical management (French-Swiss & European ecosystem)
                 *_patterns(
-                    "OPALE",        # Opale/eOpale hospital billing & management
-                    "CARIATIDE",    # Cariatide clinical management software
-                    "HANDYLIFE",    # Handylife patient management (Medicentres)
-                    "POLYPOINT",    # Polypoint hospital resource scheduling
+                    "OPALE",  # Opale/eOpale hospital billing & management
+                    "CARIATIDE",  # Cariatide clinical management software
+                    "HANDYLIFE",  # Handylife patient management (Medicentres)
+                    "POLYPOINT",  # Polypoint hospital resource scheduling
                     # "HESTIA" handled via regex below (avoid false match on HestiaCP Linux panel)
                     # "SIEMS" handled via regex below (avoid false match on SIEMENS)
-                    "PLAISIR",      # PLAISIR psychiatric/social care IS
-                    "MEDIDATA",     # MediData health data exchange (Swiss clearing)
-                    "DATABICS",     # DatabICS ICU clinical data system
-                    "PROCAMED",     # Procamed medical device integration
-                    "SEDIA",        # Sedia urology management
-                    "DGLAB",        # DGLab diagnostic laboratory IS
-                    "DGLIM",        # DGLim laboratory IS variant
-                    "STERIGEST",    # Sterigest sterile supply chain management
-                    "WINSCRIBE",    # Winscribe medical speech recognition & dictation
-                    "SYNLAB",       # Synlab clinical laboratory services
-                    "EXOLIS",       # Exolis patient digital experience platform
-                    "SCENARA",      # Scenara perioperative / operating room management
-                    "MIRTH",        # Mirth Connect HL7/FHIR integration engine
-                    "KODIP",        # 3M Kodip DRG coding software
+                    "PLAISIR",  # PLAISIR psychiatric/social care IS
+                    "MEDIDATA",  # MediData health data exchange (Swiss clearing)
+                    "DATABICS",  # DatabICS ICU clinical data system
+                    "PROCAMED",  # Procamed medical device integration
+                    "SEDIA",  # Sedia urology management
+                    "DGLAB",  # DGLab diagnostic laboratory IS
+                    "DGLIM",  # DGLim laboratory IS variant
+                    "STERIGEST",  # Sterigest sterile supply chain management
+                    "WINSCRIBE",  # Winscribe medical speech recognition & dictation
+                    "SYNLAB",  # Synlab clinical laboratory services
+                    "EXOLIS",  # Exolis patient digital experience platform
+                    "SCENARA",  # Scenara perioperative / operating room management
+                    "MIRTH",  # Mirth Connect HL7/FHIR integration engine
+                    "KODIP",  # 3M Kodip DRG coding software
                 ),
                 # Radiology Information System (word-boundary anchored)
                 *_regex_patterns(r"\bRIS\b"),
@@ -533,7 +533,7 @@ def build_default_rules() -> list[ClassificationRule]:
                 "RSYSLOG",  # syslog collection servers
                 "SYSLOG",
                 "POLLER",  # monitoring pollers (Centreon/Nagios)
-                "PRTG",   # PRTG Network Monitor (Paessler)
+                "PRTG",  # PRTG Network Monitor (Paessler)
             ),
             os_patterns=_patterns("FORTI"),
         ),
