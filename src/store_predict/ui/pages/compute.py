@@ -43,7 +43,7 @@ class _ComputeConfig(TypedDict):
 
 _PRESET_NAMES = [p.name for p in DELL_POWEREDGE_PRESETS]
 _PRESET_BY_NAME = {p.name: p for p in DELL_POWEREDGE_PRESETS}
-_DEFAULT_PRESET = _PRESET_NAMES[0]  # "R760 (2x28c / 512 GiB)"
+_DEFAULT_PRESET = _PRESET_NAMES[0]  # "R760 — Platinum 8558U"
 
 
 def _load_compute_config() -> _ComputeConfig:
@@ -182,8 +182,6 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
 def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ignore[no-untyped-def]
     """Render preset selector, overcommit input, and mode toggles."""
     with ui.card().classes("w-full p-4 gap-4"):
-        ui.label(t("compute.host_preset")).classes("font-semibold text-gray-700")
-
         # Preset selector
         preset_select = (
             ui.select(
