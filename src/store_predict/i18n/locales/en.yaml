@@ -356,3 +356,6 @@ compute:
   ap_primary: "Primary Site"
   ap_secondary: "Secondary Site (passive)"
   ap_secondary_detail: "50% of primary — passive standby"
+  host_specs_heading: "Host Specifications"
+  breakdown_vcpu: "vCPU-based"
+  breakdown_ram: "RAM-based"

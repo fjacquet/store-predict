@@ -48,28 +48,33 @@ _DEFAULT_PRESET = _PRESET_NAMES[0]  # "R760 (2x28c / 512 GiB)"
 
 def _load_compute_config() -> _ComputeConfig:
     """Load compute sizing config from tab-scoped session storage."""
+    preset_name = str(app.storage.tab.get("compute_preset", _DEFAULT_PRESET))
+    preset = _PRESET_BY_NAME.get(preset_name) or DELL_POWEREDGE_PRESETS[-1]
     return {
-        "preset_name": app.storage.tab.get("compute_preset", _DEFAULT_PRESET),
+        "preset_name": preset_name,
         "overcommit_ratio": float(app.storage.tab.get("compute_overcommit", 4.0)),
         "vmsc_enabled": bool(app.storage.tab.get("compute_vmsc", False)),
         "ap_enabled": bool(app.storage.tab.get("compute_ap", False)),
-        "custom_cores_per_socket": int(app.storage.tab.get("compute_custom_cps", 28)),
-        "custom_sockets": int(app.storage.tab.get("compute_custom_sockets", 2)),
-        "custom_ram_gib": int(app.storage.tab.get("compute_custom_ram", 512)),
+        "custom_cores_per_socket": int(
+            app.storage.tab.get("compute_custom_cps", preset.cores_per_socket)
+        ),
+        "custom_sockets": int(
+            app.storage.tab.get("compute_custom_sockets", preset.sockets)
+        ),
+        "custom_ram_gib": int(
+            app.storage.tab.get("compute_custom_ram", preset.ram_gib)
+        ),
     }
 
 
 def _resolve_host_config(cfg: _ComputeConfig) -> HostConfig:
-    """Return HostConfig from session config. Custom preset uses session values."""
-    name = str(cfg["preset_name"])
-    if name == "Custom" or name not in _PRESET_BY_NAME:
-        return HostConfig(
-            name="Custom",
-            cores_per_socket=cfg["custom_cores_per_socket"],
-            sockets=cfg["custom_sockets"],
-            ram_gib=cfg["custom_ram_gib"],
-        )
-    return _PRESET_BY_NAME[name]
+    """Return HostConfig from session config. Always uses field values."""
+    return HostConfig(
+        name=str(cfg["preset_name"]),
+        cores_per_socket=cfg["custom_cores_per_socket"],
+        sockets=cfg["custom_sockets"],
+        ram_gib=cfg["custom_ram_gib"],
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -132,6 +137,14 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
             ui.label(str(result.hosts_n1)).classes("text-3xl font-bold text-blue-700")
         ui.label(t("compute.hosts_n1_detail")).classes("text-sm text-gray-500")
         ui.label(f"{t('compute.binding_constraint')}: {constraint_label}").classes("text-xs text-gray-400")
+        with ui.row().classes("gap-4 mt-1"):
+            ui.label(
+                f"{t('compute.breakdown_vcpu')}: {result.hosts_by_vcpu}"
+            ).classes("text-xs text-gray-400")
+            ui.label("·").classes("text-xs text-gray-300")
+            ui.label(
+                f"{t('compute.breakdown_ram')}: {result.hosts_by_ram}"
+            ).classes("text-xs text-gray-400")
 
     # vMSC section (show if toggle active)
     if cfg["vmsc_enabled"]:
@@ -182,31 +195,31 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
             .tooltip(t("tooltip.compute_preset"))
         )
 
-        # Custom host spec inputs — only visible when Custom is selected
-        with ui.column().classes("w-full gap-2") as custom_inputs:
-            custom_inputs.set_visibility(cfg["preset_name"] == "Custom")
-            with ui.row().classes("gap-4 flex-wrap"):
-                cps_input = ui.number(
-                    label=t("compute.cores_per_socket"),
-                    value=cfg["custom_cores_per_socket"],
-                    min=1,
-                    max=256,
-                    step=1,
-                ).classes("w-32")
-                sockets_input = ui.number(
-                    label=t("compute.sockets"),
-                    value=cfg["custom_sockets"],
-                    min=1,
-                    max=8,
-                    step=1,
-                ).classes("w-24")
-                ram_input = ui.number(
-                    label=t("compute.ram_gib"),
-                    value=cfg["custom_ram_gib"],
-                    min=16,
-                    max=24576,
-                    step=64,
-                ).classes("w-32")
+        # Host spec inputs — always visible; auto-populated when a named preset is chosen
+        ui.separator()
+        ui.label(t("compute.host_specs_heading")).classes("text-sm font-semibold text-gray-600")
+        with ui.row().classes("gap-4 flex-wrap"):
+            cps_input = ui.number(
+                label=t("compute.cores_per_socket"),
+                value=cfg["custom_cores_per_socket"],
+                min=1,
+                max=256,
+                step=1,
+            ).classes("w-32")
+            sockets_input = ui.number(
+                label=t("compute.sockets"),
+                value=cfg["custom_sockets"],
+                min=1,
+                max=8,
+                step=1,
+            ).classes("w-24")
+            ram_input = ui.number(
+                label=t("compute.ram_gib"),
+                value=cfg["custom_ram_gib"],
+                min=16,
+                max=24576,
+                step=64,
+            ).classes("w-32")
 
         # Overcommit ratio
         overcommit_input = (
@@ -238,8 +251,16 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
 
     # Wire on_change callbacks — save to session, then refresh results
     def _on_preset_change(e) -> None:  # type: ignore[no-untyped-def]
-        app.storage.tab["compute_preset"] = e.value
-        custom_inputs.set_visibility(e.value == "Custom")
+        preset_name = e.value
+        app.storage.tab["compute_preset"] = preset_name
+        preset = _PRESET_BY_NAME.get(preset_name)
+        if preset and preset.name != "Custom":
+            app.storage.tab["compute_custom_cps"] = preset.cores_per_socket
+            app.storage.tab["compute_custom_sockets"] = preset.sockets
+            app.storage.tab["compute_custom_ram"] = preset.ram_gib
+            cps_input.set_value(preset.cores_per_socket)
+            sockets_input.set_value(preset.sockets)
+            ram_input.set_value(preset.ram_gib)
         refresh_fn()
 
     def _on_overcommit_change(e) -> None:  # type: ignore[no-untyped-def]
@@ -270,13 +291,13 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
             app.storage.tab["compute_custom_ram"] = int(e.value)
             refresh_fn()
 
-    preset_select.on("update:model-value", _on_preset_change)
-    overcommit_input.on("update:model-value", _on_overcommit_change)
-    vmsc_switch.on("update:model-value", _on_vmsc_change)
-    ap_switch.on("update:model-value", _on_ap_change)
-    cps_input.on("update:model-value", _on_custom_cps_change)
-    sockets_input.on("update:model-value", _on_custom_sockets_change)
-    ram_input.on("update:model-value", _on_custom_ram_change)
+    preset_select.on_value_change(_on_preset_change)
+    overcommit_input.on_value_change(_on_overcommit_change)
+    vmsc_switch.on_value_change(_on_vmsc_change)
+    ap_switch.on_value_change(_on_ap_change)
+    cps_input.on_value_change(_on_custom_cps_change)
+    sockets_input.on_value_change(_on_custom_sockets_change)
+    ram_input.on_value_change(_on_custom_ram_change)
 
 
 # ---------------------------------------------------------------------------

@@ -356,3 +356,6 @@ compute:
   ap_primary: "Site principal"
   ap_secondary: "Site secondaire (passif)"
   ap_secondary_detail: "50% du principal — veille froide"
+  host_specs_heading: "Spécifications de l'hôte"
+  breakdown_vcpu: "Par vCPU"
+  breakdown_ram: "Par RAM"
