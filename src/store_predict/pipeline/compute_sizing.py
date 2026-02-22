@@ -9,9 +9,12 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pandas as pd
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from store_predict.config import COMPUTE_PRESETS_CSV_PATH
 

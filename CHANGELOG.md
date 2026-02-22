@@ -4,6 +4,32 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v4.0.1] - 2026-02-22
+
+### Bug fixes
+
+- **Fix all event handlers on `/compute`** — replaced `.on("update:model-value")` with
+  `.on_value_change()`. Every control (preset selector, overcommit ratio, vMSC toggle,
+  A/P toggle, spec inputs) was silently broken due to `GenericEventArguments` having no
+  `.value` attribute; `ValueChangeEventArguments` does.
+- **Ruff TC003** — moved `from pathlib import Path` into a `TYPE_CHECKING` block in
+  `compute_sizing.py` (annotation-only use, safe with `from __future__ import annotations`).
+
+### UX improvements
+
+- **vCPU / RAM breakdown in N+1 card** — displays both sub-counts (e.g.
+  "vCPU-based: 11 · RAM-based: 20") so users can see exactly which constraint binds
+  and how the other count moves when adjusting the overcommit ratio.
+- **Host spec inputs always visible** — cores/socket, sockets, and RAM are no longer
+  hidden behind a "Custom" preset selection; all three inputs appear at all times.
+- **Preset auto-populate** — selecting a named preset fills the spec fields from its
+  base config; selecting "Custom" leaves the current field values untouched.
+- **One preset per server model** — dropdown simplified from 16 spec-laden variants
+  (e.g. "R760 (2x28c / 512 GiB)") to 7 clean model names: R760, R770, R860, R960,
+  R7725, XE7745, Custom.
+- **Remove duplicate heading** — "Configuration de l'hôte" was rendering twice in the
+  settings panel; the redundant card label was removed.
+
 ## [v4.0.0] - 2026-02-22
 
 Grid UX improvements, per-VM hardware data, and a new health check concerns page.
