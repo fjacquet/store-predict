@@ -65,23 +65,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GUX-01 | — | Pending |
-| GUX-02 | — | Pending |
-| VDAT-01 | — | Pending |
-| HLT-01 | — | Pending |
-| HLT-02 | — | Pending |
-| HLT-03 | — | Pending |
-| COMP-01 | — | Pending |
-| COMP-02 | — | Pending |
-| COMP-03 | — | Pending |
-| COMP-04 | — | Pending |
-| COMP-05 | — | Pending |
+| GUX-01 | Phase 20 | Pending |
+| GUX-02 | Phase 20 | Pending |
+| VDAT-01 | Phase 20 | Pending |
+| HLT-01 | Phase 21 | Pending |
+| HLT-02 | Phase 21 | Pending |
+| HLT-03 | Phase 21 | Pending |
+| COMP-01 | Phase 22 | Pending |
+| COMP-02 | Phase 22 | Pending |
+| COMP-03 | Phase 22 | Pending |
+| COMP-04 | Phase 22 | Pending |
+| COMP-05 | Phase 22 | Pending |
 
 **Coverage:**
 - v4.0 requirements: 11 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 11 ⚠️
+- Mapped to phases: 11 (complete)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 after initial v4.0 definition*
+*Last updated: 2026-02-22 after roadmap creation (Phases 20-22)*

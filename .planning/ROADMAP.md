@@ -6,6 +6,7 @@
 - ✅ **v1.1 i18n, Branding & Intelligence** — Phases 8-13 (shipped 2026-02-20) — [Archive](milestones/v1.1-ROADMAP.md)
 - ✅ **v2.x Storage Models, DRR Variants, Observability** — shipped outside GSD (v2.0–v2.2, 2026-02-20/21)
 - ✅ **v3.0 Datastore Layout Recommendations** — Phases 14-19 (shipped 2026-02-21) — [Archive](milestones/v3.0-ROADMAP.md)
+- 🚧 **v4.0 VM Improvements & Compute Sizing** — Phases 20-22 (in progress)
 
 ## Phases
 
@@ -64,6 +65,64 @@ See [v3.0-ROADMAP.md](milestones/v3.0-ROADMAP.md) for full details.
 
 </details>
 
+### 🚧 v4.0 VM Improvements & Compute Sizing (In Progress)
+
+**Milestone Goal:** Transform StorePredict from a storage-only sizing tool into a full pre-sales assessment platform by adding compute sizing, health checks, and deeper VM data quality.
+
+- [ ] **Phase 20: Grid UX & VM Data Columns** — Quick search, column visibility sidebar, and CPU/RAM/IOPS columns in the VM review grid
+- [ ] **Phase 21: Health Check Module & Concerns Page** — New /concerns page surfacing data quality, sizing risk, and VMware best practice findings from session data
+- [ ] **Phase 22: Compute Sizing Module & Page** — New /compute page with host count recommendations, HA modes, stretch cluster toggle, and Dell PowerEdge presets
+
+## Phase Details
+
+### Phase 20: Grid UX & VM Data Columns
+**Goal**: Users can search, filter, and inspect VM data more efficiently in the review grid — with per-VM CPU, RAM, and IOPS visible on demand
+**Depends on**: Phase 19 (v3.0 complete)
+**Requirements**: GUX-01, GUX-02, VDAT-01
+**Success Criteria** (what must be TRUE):
+  1. User can type in a quick-filter box and instantly narrow the VM grid to matching rows across all visible columns
+  2. User can open a column visibility panel and toggle CPU, RAM, and IOPS columns on or off without losing their edits
+  3. User sees vCPU count and RAM (MiB) columns in the grid (hidden by default, enabled via panel)
+  4. Duplicate VM names in customer exports no longer corrupt row identity or IOPS joins (row_index used as stable getRowId)
+**Plans**: TBD
+
+Plans:
+- [ ] 20-01: AG Grid sidebar, quickFilterText, and column defs for CPU/RAM/IOPS columns
+- [ ] 20-02: Fix getRowId to use row_index for duplicate-safe VM identity
+
+### Phase 21: Health Check Module & Concerns Page
+**Goal**: Users see a dedicated /concerns page that surfaces data quality flags, sizing risks, and VMware best practice violations derived from the current session — so they know before presenting to a customer
+**Depends on**: Phase 20
+**Requirements**: HLT-01, HLT-02, HLT-03
+**Success Criteria** (what must be TRUE):
+  1. User navigating to /concerns sees data quality findings: VMs missing OS, zero provisioned storage, zero CPU/RAM data, and high powered-off VM ratio
+  2. User sees sizing risk findings: large Unknown VMs inflating estimates, high DRR override count, VMs exceeding datastore IOPS budget
+  3. User sees VMware best practice findings: old VM hardware version, VMs without cluster assignment, VMs missing VMware Tools status
+  4. Findings reflect the user's current edited workload assignments (not a re-classification from scratch)
+  5. Visiting /concerns after making grid edits shows updated findings without requiring a page reload or re-upload
+**Plans**: TBD
+
+Plans:
+- [ ] 21-01: pipeline/health_checks.py — HealthFinding dataclasses and all check functions
+- [ ] 21-02: ui/pages/concerns.py — /concerns page rendering findings by severity + navigation link
+
+### Phase 22: Compute Sizing Module & Page
+**Goal**: Users see recommended ESXi host counts for their workload, with configurable HA modes, stretch cluster toggle, and Dell PowerEdge host presets — all derived from the same uploaded file
+**Depends on**: Phase 21
+**Requirements**: COMP-01, COMP-02, COMP-03, COMP-04, COMP-05
+**Success Criteria** (what must be TRUE):
+  1. User sees total active vCPU and RAM aggregates on /compute, with powered-off VMs and templates excluded and their count displayed
+  2. User sees recommended ESXi host count for N+1 HA with a configurable vCPU overcommit ratio they can adjust
+  3. User can toggle vMSC (stretch cluster) mode and sees per-site host counts, or a clear warning when no datacenter column data is available
+  4. User can toggle Active/Passive DR mode and sees separate primary and secondary site host counts
+  5. User can select a Dell PowerEdge preset (R760/R860/R960) or enter custom host specs and sees host count update reactively
+**Plans**: TBD
+
+Plans:
+- [ ] 22-01: pipeline/compute_sizing.py — HostConfig, ComputeSizingResult, compute_sizing() function
+- [ ] 22-02: ui/pages/compute.py — /compute page with reactive inputs, HA mode selector, vMSC/AP toggles
+- [ ] 22-03: i18n keys, navigation link, and test coverage for compute sizing
+
 ## Progress
 
 | Phase | Milestone | Plans | Status | Completed |
@@ -88,3 +147,6 @@ See [v3.0-ROADMAP.md](milestones/v3.0-ROADMAP.md) for full details.
 | 17. PDF & Excel Integration | v3.0 | 1/1 | Complete | 2026-02-21 |
 | 18. i18n & Polish | v3.0 | 1/1 | Complete | 2026-02-21 |
 | 19. Batch LLM Classification | v3.0 | 2/2 | Complete | 2026-02-21 |
+| 20. Grid UX & VM Data Columns | v4.0 | 0/2 | Not started | - |
+| 21. Health Check & Concerns | v4.0 | 0/2 | Not started | - |
+| 22. Compute Sizing | v4.0 | 0/3 | Not started | - |
