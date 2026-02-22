@@ -58,12 +58,15 @@ jobs:
             echo "$NOTES"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
+      - name: Delete existing release if present (idempotent re-run)
+        run: gh release delete "${GITHUB_REF#refs/tags/}" --yes || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create GitHub Release
         uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2
         with:
           body: ${{ steps.notes.outputs.RELEASE_NOTES }}
           files: dist/*
-          generate_release_notes: true
 
   # ── Docker image ─────────────────────────────────
   docker:
