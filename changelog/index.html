@@ -1036,6 +1036,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v320-2026-02-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v3.2.0] - 2026-02-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v3.2.0] - 2026-02-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v300-2026-02-21" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3232,6 +3260,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v320-2026-02-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v3.2.0] - 2026-02-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v3.2.0] - 2026-02-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v300-2026-02-21" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3664,6 +3720,26 @@
 <h1 id="changelog">Changelog</h1>
 <p>All notable changes to StorePredict are documented here.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h2 id="v320-2026-02-22">[v3.2.0] - 2026-02-22</h2>
+<p>Annotation-based VM classification for healthcare and application workloads.</p>
+<h3 id="classifier">Classifier</h3>
+<ul>
+<li>Fix two-pass classification logic: OS-fallback rules (priority ≥ 900) are now
+  skipped in pass 1 when an annotation (<code>vm_description</code>) is present, allowing
+  pass 2 to match richer annotation content before falling back to OS heuristics</li>
+<li>Expand HealthCare/EMR-EHR rule with 25+ application keywords:</li>
+<li>Radiology &amp; imaging: PACS, INTELLISPACE, GLEAMER, AZMED, RAYVOLVE, TRAUMACAD</li>
+<li>Hospital IS (French/Swiss &amp; European ecosystem): OPALE, CARIATIDE, HANDYLIFE,
+    POLYPOINT, MEDIDATA, DATABICS, PROCAMED, SEDIA, DGLAB, STERIGEST, WINSCRIBE,
+    SYNLAB, EXOLIS, SCENARA, MIRTH, KODIP</li>
+<li>Regex anchors: <code>\bRIS\b</code> (Radiology IS), <code>\bSIEMS\b</code>, <code>\bHESTIA\b</code>, <code>Bloc-?Op</code></li>
+<li>Add <code>TOMCAT</code>, <code>FORTIWEB</code> to Web Servers rule</li>
+<li>Add <code>PRTG</code> to Logging/Analytics rule</li>
+<li>Add <code>APP VOLUMES</code> / <code>APPVOL</code> to VDI Profiles rule</li>
+<li>Add <code>ALFRESCO</code> to File Content Servers rule</li>
+<li>Add <code>FILEMAKER</code>, <code>CLARIS</code>, <code>SQLITE</code> to MySQL/NoSQL rule</li>
+<li>Word-boundary guards: SIEMS (avoids SIEMENS), HESTIA (avoids HestiaCP)</li>
+</ul>
 <h2 id="v300-2026-02-21">[v3.0.0] - 2026-02-21</h2>
 <p>Datastore layout recommendations for PowerStore sizing.</p>
 <h3 id="layout-engine">Layout Engine</h3>
