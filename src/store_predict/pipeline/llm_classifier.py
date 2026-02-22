@@ -186,6 +186,9 @@ async def classify_batch_vms(
 
         return [result_map.get(i) for i in range(len(batch))]
     except (TimeoutError, Exception):
+        # Guard: if breaker is already open (concurrent failures), don't re-log
+        if time.monotonic() < _cb_open_until:
+            return [None] * len(batch)
         _cb_fail_count += 1
         if _cb_fail_count >= _CB_FAIL_MAX:
             _cb_open_until = time.monotonic() + _CB_COOLDOWN
@@ -272,6 +275,9 @@ async def classify_single_vm(
 
         return (category, keyword) if category in valid_categories else None
     except (TimeoutError, Exception):
+        # Guard: if breaker is already open (concurrent failures), don't re-log
+        if time.monotonic() < _cb_open_until:
+            return None
         _cb_fail_count += 1
         if _cb_fail_count >= _CB_FAIL_MAX:
             _cb_open_until = time.monotonic() + _CB_COOLDOWN
