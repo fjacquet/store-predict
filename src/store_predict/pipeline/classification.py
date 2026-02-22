@@ -130,10 +130,10 @@ class RuleRegistry:
         vm_name = strip_company_prefix(vm_name, COMPANY_PREFIX_PATTERNS)
 
         # Pass 1: direct matches (no description fallback)
-        # When description is available, skip the catch-all default rule so
-        # that pass 2 gets a chance to find a better match via description.
+        # When description is available, skip OS-fallback and default rules (priority ≥ 900)
+        # so that pass 2 can find a better annotation-based match first.
         for rule in self._rules:
-            if description and rule.priority >= 999:
+            if description and rule.priority >= 900:
                 continue
             if rule.matches(vm_name, os_name):
                 if rule.priority < 900:
@@ -281,7 +281,7 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Database",
             subcategory="My SQL / NoSQL",
             priority=101,
-            vm_name_patterns=_patterns("MYSQL", "NOSQL", "MARIADB"),
+            vm_name_patterns=_patterns("MYSQL", "NOSQL", "MARIADB", "FILEMAKER", "CLARIS", "SQLITE"),
         ),
         ClassificationRule(
             name="PostgreSQL",
@@ -343,7 +343,50 @@ def build_default_rules() -> list[ClassificationRule]:
             category="HealthCare",
             subcategory="EMR/EHR (Epic, McKesson)",
             priority=200,
-            vm_name_patterns=_patterns("EPIC", "MCKESSON", "EMR", "EHR"),
+            vm_name_patterns=(
+                # US market EMR/EHR leaders
+                *_patterns("EPIC", "MCKESSON", "EMR", "EHR"),
+                # Radiology & medical imaging
+                *_patterns(
+                    "PACS",         # Picture Archiving and Communication System
+                    "INTELLISPACE", # Philips IntelliSpace radiology platform
+                    "GLEAMER",      # AI radiology (chest/bone X-ray)
+                    "AZMED",        # Azmed AI medical imaging
+                    "RAYVOLVE",     # Azmed Rayvolve imaging product
+                    "TRAUMACAD",    # Brainlab orthopedic surgical planning
+                ),
+                # Hospital IS / clinical management (French-Swiss & European ecosystem)
+                *_patterns(
+                    "OPALE",        # Opale/eOpale hospital billing & management
+                    "CARIATIDE",    # Cariatide clinical management software
+                    "HANDYLIFE",    # Handylife patient management (Medicentres)
+                    "POLYPOINT",    # Polypoint hospital resource scheduling
+                    # "HESTIA" handled via regex below (avoid false match on HestiaCP Linux panel)
+                    # "SIEMS" handled via regex below (avoid false match on SIEMENS)
+                    "PLAISIR",      # PLAISIR psychiatric/social care IS
+                    "MEDIDATA",     # MediData health data exchange (Swiss clearing)
+                    "DATABICS",     # DatabICS ICU clinical data system
+                    "PROCAMED",     # Procamed medical device integration
+                    "SEDIA",        # Sedia urology management
+                    "DGLAB",        # DGLab diagnostic laboratory IS
+                    "DGLIM",        # DGLim laboratory IS variant
+                    "STERIGEST",    # Sterigest sterile supply chain management
+                    "WINSCRIBE",    # Winscribe medical speech recognition & dictation
+                    "SYNLAB",       # Synlab clinical laboratory services
+                    "EXOLIS",       # Exolis patient digital experience platform
+                    "SCENARA",      # Scenara perioperative / operating room management
+                    "MIRTH",        # Mirth Connect HL7/FHIR integration engine
+                    "KODIP",        # 3M Kodip DRG coding software
+                ),
+                # Radiology Information System (word-boundary anchored)
+                *_regex_patterns(r"\bRIS\b"),
+                # SIEMS - word-boundary required to avoid matching SIEMENS
+                *_regex_patterns(r"\bSIEMS\b"),
+                # HESTIA - word-boundary required to avoid matching HestiaCP Linux panel
+                *_regex_patterns(r"\bHESTIA\b"),
+                # Operating room management (BlocOp = bloc opératoire in French)
+                *_regex_patterns(r"Bloc-?Op|BLOCOP"),
+            ),
         ),
         ClassificationRule(
             name="Email",
@@ -384,7 +427,10 @@ def build_default_rules() -> list[ClassificationRule]:
             category="VDI",
             subcategory="VDI Profiles",
             priority=223,
-            vm_name_patterns=_regex_patterns(r"VDI.*PROFIL|PROFIL.*VDI"),
+            vm_name_patterns=(
+                *_patterns("APPVOL", "APP VOLUMES", "APP-VOL"),  # VMware App Volumes (Horizon)
+                *_regex_patterns(r"VDI.*PROFIL|PROFIL.*VDI"),
+            ),
         ),
         # === Tier 3: Infrastructure (300-399) ===
         # Compressed/dedup backup variants (lower DRR) come before plain rules.
@@ -436,7 +482,7 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Web Servers",
             subcategory="Content included",
             priority=320,
-            vm_name_patterns=_patterns("WEB", "WWW", "APACHE", "NGINX", "IIS"),
+            vm_name_patterns=_patterns("WEB", "WWW", "APACHE", "NGINX", "IIS", "TOMCAT", "FORTIWEB"),
         ),
         ClassificationRule(
             name="File General Purpose",
@@ -450,7 +496,7 @@ def build_default_rules() -> list[ClassificationRule]:
             category="File",
             subcategory="Content Servers (Git, Sharepoint)",
             priority=340,
-            vm_name_patterns=_patterns("GIT", "GITLAB", "SHAREPOINT"),
+            vm_name_patterns=_patterns("GIT", "GITLAB", "SHAREPOINT", "ALFRESCO"),
         ),
         ClassificationRule(
             name="File Developer Workspaces",
@@ -487,6 +533,7 @@ def build_default_rules() -> list[ClassificationRule]:
                 "RSYSLOG",  # syslog collection servers
                 "SYSLOG",
                 "POLLER",  # monitoring pollers (Centreon/Nagios)
+                "PRTG",   # PRTG Network Monitor (Paessler)
             ),
             os_patterns=_patterns("FORTI"),
         ),
