@@ -84,11 +84,11 @@ See [v3.0-ROADMAP.md](milestones/v3.0-ROADMAP.md) for full details.
   2. User can open a column visibility panel and toggle CPU, RAM, and IOPS columns on or off without losing their edits
   3. User sees vCPU count and RAM (MiB) columns in the grid (hidden by default, enabled via panel)
   4. Duplicate VM names in customer exports no longer corrupt row identity or IOPS joins (row_index used as stable getRowId)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 20-01: AG Grid sidebar, quickFilterText, and column defs for CPU/RAM/IOPS columns
-- [ ] 20-02: Fix getRowId to use row_index for duplicate-safe VM identity
+- [ ] 20-01-PLAN.md — Fix row_index foundation: register in CANONICAL_COLUMNS, assign in ingestion.py, switch getRowId and both cell-change handlers
+- [ ] 20-02-PLAN.md — Add quick-filter input, column-toggle panel, and hidden CPU/RAM/IOPS column defs with i18n keys
 
 ### Phase 21: Health Check Module & Concerns Page
 **Goal**: Users see a dedicated /concerns page that surfaces data quality flags, sizing risks, and VMware best practice violations derived from the current session — so they know before presenting to a customer
@@ -147,6 +147,6 @@ Plans:
 | 17. PDF & Excel Integration | v3.0 | 1/1 | Complete | 2026-02-21 |
 | 18. i18n & Polish | v3.0 | 1/1 | Complete | 2026-02-21 |
 | 19. Batch LLM Classification | v3.0 | 2/2 | Complete | 2026-02-21 |
-| 20. Grid UX & VM Data Columns | v4.0 | 0/2 | Not started | - |
+| 20. Grid UX & VM Data Columns | v4.0 | 2/2 | In progress | - |
 | 21. Health Check & Concerns | v4.0 | 0/2 | Not started | - |
 | 22. Compute Sizing | v4.0 | 0/3 | Not started | - |
