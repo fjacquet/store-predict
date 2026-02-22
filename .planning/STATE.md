@@ -1,12 +1,15 @@
 # Project State — StorePredict
 
-## Current Phase
+## Current Position
 
-No active phase — v3.0 milestone complete.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-22 — Milestone v4.0 started
 
 ## Milestone
 
-v3.0 Datastore Layout Recommendations — SHIPPED 2026-02-21
+v4.0 VM Improvements & Compute Sizing — IN PROGRESS
 
 ## Completed
 
@@ -15,22 +18,18 @@ v3.0 Datastore Layout Recommendations — SHIPPED 2026-02-21
 - [x] v2.x Storage Models, DRR Variants, Observability
 - [x] v3.0 Datastore Layout Recommendations (Phases 14-19, 10 plans)
 
-## Next Action
+## Accumulated Context
 
-Planning next milestone. Use `/gsd:new-milestone` to start.
+- Full Python stack: NiceGUI + pandas + ReportLab + AG Grid
+- 353 tests, 86% coverage at v3.0 close
+- RVTools vInfo tab has: VM Name, OS, Provisioned MiB, In Use MiB, vCPU, Memory (MB)
+- LiveOptics VMs tab has: VM Name, VM OS, Virtual Disk Size (MiB), IOPS per VM
+- Layout engine: 3 strategies (Consolidation, Performance, Uniform), BFD placement
+- Phase numbering: v4.0 starts at Phase 20
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-21)
+See: .planning/PROJECT.md (updated 2026-02-22)
 
-**Core value:** Accurate DRR sizing + optimal datastore layout recommendations
-**Current focus:** Planning next milestone
-
-## Decisions
-
-See PROJECT.md Key Decisions table and milestone archives for full history.
-
-## Last Session
-
-- **Stopped at:** v3.0 milestone archived
-- **Timestamp:** 2026-02-21
+**Core value:** Accurate DRR sizing + optimal datastore layout recommendations + compute sizing
+**Current focus:** v4.0 milestone — defining requirements

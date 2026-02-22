@@ -46,7 +46,12 @@ Accurately predict real-world PowerStore DRR per workload and **recommend optima
 
 ### Active
 
-(None — planning next milestone)
+<!-- v4.0 VM Improvements & Compute Sizing -->
+- [ ] Improve classification rules to reduce Unknown VMs (OS-based fallbacks, new patterns)
+- [ ] Grid UX: filtering by workload, column visibility, grouping, search, better bulk actions
+- [ ] Per-VM IOPS data from LiveOptics shown in the VM grid
+- [ ] Concerns/Health Check page: data quality flags, layout/sizing risks, VMware best practice violations
+- [ ] Compute Sizing page: extract vCPU+RAM from RVTools, recommend host count, stretch cluster (vMSC + Active/Passive) toggles
 
 ### Out of Scope
 
@@ -105,5 +110,16 @@ Layout engine adds migration planning capability — tool now sizes AND recommen
 | Playwright for layout PDF | Dedicated /layout/print route, always-expanded VM detail for print | Good |
 | IOPS.csv as package data | Configurable defaults without code changes; CSV lives in src/data/ | Good |
 
+## Current Milestone: v4.0 VM Improvements & Compute Sizing
+
+**Goal:** Transform StorePredict from a storage-only sizing tool into a full pre-sales assessment platform by adding compute sizing, health checks, and deeper VM data quality.
+
+**Target features:**
+- Classification rule improvements (fewer Unknown VMs)
+- Grid UX enhancements (filter, group, search, column visibility)
+- Per-VM IOPS from LiveOptics in the grid
+- Concerns/Health Check page (data quality, sizing risks, VMware best practices)
+- Compute Sizing page (vCPU/RAM from RVTools, host recommendations, stretch cluster support)
+
 ---
-*Last updated: 2026-02-21 after v3.0 milestone*
+*Last updated: 2026-02-22 after v4.0 milestone started*
