@@ -1036,6 +1036,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v401-2026-02-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v4.0.1] - 2026-02-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v4.0.1] - 2026-02-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ux-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UX improvements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v400-2026-02-22" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3332,6 +3371,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v401-2026-02-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v4.0.1] - 2026-02-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v4.0.1] - 2026-02-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ux-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UX improvements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v400-2026-02-22" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3864,6 +3942,31 @@
 <h1 id="changelog">Changelog</h1>
 <p>All notable changes to StorePredict are documented here.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h2 id="v401-2026-02-22">[v4.0.1] - 2026-02-22</h2>
+<h3 id="bug-fixes">Bug fixes</h3>
+<ul>
+<li><strong>Fix all event handlers on <code>/compute</code></strong> — replaced <code>.on("update:model-value")</code> with
+  <code>.on_value_change()</code>. Every control (preset selector, overcommit ratio, vMSC toggle,
+  A/P toggle, spec inputs) was silently broken due to <code>GenericEventArguments</code> having no
+  <code>.value</code> attribute; <code>ValueChangeEventArguments</code> does.</li>
+<li><strong>Ruff TC003</strong> — moved <code>from pathlib import Path</code> into a <code>TYPE_CHECKING</code> block in
+  <code>compute_sizing.py</code> (annotation-only use, safe with <code>from __future__ import annotations</code>).</li>
+</ul>
+<h3 id="ux-improvements">UX improvements</h3>
+<ul>
+<li><strong>vCPU / RAM breakdown in N+1 card</strong> — displays both sub-counts (e.g.
+  "vCPU-based: 11 · RAM-based: 20") so users can see exactly which constraint binds
+  and how the other count moves when adjusting the overcommit ratio.</li>
+<li><strong>Host spec inputs always visible</strong> — cores/socket, sockets, and RAM are no longer
+  hidden behind a "Custom" preset selection; all three inputs appear at all times.</li>
+<li><strong>Preset auto-populate</strong> — selecting a named preset fills the spec fields from its
+  base config; selecting "Custom" leaves the current field values untouched.</li>
+<li><strong>One preset per server model</strong> — dropdown simplified from 16 spec-laden variants
+  (e.g. "R760 (2x28c / 512 GiB)") to 7 clean model names: R760, R770, R860, R960,
+  R7725, XE7745, Custom.</li>
+<li><strong>Remove duplicate heading</strong> — "Configuration de l'hôte" was rendering twice in the
+  settings panel; the redundant card label was removed.</li>
+</ul>
 <h2 id="v400-2026-02-22">[v4.0.0] - 2026-02-22</h2>
 <p>Grid UX improvements, per-VM hardware data, and a new health check concerns page.</p>
 <h3 id="grid-ux-vm-data-phase-20">Grid UX &amp; VM Data (Phase 20)</h3>
