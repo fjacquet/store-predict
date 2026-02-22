@@ -1,0 +1,18 @@
+name;server_model;cpu_family;cpu_name;cores_per_socket;sockets;ram_gib
+R760 (2x28c / 512 GiB);R760;Xeon 5th Gen;Platinum 8558U;28;2;512
+R760 (2x32c / 1024 GiB);R760;Xeon 5th Gen;Platinum 8558 / Gold 6548Y+;32;2;1024
+R760 (2x48c / 1024 GiB);R760;Xeon 5th Gen;Platinum 8562Y+;48;2;1024
+R770 (2x48c / 1024 GiB);R770;Xeon 6 P-core;Xeon 6 6748P;48;2;1024
+R770 (2x64c / 1536 GiB);R770;Xeon 6 P-core;Xeon 6 6780P;64;2;1536
+R770 (2x86c / 2048 GiB);R770;Xeon 6 P-core;Xeon 6 6786P;86;2;2048
+R860 (4x32c / 2048 GiB);R860;Xeon 5th Gen;Platinum 8558;32;4;2048
+R860 (4x48c / 3072 GiB);R860;Xeon 5th Gen;Platinum 8562Y+;48;4;3072
+R960 (4x32c / 3072 GiB);R960;Xeon 5th Gen;Platinum 8558;32;4;3072
+R960 (4x56c / 6144 GiB);R960;Xeon 5th Gen;Platinum 8570;56;4;6144
+R7725 (2x64c / 1536 GiB);R7725;EPYC 9005 Turin;EPYC 9555;64;2;1536
+R7725 (2x96c / 2304 GiB);R7725;EPYC 9005 Turin;EPYC 9655;96;2;2304
+R7725 (2x128c / 3072 GiB);R7725;EPYC 9005 Turin;EPYC 9755;128;2;3072
+R7725 (2x192c / 4608 GiB);R7725;EPYC 9005 Turin;EPYC 9955 (Zen5c);192;2;4608
+XE7745 (2x64c / 1152 GiB);XE7745;EPYC 9005 Turin;EPYC 9555;64;2;1152
+XE7745 (2x96c / 2304 GiB);XE7745;EPYC 9005 Turin;EPYC 9655;96;2;2304
+Custom;Custom;Custom;Custom;28;2;512

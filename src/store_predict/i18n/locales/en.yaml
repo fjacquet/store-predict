@@ -22,6 +22,9 @@ review:
   generate_report: Generate Report
   no_rows_selected: "No rows selected. Use checkboxes to select VMs first."
   updated_notify: "Updated %{count} VM(s) to %{category} / %{subcategory}"
+  search_placeholder: "Search VMs..."
+  column_panel_title: "Show Columns"
+  column_panel_tip: "Hidden columns are not included in search results."
 
 report:
   title: Sizing Report
@@ -57,6 +60,9 @@ columns:
   peak_iops: Peak IOPS
   iops_8k: "8K Eq. IOPS"
   peak_mbs: "Peak MB/s"
+  num_cpus: "vCPUs"
+  memory_mib: "RAM (MiB)"
+  avg_iops: "Avg IOPS"
 
 stats:
   total_vms: Total VMs
@@ -115,6 +121,8 @@ layout:
   review: Review
   report: Report
   layout: Layout
+  concerns: Concerns
+  compute: Compute Sizing
   dark_mode: Dark Mode
   language: "FR"
 
@@ -251,6 +259,11 @@ tooltip:
   growth_margin: "Additional capacity buffer for future growth"
   isolation_score: "0.0 = all workloads mixed; 1.0 = all workloads isolated"
   oversized_vms: "VMs too large to fit in a standard-sized datastore — given dedicated datastores"
+  quick_filter: "Search across all visible columns. Show a column to include it in search."
+  compute_preset: "Select a Dell PowerEdge server model or enter custom specs. Note: specs show physical cores, not HT threads."
+  compute_overcommit: "Number of vCPUs per physical core. Higher = more VMs per host but more scheduling contention."
+  compute_vmsc: "VMware vSphere Metro Storage Cluster — active/active stretch across two sites. Requires datacenter column data with 2+ distinct values."
+  compute_ap: "Active/Passive DR — secondary site sized at 50% of primary for cold standby."
 
 chart:
   provisioned: "Provisioned"
@@ -258,3 +271,88 @@ chart:
   single_category: "Single category"
   drr_axis: "DRR"
   gib_axis: "GiB"
+
+concerns:
+  title: "Health Checks & Concerns"
+  no_data: "No data uploaded yet. Upload a file to see health check findings."
+  no_findings: "No concerns found — environment looks healthy."
+  summary_critical: "%{count} Critical"
+  summary_warning: "%{count} Warning"
+  summary_info: "%{count} Info"
+  section_data_quality: "Data Quality"
+  section_sizing_risk: "Sizing Risks"
+  section_best_practice: "VMware Best Practices"
+  affected_vms: "Affected VMs: %{names}"
+  affected_count: "%{count} VM(s)"
+
+health:
+  missing_os:
+    title: "VMs Missing OS Information"
+    detail: "%{count} VM(s) have no OS data — classification accuracy reduced."
+  zero_provisioned:
+    title: "VMs with Zero Provisioned Storage"
+    detail: "%{count} VM(s) show 0 MiB provisioned — storage sizing will be incomplete."
+  missing_cpu:
+    title: "VMs Missing CPU Data"
+    detail: "%{count} VM(s) have vCPU count of 0 — compute sizing estimates unreliable."
+  missing_ram:
+    title: "VMs Missing RAM Data"
+    detail: "%{count} VM(s) have RAM of 0 MiB — compute sizing estimates unreliable."
+  high_powered_off_ratio:
+    title: "High Powered-Off VM Ratio"
+    detail: "%{pct}% of VMs are powered off — data may be from a stale environment snapshot."
+  high_unknown_ratio:
+    title: "High Unknown VM Ratio"
+    detail: "%{count} VM(s) (%{pct}%) classified as Unknown — DRR estimates are conservative defaults."
+  large_unknown_vms:
+    title: "Large Unclassified VMs"
+    detail: "%{count} VM(s) over 1 TiB are Unknown — classify these for accurate DRR."
+  iops_budget_exceeded:
+    title: "VMs Exceeding Datastore IOPS Budget"
+    detail: "%{count} VM(s) peak IOPS exceed the standard 100K/datastore budget."
+  no_cluster:
+    title: "VMs Without Cluster Assignment"
+    detail: "%{count} VM(s) are not assigned to a cluster — vMotion migration not possible."
+  old_hw_version:
+    title: "VMs with Old Hardware Version"
+    detail: "%{count} VM(s) are below vHW 17 (ESXi 7.0) — hardware upgrade recommended."
+  very_old_hw_version:
+    title: "VMs with Very Old Hardware Version (Critical)"
+    detail: "%{count} VM(s) are below vHW 14 (ESXi 6.7) — likely incompatible with modern vSphere."
+  tools_not_installed:
+    title: "VMs Missing VMware Tools"
+    detail: "%{count} VM(s) have VMware Tools not installed — required for migration consistency."
+  tools_not_running:
+    title: "VMs with VMware Tools Not Running"
+    detail: "%{count} VM(s) have VMware Tools installed but not running — check guest OS."
+  no_hw_data:
+    title: "No Hardware Version Data Available"
+    detail: "This export does not include the HW version column — hardware compatibility cannot be assessed."
+
+compute:
+  title: "Compute Sizing"
+  no_data: "No data uploaded yet. Upload a file to see compute sizing recommendations."
+  active_vcpus: "Active vCPUs"
+  active_ram: "Active RAM (GiB)"
+  excluded_vms: "%{count} powered-off or template VM(s) excluded"
+  host_preset: "Host Configuration"
+  custom_preset: "Custom"
+  cores_per_socket: "Cores / Socket"
+  sockets: "Sockets"
+  ram_gib: "RAM (GiB)"
+  overcommit_ratio: "vCPU Overcommit Ratio"
+  overcommit_hint: "vCPUs per physical core. 4:1 is standard for mixed workloads."
+  results_heading: "Host Count Recommendations"
+  ha_mode: "HA Mode"
+  hosts_n1: "N+1 HA"
+  hosts_n1_detail: "Standard: N hosts + 1 for failover"
+  binding_constraint: "Binding constraint"
+  constraint_vcpu: "vCPU"
+  constraint_ram: "RAM"
+  vmsc_toggle: "vMSC Stretch Cluster"
+  vmsc_site_heading: "Hosts per Site (vMSC)"
+  vmsc_no_dc_data: "Datacenter column is empty or has only one distinct value — cannot compute per-site counts. Export must include a Datacenter column with at least 2 distinct values."
+  ap_toggle: "Active/Passive DR"
+  ap_primary: "Primary Site"
+  ap_secondary: "Secondary Site (passive)"
+  ap_secondary_detail: "50% of primary — passive standby"

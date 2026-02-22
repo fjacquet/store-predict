@@ -95,6 +95,20 @@ def parse_rvtools(path: Path) -> pd.DataFrame:
     else:
         result["vm_description"] = ""
 
+    # hw_version: integer vmx level, 0 if column absent or unreadable
+    if col_map.get("hw_version"):
+        result["hw_version"] = (
+            pd.to_numeric(df[col_map["hw_version"]], errors="coerce").fillna(0).astype(int)
+        )
+    else:
+        result["hw_version"] = 0
+
+    # tools_status: string, empty string if column absent
+    if col_map.get("tools_status"):
+        result["tools_status"] = df[col_map["tools_status"]].fillna("").astype(str)
+    else:
+        result["tools_status"] = ""
+
     # Performance columns not available in RVTools -- default to NaN
     for perf_col in [
         "peak_iops",
@@ -108,4 +122,5 @@ def parse_rvtools(path: Path) -> pd.DataFrame:
     ]:
         result[perf_col] = float("nan")
 
+    result["row_index"] = 0  # placeholder; overwritten by ingest_file after reset_index
     return result[CANONICAL_COLUMNS]

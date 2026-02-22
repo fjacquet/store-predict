@@ -22,6 +22,9 @@ review:
   generate_report: "Générer le rapport"
   no_rows_selected: "Aucune ligne sélectionnée. Utilisez les cases à cocher pour sélectionner des VMs."
   updated_notify: "%{count} VM(s) mises à jour vers %{category} / %{subcategory}"
+  search_placeholder: "Rechercher des VMs..."
+  column_panel_title: "Afficher les colonnes"
+  column_panel_tip: "Les colonnes masquées ne sont pas incluses dans les résultats de recherche."
 
 report:
   title: "Rapport de dimensionnement"
@@ -57,6 +60,9 @@ columns:
   peak_iops: IOPS de pointe
   iops_8k: "IOPS éq. 8K"
   peak_mbs: "Débit de pointe (Mo/s)"
+  num_cpus: "vCPUs"
+  memory_mib: "RAM (Mio)"
+  avg_iops: "IOPS moy."
 
 stats:
   total_vms: Total VMs
@@ -115,6 +121,8 @@ layout:
   review: "Révision"
   report: Rapport
   layout: Disposition
+  concerns: Alertes
+  compute: "Dimensionnement calcul"
   dark_mode: "Mode sombre"
   language: "EN"
 
@@ -251,6 +259,11 @@ tooltip:
   growth_margin: "Marge de capacité supplémentaire pour la croissance future"
   isolation_score: "0.0 = toutes les charges mélangées ; 1.0 = toutes les charges isolées"
   oversized_vms: "VMs trop grandes pour un datastore standard — reçoivent des datastores dédiés"
+  quick_filter: "Recherche dans toutes les colonnes visibles. Afficher une colonne pour l'inclure dans la recherche."
+  compute_preset: "Sélectionnez un modèle Dell PowerEdge ou entrez des spécifications personnalisées. Les cœurs indiqués sont des cœurs physiques, pas des threads HT."
+  compute_overcommit: "Nombre de vCPUs par cœur physique. Plus élevé = plus de VMs par hôte mais plus de contention d'ordonnancement."
+  compute_vmsc: "VMware vSphere Metro Storage Cluster — actif/actif étiré sur deux sites. Nécessite une colonne Datacenter avec au moins 2 valeurs distinctes."
+  compute_ap: "DR Actif/Passif — site secondaire dimensionné à 50% du principal pour la veille froide."
 
 chart:
   provisioned: "Provisionné"
@@ -258,3 +271,88 @@ chart:
   single_category: "Catégorie unique"
   drr_axis: "DRR"
   gib_axis: "Gio"
+
+concerns:
+  title: "Contrôles de santé & alertes"
+  no_data: "Aucune donnée chargée. Téléchargez un fichier pour afficher les contrôles de santé."
+  no_findings: "Aucune alerte détectée — l'environnement semble sain."
+  summary_critical: "%{count} Critique(s)"
+  summary_warning: "%{count} Avertissement(s)"
+  summary_info: "%{count} Information(s)"
+  section_data_quality: "Qualité des données"
+  section_sizing_risk: "Risques de dimensionnement"
+  section_best_practice: "Bonnes pratiques VMware"
+  affected_vms: "VMs concernées : %{names}"
+  affected_count: "%{count} VM(s)"
+
+health:
+  missing_os:
+    title: "VMs sans informations d'OS"
+    detail: "%{count} VM(s) n'ont pas de données d'OS — précision de la classification réduite."
+  zero_provisioned:
+    title: "VMs sans stockage provisionné"
+    detail: "%{count} VM(s) affichent 0 Mio provisionné — le dimensionnement du stockage sera incomplet."
+  missing_cpu:
+    title: "VMs sans données CPU"
+    detail: "%{count} VM(s) ont un nombre de vCPUs à 0 — estimations de dimensionnement des ressources de calcul non fiables."
+  missing_ram:
+    title: "VMs sans données RAM"
+    detail: "%{count} VM(s) ont une RAM de 0 Mio — estimations de dimensionnement des ressources de calcul non fiables."
+  high_powered_off_ratio:
+    title: "Taux élevé de VMs éteintes"
+    detail: "%{pct}% des VMs sont éteintes — les données proviennent peut-être d'un instantané périmé."
+  high_unknown_ratio:
+    title: "Taux élevé de VMs non classifiées"
+    detail: "%{count} VM(s) (%{pct}%) classifiées comme Inconnues — les estimations DRR sont des valeurs par défaut conservatrices."
+  large_unknown_vms:
+    title: "Grandes VMs non classifiées"
+    detail: "%{count} VM(s) de plus de 1 Tio sont Inconnues — classifiez-les pour un DRR précis."
+  iops_budget_exceeded:
+    title: "VMs dépassant le budget IOPS du datastore"
+    detail: "%{count} VM(s) dépassent le budget standard de 100 000 IOPS/datastore."
+  no_cluster:
+    title: "VMs sans affectation de cluster"
+    detail: "%{count} VM(s) ne sont pas affectées à un cluster — migration vMotion impossible."
+  old_hw_version:
+    title: "VMs avec une version matérielle ancienne"
+    detail: "%{count} VM(s) sont en dessous de vHW 17 (ESXi 7.0) — mise à niveau matérielle recommandée."
+  very_old_hw_version:
+    title: "VMs avec une version matérielle très ancienne (Critique)"
+    detail: "%{count} VM(s) sont en dessous de vHW 14 (ESXi 6.7) — probablement incompatibles avec vSphere moderne."
+  tools_not_installed:
+    title: "VMs sans VMware Tools"
+    detail: "%{count} VM(s) n'ont pas VMware Tools installé — requis pour la cohérence de la migration."
+  tools_not_running:
+    title: "VMs avec VMware Tools non démarré"
+    detail: "%{count} VM(s) ont VMware Tools installé mais non démarré — vérifiez l'OS invité."
+  no_hw_data:
+    title: "Données de version matérielle indisponibles"
+    detail: "Cet export ne contient pas la colonne de version matérielle — la compatibilité matérielle ne peut pas être évaluée."
+
+compute:
+  title: "Dimensionnement calcul"
+  no_data: "Aucune donnée. Téléchargez un fichier pour voir les recommandations de dimensionnement."
+  active_vcpus: "vCPUs actifs"
+  active_ram: "RAM active (Gio)"
+  excluded_vms: "%{count} VM(s) éteinte(s) ou gabarit(s) exclue(s)"
+  host_preset: "Configuration de l'hôte"
+  custom_preset: "Personnalisé"
+  cores_per_socket: "Cœurs / socket"
+  sockets: "Sockets"
+  ram_gib: "RAM (Gio)"
+  overcommit_ratio: "Ratio de surcharge vCPU"
+  overcommit_hint: "vCPUs par cœur physique. 4:1 est la norme pour les charges mixtes."
+  results_heading: "Recommandations de nombre d'hôtes"
+  ha_mode: "Mode HA"
+  hosts_n1: "N+1 HA"
+  hosts_n1_detail: "Standard : N hôtes + 1 pour le basculement"
+  binding_constraint: "Contrainte dimensionnante"
+  constraint_vcpu: "vCPU"
+  constraint_ram: "RAM"
+  vmsc_toggle: "Cluster étiré vMSC"
+  vmsc_site_heading: "Hôtes par site (vMSC)"
+  vmsc_no_dc_data: "La colonne Datacenter est vide ou n'a qu'une seule valeur distincte — impossible de calculer les comptes par site. L'export doit inclure une colonne Datacenter avec au moins 2 valeurs distinctes."
+  ap_toggle: "DR Actif/Passif"
+  ap_primary: "Site principal"
+  ap_secondary: "Site secondaire (passif)"
+  ap_secondary_detail: "50% du principal — veille froide"

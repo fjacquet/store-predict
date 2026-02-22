@@ -63,3 +63,7 @@ ADRs document key technical decisions made during StorePredict development.
 | [057](057-vmfs-not-vvol-layout.md) | VMFS datastore layout, not vVol | Accepted | 2026-02-21 |
 | [058](058-isolated-vm-dedicated-datastore.md) | Dedicated datastore for mission-critical VMs | Accepted | 2026-02-21 |
 | [059](059-default-iops-estimates.md) | Workload-based IOPS defaults for RVTools sizing | Accepted | 2026-02-21 |
+| [060](060-stable-row-identity-via-row-index.md) | Stable AG Grid row identity via row_index integer | Accepted | 2026-02-22 |
+| [061](061-health-check-pure-pipeline-module.md) | Health checks as a pure pipeline module, not a blocking pipeline stage | Accepted | 2026-02-22 |
+| [062](062-compute-presets-csv.md) | Compute presets from CSV, not hardcoded | Accepted | 2026-02-22 |
+| [063](063-typeddict-session-config.md) | TypedDict for NiceGUI page session config dicts | Accepted | 2026-02-22 |

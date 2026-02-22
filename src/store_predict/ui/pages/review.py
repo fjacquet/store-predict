@@ -25,6 +25,11 @@ from store_predict.ui.state import (
 )
 
 
+async def _on_quick_filter(e: Any, grid: ui.aggrid) -> None:
+    """Apply AG Grid quickFilterText on each keystroke."""
+    await grid.run_grid_method("setGridOption", "quickFilterText", e.value or "")
+
+
 @ui.page("/review")
 async def review_page() -> None:
     """Review classified VMs with editable workload assignments."""
@@ -121,7 +126,7 @@ async def review_page() -> None:
         with detail_bar:
             ui.label(t("detail_bar.placeholder")).classes("text-sm text-gray-400 italic")
 
-        # AG Grid table
+        # AG Grid table — assigned first so toolbar closures can reference the name
         grid = create_vm_table(
             row_data,
             categories,
@@ -130,6 +135,37 @@ async def review_page() -> None:
             subcategory_labels=subcategory_labels,
             has_performance_data=has_perf,
         )
+
+        # Toolbar: quick filter + column visibility panel (placed after grid so
+        # the grid variable is in scope for the closures — NiceGUI renders
+        # elements in declaration order but fires callbacks after full page build)
+        with ui.row().classes("w-full items-start gap-4 mb-2 flex-wrap"):
+            # Quick filter input
+            ui.input(
+                placeholder=t("review.search_placeholder"),
+                on_change=lambda e: _on_quick_filter(e, grid),
+            ).classes("flex-1 max-w-sm").props(
+                "clearable dense outlined prepend-inner-icon=search"
+            ).tooltip(t("tooltip.quick_filter"))
+
+            # Column visibility panel (custom — AG Grid sidebar is Enterprise-only)
+            toggleable_columns: list[tuple[str, str]] = [
+                ("num_cpus", "columns.num_cpus"),
+                ("memory_mib", "columns.memory_mib"),
+                ("avg_iops", "columns.avg_iops"),
+                ("peak_iops", "columns.peak_iops"),
+            ]
+            with ui.expansion(t("review.column_panel_title"), icon="view_column").classes(
+                "border rounded"
+            ):
+                ui.label(t("review.column_panel_tip")).classes("text-xs text-gray-500 mb-2")
+                with ui.row().classes("items-center gap-6 flex-wrap"):
+                    for _field, _key in toggleable_columns:
+
+                        async def _toggle_col(e: Any, f: str = _field) -> None:
+                            await grid.run_grid_method("setColumnsVisible", [f], e.value)
+
+                        ui.checkbox(t(_key), value=False, on_change=_toggle_col)
 
         # Bulk actions + navigation
         with ui.row().classes("w-full justify-between mt-4"):
@@ -255,11 +291,11 @@ async def _handle_bulk_update(
         return
 
     new_drr = drr_table.get_ratio(new_category, new_subcategory)
-    selected_names = {r["vm_name"] for r in selected}
+    selected_ids = {int(r["row_index"]) for r in selected}
 
     # Update all selected rows
     for row in row_data:
-        if row.get("vm_name") in selected_names:
+        if int(row.get("row_index", -1)) in selected_ids:
             row["workload_category"] = new_category
             row["workload_subcategory"] = new_subcategory
             row["drr"] = new_drr
@@ -282,7 +318,7 @@ async def _handle_bulk_update(
     # Persist to session
     save_session_data(pd.DataFrame(row_data), get_project_name())
     ui.notify(
-        t("review.updated_notify", count=len(selected_names), category=new_category, subcategory=new_subcategory),
+        t("review.updated_notify", count=len(selected_ids), category=new_category, subcategory=new_subcategory),
         type="positive",
     )
 
@@ -302,7 +338,7 @@ async def _handle_cell_change(
     args = e.args  # type: ignore[attr-defined]
     col_id = args.get("colId", "")
     changed_data = args.get("data", {})
-    vm_name = changed_data.get("vm_name", "")
+    row_idx = int(changed_data.get("row_index", -1))
     new_value = args.get("newValue", "")
 
     if col_id == "drr":
@@ -312,7 +348,7 @@ async def _handle_cell_change(
         except (TypeError, ValueError):
             return
         for row in row_data:
-            if row.get("vm_name") == vm_name:
+            if int(row.get("row_index", -2)) == row_idx:
                 row["drr"] = custom_drr
                 break
     elif col_id in ("workload_category", "workload_subcategory"):
@@ -329,7 +365,7 @@ async def _handle_cell_change(
 
         new_drr = drr_table.get_ratio(new_category, subcategory)
         for row in row_data:
-            if row.get("vm_name") == vm_name:
+            if int(row.get("row_index", -2)) == row_idx:
                 row["workload_category"] = new_category
                 row["workload_subcategory"] = subcategory
                 row["drr"] = new_drr

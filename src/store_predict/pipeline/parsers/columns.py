@@ -30,6 +30,9 @@ CANONICAL_COLUMNS: list[str] = [
     "avg_read_latency_ms",
     "avg_write_latency_ms",
     "iops_8k_equivalent",
+    "hw_version",      # int: vmx hardware level (0 = data not available from this export)
+    "tools_status",    # str: "toolsOk"|"toolsOld"|"toolsNotInstalled"|"toolsNotRunning"|""
+    "row_index",
 ]
 
 REQUIRED_RVTOOLS_COLUMNS: set[str] = {
@@ -61,6 +64,8 @@ RVTOOLS_ALIASES: dict[str, list[str]] = {
     "datacenter": ["Datacenter"],
     "cluster": ["Cluster"],
     "vm_description": ["Annotation", "Notes"],
+    "hw_version": ["HW version", "Hardware version", "HW Version"],
+    "tools_status": ["Tools Status", "VMware Tools Status"],
 }
 
 LIVEOPTICS_ALIASES: dict[str, list[str]] = {

@@ -5,6 +5,7 @@
 **Confidence:** HIGH
 
 <phase_requirements>
+
 ## Phase Requirements
 
 | ID | Description | Research Support |
@@ -31,6 +32,7 @@ The single most important research finding is that the AG Grid **sidebar and col
 ## Standard Stack
 
 ### Core
+
 | Library | Version | Purpose | Why Standard |
 |---------|---------|---------|--------------|
 | NiceGUI | >=3.4,<4.0 | AG Grid wrapper + checkbox widgets | Already installed; `ui.aggrid` wraps AG Grid Community |
@@ -39,12 +41,14 @@ The single most important research finding is that the AG Grid **sidebar and col
 | python-i18n | >=0.3.9 | All new UI strings via `t()` | Project convention; both locales must be updated together |
 
 ### Supporting
+
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
 | `ui.input` (NiceGUI) | same | Quick-filter text input widget | Bind to `on_change` that calls `setGridOption('quickFilterText', ...)` |
 | `ui.checkbox` (NiceGUI) | same | Column visibility toggles | One per optional column in panel above the grid |
 
 ### Alternatives Considered
+
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
 | `ui.checkbox` panel for column visibility | AG Grid `sideBar: 'columns'` | Sidebar requires Enterprise license — Community bundle will silently ignore it |
@@ -74,6 +78,7 @@ src/store_predict/
 ```
 
 Also:
+
 ```
 src/store_predict/i18n/locales/
 ├── en.yaml    # Add new i18n keys for filter box + column panel
@@ -87,6 +92,7 @@ src/store_predict/i18n/locales/
 **When to use:** Any time you need real-time search across all visible columns.
 
 **Example:**
+
 ```python
 # Source: AG Grid docs https://www.ag-grid.com/javascript-data-grid/filter-quick/
 # + NiceGUI run_grid_method pattern from review.py
@@ -101,6 +107,7 @@ ui.input(
 ```
 
 **Notes:**
+
 - `quickFilterText` splits on spaces — each word must match at least one column
 - Case-insensitive by default
 - Searches only visible columns (hidden columns are not searched)
@@ -113,6 +120,7 @@ ui.input(
 **When to use:** When users need to show/hide columns (AG Grid sidebar is Enterprise-only).
 
 **Example:**
+
 ```python
 # Source: AG Grid Grid API docs https://www.ag-grid.com/javascript-data-grid/grid-api/
 # setColumnsVisible is Community edition, part of ColumnApiModule (auto-included)
@@ -133,6 +141,7 @@ with ui.row().classes("items-center gap-4 flex-wrap"):
 ```
 
 **Notes:**
+
 - `setColumnsVisible` takes a list of column field names (strings) and a boolean
 - The AG Grid Column API was deprecated in v31 and merged into the Grid API; `setColumnsVisible` (plural) is the current method name
 - Initial column state is set via `"hide": True` in the column definition
@@ -145,6 +154,7 @@ with ui.row().classes("items-center gap-4 flex-wrap"):
 **When to use:** Always — this must precede any further grid work in this phase.
 
 **Example:**
+
 ```python
 # In ingestion.py — after reset_index:
 df = df[~df["is_template"]].reset_index(drop=True)
@@ -162,6 +172,7 @@ for row in row_data:
 ```
 
 **Notes:**
+
 - `row_index` must be added to `CANONICAL_COLUMNS` in `columns.py` so it survives the `result[CANONICAL_COLUMNS]` filter in parsers
 - `row_index` must also be added to `columns.py` parsers' output (both `rvtools.py` and `liveoptics.py`) via `result["row_index"] = result.index` **before** `return result[CANONICAL_COLUMNS]`
 - The `getRowId` JS string must call `String(...)` to ensure the return is a string (AG Grid requirement)
@@ -173,6 +184,7 @@ for row in row_data:
 **What:** Add column defs for `num_cpus`, `memory_mib`, `avg_iops`, `peak_iops` with `"hide": True`. These columns exist in every row's data but are not rendered unless the user enables them via the visibility panel.
 
 **Example:**
+
 ```python
 # Source: AG Grid column properties docs (Community edition)
 # https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-display-hide
@@ -238,36 +250,42 @@ for row in row_data:
 ## Common Pitfalls
 
 ### Pitfall 1: AG Grid Sidebar is Enterprise-Only
+
 **What goes wrong:** Developer adds `"sideBar": "columns"` or `"sideBar": True` to grid options, expecting a column visibility panel to appear. Nothing happens — no error, no sidebar.
 **Why it happens:** AG Grid Community does not include the Sidebar or Tool Panels modules. Setting the option is silently ignored.
 **How to avoid:** Use a custom NiceGUI checkbox panel above the grid. Call `run_grid_method('setColumnsVisible', [field], visible)` from each checkbox's `on_change`.
 **Warning signs:** `"sideBar"` key appearing in `vm_table.py` grid_options — remove it.
 
 ### Pitfall 2: Duplicate VM Names Breaking Row Identity
+
 **What goes wrong:** Customer RVTools exports often have duplicate VM names (clone templates, linked clones). AG Grid uses `getRowId` to uniquely identify rows. With `vm_name` as the ID, two rows sharing a name collapse into one row in AG Grid's internal store. Inline edits apply to the wrong row.
 **Why it happens:** The current `getRowId` is `"params => params.data.vm_name"`. Duplicate names produce duplicate IDs.
 **How to avoid:** Add `row_index` column during ingestion (stable integer), switch `getRowId` to `"params => String(params.data.row_index)"`, update all cell-change handlers to match by `row_index`.
 **Warning signs:** Cells that appear to not update after editing when the grid has duplicate VM names.
 
 ### Pitfall 3: `row_index` Stripped by CANONICAL_COLUMNS Filter
+
 **What goes wrong:** `row_index` is assigned in ingestion but stripped before being stored, because both parsers end with `return result[CANONICAL_COLUMNS]` and `row_index` is not in that list.
 **Why it happens:** The canonical schema whitelist is the source of truth; anything not listed is dropped silently.
 **How to avoid:** Add `"row_index"` to `CANONICAL_COLUMNS` in `columns.py` before adding it to the parsers. Also add `result["row_index"] = result.index` in both `parse_rvtools` and `_build_liveoptics_df` before the return.
 **Warning signs:** `KeyError: 'row_index'` in `vm_table.py` when the grid tries to render the getRowId function.
 
 ### Pitfall 4: Integer `row_index` Becoming Float After JSON Round-Trip
+
 **What goes wrong:** Session state is stored as JSON (`app.storage.tab`). Integer values in Python dicts can survive as integers in JSON, but when a DataFrame is reconstructed with `pd.DataFrame(records)`, pandas may infer `row_index` as float64 if any NaN is present in that column position.
 **Why it happens:** JSON serialization of `None` mixed with integers causes pandas dtype inference to choose float64.
 **How to avoid:** `row_index` is always a pure integer (set at `reset_index()` time, never NaN). But add a safety cast: `result["row_index"] = result.index.astype(int)`. In `_handle_cell_change`, read it as `int(changed_data.get("row_index", -1))`.
 **Warning signs:** Row lookup logic fails to find the matching row because `0 != 0.0` in a dict lookup is `False` but `0 == 0.0` is `True` in Python — the subtlety is that `{r["row_index"] for r in row_data}` will contain floats if loaded from JSON, and `int(changed_data["row_index"])` will be an int. Use the same type on both sides.
 
 ### Pitfall 5: Quick Filter Searching Hidden Columns
+
 **What goes wrong:** User types a CPU count in the quick filter box, expecting to find VMs with that CPU count. If the `num_cpus` column is hidden, AG Grid does not include it in the quick filter scan.
 **Why it happens:** This is correct AG Grid behavior — hidden columns are excluded from `quickFilterText` scanning.
 **How to avoid:** Document this in the filter box tooltip: "Searches all visible columns." Add a hint to the column toggle panel: "Tip: Show a column to include it in search."
 **Warning signs:** User feedback that the search "missed" some VMs they know match.
 
 ### Pitfall 6: i18n Key Parity Gap
+
 **What goes wrong:** New i18n keys added for the filter box, column panel labels, and new column headers are added in `en.yaml` but not `fr.yaml`. NiceGUI renders the key string itself as the label in French.
 **Why it happens:** `python-i18n` silently returns the key when a translation is missing — no error, no warning.
 **How to avoid:** Add all new keys to both `en.yaml` and `fr.yaml` simultaneously. The test `test_ux_polish.py` (parameterized over `["en", "fr"]`) catches missing keys for known keys — add the new phase-20 keys to that test's `REQUIRED_KEYS` list or write a new parameterized test block.
@@ -280,6 +298,7 @@ for row in row_data:
 Verified patterns from official sources and live codebase:
 
 ### Quick Filter Text Input Widget
+
 ```python
 # Source: AG Grid filter-quick docs + NiceGUI run_grid_method (review.py:268)
 # Place above the grid in review_page()
@@ -300,6 +319,7 @@ async def _on_quick_filter(e: Any, grid: ui.aggrid) -> None:
 ```
 
 ### Column Visibility Panel (Custom, Community-Compatible)
+
 ```python
 # Source: AG Grid setColumnsVisible Grid API docs (Community edition)
 # NiceGUI ui.checkbox + run_grid_method pattern
@@ -320,6 +340,7 @@ with ui.expansion(t("review.column_panel_title"), icon="view_column").classes("w
 ```
 
 ### row_index Assignment in ingestion.py
+
 ```python
 # Source: live codebase ingestion.py:128
 # Add row_index AFTER template filter + reset_index
@@ -334,6 +355,7 @@ def ingest_file(path: Path) -> pd.DataFrame:
 ```
 
 ### row_index in CANONICAL_COLUMNS and Parsers
+
 ```python
 # Source: live codebase columns.py:12
 # Add "row_index" to the list — parsers will then include it
@@ -368,6 +390,7 @@ return result[CANONICAL_COLUMNS]
 ```
 
 ### Updated getRowId in vm_table.py
+
 ```python
 # Source: AG Grid getRowId docs + live vm_table.py:127
 # Change from vm_name to row_index
@@ -380,6 +403,7 @@ return result[CANONICAL_COLUMNS]
 ```
 
 ### Updated Cell Change Handler (row_index lookup)
+
 ```python
 # Source: live review.py:305 — switch vm_name lookup to row_index
 
@@ -399,6 +423,7 @@ async def _handle_cell_change(e, row_data, drr_table, grid, stats_container):
 ```
 
 ### New i18n Keys Required (both en.yaml and fr.yaml)
+
 ```yaml
 # Add to columns: section
 columns:
@@ -429,6 +454,7 @@ tooltip:
 | No quick filter | `quickFilterText` via `setGridOption` | Phase 20 | User can search 100+ VM list without configuring individual column filters |
 
 **Deprecated/outdated:**
+
 - `columnApi.setColumnVisible` (singular): Moved to Grid API in v31 as `setColumnsVisible` (plural). Do not use `columnApi` in NiceGUI `run_grid_method` calls.
 - AG Grid `sideBar: 'columns'`: Enterprise-only. Setting this in Community edition is a no-op.
 
@@ -455,22 +481,25 @@ tooltip:
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - Live codebase: `src/store_predict/ui/components/vm_table.py` — current `getRowId`, column defs, grid options
 - Live codebase: `src/store_predict/pipeline/parsers/columns.py` — confirmed `num_cpus`, `memory_mib`, `peak_iops`, `avg_iops` in CANONICAL_COLUMNS
 - Live codebase: `src/store_predict/pipeline/parsers/rvtools.py` — confirmed `num_cpus` and `memory_mib` parsed
 - Live codebase: `src/store_predict/pipeline/parsers/liveoptics.py` — confirmed `num_cpus` and `memory_mib` parsed
 - Live codebase: `src/store_predict/ui/pages/review.py:268` — `run_grid_method` used for `getFilterModel` / `setFilterModel` — pattern confirmed working
-- AG Grid official docs (2026): https://www.ag-grid.com/javascript-data-grid/community-vs-enterprise/ — sidebar and column header menu are Enterprise-only
-- AG Grid official docs (2026): https://www.ag-grid.com/javascript-data-grid/filter-quick/ — `quickFilterText` and `setGridOption('quickFilterText', text)` are Community
-- AG Grid official docs (2026): https://www.ag-grid.com/javascript-data-grid/grid-api/ — `setColumnsVisible` is Community, signature: `setColumnsVisible(keys: string[], visible: boolean): void`
-- AG Grid official docs (2026): https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-display-hide — `hide: boolean` property is Community
+- AG Grid official docs (2026): <https://www.ag-grid.com/javascript-data-grid/community-vs-enterprise/> — sidebar and column header menu are Enterprise-only
+- AG Grid official docs (2026): <https://www.ag-grid.com/javascript-data-grid/filter-quick/> — `quickFilterText` and `setGridOption('quickFilterText', text)` are Community
+- AG Grid official docs (2026): <https://www.ag-grid.com/javascript-data-grid/grid-api/> — `setColumnsVisible` is Community, signature: `setColumnsVisible(keys: string[], visible: boolean): void`
+- AG Grid official docs (2026): <https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-display-hide> — `hide: boolean` property is Community
 - NiceGUI source (installed): `ui.aggrid.run_grid_method` calls `run_method('run_grid_method', name, *args)` — confirmed entry point for all AG Grid API calls
 
 ### Secondary (MEDIUM confidence)
+
 - AG Grid column API migration note: Column API deprecated v31, all methods moved to Grid API; `setColumnsVisible` (plural) is the current method name
 - `.planning/research/SUMMARY.md` — milestone research confirms row grouping is Enterprise-only, IOPS columns exist in schema
 
 ### Tertiary (LOW confidence)
+
 - NiceGUI GitHub discussions — `agColumnsToolPanel` referenced in earlier discussions; validity of sidebar config in Community not independently re-verified beyond official docs above
 
 ---
@@ -478,6 +507,7 @@ tooltip:
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — verified against live `pyproject.toml` and NiceGUI source
 - Architecture: HIGH — all integration points verified against live source code
 - AG Grid Community/Enterprise boundary: HIGH — verified against official 2026 docs

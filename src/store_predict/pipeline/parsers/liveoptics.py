@@ -77,6 +77,11 @@ def _build_liveoptics_df(
     else:
         result["vm_description"] = ""
 
+    # hw_version and tools_status: not available in LiveOptics exports — use sentinel values
+    # health_checks.py guards all HW checks with hw_version > 0
+    result["hw_version"] = 0
+    result["tools_status"] = ""
+
     # Performance columns default to NaN (populated later for xlsx from VM Performance sheet)
     for perf_col in [
         "peak_iops",
@@ -90,6 +95,7 @@ def _build_liveoptics_df(
     ]:
         result[perf_col] = float("nan")
 
+    result["row_index"] = 0  # placeholder; overwritten by ingest_file after reset_index
     return result[CANONICAL_COLUMNS]
 
 
@@ -228,6 +234,7 @@ def parse_liveoptics_xlsx(path: Path) -> pd.DataFrame:
             if col not in result.columns:
                 result[col] = float("nan")
 
+    result["row_index"] = 0  # placeholder; overwritten by ingest_file after reset_index
     return result[CANONICAL_COLUMNS]
 
 

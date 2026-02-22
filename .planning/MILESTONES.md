@@ -82,5 +82,27 @@
 - [v3.0-REQUIREMENTS.md](milestones/v3.0-REQUIREMENTS.md)
 - [v3.0-MILESTONE-AUDIT.md](milestones/v3.0-MILESTONE-AUDIT.md)
 
+## v4.0 — VM Improvements & Compute Sizing
+
+**Shipped:** 2026-02-22
+**Phases:** 20-22 (6 plans)
+**Source:** 8,166 LOC Python + 439 tests passing
+**Git range:** 2106184..b972b8d (39 commits, 56 files changed, +10,838/−1,259 lines)
+
+### Key Accomplishments
+
+1. Stable row identity — Replaced AG Grid getRowId from vm_name to integer `row_index`, fixing silent row corruption on customer files with duplicate VM names (linked clones, templates)
+2. Grid UX — Quick-filter search box + column visibility toggle panel; vCPU, RAM, and IOPS columns hidden by default and user-toggleable
+3. Health checks engine — `health_checks.py` with 11 checks across 3 categories: data quality (missing OS, zero storage/CPU/RAM, powered-off ratio), sizing risks (Unknown VM inflation, IOPS budget), VMware best practices (HW version, cluster assignment, Tools status)
+4. `/concerns` page — Dedicated page surfacing health findings in severity-coded cards, computed fresh from session state on every visit
+5. Compute sizing pipeline — `compute_sizing.py` pure module with N+1 HA formula, vMSC per-site counts, A/P DR sizing; 17 Dell PowerEdge presets (R760/R770/R860/R960/R7725/XE7745) loaded from CSV
+6. `/compute` reactive page — Preset selector, configurable overcommit ratio, vMSC/AP toggles; `_ComputeConfig(TypedDict)` fixes Pyright type safety
+
+### Archives
+
+- [v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md)
+- [v4.0-REQUIREMENTS.md](milestones/v4.0-REQUIREMENTS.md)
+- [v4.0-MILESTONE-AUDIT.md](milestones/v4.0-MILESTONE-AUDIT.md)
+
 ---
 

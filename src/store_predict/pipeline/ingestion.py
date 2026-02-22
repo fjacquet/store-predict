@@ -127,4 +127,9 @@ def ingest_file(path: Path) -> pd.DataFrame:
     # Filter out template VMs
     df = df[~df["is_template"]].reset_index(drop=True)
 
+    # Assign stable row identity — contiguous 0..N-1 integers after template filtering.
+    # Using astype(int) guards against float64 inference when the DataFrame is
+    # serialised to JSON and reconstructed (e.g. AG Grid round-trip).
+    df["row_index"] = df.index.astype(int)
+
     return df

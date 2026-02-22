@@ -6,6 +6,9 @@ import os
 
 from nicegui import ui
 
+import store_predict.ui.pages.compute
+import store_predict.ui.pages.concerns
+
 # Import pages to register their routes with NiceGUI
 import store_predict.ui.pages.layout_page
 import store_predict.ui.pages.report

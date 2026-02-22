@@ -111,6 +111,38 @@ def create_vm_table(
             "sortable": True,
             "filter": "agTextColumnFilter",
         },
+        {
+            "field": "num_cpus",
+            "headerName": t("columns.num_cpus"),
+            "hide": True,
+            "sortable": True,
+            "filter": "agNumberColumnFilter",
+            ":valueFormatter": "params => params.value != null ? params.value.toLocaleString() : '\u2014'",
+        },
+        {
+            "field": "memory_mib",
+            "headerName": t("columns.memory_mib"),
+            "hide": True,
+            "sortable": True,
+            "filter": "agNumberColumnFilter",
+            ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '\u2014'",
+        },
+        {
+            "field": "avg_iops",
+            "headerName": t("columns.avg_iops"),
+            "hide": True,
+            "sortable": True,
+            "filter": "agNumberColumnFilter",
+            ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '\u2014'",
+        },
+        {
+            "field": "peak_iops",
+            "headerName": t("columns.peak_iops"),
+            "hide": True,
+            "sortable": True,
+            "filter": "agNumberColumnFilter",
+            ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '\u2014'",
+        },
     ]
 
     grid_options: dict[str, Any] = {
@@ -124,7 +156,7 @@ def create_vm_table(
             "selectAll": "filtered",
             "enableClickSelection": False,
         },
-        ":getRowId": "params => params.data.vm_name",
+        ":getRowId": "params => String(params.data.row_index)",
         "stopEditingWhenCellsLoseFocus": True,
         # Empty context prevents AG Grid v34 from injecting its internal
         # GridContext (circular refs) into event.context, which would break

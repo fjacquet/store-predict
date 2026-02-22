@@ -2,11 +2,11 @@
 
 ## What This Is
 
-A web-based migration planning tool for pre-sales engineers. It analyzes VMware workload exports (RVTools .xlsx, LiveOptics .xlsx/.csv/.zip) to predict Data Reduction Ratios (DRR) on Dell storage platforms, classifies VMs by workload category, computes capacity requirements, and **generates optimal datastore layout recommendations** with three strategies (Consolidation, Performance, Uniform) — transforming raw VM data into an actionable migration plan.
+A web-based pre-sales assessment platform for pre-sales engineers. It analyzes VMware workload exports (RVTools .xlsx, LiveOptics .xlsx/.csv/.zip) to predict Data Reduction Ratios (DRR) on Dell storage platforms, classify VMs, compute capacity requirements, **generate optimal datastore layout recommendations**, **surface environment health concerns**, and **recommend ESXi host counts** — transforming raw VM exports into a complete, defensible pre-sales package.
 
 ## Core Value
 
-Accurately predict real-world PowerStore DRR per workload and **recommend optimal datastore layouts** considering capacity, IOPS, workload segregation, snapshot granularity, and copy data management — so pre-sales engineers can deliver honest, defensible sizing AND migration plans to customers.
+Accurately predict real-world PowerStore DRR per workload, recommend optimal datastore layouts, flag environment risks, and right-size ESXi compute — all from a static export file with no live vCenter required — so pre-sales engineers can deliver honest, defensible sizing AND migration plans to customers.
 
 ## Requirements
 
@@ -43,15 +43,14 @@ Accurately predict real-world PowerStore DRR per workload and **recommend optima
 - Default IOPS estimates from configurable CSV for RVTools imports — v3.0
 - Full i18n with tooltips on all UI controls — v3.0
 - Batch LLM classification for reduced latency on unknown VMs — v3.0
+- Stable AG Grid row identity via `row_index` integer (eliminates duplicate VM name corruption) — v4.0
+- Quick-filter search + column visibility toggle (CPU/RAM/IOPS columns) in VM review grid — v4.0
+- Health checks engine (11 checks: data quality, sizing risks, VMware best practices) + `/concerns` page — v4.0
+- Compute sizing pipeline (N+1 HA, vMSC, A/P DR) + `/compute` reactive page with 17 Dell PowerEdge presets — v4.0
 
 ### Active
 
-<!-- v4.0 VM Improvements & Compute Sizing -->
-- [ ] Improve classification rules to reduce Unknown VMs (OS-based fallbacks, new patterns)
-- [ ] Grid UX: filtering by workload, column visibility, grouping, search, better bulk actions
-- [ ] Per-VM IOPS data from LiveOptics shown in the VM grid
-- [ ] Concerns/Health Check page: data quality flags, layout/sizing risks, VMware best practice violations
-- [ ] Compute Sizing page: extract vCPU+RAM from RVTools, recommend host count, stretch cluster (vMSC + Active/Passive) toggles
+<!-- v5.0 — next milestone; TBD via /gsd:new-milestone -->
 
 ### Out of Scope
 
@@ -72,10 +71,10 @@ Accurately predict real-world PowerStore DRR per workload and **recommend optima
 
 ## Context
 
-Shipped v3.0 with 353 tests passing, 86% backend coverage, 6,802 LOC Python.
+Shipped v4.0 with 439 tests passing, 8,166 LOC Python.
 Tech stack: NiceGUI, pandas, openpyxl, ReportLab, AG Grid, XlsxWriter, Pillow, litellm, matplotlib, python-i18n, Playwright.
 Docker Compose deployment, MkDocs on GitHub Pages, GitHub Actions CI with Codecov.
-Layout engine adds migration planning capability — tool now sizes AND recommends datastore layouts.
+Tool now covers storage sizing, datastore layout planning, environment health checks, and ESXi compute sizing — a full pre-sales assessment platform.
 
 ## Constraints
 
@@ -110,16 +109,15 @@ Layout engine adds migration planning capability — tool now sizes AND recommen
 | Playwright for layout PDF | Dedicated /layout/print route, always-expanded VM detail for print | Good |
 | IOPS.csv as package data | Configurable defaults without code changes; CSV lives in src/data/ | Good |
 
-## Current Milestone: v4.0 VM Improvements & Compute Sizing
+## Key Decisions (v4.0 additions)
 
-**Goal:** Transform StorePredict from a storage-only sizing tool into a full pre-sales assessment platform by adding compute sizing, health checks, and deeper VM data quality.
-
-**Target features:**
-- Classification rule improvements (fewer Unknown VMs)
-- Grid UX enhancements (filter, group, search, column visibility)
-- Per-VM IOPS from LiveOptics in the grid
-- Concerns/Health Check page (data quality, sizing risks, VMware best practices)
-- Compute Sizing page (vCPU/RAM from RVTools, host recommendations, stretch cluster support)
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| `row_index` as AG Grid row identity | vm_name fails on duplicates (linked clones); integer index is stable | Good |
+| Health checks as pure pipeline module | Zero UI imports; testable in isolation; computed fresh per visit | Good |
+| Compute presets from CSV | CPU landscape changes faster than code releases; engineers edit CSV directly | Good |
+| TypedDict for NiceGUI session config | `dict[str, object]` too broad for Pyright; TypedDict coerces at read time | Good |
+| A/P DR always computed (no `ap_enabled` param) | Tests rely on values always being present; UI controls display only | Good |
 
 ---
-*Last updated: 2026-02-22 after v4.0 milestone started*
+*Last updated: 2026-02-22 after v4.0 milestone shipped*

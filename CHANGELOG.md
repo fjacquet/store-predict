@@ -4,6 +4,88 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v4.0.0] - 2026-02-22
+
+Grid UX improvements, per-VM hardware data, and a new health check concerns page.
+
+### Grid UX & VM Data (Phase 20)
+
+- **Quick-filter search box** above the VM review grid — filters all visible columns
+  instantly on each keystroke via AG Grid `quickFilterText`
+- **Column visibility panel** — collapsible expansion above the grid with four
+  checkboxes (vCPUs, RAM, Avg IOPS, Peak IOPS) toggling column visibility via
+  `setColumnsVisible`; replaces AG Grid sidebar (Enterprise-only, unavailable in
+  Community edition)
+- **Hidden column definitions** added to the VM grid: `num_cpus`, `memory_mib`,
+  `avg_iops`, `peak_iops` — hidden by default, revealed on demand
+- **Stable row identity** — AG Grid `getRowId` switched from `vm_name` to
+  `String(params.data.row_index)`, fixing row corruption for customer files with
+  duplicate VM names (linked clones, template copies)
+- `row_index` added to `CANONICAL_COLUMNS` and assigned as a contiguous integer
+  in `ingest_file()` after template filtering
+- Cell-change and bulk-update handlers updated to match rows by `row_index` (int)
+  instead of `vm_name` string comparison
+
+### Health Check & Concerns Page (Phase 21)
+
+- **New `/concerns` page** — surfaces data quality flags, sizing risks, and VMware
+  best practice violations derived from the current session without re-classifying
+- **11 health checks** across three categories:
+  - *Data Quality*: missing OS, zero provisioned storage, missing vCPU/RAM, high
+    powered-off VM ratio (>30%)
+  - *Sizing Risks*: high Unknown VM ratio (>25%), large Unknown VMs (>1 TiB),
+    single VM exceeding 100K IOPS/datastore budget
+  - *VMware Best Practices*: no cluster assignment, old HW version (<vHW17 /
+    ESXi 7.0), very old HW version (<vHW14 / ESXi 6.7, Critical), VMware Tools
+    not installed (Critical), VMware Tools not running
+- Findings colour-coded by severity: Critical=red, Warning=yellow, Info=blue
+- Powered-off VMs and templates excluded from best-practice checks
+- `hw_version=0` sentinel guard: LiveOptics exports skip hardware-version checks
+  rather than falsely flagging every VM as old hardware
+- `hw_version` and `tools_status` added to `CANONICAL_COLUMNS`; RVTools parser
+  reads them with graceful fallback (0 / "") when column absent
+- LiveOptics parser sets sentinel values `hw_version=0`, `tools_status=""`
+- Page uses `load_session_data()` — user edits from the Review grid are preserved;
+  `HealthCheckResult` is never cached in session storage
+
+### Compute Sizing Module & Page (Phase 22)
+
+- **New `/compute` page** — reactive ESXi host count recommendations from the
+  uploaded session data, with no re-ingestion; uses `load_session_data()` only
+- **N+1 HA sizing** — recommended host count = `max(hosts_by_vcpu, hosts_by_ram) + 1`
+  with configurable vCPU overcommit ratio (0.5–20.0, default 4.0)
+- **vMSC (stretch cluster) mode** — toggle reveals per-datacenter host counts;
+  shows a warning card when no datacenter column data is available in the export
+- **Active/Passive DR mode** — toggle reveals primary site hosts and secondary
+  site = `ceil(primary / 2)` (minimum 1)
+- **17 Dell PowerEdge presets** loaded from `compute_presets.csv` (editable without
+  code changes), covering:
+  - R760 (Xeon 5th Gen: 28c, 32c, 48c variants)
+  - R770 (Xeon 6 P-core: 6748P 48c, 6780P 64c, 6786P 86c)
+  - R860/R960 (Xeon 5th Gen 4-socket: up to 56c/6 TiB)
+  - R7725 (EPYC 9005 Turin: 9555 64c, 9655 96c, 9755 128c, 9955 192c Zen5c)
+  - XE7745 AI server (EPYC 9005 Turin: 64c, 96c)
+  - Custom (user-defined cores/socket, sockets, RAM)
+- Preset selector, overcommit input, and mode toggles are session-scoped
+  (`app.storage.tab`); result cards refresh reactively on every change
+- Aggregate cards: active vCPU total, RAM total (GiB), excluded VM count
+- `HostConfig`, `ComputeSizingResult` frozen dataclasses; zero UI imports in
+  `pipeline/compute_sizing.py`
+- `load_presets(path)` public function for loading alternate CSV files
+
+### LLM Classifier Enhancement
+
+- `vm_description` field (RVTools Annotation / LiveOptics Description) now included
+  in LLM classifier prompts as an optional classification signal
+- Description truncated to 200 chars, newlines stripped; only included when
+  non-empty to keep token usage lean
+
+### Tests
+
+- 49 new health check tests covering all 11 check IDs, sentinel guards,
+  powered-off/template exclusion, and affected_vms tuple contract
+- 386 total tests passing
+
 ## [v3.2.0] - 2026-02-22
 
 Annotation-based VM classification for healthcare and application workloads.
