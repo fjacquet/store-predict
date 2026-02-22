@@ -55,15 +55,9 @@ def _load_compute_config() -> _ComputeConfig:
         "overcommit_ratio": float(app.storage.tab.get("compute_overcommit", 4.0)),
         "vmsc_enabled": bool(app.storage.tab.get("compute_vmsc", False)),
         "ap_enabled": bool(app.storage.tab.get("compute_ap", False)),
-        "custom_cores_per_socket": int(
-            app.storage.tab.get("compute_custom_cps", preset.cores_per_socket)
-        ),
-        "custom_sockets": int(
-            app.storage.tab.get("compute_custom_sockets", preset.sockets)
-        ),
-        "custom_ram_gib": int(
-            app.storage.tab.get("compute_custom_ram", preset.ram_gib)
-        ),
+        "custom_cores_per_socket": int(app.storage.tab.get("compute_custom_cps", preset.cores_per_socket)),
+        "custom_sockets": int(app.storage.tab.get("compute_custom_sockets", preset.sockets)),
+        "custom_ram_gib": int(app.storage.tab.get("compute_custom_ram", preset.ram_gib)),
     }
 
 
@@ -93,9 +87,7 @@ def _render_aggregate_cards(result: ComputeSizingResult) -> None:
             ui.label(f"{result.total_active_ram_gib:.1f}").classes("text-3xl font-bold text-blue-700")
         if result.excluded_vm_count > 0:
             with ui.card().classes("flex-1 min-w-40 p-4 text-center bg-gray-50"):
-                ui.label(
-                    t("compute.excluded_vms", count=result.excluded_vm_count)
-                ).classes("text-sm text-gray-500")
+                ui.label(t("compute.excluded_vms", count=result.excluded_vm_count)).classes("text-sm text-gray-500")
 
 
 # ---------------------------------------------------------------------------
@@ -126,9 +118,7 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
 
     # N+1 HA card
     constraint_label = (
-        t("compute.constraint_vcpu")
-        if result.hosts_by_vcpu >= result.hosts_by_ram
-        else t("compute.constraint_ram")
+        t("compute.constraint_vcpu") if result.hosts_by_vcpu >= result.hosts_by_ram else t("compute.constraint_ram")
     )
     with ui.card().classes("w-full p-4 gap-2"):
         with ui.row().classes("items-center gap-3"):
@@ -138,13 +128,9 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
         ui.label(t("compute.hosts_n1_detail")).classes("text-sm text-gray-500")
         ui.label(f"{t('compute.binding_constraint')}: {constraint_label}").classes("text-xs text-gray-400")
         with ui.row().classes("gap-4 mt-1"):
-            ui.label(
-                f"{t('compute.breakdown_vcpu')}: {result.hosts_by_vcpu}"
-            ).classes("text-xs text-gray-400")
+            ui.label(f"{t('compute.breakdown_vcpu')}: {result.hosts_by_vcpu}").classes("text-xs text-gray-400")
             ui.label("·").classes("text-xs text-gray-300")
-            ui.label(
-                f"{t('compute.breakdown_ram')}: {result.hosts_by_ram}"
-            ).classes("text-xs text-gray-400")
+            ui.label(f"{t('compute.breakdown_ram')}: {result.hosts_by_ram}").classes("text-xs text-gray-400")
 
     # vMSC section (show if toggle active)
     if cfg["vmsc_enabled"]:
@@ -331,9 +317,7 @@ async def compute_page() -> None:
 
     cfg = _load_compute_config()
 
-    with layout("StorePredict - " + t("compute.title")), ui.column().classes(
-        "w-full max-w-4xl mx-auto p-4 gap-4"
-    ):
+    with layout("StorePredict - " + t("compute.title")), ui.column().classes("w-full max-w-4xl mx-auto p-4 gap-4"):
         ui.label(t("compute.title")).classes("text-2xl font-bold text-blue-900")
         ui.separator()
 

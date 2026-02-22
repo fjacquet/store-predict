@@ -2,6 +2,7 @@
 
 Pure pipeline module with zero UI imports. Entry point: run_health_checks(df).
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,12 +22,12 @@ __all__ = [
 # Thresholds (constants at module level for easy review)
 # ---------------------------------------------------------------------------
 
-_POWERED_OFF_RATIO_THRESHOLD = 0.30    # >30% powered-off -> Info finding
-_UNKNOWN_RATIO_THRESHOLD = 0.25        # >25% Unknown active VMs -> Warning
+_POWERED_OFF_RATIO_THRESHOLD = 0.30  # >30% powered-off -> Info finding
+_UNKNOWN_RATIO_THRESHOLD = 0.25  # >25% Unknown active VMs -> Warning
 _LARGE_VM_THRESHOLD_MIB = 1024 * 1024  # 1 TiB in MiB
-_IOPS_BUDGET_PER_DS = 100_000.0        # Standard Dell datastore IOPS budget
-_OLD_HW_VERSION = 17                   # vHW 17 = ESXi 7.0 -- minimum recommended
-_VERY_OLD_HW_VERSION = 14              # vHW 14 = ESXi 6.7 -- critical threshold
+_IOPS_BUDGET_PER_DS = 100_000.0  # Standard Dell datastore IOPS budget
+_OLD_HW_VERSION = 17  # vHW 17 = ESXi 7.0 -- minimum recommended
+_VERY_OLD_HW_VERSION = 14  # vHW 14 = ESXi 6.7 -- critical threshold
 
 
 # ---------------------------------------------------------------------------
@@ -50,12 +51,12 @@ class HealthFinding:
     affected_vms contains raw VM names for UI display ONLY -- never log these.
     """
 
-    check_id: str                      # e.g. "data_quality.zero_provisioned"
+    check_id: str  # e.g. "data_quality.zero_provisioned"
     severity: Severity
-    title: str                         # i18n key, e.g. "health.zero_provisioned.title"
-    detail: str                        # i18n key, e.g. "health.zero_provisioned.detail"
-    affected_count: int                # Number of VMs triggering this finding
-    affected_vms: tuple[str, ...]      # Sample VM names (max 5, for display only)
+    title: str  # i18n key, e.g. "health.zero_provisioned.title"
+    detail: str  # i18n key, e.g. "health.zero_provisioned.detail"
+    affected_count: int  # Number of VMs triggering this finding
+    affected_vms: tuple[str, ...]  # Sample VM names (max 5, for display only)
 
 
 @dataclass(frozen=True)
@@ -204,9 +205,7 @@ def _check_missing_ram(df: pd.DataFrame) -> list[HealthFinding]:
     ]
 
 
-def _check_high_powered_off_ratio(
-    full_df: pd.DataFrame, _active: pd.DataFrame
-) -> list[HealthFinding]:
+def _check_high_powered_off_ratio(full_df: pd.DataFrame, _active: pd.DataFrame) -> list[HealthFinding]:
     """Flag environments where >30% of VMs are powered off (stale data signal)."""
     total = len(full_df)
     if total == 0:
@@ -311,13 +310,7 @@ def _check_hw_version(df: pd.DataFrame) -> list[HealthFinding]:
     (LiveOptics exports or RVTools without HW version column).
     Never flag sentinel 0 as old hardware.
     """
-    hw = (
-        pd.to_numeric(
-            df.get("hw_version", pd.Series([0] * len(df))), errors="coerce"
-        )
-        .fillna(0)
-        .astype(int)
-    )
+    hw = pd.to_numeric(df.get("hw_version", pd.Series([0] * len(df))), errors="coerce").fillna(0).astype(int)
 
     # Skip entire check if no HW version data in this export
     if (hw > 0).sum() == 0:

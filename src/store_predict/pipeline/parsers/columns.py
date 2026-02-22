@@ -30,8 +30,8 @@ CANONICAL_COLUMNS: list[str] = [
     "avg_read_latency_ms",
     "avg_write_latency_ms",
     "iops_8k_equivalent",
-    "hw_version",      # int: vmx hardware level (0 = data not available from this export)
-    "tools_status",    # str: "toolsOk"|"toolsOld"|"toolsNotInstalled"|"toolsNotRunning"|""
+    "hw_version",  # int: vmx hardware level (0 = data not available from this export)
+    "tools_status",  # str: "toolsOk"|"toolsOld"|"toolsNotInstalled"|"toolsNotRunning"|""
     "row_index",
 ]
 

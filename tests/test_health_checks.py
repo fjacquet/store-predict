@@ -1,4 +1,5 @@
 """Tests for pipeline/health_checks.py -- all check functions and sentinel guards."""
+
 from __future__ import annotations
 
 import pandas as pd
@@ -158,23 +159,13 @@ class TestDataQualityChecks:
         """40% powered-off (2/5) should trigger the ratio finding."""
         rows = []
         for i in range(3):
-            rows.append(
-                _make_active_df(
-                    vm_name=[f"vm-on-{i}"], is_powered_on=[True], is_template=[False]
-                )
-            )
+            rows.append(_make_active_df(vm_name=[f"vm-on-{i}"], is_powered_on=[True], is_template=[False]))
         for i in range(2):
-            rows.append(
-                _make_active_df(
-                    vm_name=[f"vm-off-{i}"], is_powered_on=[False], is_template=[False]
-                )
-            )
+            rows.append(_make_active_df(vm_name=[f"vm-off-{i}"], is_powered_on=[False], is_template=[False]))
         df = pd.concat(rows, ignore_index=True)
         result = run_health_checks(df)
         assert "data_quality.high_powered_off_ratio" in _get_ids(result)
-        finding = next(
-            f for f in result.findings if f.check_id == "data_quality.high_powered_off_ratio"
-        )
+        finding = next(f for f in result.findings if f.check_id == "data_quality.high_powered_off_ratio")
         assert finding.severity == Severity.INFO
 
     def test_low_powered_off_ratio_no_finding(self) -> None:
@@ -214,9 +205,7 @@ class TestSizingRiskChecks:
         df = pd.concat(rows, ignore_index=True)
         result = run_health_checks(df)
         assert "sizing_risk.high_unknown_ratio" in _get_ids(result)
-        finding = next(
-            f for f in result.findings if f.check_id == "sizing_risk.high_unknown_ratio"
-        )
+        finding = next(f for f in result.findings if f.check_id == "sizing_risk.high_unknown_ratio")
         assert finding.severity == Severity.WARNING
 
     def test_low_unknown_ratio_no_finding(self) -> None:
@@ -239,9 +228,7 @@ class TestSizingRiskChecks:
         )
         result = run_health_checks(df)
         assert "sizing_risk.large_unknown_vms" in _get_ids(result)
-        finding = next(
-            f for f in result.findings if f.check_id == "sizing_risk.large_unknown_vms"
-        )
+        finding = next(f for f in result.findings if f.check_id == "sizing_risk.large_unknown_vms")
         assert finding.severity == Severity.WARNING
 
     def test_small_unknown_vm_no_finding(self) -> None:
@@ -265,9 +252,7 @@ class TestSizingRiskChecks:
         df = _make_active_df(peak_iops=[150000.0])
         result = run_health_checks(df)
         assert "sizing_risk.iops_budget_exceeded" in _get_ids(result)
-        finding = next(
-            f for f in result.findings if f.check_id == "sizing_risk.iops_budget_exceeded"
-        )
+        finding = next(f for f in result.findings if f.check_id == "sizing_risk.iops_budget_exceeded")
         assert finding.severity == Severity.WARNING
 
     def test_zero_iops_not_flagged(self) -> None:
@@ -307,9 +292,7 @@ class TestBestPracticeChecks:
         df = _make_active_df(hw_version=[11])
         result = run_health_checks(df)
         assert "best_practice.very_old_hw_version" in _get_ids(result)
-        finding = next(
-            f for f in result.findings if f.check_id == "best_practice.very_old_hw_version"
-        )
+        finding = next(f for f in result.findings if f.check_id == "best_practice.very_old_hw_version")
         assert finding.severity == Severity.CRITICAL
 
     def test_old_hw_version_triggers_warning(self) -> None:
@@ -317,9 +300,7 @@ class TestBestPracticeChecks:
         df = _make_active_df(hw_version=[14])
         result = run_health_checks(df)
         assert "best_practice.old_hw_version" in _get_ids(result)
-        finding = next(
-            f for f in result.findings if f.check_id == "best_practice.old_hw_version"
-        )
+        finding = next(f for f in result.findings if f.check_id == "best_practice.old_hw_version")
         assert finding.severity == Severity.WARNING
 
     def test_hw_version_16_triggers_warning(self) -> None:
@@ -344,10 +325,7 @@ class TestBestPracticeChecks:
 
     def test_hw_version_zero_all_vms_sentinel_skipped(self) -> None:
         """All VMs with hw_version=0 (entire LiveOptics export) must produce no HW findings."""
-        rows = [
-            _make_active_df(vm_name=[f"vm-{i}"], hw_version=[0], source_format=["liveoptics"])
-            for i in range(5)
-        ]
+        rows = [_make_active_df(vm_name=[f"vm-{i}"], hw_version=[0], source_format=["liveoptics"]) for i in range(5)]
         df = pd.concat(rows, ignore_index=True)
         ids = _get_ids(run_health_checks(df))
         assert "best_practice.old_hw_version" not in ids
@@ -369,18 +347,14 @@ class TestBestPracticeChecks:
         df = _make_active_df(tools_status=["toolsNotInstalled"])
         result = run_health_checks(df)
         assert "best_practice.tools_not_installed" in _get_ids(result)
-        finding = next(
-            f for f in result.findings if f.check_id == "best_practice.tools_not_installed"
-        )
+        finding = next(f for f in result.findings if f.check_id == "best_practice.tools_not_installed")
         assert finding.severity == Severity.CRITICAL
 
     def test_tools_not_running_triggers_warning(self) -> None:
         df = _make_active_df(tools_status=["toolsNotRunning"])
         result = run_health_checks(df)
         assert "best_practice.tools_not_running" in _get_ids(result)
-        finding = next(
-            f for f in result.findings if f.check_id == "best_practice.tools_not_running"
-        )
+        finding = next(f for f in result.findings if f.check_id == "best_practice.tools_not_running")
         assert finding.severity == Severity.WARNING
 
     def test_tools_ok_no_finding(self) -> None:
@@ -420,10 +394,7 @@ class TestBestPracticeChecks:
 class TestAffectedVms:
     def test_affected_vms_capped_at_five(self) -> None:
         """findings.affected_vms must contain at most 5 VM names."""
-        rows = [
-            _make_active_df(vm_name=[f"vm-missing-os-{i}"], os_name=[""])
-            for i in range(10)
-        ]
+        rows = [_make_active_df(vm_name=[f"vm-missing-os-{i}"], os_name=[""]) for i in range(10)]
         df = pd.concat(rows, ignore_index=True)
         result = run_health_checks(df)
         finding = next(f for f in result.findings if f.check_id == "data_quality.missing_os")
@@ -453,5 +424,6 @@ class TestAffectedVms:
         assert isinstance(finding, HealthFinding)
         # frozen dataclass should raise on attribute assignment
         import pytest
+
         with pytest.raises((AttributeError, TypeError)):
             finding.affected_count = 999  # type: ignore[misc]

@@ -144,9 +144,9 @@ async def review_page() -> None:
             ui.input(
                 placeholder=t("review.search_placeholder"),
                 on_change=lambda e: _on_quick_filter(e, grid),
-            ).classes("flex-1 max-w-sm").props(
-                "clearable dense outlined prepend-inner-icon=search"
-            ).tooltip(t("tooltip.quick_filter"))
+            ).classes("flex-1 max-w-sm").props("clearable dense outlined prepend-inner-icon=search").tooltip(
+                t("tooltip.quick_filter")
+            )
 
             # Column visibility panel (custom — AG Grid sidebar is Enterprise-only)
             toggleable_columns: list[tuple[str, str]] = [
@@ -155,9 +155,7 @@ async def review_page() -> None:
                 ("avg_iops", "columns.avg_iops"),
                 ("peak_iops", "columns.peak_iops"),
             ]
-            with ui.expansion(t("review.column_panel_title"), icon="view_column").classes(
-                "border rounded"
-            ):
+            with ui.expansion(t("review.column_panel_title"), icon="view_column").classes("border rounded"):
                 ui.label(t("review.column_panel_tip")).classes("text-xs text-gray-500 mb-2")
                 with ui.row().classes("items-center gap-6 flex-wrap"):
                     for _field, _key in toggleable_columns:

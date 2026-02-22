@@ -41,20 +41,18 @@ def _render_summary_badges(result: HealthCheckResult) -> None:
     """Render critical/warning/info count badges in a horizontal row."""
     with ui.row().classes("gap-3 items-center flex-wrap"):
         if result.critical_count > 0:
-            ui.label(
-                t("concerns.summary_critical", count=result.critical_count)
-            ).classes("bg-red-600 text-white text-sm font-bold px-3 py-1 rounded-full")
+            ui.label(t("concerns.summary_critical", count=result.critical_count)).classes(
+                "bg-red-600 text-white text-sm font-bold px-3 py-1 rounded-full"
+            )
         if result.warning_count > 0:
-            ui.label(
-                t("concerns.summary_warning", count=result.warning_count)
-            ).classes("bg-yellow-500 text-white text-sm font-bold px-3 py-1 rounded-full")
+            ui.label(t("concerns.summary_warning", count=result.warning_count)).classes(
+                "bg-yellow-500 text-white text-sm font-bold px-3 py-1 rounded-full"
+            )
         if result.info_count > 0:
-            ui.label(
-                t("concerns.summary_info", count=result.info_count)
-            ).classes("bg-blue-500 text-white text-sm font-bold px-3 py-1 rounded-full")
-        ui.label(
-            t("concerns.affected_count", count=result.total_vms_checked)
-        ).classes("text-sm text-gray-500")
+            ui.label(t("concerns.summary_info", count=result.info_count)).classes(
+                "bg-blue-500 text-white text-sm font-bold px-3 py-1 rounded-full"
+            )
+        ui.label(t("concerns.affected_count", count=result.total_vms_checked)).classes("text-sm text-gray-500")
 
 
 def _render_finding_card(finding: HealthFinding) -> None:
@@ -91,15 +89,9 @@ def _render_findings_section(
 
 def _render_findings_by_severity(findings: tuple[HealthFinding, ...]) -> None:
     """Group and render findings into three labelled sections."""
-    data_quality = [
-        f for f in findings if f.check_id.startswith("data_quality.")
-    ]
-    sizing_risk = [
-        f for f in findings if f.check_id.startswith("sizing_risk.")
-    ]
-    best_practice = [
-        f for f in findings if f.check_id.startswith("best_practice.")
-    ]
+    data_quality = [f for f in findings if f.check_id.startswith("data_quality.")]
+    sizing_risk = [f for f in findings if f.check_id.startswith("sizing_risk.")]
+    best_practice = [f for f in findings if f.check_id.startswith("best_practice.")]
 
     _render_findings_section(t("concerns.section_data_quality"), data_quality)
     _render_findings_section(t("concerns.section_sizing_risk"), sizing_risk)

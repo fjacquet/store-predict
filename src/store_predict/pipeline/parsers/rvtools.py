@@ -97,9 +97,7 @@ def parse_rvtools(path: Path) -> pd.DataFrame:
 
     # hw_version: integer vmx level, 0 if column absent or unreadable
     if col_map.get("hw_version"):
-        result["hw_version"] = (
-            pd.to_numeric(df[col_map["hw_version"]], errors="coerce").fillna(0).astype(int)
-        )
+        result["hw_version"] = pd.to_numeric(df[col_map["hw_version"]], errors="coerce").fillna(0).astype(int)
     else:
         result["hw_version"] = 0
 
