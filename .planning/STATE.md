@@ -2,57 +2,60 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-22 after v4.0 milestone)
+See: .planning/PROJECT.md (updated 2026-02-23 after v5.0 milestone started)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** Planning next milestone — run `/gsd:new-milestone`
+**Current focus:** Phase 23 — Multi-Cluster Compute (v5.0)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-23 — Milestone v5.0 started
+Phase: 23 of 26 (Multi-Cluster Compute)
+Plan: — of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-02-23 — v5.0 roadmap created (Phases 23-26)
 
-## Milestone
+Progress: [████████████████░░░░] 80% (milestones 1-4 complete)
 
-v5.0 Multi-Cluster & Export Completeness — IN PROGRESS
+## Performance Metrics
 
-## Completed
+**Velocity:**
+- Total plans completed: 47
+- Average duration: ~20 min
+- Total execution time: ~15.7 hours
 
-- [x] v1.0 MVP Sizing Tool (Phases 1-7)
-- [x] v1.1 i18n, Branding & Intelligence (Phases 8-13)
-- [x] v2.x Storage Models, DRR Variants, Observability
-- [x] v3.0 Datastore Layout Recommendations (Phases 14-19)
-- [x] v4.0 VM Improvements & Compute Sizing (Phases 20-22) — shipped 2026-02-22
+**By Phase (v5.0 — not started):**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 23. Multi-Cluster Compute | TBD | - | - |
+| 24. Health Findings Export | TBD | - | - |
+| 25. vMSC & DR Modeling | TBD | - | - |
+| 26. Documentation | TBD | - | - |
+
+*Updated after each plan completion*
 
 ## Accumulated Context
 
-- Full Python stack: NiceGUI + pandas + ReportLab + AG Grid
-- 439 tests, 8,166 LOC at v4.0 close
-- `row_index` is the stable AG Grid getRowId — never use vm_name for row identity
-- Health checks must read session state after user edits, not re-run classification
-- Compute presets loaded from CSV (`compute_presets.csv`); Custom entry must remain last
-- TypedDict pattern for NiceGUI page session config dicts (ADR-063)
-- AG Grid row grouping is Enterprise-only (Community edition constraint, locked decision)
+### Decisions
+
+- [Phase 21]: HealthCheckResult recomputed per-visit, not cached in session storage
+- [Phase 21]: Findings grouped by check_id prefix (data_quality/sizing_risk/best_practice)
+- [Phase 22]: compute_sizing() AP values always computed; ap_enabled only controls UI display
+- [Phase 22]: ComputeSizingResult uses flat fields not nested SiteResult; vmsc_hosts_per_site=0 (not None)
+- [Phase 22]: AG Grid row grouping is Enterprise-only — cannot use for cluster grouping in Community edition
+
+### Pending Todos
+
+None.
+
+### Blockers/Concerns
+
+- AG Grid Community edition constraint: cluster grouping in VM grid not available; per-cluster breakdown must be a separate table, not AG Grid grouping (locked decision from v4.0)
 
 ## Session Continuity
 
-Last session: 2026-02-22
-Stopped at: v4.0 complete-milestone workflow — archived, tagged v4.0
+Last session: 2026-02-23
+Stopped at: v5.0 roadmap created — Phases 23-26 defined
 Resume file: None
 
-Next step: `/gsd:new-milestone` for v5.0
-
-- **20-01**: Two-step placeholder approach — parsers set row_index=0, ingest_file overwrites with contiguous int after reset_index
-- **20-01**: AG Grid getRowId uses String(params.data.row_index) for explicit type safety
-- **20-01**: int() casts on both comparison sides prevent float/int mismatch from JSON round-trips
-- **20-02**: Toolbar placed after grid assignment so closures reference valid variable name (Python captures name, not value)
-- **20-02**: hide:True used instead of initialHide:True for reliable toggling with setColumnsVisible
-- **20-02**: Custom NiceGUI expansion panel used for column toggle (AG Grid sidebar is Enterprise-only)
-- [Phase 21-health-check-module-concerns-page]: hw_version sentinel 0 guards HW version checks; tools_status empty string guards tools checks
-- [Phase 21]: Findings grouped by check_id prefix (data_quality/sizing_risk/best_practice) not by Severity
-- [Phase 21]: HealthCheckResult recomputed per-visit, not cached in session storage
-- [Phase 22-01]: ComputeSizingResult uses flat fields not nested SiteResult; vmsc_hosts_per_site=0 (not None); overcommit range [0.5, 20.0]
-- [Phase 22]: dict[str, object] cfg type resolved via str() cast before int()/float() for mypy compliance
-- [Phase 22]: compute_sizing() AP values always computed; ap_enabled only controls UI display
+Next step: `/gsd:plan-phase 23`

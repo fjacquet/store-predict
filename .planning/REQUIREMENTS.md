@@ -26,7 +26,7 @@
 
 ### Documentation
 
-- [ ] **DOCS-01**: Product Requirements Document (PRD) created — formal document covering tool scope, user personas, use cases, feature rationale, and non-functional requirements
+- [x] **DOCS-01**: Product Requirements Document (PRD) created — formal document covering tool scope, user personas, use cases, feature rationale, and non-functional requirements
 
 ## v6 Requirements (Deferred)
 
@@ -48,23 +48,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLUS-01 | — | Pending |
-| CLUS-02 | — | Pending |
-| CLUS-03 | — | Pending |
-| CLUS-04 | — | Pending |
-| HEXP-01 | — | Pending |
-| HEXP-02 | — | Pending |
-| HEXP-03 | — | Pending |
-| VMSC-01 | — | Pending |
-| VMSC-02 | — | Pending |
-| VMSC-03 | — | Pending |
-| DOCS-01 | — | Pending |
+| CLUS-01 | Phase 23 | Pending |
+| CLUS-02 | Phase 23 | Pending |
+| CLUS-03 | Phase 23 | Pending |
+| CLUS-04 | Phase 23 | Pending |
+| HEXP-01 | Phase 24 | Pending |
+| HEXP-02 | Phase 24 | Pending |
+| HEXP-03 | Phase 24 | Pending |
+| VMSC-01 | Phase 25 | Pending |
+| VMSC-02 | Phase 25 | Pending |
+| VMSC-03 | Phase 25 | Pending |
+| DOCS-01 | Phase 26 | Complete |
 
 **Coverage:**
 - v5.0 requirements: 11 total
-- Mapped to phases: 0
-- Unmapped: 11 ⚠️
+- Mapped to phases: 11
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-23*
-*Last updated: 2026-02-23 after initial definition*
+*Last updated: 2026-02-23 after roadmap creation (Phases 23-26)*
