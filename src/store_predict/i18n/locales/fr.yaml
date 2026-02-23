@@ -13,6 +13,10 @@ upload:
   processing: "Traitement du fichier en cours, veuillez patienter..."
   llm_toggle: "Utiliser la classification IA"
   llm_disabled_hint: "Définissez LLM_ENABLED=true pour activer la classification IA"
+  analyse_button: "Analyser"
+  merge_summary: "%{total} VMs fusionnées (%{matched} correspondantes, %{rv_only} RVTools uniquement, %{lo_only} LiveOptics uniquement)"
+  format_conflict: "Les deux fichiers ont le même format. Veuillez téléverser un fichier RVTools et un fichier LiveOptics."
+  file_ready: "%{name} prêt (%{fmt})"
 
 review:
   title: "Révision des classifications"

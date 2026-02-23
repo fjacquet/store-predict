@@ -45,6 +45,7 @@ def clear_session_data() -> None:
     app.storage.tab.pop("project_name", None)
     app.storage.tab.pop("selected_datacenters", None)
     app.storage.tab.pop("selected_clusters", None)
+    app.storage.tab.pop("pending_files", None)
 
 
 def save_scope_selection(
@@ -198,3 +199,23 @@ def get_workload_options() -> list[dict[str, object]]:
         ],
         key=lambda e: str(e["label"]),
     )
+
+
+def get_pending_files() -> list[dict[str, object]]:
+    """Return the list of pending file dicts from tab-scoped session.
+
+    Each dict contains: ``path`` (str), ``fmt`` (str), ``name`` (str).
+    """
+    return list(app.storage.tab.get("pending_files", []))
+
+
+def add_pending_file(path: str, fmt: str, name: str) -> None:
+    """Append a file entry to the pending_files list in session."""
+    files: list[dict[str, object]] = list(app.storage.tab.get("pending_files", []))
+    files.append({"path": path, "fmt": fmt, "name": name})
+    app.storage.tab["pending_files"] = files
+
+
+def clear_pending_files() -> None:
+    """Remove all pending file entries from tab-scoped session."""
+    app.storage.tab.pop("pending_files", None)

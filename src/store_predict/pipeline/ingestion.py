@@ -133,3 +133,50 @@ def ingest_file(path: Path) -> pd.DataFrame:
     df["row_index"] = df.index.astype(int)
 
     return df
+
+
+def ingest_two_files(path1: Path, path2: Path) -> pd.DataFrame:
+    """Detect, parse, and merge one RVTools + one LiveOptics file.
+
+    Args:
+        path1: Path to the first uploaded file.
+        path2: Path to the second uploaded file.
+
+    Returns:
+        Merged DataFrame with canonical columns, template VMs filtered out.
+
+    Raises:
+        IngestionError: If the two files have the same format, or if either
+            file cannot be detected or parsed.
+    """
+    from store_predict.pipeline.merger import merge_dual_sources
+
+    fmt1 = detect_format(path1)
+    fmt2 = detect_format(path2)
+
+    liveoptics_formats = {FileFormat.LIVEOPTICS_XLSX, FileFormat.LIVEOPTICS_CSV}
+
+    # Validate we have one RVTools and one LiveOptics file
+    if fmt1 == FileFormat.RVTOOLS and fmt2 in liveoptics_formats:
+        rv_path, lo_path, lo_fmt = path1, path2, fmt2
+    elif fmt2 == FileFormat.RVTOOLS and fmt1 in liveoptics_formats:
+        rv_path, lo_path, lo_fmt = path2, path1, fmt1
+    else:
+        raise IngestionError(
+            "Both files have the same format. "
+            "Upload one RVTools and one LiveOptics file."
+        )
+
+    rv_df = parse_rvtools(rv_path)
+
+    lo_df = parse_liveoptics_xlsx(lo_path) if lo_fmt == FileFormat.LIVEOPTICS_XLSX else parse_liveoptics_csv(lo_path)
+
+    df = merge_dual_sources(rv_df, lo_df)
+
+    # Filter out template VMs — cast to bool first to avoid ~object dtype errors
+    if "is_template" in df.columns:
+        df = df[~df["is_template"].fillna(False).astype(bool)].reset_index(drop=True)
+
+    df["row_index"] = df.index.astype(int)
+
+    return df

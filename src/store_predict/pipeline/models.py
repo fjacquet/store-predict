@@ -12,6 +12,7 @@ class FileFormat(Enum):
     RVTOOLS = "rvtools"
     LIVEOPTICS_XLSX = "liveoptics_xlsx"
     LIVEOPTICS_CSV = "liveoptics_csv"
+    MERGED = "merged"
 
 
 @dataclass(frozen=True)

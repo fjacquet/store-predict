@@ -19,7 +19,7 @@ from store_predict.pipeline.classification import (
     classify_dataframe,
 )
 from store_predict.pipeline.errors import IngestionError
-from store_predict.pipeline.ingestion import ingest_file
+from store_predict.pipeline.ingestion import ingest_file, ingest_two_files
 from store_predict.pipeline.llm_classifier import classify_unknown_vms_async
 from store_predict.pipeline.validation import validate_upload
 from store_predict.pipeline.zip_extraction import extract_liveoptics_from_zip
@@ -27,8 +27,11 @@ from store_predict.services.drr_table import DRRTable
 from store_predict.services.llm_config import LLMConfig
 from store_predict.ui.layout import layout
 from store_predict.ui.state import (
+    add_pending_file,
+    clear_pending_files,
     clear_session_data,
     get_llm_ui_enabled,
+    get_pending_files,
     save_rule_suggestions,
     set_llm_ui_enabled,
     set_project_name,
@@ -56,18 +59,42 @@ async def upload_page() -> None:
         # Set initial value from session (slot context is active here)
         project_input.value = str(app.storage.tab.get("project_name", ""))
 
-        # File upload dropzone
+        # File chips container — shows uploaded file names + format badges
+        chips_row = ui.row().classes("w-full flex-wrap gap-2")
+
+        def _refresh_chips() -> None:
+            chips_row.clear()
+            with chips_row:
+                for entry in get_pending_files():
+                    ui.chip(
+                        t("upload.file_ready", name=entry["name"], fmt=entry["fmt"]),
+                        icon="check_circle",
+                        color="positive",
+                    ).props("outline")
+
+        _refresh_chips()
+
+        # File upload dropzone — multiple=True, max_files=2, NO auto_upload
         with ui.card().classes("w-full"):
             upload_widget = (
                 ui.upload(
                     label=t("upload.drop_label"),
                     on_upload=lambda e: background_tasks.create(handle_upload(e)),
                     auto_upload=True,
+                    multiple=True,
+                    max_files=2,
                     max_file_size=50_000_000,
                 )
                 .props('accept=".xlsx,.csv,.zip"')
                 .classes("w-full")
             )
+
+        # "Analyser" button — always enabled; run_analysis guards against empty pending list
+        analyse_btn = (  # noqa: F841
+            ui.button(t("upload.analyse_button"), on_click=lambda: background_tasks.create(run_analysis()))
+            .classes("w-full")
+            .props("color=primary")
+        )
 
         # Spinner and progress bar (initially hidden)
         with ui.column().classes("w-full items-center gap-2"):
@@ -92,34 +119,17 @@ async def upload_page() -> None:
                 ui.label(t("upload.llm_disabled_hint")).classes("text-xs text-gray-400 italic")
 
         async def handle_upload(e: object) -> None:
-            """Process uploaded file through ingestion + classification pipeline.
+            """Stage an uploaded file: validate, write to temp, update chips.
 
-            Steps: temp file -> ingest -> classify -> DRR lookup -> session state -> navigate.
-            Wraps blocking I/O with run.io_bound so the event loop stays responsive.
-
+            Does NOT run the pipeline — that happens on "Analyser" click.
             NiceGUI background tasks never have slot context (the slot stack is always empty).
             All calls that need client context (app.storage.tab, ui.notify, ui.navigate.to)
             must use `with upload_widget:` to enter a slot and make the client reachable.
             `with upload_widget:` doesn't add child elements — it only sets the slot context.
             """
-            # Enter upload_widget slot to make context.client available.
-            with upload_widget:
-                _tab = app.storage.tab
-                # Clear stale session data while client context is active.
-                clear_session_data()
-            _project_name = str(_tab.get("project_name", ""))
-            _llm_ui_enabled = bool(_tab.get("llm_ui_enabled", True))
-
-            tmp_path: Path | None = None
-            spinner.visible = True
-            progress.visible = True
-            progress.value = 0.1
-            upload_widget.disable()
             try:
-                # Read and validate before writing to disk
                 content = await e.file.read()  # type: ignore[attr-defined]
 
-                # Detect ZIP upload and extract LiveOptics xlsx before validation
                 original_filename = e.file.name  # type: ignore[attr-defined]
                 filename = original_filename
                 if filename.lower().endswith(".zip"):
@@ -133,74 +143,14 @@ async def upload_page() -> None:
                     tmp.write(content)
                     tmp_path = Path(tmp.name)
 
-                progress.value = 0.3
-                # Run blocking I/O in thread pool so the event loop stays responsive
-                df = await run.io_bound(ingest_file, tmp_path)
+                # Detect format so we can show a badge
+                from store_predict.pipeline.ingestion import detect_format
 
-                progress.value = 0.6
-                registry = RuleRegistry(build_default_rules())
-                df = await run.io_bound(classify_dataframe, df, registry)
+                fmt = detect_format(tmp_path)
 
-                # --- LLM Classification Fallback ---
-                logger.info(
-                    "LLM config: enabled=%s ui_enabled=%s model=%s api_base=%s",
-                    llm_cfg.enabled,
-                    _llm_ui_enabled,
-                    llm_cfg.model,
-                    llm_cfg.api_base,
-                )
-                if llm_cfg.enabled and _llm_ui_enabled:
-                    with upload_widget:
-                        llm_notif = ui.notification(t("llm.classifying"), spinner=True, timeout=None, type="info")
-                    try:
-                        drr_table_for_llm = DRRTable.from_csv(DRR_CSV_PATH)
-                        vm_records: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
-
-                        def _llm_progress(done: int, total: int) -> None:
-                            llm_notif.message = t("llm.classifying_progress", done=done, total=total)
-
-                        vm_records, rule_suggestions = await classify_unknown_vms_async(
-                            vm_records, drr_table_for_llm, llm_cfg, on_progress=_llm_progress
-                        )
-                        save_rule_suggestions(rule_suggestions)
-                        df = pd.DataFrame(vm_records)
-                        llm_count = sum(1 for r in vm_records if r.get("classification_confidence") == "llm")
-                        if llm_count > 0:
-                            llm_notif.message = t("llm.classified_notify", count=llm_count)
-                            llm_notif.type = "positive"
-                        else:
-                            llm_notif.dismiss()
-                    except Exception:
-                        llm_notif.message = t("llm.error")
-                        llm_notif.type = "negative"
-                    finally:
-                        llm_notif.spinner = False
-                # --- End LLM Classification Fallback ---
-
-                progress.value = 0.85
-                # Add DRR column from reference table
-                drr_table = DRRTable.from_csv(DRR_CSV_PATH)
-                df["drr"] = df.apply(
-                    lambda r: drr_table.get_ratio(r["workload_category"], r["workload_subcategory"]),
-                    axis=1,
-                )
-
-                # Store results via pre-captured _tab reference (dict persists beyond slot).
-                records: list[dict[str, object]] = df.to_dict(orient="records")  # type: ignore[assignment]
-                for row in records:
-                    for key, val in row.items():
-                        if isinstance(val, float) and val != val:  # NaN check
-                            row[key] = None
-                _tab["vm_data"] = records
-                _tab["project_name"] = _project_name
-                progress.value = 1.0
-
-                # Notify and navigate — both need client context via slot
                 with upload_widget:
-                    ui.notify(t("upload.loaded_notify", count=len(df)), type="positive")
-                await asyncio.sleep(0.3)
-                with upload_widget:
-                    ui.navigate.to("/scope")
+                    add_pending_file(str(tmp_path), fmt.value, filename)
+                    _refresh_chips()
 
             except IngestionError as exc:
                 with upload_widget:
@@ -208,9 +158,148 @@ async def upload_page() -> None:
             except Exception:
                 with upload_widget:
                     ui.notify(t("error.unexpected"), type="negative")
+
+        async def _run_pipeline(
+            df: pd.DataFrame,
+            _tab: dict[str, object],
+            _project_name: str,
+            _llm_ui_enabled: bool,
+        ) -> None:
+            """Classify, enrich with DRR, store results, and navigate.
+
+            Shared by single-file and two-file paths.
+            _tab, _project_name, _llm_ui_enabled must be captured inside a slot
+            context by the caller before this coroutine is awaited.
+            """
+
+            progress.value = 0.6
+            registry = RuleRegistry(build_default_rules())
+            df = await run.io_bound(classify_dataframe, df, registry)
+
+            # --- LLM Classification Fallback ---
+            logger.info(
+                "LLM config: enabled=%s ui_enabled=%s model=%s api_base=%s",
+                llm_cfg.enabled,
+                _llm_ui_enabled,
+                llm_cfg.model,
+                llm_cfg.api_base,
+            )
+            if llm_cfg.enabled and _llm_ui_enabled:
+                with upload_widget:
+                    llm_notif = ui.notification(t("llm.classifying"), spinner=True, timeout=None, type="info")
+                try:
+                    drr_table_for_llm = DRRTable.from_csv(DRR_CSV_PATH)
+                    vm_records: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
+
+                    def _llm_progress(done: int, total: int) -> None:
+                        llm_notif.message = t("llm.classifying_progress", done=done, total=total)
+
+                    vm_records, rule_suggestions = await classify_unknown_vms_async(
+                        vm_records, drr_table_for_llm, llm_cfg, on_progress=_llm_progress
+                    )
+                    save_rule_suggestions(rule_suggestions)
+                    df = pd.DataFrame(vm_records)
+                    llm_count = sum(1 for r in vm_records if r.get("classification_confidence") == "llm")
+                    if llm_count > 0:
+                        llm_notif.message = t("llm.classified_notify", count=llm_count)
+                        llm_notif.type = "positive"
+                    else:
+                        llm_notif.dismiss()
+                except Exception:
+                    llm_notif.message = t("llm.error")
+                    llm_notif.type = "negative"
+                finally:
+                    llm_notif.spinner = False
+            # --- End LLM Classification Fallback ---
+
+            progress.value = 0.85
+            drr_table = DRRTable.from_csv(DRR_CSV_PATH)
+            df["drr"] = df.apply(
+                lambda r: drr_table.get_ratio(r["workload_category"], r["workload_subcategory"]),
+                axis=1,
+            )
+
+            records: list[dict[str, object]] = df.to_dict(orient="records")  # type: ignore[assignment]
+            for row in records:
+                for key, val in row.items():
+                    if isinstance(val, float) and val != val:  # NaN check
+                        row[key] = None
+            _tab["vm_data"] = records
+            _tab["project_name"] = _project_name
+            progress.value = 1.0
+
+            with upload_widget:
+                ui.notify(t("upload.loaded_notify", count=len(df)), type="positive")
+            await asyncio.sleep(0.3)
+            with upload_widget:
+                ui.navigate.to("/scope")
+
+        async def run_analysis() -> None:
+            """Run the sizing pipeline on all staged files.
+
+            1 file  → ingest_file() (existing single-file path)
+            2 files → ingest_two_files() (merge path)
+            """
+            # Capture all tab-bound values inside slot context before the async work
+            with upload_widget:
+                _tab = app.storage.tab
+                pending = get_pending_files()  # capture before clear_session_data wipes it
+                _project_name = str(_tab.get("project_name", ""))
+                _llm_ui_enabled = bool(_tab.get("llm_ui_enabled", True))
+                clear_session_data()
+
+            if not pending:
+                with upload_widget:
+                    ui.notify(t("upload.supported_formats"), type="warning")
+                return
+
+            spinner.visible = True
+            progress.visible = True
+            progress.value = 0.1
+            upload_widget.disable()
+
+            try:
+                if len(pending) == 1:
+                    tmp_path = Path(str(pending[0]["path"]))
+                    df = await run.io_bound(ingest_file, tmp_path)
+                else:
+                    path1 = Path(str(pending[0]["path"]))
+                    path2 = Path(str(pending[1]["path"]))
+                    df = await run.io_bound(ingest_two_files, path1, path2)
+
+                    # Show merge summary notification
+                    stats = df.attrs.get("merge_stats", {})
+                    if stats:
+                        with upload_widget:
+                            ui.notify(
+                                t(
+                                    "upload.merge_summary",
+                                    total=stats.get("total", 0),
+                                    matched=stats.get("matched", 0),
+                                    rv_only=stats.get("rv_only", 0),
+                                    lo_only=stats.get("lo_only", 0),
+                                ),
+                                type="info",
+                                timeout=8000,
+                            )
+
+                progress.value = 0.3
+                await _run_pipeline(df, _tab, _project_name, _llm_ui_enabled)
+
+            except IngestionError as exc:
+                with upload_widget:
+                    ui.notify(str(exc), type="negative")
+            except Exception:
+                logger.exception("Unexpected error in run_analysis")
+                with upload_widget:
+                    ui.notify(t("error.unexpected"), type="negative")
             finally:
                 spinner.visible = False
                 progress.visible = False
                 upload_widget.enable()
-                if tmp_path is not None:
-                    tmp_path.unlink(missing_ok=True)
+                # Clean up temp files
+                for entry in pending:
+                    Path(str(entry["path"])).unlink(missing_ok=True)
+                with upload_widget:
+                    clear_pending_files()
+                    _refresh_chips()

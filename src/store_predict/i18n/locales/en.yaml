@@ -13,6 +13,10 @@ upload:
   processing: "Processing file, please wait..."
   llm_toggle: "Use AI classification"
   llm_disabled_hint: "Set LLM_ENABLED=true to activate AI classification"
+  analyse_button: "Analyse"
+  merge_summary: "Merged %{total} VMs (%{matched} matched, %{rv_only} RVTools-only, %{lo_only} LiveOptics-only)"
+  format_conflict: "Both files have the same format. Upload one RVTools and one LiveOptics file."
+  file_ready: "%{name} ready (%{fmt})"
 
 review:
   title: Review Classifications
