@@ -106,7 +106,8 @@ def save_filtered_rows(row_data: list[dict[str, Any]], project_name: str) -> Non
 
     # Merge changes into full records
     for full_row in full_records:
-        idx = int(full_row.get("row_index", -1))  # type: ignore[arg-type]
+        raw_idx = full_row.get("row_index", -1)
+        idx = int(raw_idx) if isinstance(raw_idx, (int, float, str)) else -1
         if idx in edited_by_idx:
             edited = edited_by_idx[idx]
             for key in ("workload_category", "workload_subcategory", "drr"):

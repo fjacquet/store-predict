@@ -670,6 +670,7 @@ async def layout_page() -> None:
     vm_data: list[dict[str, Any]] | None = None
     if _df is not None and not _df.empty:
         vm_data = _df.to_dict(orient="records")  # type: ignore[assignment]
+        assert vm_data is not None  # narrowing; guarded by `if _df is not None`
         for _row in vm_data:
             for _k, _v in _row.items():
                 if isinstance(_v, float) and _v != _v:
