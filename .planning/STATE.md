@@ -11,8 +11,8 @@ See: .planning/PROJECT.md (updated 2026-02-23 after v5.0 milestone started)
 
 Phase: 24 of 26 (Health Findings Export)
 Plan: 2 of 2 in current phase
-Status: Phase 24 complete — all plans done
-Last activity: 2026-02-23 — Phase 24 Plan 02 complete (Excel findings worksheet + report.py wiring)
+Status: Phase 24 complete — all plans done (including gap closure plan 03)
+Last activity: 2026-02-23 — Phase 24 Plan 03 complete (HEXP-01/02 gap closure: findings in Playwright PDF via report_print.py)
 
 Progress: [████████████████░░░░] 80% (milestones 1-4 complete)
 
@@ -37,6 +37,7 @@ Progress: [████████████████░░░░] 80% (mi
 | Phase 23-multi-cluster-compute P02 | 1 | 2 tasks | 2 files |
 | Phase 24-health-findings-export P01 | 10 | 2 tasks | 3 files |
 | Phase 24-health-findings-export P02 | 12 | 2 tasks | 4 files |
+| Phase 24 P03 | 8 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -56,6 +57,8 @@ Progress: [████████████████░░░░] 80% (mi
 - [Phase 24-health-findings-export]: _category_label() maps check_id prefix to translated category; findings sorted critical-first in appendix page
 - [Phase 24-health-findings-export]: Reuse pdf.findings_category_* keys in Excel sheet to avoid duplicate i18n translations
 - [Phase 24-health-findings-export]: Size-based PDF test assertions for backward-compatibility tests due to ReportLab non-deterministic bytes
+- [Phase 24]: Serialize findings as list[dict] in print_session rather than re-running run_health_checks() in report_print.py — avoids duplicate computation and ensures PDF/UI consistency
+- [Phase 24]: HealthFinding.affected_vms (tuple) serialized as list for JSON safety, reconstructed as tuple on deserialization in report_print.py
 
 ### Pending Todos
 
@@ -68,7 +71,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 24-health-findings-export 24-02-PLAN.md
+Stopped at: Completed 24-health-findings-export 24-03-PLAN.md
 Resume file: None
 
 Next step: Execute Phase 25 (vMSC & DR Modeling)
