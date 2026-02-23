@@ -35,6 +35,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
+  - PRD: prd.md
   - Architecture: architecture.md
   - User Guide:
     - Overview: user-guide/index.md
