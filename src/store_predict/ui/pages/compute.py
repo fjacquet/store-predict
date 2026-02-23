@@ -203,10 +203,13 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
                     ui.icon("warning", size="1.2rem").classes("text-amber-500")
                     ui.label(t("compute.vmsc_no_dc_data")).classes("text-sm text-amber-700")
             else:
-                for site in result.vmsc_sites:
+                for site, host_count in zip(
+                    result.vmsc_sites,
+                    [result.vmsc_site_a_hosts, result.vmsc_site_b_hosts],
+                ):
                     with ui.row().classes("items-center gap-2"):
                         ui.icon("location_on", size="1rem").classes("text-purple-500")
-                        ui.label(f"{site}: {result.vmsc_hosts_per_site} hosts").classes("text-sm")
+                        ui.label(f"{site}: {host_count} hosts").classes("text-sm")
 
     # Active/Passive section (show if toggle active)
     if cfg["ap_enabled"]:

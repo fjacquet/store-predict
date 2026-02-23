@@ -202,11 +202,12 @@ class TestOvercommitClamping:
 
 class TestVMSC:
     def test_vmsc_unavailable_single_datacenter(self) -> None:
-        """All VMs in DC1 -> vmsc_available=False, vmsc_hosts_per_site=0."""
+        """All VMs in DC1 -> vmsc_available=False, vmsc_site_a_hosts=0, vmsc_site_b_hosts=0."""
         df = _make_active_df(datacenter=["DC1"])
         result = compute_sizing(df, _R760, vmsc_enabled=True)
         assert result.vmsc_available is False
-        assert result.vmsc_hosts_per_site == 0
+        assert result.vmsc_site_a_hosts == 0
+        assert result.vmsc_site_b_hosts == 0
 
     def test_vmsc_unavailable_empty_datacenter(self) -> None:
         """Empty datacenter string -> vmsc_available=False."""
@@ -240,7 +241,7 @@ class TestVMSC:
         assert len(result.vmsc_sites) == 2
 
     def test_vmsc_disabled_no_per_site_count(self) -> None:
-        """vmsc_available=True but vmsc_enabled=False -> vmsc_hosts_per_site=0."""
+        """vmsc_available=True but vmsc_enabled=False -> vmsc_site_a_hosts=vmsc_site_b_hosts=0."""
         rows = [
             _make_active_df(vm_name=["vm-dc1"], datacenter=["DC1"]),
             _make_active_df(vm_name=["vm-dc2"], datacenter=["DC2"]),
@@ -248,10 +249,11 @@ class TestVMSC:
         df = pd.concat(rows, ignore_index=True)
         result = compute_sizing(df, _R760, vmsc_enabled=False)
         assert result.vmsc_available is True
-        assert result.vmsc_hosts_per_site == 0
+        assert result.vmsc_site_a_hosts == 0
+        assert result.vmsc_site_b_hosts == 0
 
     def test_vmsc_enabled_returns_per_site_count(self) -> None:
-        """vmsc_available=True + vmsc_enabled=True -> vmsc_hosts_per_site > 0."""
+        """vmsc_available=True + vmsc_enabled=True -> vmsc_site_a_hosts > 0 and vmsc_site_b_hosts > 0."""
         rows = [
             _make_active_df(vm_name=["vm-dc1"], datacenter=["DC1"]),
             _make_active_df(vm_name=["vm-dc2"], datacenter=["DC2"]),
@@ -259,7 +261,8 @@ class TestVMSC:
         df = pd.concat(rows, ignore_index=True)
         result = compute_sizing(df, _R760, vmsc_enabled=True)
         assert result.vmsc_available is True
-        assert result.vmsc_hosts_per_site > 0
+        assert result.vmsc_site_a_hosts > 0
+        assert result.vmsc_site_b_hosts > 0
 
 
 # ---------------------------------------------------------------------------
@@ -303,10 +306,10 @@ class TestActivePassive:
         assert result.ap_secondary_hosts == max(1, math.ceil(result.hosts_n1 / 2))
         assert result.ap_secondary_hosts >= 1
 
-    def test_ap_primary_equals_hosts_n1(self) -> None:
-        """ap_primary_hosts must always equal hosts_n1."""
+    def test_ap_primary_equals_hosts_n1_when_full_ratio(self) -> None:
+        """ap_active_ratio=1.0 (default) -> ap_primary_hosts equals hosts_n1."""
         df = _make_active_df(num_cpus=[100], memory_mib=[8192.0])
-        result = compute_sizing(df, _R760)
+        result = compute_sizing(df, _R760, ap_active_ratio=1.0)
         assert result.ap_primary_hosts == result.hosts_n1
 
 
