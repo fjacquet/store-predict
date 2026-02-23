@@ -124,7 +124,10 @@ Plans:
   1. In vMSC mode, engineer can set any VM split percentage between sites (e.g., 60/40) instead of the fixed 50/50
   2. In A/P DR mode, engineer can configure what percentage of VMs are active on the primary site
   3. The /compute page shows per-site host counts for vMSC and A/P DR as distinct labeled rows (Site A / Site B)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 25-01-PLAN.md — Pipeline: add vmsc_split_ratio + ap_active_ratio to compute_sizing(), replace vmsc_hosts_per_site with vmsc_site_a_hosts/vmsc_site_b_hosts, update i18n and tests
+- [ ] 25-02-PLAN.md — UI: add ratio inputs to settings panel, update results panel to show Site A / Site B rows for vMSC and A/P DR
 
 ### Phase 26: Documentation
 **Goal**: PRD exists as a formal reference document for the project
@@ -162,6 +165,6 @@ Plans:
 | 21. Health Check & Concerns | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 22. Compute Sizing | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 23. Multi-Cluster Compute | v5.0 | 2/2 | Complete | 2026-02-23 |
-| 24. Health Findings Export | 3/3 | Complete    | 2026-02-23 | 2026-02-23 |
-| 25. vMSC & DR Modeling | v5.0 | 0/TBD | Not started | - |
+| 24. Health Findings Export | v5.0 | 3/3 | Complete | 2026-02-23 |
+| 25. vMSC & DR Modeling | v5.0 | 0/2 | Not started | - |
 | 26. Documentation | v5.0 | 0/TBD | Not started | - |
