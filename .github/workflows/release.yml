@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install uv
-        uses: astral-sh/setup-uv@v5  # pin SHA via Renovate/Dependabot
+        uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
         with:
           version: "latest"
       - name: Install build tools
@@ -34,7 +34,7 @@ jobs:
       - name: Install project (for SBOM scan)
         run: uv sync --frozen
       - name: Generate Python package SBOM
-        uses: anchore/sbom-action@v0  # pin SHA via Renovate/Dependabot
+        uses: anchore/sbom-action@28d71544de8eaf1b958d335707167c5f783590ad # v0.22.2
         with:
           format: cyclonedx-json
           output-file: sbom.cyclonedx.json
@@ -90,7 +90,7 @@ jobs:
             dist/*
             sbom/sbom.cyclonedx.json
       - name: Attest Python package SBOM
-        uses: actions/attest-sbom@v2
+        uses: actions/attest-sbom@4651f806c01d8637787e274ac3bdf724ef169f34 # v3.0.0
         with:
           subject-path: dist/
           sbom-path: sbom/sbom.cyclonedx.json
