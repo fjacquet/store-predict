@@ -178,4 +178,4 @@ Plans:
 | 23. Multi-Cluster Compute | v5.0 | 2/2 | Complete | 2026-02-23 |
 | 24. Health Findings Export | v5.0 | 3/3 | Complete | 2026-02-23 |
 | 25. vMSC & DR Modeling | 2/2 | Complete    | 2026-02-23 | - |
-| 26. Documentation | 1/1 | Complete   | 2026-02-23 | - |
+| 26. Documentation | 1/1 | Complete    | 2026-02-23 | - |
