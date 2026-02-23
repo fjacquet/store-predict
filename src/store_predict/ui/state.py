@@ -35,6 +35,16 @@ def load_session_data() -> pd.DataFrame | None:
     return pd.DataFrame(records)
 
 
+def clear_session_data() -> None:
+    """Remove uploaded VM data and project name from tab-scoped session.
+
+    Call this before processing a new upload so stale data cannot bleed
+    into the review page if the new upload fails partway through.
+    """
+    app.storage.tab.pop("vm_data", None)
+    app.storage.tab.pop("project_name", None)
+
+
 def get_project_name() -> str:
     """Return the current project name from session storage."""
     return str(app.storage.tab.get("project_name", ""))

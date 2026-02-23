@@ -381,3 +381,4 @@ All v5.0 requirements shipped in Phases 23–26.
 ---
 
 *Last updated: 2026-02-23 after v5.0 milestone shipped*
+2025-11-25-W11-24h2-Cortex-12GB-DC1

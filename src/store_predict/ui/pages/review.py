@@ -15,6 +15,7 @@ from store_predict.ui.components.vm_table import create_vm_table
 from store_predict.ui.components.workload_dialog import WorkloadDialog
 from store_predict.ui.layout import layout
 from store_predict.ui.state import (
+    clear_session_data,
     get_project_name,
     get_storage_model,
     get_workload_options,
@@ -23,6 +24,24 @@ from store_predict.ui.state import (
     save_session_data,
     set_storage_model,
 )
+
+# Columns sent to AG Grid as rowData.  Trimmed from the full session record
+# to reduce the JSON payload (~35% smaller) and avoid sending fields that
+# the review page never displays.  The full record is preserved in session
+# storage and written back on every cell-change save.
+_GRID_COLS: frozenset[str] = frozenset({
+    "vm_name", "workload_category", "workload_subcategory", "drr",
+    "provisioned_mib", "classification_confidence",
+    "num_cpus", "memory_mib", "avg_iops", "peak_iops",
+    "os_name", "vm_description", "in_use_mib",
+    "iops_8k_equivalent", "peak_throughput_mbs",
+    "row_index",
+})
+
+
+def _to_grid_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Return a trimmed copy of *rows* containing only AG Grid-needed columns."""
+    return [{k: v for k, v in row.items() if k in _GRID_COLS} for row in rows]
 
 
 async def _on_quick_filter(e: Any, grid: ui.aggrid) -> None:
@@ -96,8 +115,9 @@ async def review_page() -> None:
             set_storage_model(new_model)
             apply_storage_model(row_data, new_model, drr_table)
             save_session_data(pd.DataFrame(row_data), get_project_name())
-            grid.options["rowData"] = row_data
-            grid.update()
+            trimmed = _to_grid_rows(row_data)
+            grid.options["rowData"] = trimmed
+            grid.run_grid_method("setGridOption", "rowData", trimmed)
             _rebuild_stats(stats_container, row_data)
 
         storage_toggle.on_value_change(lambda e: _on_model_change(e.value))
@@ -128,7 +148,7 @@ async def review_page() -> None:
 
         # AG Grid table — assigned first so toolbar closures can reference the name
         grid = create_vm_table(
-            row_data,
+            _to_grid_rows(row_data),
             categories,
             on_cell_changed=lambda e: _handle_cell_change(e, row_data, drr_table, grid, stats_container),
             on_row_clicked=lambda e: _handle_row_click(e, detail_bar, has_perf),
@@ -167,6 +187,15 @@ async def review_page() -> None:
 
         # Bulk actions + navigation
         with ui.row().classes("w-full justify-between mt-4"):
+            def _new_analysis() -> None:
+                clear_session_data()
+                ui.navigate.to("/upload")
+
+            ui.button(
+                t("review.new_analysis"),
+                on_click=_new_analysis,
+                icon="restart_alt",
+            ).classes("bg-gray-200 text-gray-800").tooltip(t("tooltip.new_analysis"))
             ui.button(
                 t("review.bulk_update"),
                 on_click=lambda: _handle_bulk_update(
@@ -302,9 +331,11 @@ async def _handle_bulk_update(
     filter_model = await grid.run_grid_method("getFilterModel")
     current_page = await grid.run_grid_method("paginationGetCurrentPage")
 
-    # Refresh grid and stats
-    grid.options["rowData"] = row_data
-    grid.update()
+    # Refresh grid and stats — keep Python-side options in sync so
+    # any subsequent update_grid() cycle preserves the data.
+    trimmed = _to_grid_rows(row_data)
+    grid.options["rowData"] = trimmed
+    grid.run_grid_method("setGridOption", "rowData", trimmed)
     _rebuild_stats(stats_container, row_data)
 
     # Restore filter/page state
@@ -375,9 +406,11 @@ async def _handle_cell_change(
     filter_model = await grid.run_grid_method("getFilterModel")
     current_page = await grid.run_grid_method("paginationGetCurrentPage")
 
-    # Refresh grid and stats
-    grid.options["rowData"] = row_data
-    grid.update()
+    # Refresh grid and stats — keep Python-side options in sync so
+    # any subsequent update_grid() cycle preserves the data.
+    trimmed = _to_grid_rows(row_data)
+    grid.options["rowData"] = trimmed
+    grid.run_grid_method("setGridOption", "rowData", trimmed)
     _rebuild_stats(stats_container, row_data)
 
     # Restore filter/page state after update

@@ -18,6 +18,7 @@ review:
   title: Review Classifications
   project_label: "Project: %{name}"
   no_data: No data uploaded yet.
+  new_analysis: New Analysis
   bulk_update: Bulk Update Workload
   generate_report: Generate Report
   no_rows_selected: "No rows selected. Use checkboxes to select VMs first."
@@ -268,6 +269,7 @@ excel:
 
 tooltip:
   llm_toggle: "Enable AI (LLM) classification for unknown VMs"
+  new_analysis: "Clear session data and start a new analysis from the upload page"
   bulk_update: "Apply a workload category to all selected rows"
   storage_model: "Select the target Dell storage platform — affects DRR coefficients"
   download_pdf: "Download a one-page sizing report as PDF"

@@ -18,6 +18,7 @@ review:
   title: "Révision des classifications"
   project_label: "Projet : %{name}"
   no_data: "Aucune donnée chargée."
+  new_analysis: "Nouvelle analyse"
   bulk_update: "Mise à jour groupée"
   generate_report: "Générer le rapport"
   no_rows_selected: "Aucune ligne sélectionnée. Utilisez les cases à cocher pour sélectionner des VMs."
@@ -268,6 +269,7 @@ excel:
 
 tooltip:
   llm_toggle: "Activer la classification par IA (LLM) pour les VMs inconnues"
+  new_analysis: "Effacer la session et démarrer une nouvelle analyse depuis la page de téléchargement"
   bulk_update: "Appliquer une catégorie de charge à toutes les lignes sélectionnées"
   storage_model: "Sélectionner la plateforme de stockage Dell cible — affecte les coefficients DRR"
   download_pdf: "Télécharger un rapport de dimensionnement d'une page en PDF"

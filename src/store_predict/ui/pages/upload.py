@@ -27,6 +27,7 @@ from store_predict.services.drr_table import DRRTable
 from store_predict.services.llm_config import LLMConfig
 from store_predict.ui.layout import layout
 from store_predict.ui.state import (
+    clear_session_data,
     get_llm_ui_enabled,
     save_rule_suggestions,
     set_llm_ui_enabled,
@@ -104,6 +105,8 @@ async def upload_page() -> None:
             # Enter upload_widget slot to make context.client available.
             with upload_widget:
                 _tab = app.storage.tab
+                # Clear stale session data while client context is active.
+                clear_session_data()
             _project_name = str(_tab.get("project_name", ""))
             _llm_ui_enabled = bool(_tab.get("llm_ui_enabled", True))
 

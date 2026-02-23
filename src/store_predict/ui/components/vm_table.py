@@ -61,6 +61,12 @@ def create_vm_table(
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
             "minWidth": 200,
+            # Explicit valueGetter required: AG Grid v34's default field-based
+            # extraction fails silently for vm_name after NiceGUI's
+            # update_grid() destroy/recreate cycle.  The data IS present in
+            # row nodes (confirmed via forEachNode + getCellValue) but the
+            # default cell renderer receives undefined for params.value.
+            ":valueGetter": "params => params.data?.vm_name",
         },
         {
             "field": "workload_category",
@@ -164,9 +170,10 @@ def create_vm_table(
         "context": {},
     }
 
-    # Apply French locale text when locale is 'fr'
+    # Apply French locale text when locale is 'fr'.
+    # Use typeof guard so the grid still works if the CDN hasn't loaded yet.
     if locale == "fr":
-        grid_options[":localeText"] = "AG_GRID_LOCALE_FR"
+        grid_options[":localeText"] = "typeof AG_GRID_LOCALE_FR !== 'undefined' ? AG_GRID_LOCALE_FR : undefined"
 
     grid = ui.aggrid(grid_options).classes("w-full").style("height: 600px")
 
