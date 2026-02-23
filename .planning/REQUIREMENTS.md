@@ -14,8 +14,8 @@
 
 ### Health Findings Export
 
-- [ ] **HEXP-01**: PDF report includes a findings summary table (count by severity) on the main sizing page
-- [ ] **HEXP-02**: PDF report appends a dedicated findings detail page listing all findings with severity, category, and description
+- [x] **HEXP-01**: PDF report includes a findings summary table (count by severity) on the main sizing page
+- [x] **HEXP-02**: PDF report appends a dedicated findings detail page listing all findings with severity, category, and description
 - [ ] **HEXP-03**: Excel export includes a "Findings" worksheet with all health check results (finding, severity, category, detail)
 
 ### vMSC / DR Modeling
@@ -52,8 +52,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CLUS-02 | Phase 23 | Complete |
 | CLUS-03 | Phase 23 | Complete |
 | CLUS-04 | Phase 23 | Complete |
-| HEXP-01 | Phase 24 | Pending |
-| HEXP-02 | Phase 24 | Pending |
+| HEXP-01 | Phase 24 | Complete |
+| HEXP-02 | Phase 24 | Complete |
 | HEXP-03 | Phase 24 | Pending |
 | VMSC-01 | Phase 25 | Pending |
 | VMSC-02 | Phase 25 | Pending |

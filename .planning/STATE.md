@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-23 after v5.0 milestone started)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** Phase 23 — Multi-Cluster Compute (v5.0)
+**Current focus:** Phase 24 — Health Findings Export (v5.0)
 
 ## Current Position
 
-Phase: 23 of 26 (Multi-Cluster Compute)
-Plan: 2 of 2 in current phase
-Status: Phase 23 complete
-Last activity: 2026-02-23 — Phase 23 Plan 02 complete (per-cluster UI wired)
+Phase: 24 of 26 (Health Findings Export)
+Plan: 1 of 2 in current phase
+Status: Phase 24 in progress — Plan 01 complete
+Last activity: 2026-02-23 — Phase 24 Plan 01 complete (PDF health findings export)
 
 Progress: [████████████████░░░░] 80% (milestones 1-4 complete)
 
@@ -35,6 +35,7 @@ Progress: [████████████████░░░░] 80% (mi
 *Updated after each plan completion*
 | Phase 23-multi-cluster-compute P01 | 4 | 3 tasks | 6 files |
 | Phase 23-multi-cluster-compute P02 | 1 | 2 tasks | 2 files |
+| Phase 24-health-findings-export P01 | 10 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -50,6 +51,8 @@ Progress: [████████████████░░░░] 80% (mi
 - [Phase 23-multi-cluster-compute]: _check_small_cluster_ha() skips (No Cluster) group — standalone hosts have no HA context
 - [Phase 23-multi-cluster-compute]: __no_cluster__ sentinel translated to i18n label in display; sentinel check determines whether multi-cluster table is shown
 - [Phase 23-multi-cluster-compute]: cluster badge in concerns.py uses raw cluster name not i18n key — cluster names are vCenter environment data
+- [Phase 24-health-findings-export]: HealthCheckResult imported via TYPE_CHECKING only; duck typing used at runtime to avoid circular imports
+- [Phase 24-health-findings-export]: _category_label() maps check_id prefix to translated category; findings sorted critical-first in appendix page
 
 ### Pending Todos
 
@@ -62,7 +65,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 23-multi-cluster-compute 23-02-PLAN.md
+Stopped at: Completed 24-health-findings-export 24-01-PLAN.md
 Resume file: None
 
-Next step: `/gsd:plan-phase 24`
+Next step: Execute 24-02-PLAN.md (next plan in phase 24)
