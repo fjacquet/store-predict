@@ -242,7 +242,7 @@ def _layout_metric_rows(proposals: list[LayoutProposal]) -> list[tuple[str, str,
 # ---------------------------------------------------------------------------
 def _draw_header(
     canvas: Canvas,
-    doc: SimpleDocTemplate,
+    _doc: SimpleDocTemplate,
     project_name: str,
     report_title: str,
     dell_logo_bytes: bytes | None = None,
