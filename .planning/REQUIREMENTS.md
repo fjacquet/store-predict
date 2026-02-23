@@ -7,10 +7,10 @@
 
 ### Multi-Cluster Compute
 
-- [ ] **CLUS-01**: Tool parses Cluster column from RVTools vInfo tab and groups VMs by cluster
+- [x] **CLUS-01**: Tool parses Cluster column from RVTools vInfo tab and groups VMs by cluster
 - [ ] **CLUS-02**: `/compute` page shows per-cluster breakdown table (cluster name, VM count, vCPU/RAM totals, hosts needed per cluster)
-- [ ] **CLUS-03**: Per-cluster breakdown table includes a grand total row summing all clusters
-- [ ] **CLUS-04**: Health checks surface findings per cluster where applicable (e.g., HW version spread, HA host ratio per cluster)
+- [x] **CLUS-03**: Per-cluster breakdown table includes a grand total row summing all clusters
+- [x] **CLUS-04**: Health checks surface findings per cluster where applicable (e.g., HW version spread, HA host ratio per cluster)
 
 ### Health Findings Export
 
@@ -48,10 +48,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLUS-01 | Phase 23 | Pending |
+| CLUS-01 | Phase 23 | Complete |
 | CLUS-02 | Phase 23 | Pending |
-| CLUS-03 | Phase 23 | Pending |
-| CLUS-04 | Phase 23 | Pending |
+| CLUS-03 | Phase 23 | Complete |
+| CLUS-04 | Phase 23 | Complete |
 | HEXP-01 | Phase 24 | Pending |
 | HEXP-02 | Phase 24 | Pending |
 | HEXP-03 | Phase 24 | Pending |

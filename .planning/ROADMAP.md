@@ -157,7 +157,7 @@ Plans:
 | 20. Grid UX & VM Data Columns | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 21. Health Check & Concerns | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 22. Compute Sizing | v4.0 | 2/2 | Complete | 2026-02-22 |
-| 23. Multi-Cluster Compute | v5.0 | 0/2 | Planned | - |
+| 23. Multi-Cluster Compute | 1/2 | In Progress|  | - |
 | 24. Health Findings Export | v5.0 | 0/TBD | Not started | - |
 | 25. vMSC & DR Modeling | v5.0 | 0/TBD | Not started | - |
 | 26. Documentation | v5.0 | 0/TBD | Not started | - |

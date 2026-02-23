@@ -33,6 +33,7 @@ Progress: [████████████████░░░░] 80% (mi
 | 26. Documentation | TBD | - | - |
 
 *Updated after each plan completion*
+| Phase 23-multi-cluster-compute P01 | 4 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -43,6 +44,9 @@ Progress: [████████████████░░░░] 80% (mi
 - [Phase 22]: compute_sizing() AP values always computed; ap_enabled only controls UI display
 - [Phase 22]: ComputeSizingResult uses flat fields not nested SiteResult; vmsc_hosts_per_site=0 (not None)
 - [Phase 22]: AG Grid row grouping is Enterprise-only — cannot use for cluster grouping in Community edition
+- [Phase 23-multi-cluster-compute]: Sentinel __no_cluster__ used in compute_cluster_breakdown() for groupby key; UI display handled in Plan 02
+- [Phase 23-multi-cluster-compute]: _check_hw_version_per_cluster() replaces global HW check; cluster field on HealthFinding defaults to empty string
+- [Phase 23-multi-cluster-compute]: _check_small_cluster_ha() skips (No Cluster) group — standalone hosts have no HA context
 
 ### Pending Todos
 
