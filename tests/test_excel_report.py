@@ -252,3 +252,59 @@ class TestExcelLayoutSheet:
         names = zf.namelist()
         assert "xl/worksheets/sheet3.xml" in names
         assert "xl/worksheets/sheet4.xml" not in names
+
+
+# ---------------------------------------------------------------------------
+# Findings sheet tests
+# ---------------------------------------------------------------------------
+from store_predict.pipeline.health_checks import HealthCheckResult, HealthFinding, Severity  # noqa: E402
+
+
+class TestFindingsSheet:
+    """Tests for the Findings worksheet in the Excel export."""
+
+    def _make_health_result(self) -> HealthCheckResult:
+        findings = (
+            HealthFinding(
+                check_id="data_quality.missing_os",
+                severity=Severity.WARNING,
+                title="health.missing_os.title",
+                detail="health.missing_os.detail",
+                affected_count=3,
+                affected_vms=("vm1", "vm2", "vm3"),
+            ),
+            HealthFinding(
+                check_id="best_practice.tools_not_installed",
+                severity=Severity.CRITICAL,
+                title="health.tools_not_installed.title",
+                detail="health.tools_not_installed.detail",
+                affected_count=1,
+                affected_vms=("vm1",),
+            ),
+        )
+        return HealthCheckResult(findings=findings, total_vms_checked=10, has_data=True)
+
+    def test_findings_sheet_present_when_health_result_provided(self) -> None:
+        summary = _make_summary([("Virtual Machines", 2, 10240.0, 5.0)])
+        health_result = self._make_health_result()
+        xlsx_bytes = generate_report_xlsx(summary, "Test", health_result=health_result)
+        zf = zipfile.ZipFile(io.BytesIO(xlsx_bytes))
+        sheet_names = [n for n in zf.namelist() if n.startswith("xl/worksheets/")]
+        # 5 sheets: Summary, Breakdown, VM Detail, Layout, Findings
+        assert len(sheet_names) == 5
+
+    def test_findings_sheet_absent_when_no_health_result(self) -> None:
+        summary = _make_summary([("Virtual Machines", 2, 10240.0, 5.0)])
+        xlsx_bytes = generate_report_xlsx(summary, "Test", health_result=None)
+        zf = zipfile.ZipFile(io.BytesIO(xlsx_bytes))
+        sheet_names = [n for n in zf.namelist() if n.startswith("xl/worksheets/")]
+        # 4 sheets: Summary, Breakdown, VM Detail, Layout
+        assert len(sheet_names) == 4
+
+    def test_findings_sheet_absent_when_no_findings(self) -> None:
+        summary = _make_summary([("Virtual Machines", 2, 10240.0, 5.0)])
+        health_result = HealthCheckResult(findings=(), total_vms_checked=10, has_data=True)
+        xlsx_bytes = generate_report_xlsx(summary, "Test", health_result=health_result)
+        zf = zipfile.ZipFile(io.BytesIO(xlsx_bytes))
+        sheet_names = [n for n in zf.namelist() if n.startswith("xl/worksheets/")]
+        assert len(sheet_names) == 4
