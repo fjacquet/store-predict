@@ -15,8 +15,10 @@ from nicegui import app, ui
 from store_predict.i18n import t
 from store_predict.pipeline.compute_sizing import (
     DELL_POWEREDGE_PRESETS,
+    ClusterSizingRow,
     ComputeSizingResult,
     HostConfig,
+    compute_cluster_breakdown,
     compute_sizing,
 )
 from store_predict.ui.layout import layout
@@ -91,6 +93,66 @@ def _render_aggregate_cards(result: ComputeSizingResult) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Per-cluster breakdown table
+# ---------------------------------------------------------------------------
+
+
+def _render_cluster_breakdown_table(
+    cluster_rows: list[ClusterSizingRow],
+) -> None:
+    """Render per-cluster breakdown as a ui.table with grand total row.
+
+    Suppressed if fewer than 2 distinct clusters (single-cluster or
+    no-cluster environments — grand total duplicates global figures).
+    Also suppressed if all VMs are in the __no_cluster__ sentinel group.
+    Shows an informational note explaining the N+1 buffer difference.
+    """
+    # Filter out the no-cluster sentinel to determine real cluster count
+    real_clusters = [r for r in cluster_rows if r.cluster_name != "__no_cluster__"]
+
+    if len(real_clusters) < 2:
+        # Single cluster or LiveOptics (no cluster data): show note instead
+        with ui.card().classes("w-full p-4 bg-gray-50 border-l-4 border-gray-300"):
+            ui.label(t("compute.no_cluster_data_note")).classes("text-sm text-gray-500")
+        return
+
+    ui.separator()
+    ui.label(t("compute.cluster_breakdown_heading")).classes("text-lg font-bold text-gray-700")
+
+    columns = [
+        {"name": "cluster", "label": t("compute.cluster_col"), "field": "cluster", "align": "left"},
+        {"name": "vm_count", "label": t("compute.cluster_vm_count_col"), "field": "vm_count", "align": "right"},
+        {"name": "vcpus", "label": t("compute.cluster_vcpu_col"), "field": "vcpus", "align": "right"},
+        {"name": "ram_gib", "label": t("compute.cluster_ram_col"), "field": "ram_gib", "align": "right"},
+        {"name": "hosts", "label": t("compute.cluster_hosts_col"), "field": "hosts", "align": "right"},
+    ]
+
+    # Build display rows — replace __no_cluster__ sentinel with i18n label
+    rows = [
+        {
+            "cluster": t("compute.no_cluster_label") if r.cluster_name == "__no_cluster__" else r.cluster_name,
+            "vm_count": str(r.vm_count),
+            "vcpus": str(r.total_vcpus),
+            "ram_gib": f"{r.total_ram_gib:.1f}",
+            "hosts": str(r.hosts_needed),
+        }
+        for r in cluster_rows
+    ]
+
+    # Grand total row (CLUS-03)
+    rows.append({
+        "cluster": t("compute.cluster_total"),
+        "vm_count": str(sum(r.vm_count for r in cluster_rows)),
+        "vcpus": str(sum(r.total_vcpus for r in cluster_rows)),
+        "ram_gib": f"{sum(r.total_ram_gib for r in cluster_rows):.1f}",
+        "hosts": str(sum(r.hosts_needed for r in cluster_rows)),
+    })
+
+    ui.table(columns=columns, rows=rows).classes("w-full")
+    ui.label(t("compute.cluster_breakdown_note")).classes("text-xs text-gray-400 mt-1")
+
+
+# ---------------------------------------------------------------------------
 # Results panel (refreshable)
 # ---------------------------------------------------------------------------
 
@@ -158,6 +220,15 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
                     ui.label(t("compute.ap_secondary")).classes("text-sm text-gray-500")
                     ui.label(str(result.ap_secondary_hosts)).classes("text-2xl font-bold text-gray-600")
                     ui.label(t("compute.ap_secondary_detail")).classes("text-xs text-gray-400")
+
+    # Per-cluster breakdown (CLUS-02, CLUS-03)
+    cluster_rows = compute_cluster_breakdown(
+        df,
+        host_config,
+        overcommit_ratio=cfg["overcommit_ratio"],
+    )
+    if cluster_rows:
+        _render_cluster_breakdown_table(cluster_rows)
 
 
 # ---------------------------------------------------------------------------
