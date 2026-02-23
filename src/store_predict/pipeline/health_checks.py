@@ -305,56 +305,6 @@ def _check_no_cluster(df: pd.DataFrame) -> list[HealthFinding]:
     ]
 
 
-def _check_hw_version(df: pd.DataFrame) -> list[HealthFinding]:
-    """Flag VMs with old VMware hardware version.
-
-    CRITICAL sentinel guard: hw_version == 0 means data not available
-    (LiveOptics exports or RVTools without HW version column).
-    Never flag sentinel 0 as old hardware.
-
-    # Superseded by _check_hw_version_per_cluster() — kept as private helper
-    """
-    hw = pd.to_numeric(df.get("hw_version", pd.Series([0] * len(df))), errors="coerce").fillna(0).astype(int)
-
-    # Skip entire check if no HW version data in this export
-    if (hw > 0).sum() == 0:
-        return []
-
-    findings: list[HealthFinding] = []
-
-    # Very old: below vHW 14 (ESXi 6.7) -- Critical
-    very_old_mask = (hw > 0) & (hw < _VERY_OLD_HW_VERSION)
-    very_old = df[very_old_mask]
-    if not very_old.empty:
-        findings.append(
-            HealthFinding(
-                check_id="best_practice.very_old_hw_version",
-                severity=Severity.CRITICAL,
-                title="health.very_old_hw_version.title",
-                detail="health.very_old_hw_version.detail",
-                affected_count=len(very_old),
-                affected_vms=tuple(very_old["vm_name"].head(5).tolist()),
-            )
-        )
-    else:
-        # Only check "old" (14-16) if none are "very old" to avoid duplicate findings
-        old_mask = (hw > 0) & (hw >= _VERY_OLD_HW_VERSION) & (hw < _OLD_HW_VERSION)
-        old = df[old_mask]
-        if not old.empty:
-            findings.append(
-                HealthFinding(
-                    check_id="best_practice.old_hw_version",
-                    severity=Severity.WARNING,
-                    title="health.old_hw_version.title",
-                    detail="health.old_hw_version.detail",
-                    affected_count=len(old),
-                    affected_vms=tuple(old["vm_name"].head(5).tolist()),
-                )
-            )
-
-    return findings
-
-
 def _check_hw_version_per_cluster(df: pd.DataFrame) -> list[HealthFinding]:
     """Flag VMs with old VMware hardware version, grouped by cluster.
 
