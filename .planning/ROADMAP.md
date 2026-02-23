@@ -110,7 +110,10 @@ Plans:
   1. The main PDF sizing page includes a findings summary table showing count of findings grouped by severity (Critical, Warning, Info)
   2. The PDF report includes a dedicated findings detail appendix page listing every finding with its severity, category, and description
   3. The Excel export includes a "Findings" worksheet containing all health check results with columns for finding, severity, category, and detail
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 24-01-PLAN.md — i18n keys for findings sections + extend generate_report_pdf() with findings summary table (page 1) and detail appendix page
+- [ ] 24-02-PLAN.md — Excel Findings worksheet in generate_report_xlsx() + wire report.py to pass health_result to both exports + tests
 
 ### Phase 25: vMSC & DR Modeling
 **Goal**: Engineers can configure site-specific VM distribution for stretched cluster and disaster recovery scenarios, and see per-site host counts on the compute page
@@ -157,7 +160,7 @@ Plans:
 | 20. Grid UX & VM Data Columns | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 21. Health Check & Concerns | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 22. Compute Sizing | v4.0 | 2/2 | Complete | 2026-02-22 |
-| 23. Multi-Cluster Compute | 2/2 | Complete    | 2026-02-23 | - |
-| 24. Health Findings Export | v5.0 | 0/TBD | Not started | - |
+| 23. Multi-Cluster Compute | v5.0 | 2/2 | Complete | 2026-02-23 |
+| 24. Health Findings Export | v5.0 | 0/2 | Not started | - |
 | 25. vMSC & DR Modeling | v5.0 | 0/TBD | Not started | - |
 | 26. Documentation | v5.0 | 0/TBD | Not started | - |
