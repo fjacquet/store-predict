@@ -163,7 +163,7 @@ async def report_page() -> None:
         async def on_download_pdf() -> None:
             pdf_btn.disable()
             try:
-                await _on_download_playwright(summary, project_name, pdf_btn)
+                await _on_download_playwright(summary, project_name, pdf_btn, health_result)
             finally:
                 pdf_btn.enable()
 
@@ -212,7 +212,12 @@ def _summary_card(label: str, value: str) -> None:
         ui.label(value).classes("text-xl font-bold")
 
 
-async def _on_download_playwright(summary: object, project_name: str, btn: ui.button) -> None:
+async def _on_download_playwright(
+    summary: object,
+    project_name: str,
+    btn: ui.button,
+    health_result: HealthCheckResult | None = None,
+) -> None:
     """Generate PDF via Playwright and trigger browser download."""
     from store_predict.pipeline.calculation import CalculationSummary
 
@@ -240,6 +245,19 @@ async def _on_download_playwright(summary: object, project_name: str, btn: ui.bu
         "locale": locale,
         "company_logo_b64": company_logo_b64,
     }
+    findings_data: list[dict[str, Any]] = []
+    if health_result is not None and health_result.has_data:
+        for f in health_result.findings:
+            findings_data.append({
+                "check_id": f.check_id,
+                "severity": str(f.severity),
+                "title": f.title,
+                "detail": f.detail,
+                "affected_count": f.affected_count,
+                "affected_vms": list(f.affected_vms),
+                "cluster": f.cluster,
+            })
+    data["findings_data"] = findings_data
     token = print_session.create(data)
     try:
         pdf_bytes = await playwright_pdf.generate_pdf(token, APP_PORT)
