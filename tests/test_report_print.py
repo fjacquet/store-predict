@@ -97,9 +97,7 @@ class TestFindingsDataSerialization:
             self._make_finding(check_id="data_quality.zero", severity=Severity.CRITICAL),
         ]
         _sev_order = {"critical": 0, "warning": 1, "info": 2}
-        sorted_findings = sorted(
-            findings, key=lambda f: (_sev_order.get(str(f.severity), 3), f.check_id)
-        )
+        sorted_findings = sorted(findings, key=lambda f: (_sev_order.get(str(f.severity), 3), f.check_id))
         assert str(sorted_findings[0].severity) == "critical"
         assert str(sorted_findings[1].severity) == "warning"
         assert str(sorted_findings[2].severity) == "info"

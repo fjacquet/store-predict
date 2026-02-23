@@ -37,8 +37,8 @@ class _ComputeConfig(TypedDict):
     custom_cores_per_socket: int
     custom_sockets: int
     custom_ram_gib: int
-    vmsc_split_pct: int   # Site A percentage, 1-99, stored as integer (e.g. 60 = 60%)
-    ap_active_pct: int    # Primary active percentage, 1-100, stored as integer
+    vmsc_split_pct: int  # Site A percentage, 1-99, stored as integer (e.g. 60 = 60%)
+    ap_active_pct: int  # Primary active percentage, 1-100, stored as integer
 
 
 # ---------------------------------------------------------------------------
@@ -144,13 +144,15 @@ def _render_cluster_breakdown_table(
     ]
 
     # Grand total row (CLUS-03)
-    rows.append({
-        "cluster": t("compute.cluster_total"),
-        "vm_count": str(sum(r.vm_count for r in cluster_rows)),
-        "vcpus": str(sum(r.total_vcpus for r in cluster_rows)),
-        "ram_gib": f"{sum(r.total_ram_gib for r in cluster_rows):.1f}",
-        "hosts": str(sum(r.hosts_needed for r in cluster_rows)),
-    })
+    rows.append(
+        {
+            "cluster": t("compute.cluster_total"),
+            "vm_count": str(sum(r.vm_count for r in cluster_rows)),
+            "vcpus": str(sum(r.total_vcpus for r in cluster_rows)),
+            "ram_gib": f"{sum(r.total_ram_gib for r in cluster_rows):.1f}",
+            "hosts": str(sum(r.hosts_needed for r in cluster_rows)),
+        }
+    )
 
     ui.table(columns=columns, rows=rows).classes("w-full")
     ui.label(t("compute.cluster_breakdown_note")).classes("text-xs text-gray-400 mt-1")
@@ -237,9 +239,7 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
                     ui.label(t("compute.ap_secondary")).classes("text-sm text-gray-500")
                     ui.label(str(result.ap_secondary_hosts)).classes("text-2xl font-bold text-gray-600")
                     ui.label(t("compute.ap_secondary_detail")).classes("text-xs text-gray-400")
-            ui.label(
-                t("compute.ap_active_hint") + f" ({cfg['ap_active_pct']}%)"
-            ).classes("text-xs text-gray-400 mt-1")
+            ui.label(t("compute.ap_active_hint") + f" ({cfg['ap_active_pct']}%)").classes("text-xs text-gray-400 mt-1")
 
     # Per-cluster breakdown (CLUS-02, CLUS-03)
     cluster_rows = compute_cluster_breakdown(
@@ -319,13 +319,17 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
         ).tooltip(t("tooltip.compute_vmsc"))
 
         # vMSC split input — shown inline as part of the toggle area
-        vmsc_split_input = ui.number(
-            label=t("compute.vmsc_split_ratio"),
-            value=cfg["vmsc_split_pct"],
-            min=1,
-            max=99,
-            step=1,
-        ).classes("w-32").tooltip(t("compute.vmsc_split_hint"))
+        vmsc_split_input = (
+            ui.number(
+                label=t("compute.vmsc_split_ratio"),
+                value=cfg["vmsc_split_pct"],
+                min=1,
+                max=99,
+                step=1,
+            )
+            .classes("w-32")
+            .tooltip(t("compute.vmsc_split_hint"))
+        )
         vmsc_split_input.set_visibility(cfg["vmsc_enabled"])
 
         # Active/Passive toggle
@@ -335,13 +339,17 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
         ).tooltip(t("tooltip.compute_ap"))
 
         # AP active input — shown inline as part of the toggle area
-        ap_active_input = ui.number(
-            label=t("compute.ap_active_ratio"),
-            value=cfg["ap_active_pct"],
-            min=1,
-            max=100,
-            step=1,
-        ).classes("w-32").tooltip(t("compute.ap_active_hint"))
+        ap_active_input = (
+            ui.number(
+                label=t("compute.ap_active_ratio"),
+                value=cfg["ap_active_pct"],
+                min=1,
+                max=100,
+                step=1,
+            )
+            .classes("w-32")
+            .tooltip(t("compute.ap_active_hint"))
+        )
         ap_active_input.set_visibility(cfg["ap_enabled"])
 
     # Wire on_change callbacks — save to session, then refresh results

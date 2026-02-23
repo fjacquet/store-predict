@@ -66,9 +66,7 @@ def _render_finding_card(finding: HealthFinding) -> None:
             ui.label(finding.severity.upper()).classes(badge_classes)
             ui.label(t(finding.title)).classes(title_classes)
             if finding.cluster:
-                ui.label(finding.cluster).classes(
-                    "text-xs font-mono bg-gray-100 text-gray-700 px-2 py-0.5 rounded"
-                )
+                ui.label(finding.cluster).classes("text-xs font-mono bg-gray-100 text-gray-700 px-2 py-0.5 rounded")
         ui.label(t(finding.detail, count=finding.affected_count)).classes("text-sm text-gray-700")
         if finding.affected_vms:
             names_str = ", ".join(finding.affected_vms)

@@ -207,9 +207,7 @@ def _build_findings_summary(findings: list[HealthFinding]) -> None:
         {"name": "count", "label": t("pdf.findings_col_count"), "field": "count", "align": "right"},
     ]
     rows = [
-        {"severity": t(f"pdf.findings_severity_{sev}"), "count": cnt}
-        for sev, cnt in severity_counts.items()
-        if cnt > 0
+        {"severity": t(f"pdf.findings_severity_{sev}"), "count": cnt} for sev, cnt in severity_counts.items() if cnt > 0
     ]
     if rows:
         ui.table(columns=columns, rows=rows).classes("w-full max-w-xs")
@@ -238,12 +236,14 @@ def _build_findings_detail(findings: list[HealthFinding]) -> None:
     for f in sorted_findings:
         prefix = f.check_id.split(".")[0] if "." in f.check_id else f.check_id
         cat = t(_prefix_key.get(prefix, f"pdf.findings_category_{prefix}"))
-        rows.append({
-            "severity": t(f"pdf.findings_severity_{f.severity}"),
-            "category": cat,
-            "finding": t(f.title),
-            "count": f.affected_count,
-        })
+        rows.append(
+            {
+                "severity": t(f"pdf.findings_severity_{f.severity}"),
+                "category": cat,
+                "finding": t(f.title),
+                "count": f.affected_count,
+            }
+        )
     ui.table(columns=columns, rows=rows).classes("w-full")
 
 

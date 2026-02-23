@@ -505,9 +505,7 @@ def generate_report_pdf(
                 "warning": t("pdf.findings_severity_warning"),
                 "info": t("pdf.findings_severity_info"),
             }
-            findings_summary_data: list[list[str]] = [
-                [t("pdf.findings_col_severity"), t("pdf.findings_col_count")]
-            ]
+            findings_summary_data: list[list[str]] = [[t("pdf.findings_col_severity"), t("pdf.findings_col_count")]]
             for sev_key, label in _sev_label.items():
                 count = sum(1 for f in health_result.findings if f.severity == sev_key)
                 if count > 0:

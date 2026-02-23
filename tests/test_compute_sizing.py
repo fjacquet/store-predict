@@ -405,9 +405,7 @@ class TestClusterBreakdown:
 
     def test_cluster_breakdown_single_cluster(self) -> None:
         """3 VMs in ClusterA -> one ClusterSizingRow with vm_count=3."""
-        rows = [
-            _make_active_df(vm_name=[f"vm-{i}"], cluster=["ClusterA"]) for i in range(3)
-        ]
+        rows = [_make_active_df(vm_name=[f"vm-{i}"], cluster=["ClusterA"]) for i in range(3)]
         df = pd.concat(rows, ignore_index=True)
         result = compute_cluster_breakdown(df, _R760)
         assert len(result) == 1
@@ -566,6 +564,5 @@ class TestAPActiveRatio:
             result = compute_sizing(df, _CUSTOM_SMALL, overcommit_ratio=4.0, ap_active_ratio=ratio_val)
             expected_secondary = max(1, math.ceil(result.ap_primary_hosts / 2))
             assert result.ap_secondary_hosts == expected_secondary, (
-                f"ap_active_ratio={ratio_val}: expected secondary={expected_secondary}, "
-                f"got {result.ap_secondary_hosts}"
+                f"ap_active_ratio={ratio_val}: expected secondary={expected_secondary}, got {result.ap_secondary_hosts}"
             )

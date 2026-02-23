@@ -248,15 +248,17 @@ async def _on_download_playwright(
     findings_data: list[dict[str, Any]] = []
     if health_result is not None and health_result.has_data:
         for f in health_result.findings:
-            findings_data.append({
-                "check_id": f.check_id,
-                "severity": str(f.severity),
-                "title": f.title,
-                "detail": f.detail,
-                "affected_count": f.affected_count,
-                "affected_vms": list(f.affected_vms),
-                "cluster": f.cluster,
-            })
+            findings_data.append(
+                {
+                    "check_id": f.check_id,
+                    "severity": str(f.severity),
+                    "title": f.title,
+                    "detail": f.detail,
+                    "affected_count": f.affected_count,
+                    "affected_vms": list(f.affected_vms),
+                    "cluster": f.cluster,
+                }
+            )
     data["findings_data"] = findings_data
     token = print_session.create(data)
     try:

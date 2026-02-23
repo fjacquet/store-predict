@@ -478,9 +478,7 @@ class TestPerClusterHealthChecks:
 
     def test_small_cluster_ha_no_finding_for_no_cluster(self) -> None:
         """VMs with empty cluster must NOT get small_cluster_ha finding."""
-        rows = [
-            _make_active_df(vm_name=[f"standalone-{i}"], cluster=[""]) for i in range(2)
-        ]
+        rows = [_make_active_df(vm_name=[f"standalone-{i}"], cluster=[""]) for i in range(2)]
         df = pd.concat(rows, ignore_index=True)
         result = run_health_checks(df)
         small_findings = [f for f in result.findings if f.check_id == "best_practice.small_cluster_ha"]
@@ -488,9 +486,7 @@ class TestPerClusterHealthChecks:
 
     def test_small_cluster_ha_no_finding_for_large_cluster(self) -> None:
         """Cluster with 3+ VMs must NOT trigger small_cluster_ha."""
-        rows = [
-            _make_active_df(vm_name=[f"vm-{i}"], cluster=["ClusterA"]) for i in range(3)
-        ]
+        rows = [_make_active_df(vm_name=[f"vm-{i}"], cluster=["ClusterA"]) for i in range(3)]
         df = pd.concat(rows, ignore_index=True)
         result = run_health_checks(df)
         small_findings = [f for f in result.findings if f.check_id == "best_practice.small_cluster_ha"]
