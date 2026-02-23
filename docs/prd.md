@@ -147,7 +147,7 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 
 | Feature | Detail | Shipped |
 |---------|--------|---------|
-| Rules-based classifier | 43 priority-ordered patterns, first-match-wins | v1.0 |
+| Rules-based classifier | 50 priority-ordered patterns, first-match-wins | v1.0 / v6.0 |
 | Substring matching | `re.search()` without word boundaries (SAP excepted) | v1.0 |
 | SAP word-boundary rule | `SAP-`, `SAP_` prefix patterns + word boundary | v1.0 |
 | 28 workload categories | Loaded from `DRR.csv` at runtime | v1.0 |
@@ -156,6 +156,23 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | Batch LLM classification | Prompt-level batching for reduced latency | v3.0 |
 | AI toggle (per-session) | `ui.switch` enables/disables LLM per session | v2.2 |
 | Rule suggestion feedback | LLM suggests ready-to-paste `ClassificationRule` snippets | v2.2 |
+| Windows Desktop → VDI reclassification | Windows 10/11 OS-fallback VMs classified as VDI Linked Clone (DRR=4) instead of Virtual Machines | v6.0 |
+| Generic VDI keyword rule | `VDI`, `DESKTOP`, `RDS`, `UAG`, `LOGINVSI`, `LOGINENTERPRISE` patterns (priority 224) | v6.0 |
+| Extended Containers patterns | `TKG`, `HARBOR`, `photon-*-kube` for Tanzu node images | v6.0 |
+| Extended Email pattern | `EXCHG` abbreviation for Exchange mail stores | v6.0 |
+| Extended SharePoint patterns | `SPBE`, `SPFE`, `SPOWA`, `SPOFFICE` abbreviations | v6.0 |
+| Extended Logging patterns | `LOGSTASH`, `KIBANA` for ELK-stack nodes | v6.0 |
+
+### 4.2b Scope Filtering (`/scope`)
+
+| Feature | Detail | Shipped |
+|---------|--------|---------|
+| Datacenter picker | Multi-select list of datacenters found in uploaded file | v6.0 |
+| Cluster picker | Multi-select list of clusters found in uploaded file | v6.0 |
+| Live VM count preview | Shows how many VMs match the current selection before proceeding | v6.0 |
+| Scope badge | Review and report page headers display selected DC/cluster scope | v6.0 |
+| Scope-suffixed filenames | Exported PDF and Excel filenames include a DC/cluster suffix | v6.0 |
+| Full dataset preserved | Unselected VMs stay in session; re-scoping never requires re-upload | v6.0 |
 
 ### 4.3 VM Review Grid
 
@@ -364,6 +381,7 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | v3.0 | Datastore Layout | BFD layout engine, 3 strategies, `/layout` page, IOPS defaults |
 | v4.0 | VM Improvements & Compute Sizing | Stable row identity, grid UX, health checks engine, `/concerns` page, compute sizing, `/compute` page |
 | v5.0 | Multi-Cluster & Export Completeness | Per-cluster compute breakdown, per-site host count display, per-cluster health findings, PDF findings summary + appendix, Excel Findings worksheet, configurable vMSC split ratio, configurable A/P DR active % |
+| v6.0 | Scope Filtering & Classifier Accuracy | `/scope` page with DC/cluster filtering, Windows Desktop → VDI reclassification, +7 new classifier patterns (TKG, HARBOR, RDS, UAG, EXCHG, SPBE/SPFE/SPOWA, LOGSTASH/KIBANA), AG Grid reliability fixes |
 
 ---
 
@@ -380,5 +398,24 @@ All v5.0 requirements shipped in Phases 23–26.
 
 ---
 
-*Last updated: 2026-02-23 after v5.0 milestone shipped*
-2025-11-25-W11-24h2-Cortex-12GB-DC1
+## 11. Shipped: v6.0 — Scope Filtering & Classifier Accuracy
+
+| Requirement | Description | Status |
+|-------------|-------------|--------|
+| SCOPE-01 | `/scope` page with datacenter and cluster multi-select pickers | Shipped |
+| SCOPE-02 | Live VM count preview on scope page | Shipped |
+| SCOPE-03 | Scope badge in review and report page headers | Shipped |
+| SCOPE-04 | DC/cluster scope suffix in exported PDF and Excel filenames | Shipped |
+| SCOPE-05 | Full dataset preserved in session; re-scoping without re-upload | Shipped |
+| CLASS-01 | Windows Desktop OS (Win 10/11/7) → VDI Linked Clone (DRR=4) | Shipped |
+| CLASS-02 | Generic VDI keyword rule: `VDI`, `DESKTOP`, `RDS`, `UAG`, `LOGINVSI` | Shipped |
+| CLASS-03 | Containers: `TKG`, `HARBOR`, `photon-*-kube` | Shipped |
+| CLASS-04 | Email: `EXCHG` abbreviation | Shipped |
+| CLASS-05 | File Content Servers: `SPBE`, `SPFE`, `SPOWA`, `SPOFFICE` | Shipped |
+| CLASS-06 | Logging: `LOGSTASH`, `KIBANA` | Shipped |
+| FIX-01 | AG Grid `valueGetter`, `localeText` guard, `setGridOption` refresh | Shipped |
+| FIX-02 | mypy: safe `int()` cast and `list\|None` narrowing in state/layout | Shipped |
+
+---
+
+*Last updated: 2026-02-23 after v6.0 shipped*

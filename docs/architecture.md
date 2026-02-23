@@ -3,10 +3,11 @@
 ## Overview
 
 StorePredict is a full-Python web application for Dell pre-sales engineers.
-It implements a **4-stage pipeline** that ingests VMware workload exports,
-classifies virtual machines into workload categories, predicts
-Data Reduction Ratios (DRR) for Dell PowerStore arrays, and produces
-datastore layout recommendations using three placement strategies.
+It implements a **5-stage pipeline** that ingests VMware workload exports,
+lets engineers filter by datacenter/cluster scope, classifies virtual machines
+into workload categories, predicts Data Reduction Ratios (DRR) for Dell
+PowerStore arrays, and produces datastore layout recommendations using three
+placement strategies.
 
 The result is a one-page PDF sizing report that pre-sales engineers can
 present to customers with defensible capacity numbers and optimal datastore
@@ -26,7 +27,8 @@ flowchart TD
     LOX --> Norm
     LOC --> Norm
 
-    Norm --> Class["Classification Engine<br/>RuleRegistry — 29 rules"]
+    Norm --> Scope["/scope page<br/>DC / Cluster filter"]
+    Scope --> Class["Classification Engine<br/>RuleRegistry — 50 rules"]
     Class --> Categories["Workload Categories"]
 
     Categories --> DRR["DRR Lookup<br/>(DRR.csv — 42 entries, incl. encrypted variants)"]
@@ -47,7 +49,8 @@ flowchart TD
 ```mermaid
 flowchart LR
     A[".xlsx / .csv<br/>Upload"] --> B["DataFrame<br/>9 canonical columns"]
-    B --> C["Classified<br/>DataFrame"]
+    B --> SC["Scope filter<br/>(DC / Cluster)"]
+    SC --> C["Classified<br/>DataFrame"]
     C --> D["SizingSummary<br/>per-VM + grouped"]
     D --> E1["LayoutProposal[]<br/>3 strategies"]
     E1 --> E["PDF Report"]
@@ -77,9 +80,10 @@ The canonical columns after ingestion are:
 
 ### Classification
 
-- **`pipeline/classification.py`** -- Rule-based classification engine with 43 priority-ordered rules.
+- **`pipeline/classification.py`** -- Rule-based classification engine with 50 priority-ordered rules.
   Each rule matches patterns in VM name and OS fields to assign workload categories
-  (e.g., SQL, Oracle, VDI, SAP).
+  (e.g., SQL, Oracle, VDI, SAP). Windows Desktop OS VMs (Win 10/11/7) fall back to
+  VDI Linked Clone rather than the generic Virtual Machines bucket (ADR-065).
 
 ### DRR Table
 
@@ -133,10 +137,20 @@ The canonical columns after ingestion are:
 - **`services/pdf_report.py`** -- Generates a branded one-page PDF using ReportLab
   with Vera/VeraBd fonts for French character support.
 
+### Scope Filtering
+
+- **`ui/pages/scope_page.py`** -- `/scope` page rendered between upload and review.
+  Reads `datacenter` and `cluster` columns from the canonical DataFrame and presents
+  multi-select pickers. Persists selection via `save_scope_selection()`.
+
 ### Session State
 
 - **`ui/state.py`** -- Tab-scoped session storage via `app.storage.tab`.
-  Each browser tab maintains independent pipeline state.
+  Each browser tab maintains independent pipeline state. Key scope helpers:
+  - `save_scope_selection(datacenters, clusters)` — persist selected sets
+  - `get_scope_selection()` — retrieve `(set[str], set[str])`
+  - `load_filtered_session_data()` — return DataFrame filtered to selected scope
+  - `save_filtered_rows(row_data)` — merge AG Grid edits back into the full dataset
 
 ## Session Model
 
@@ -160,7 +174,8 @@ flowchart TD
 ```
 
 - **Tab-scoped** (`app.storage.tab`): uploaded file, DataFrame, classification results,
-  SizingSummary, selected storage model, AI toggle state.
+  SizingSummary, selected storage model, AI toggle state, scope selection
+  (selected datacenters and clusters).
 - **User-scoped** (`app.storage.user`): dark mode preference (persists across pages and tabs).
 
 ## Technology Stack

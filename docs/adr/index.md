@@ -67,3 +67,5 @@ ADRs document key technical decisions made during StorePredict development.
 | [061](061-health-check-pure-pipeline-module.md) | Health checks as a pure pipeline module, not a blocking pipeline stage | Accepted | 2026-02-22 |
 | [062](062-compute-presets-csv.md) | Compute presets from CSV, not hardcoded | Accepted | 2026-02-22 |
 | [063](063-typeddict-session-config.md) | TypedDict for NiceGUI page session config dicts | Accepted | 2026-02-22 |
+| [064](064-datacenter-cluster-scope-filtering.md) | Datacenter/cluster scope filtering as a dedicated pipeline stage | Accepted | 2026-02-23 |
+| [065](065-windows-desktop-os-vdi-reclassification.md) | Windows Desktop OS fallback → VDI Linked Clone | Accepted | 2026-02-23 |
