@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-23 after v5.0 milestone started)
 ## Current Position
 
 Phase: 25 of 26 (vMSC & DR Modeling)
-Plan: 1 of 2 in current phase
-Status: Phase 25 Plan 01 complete — configurable site split ratios for vMSC and AP DR
-Last activity: 2026-02-23 — Phase 25 Plan 01 complete (vmsc_split_ratio + ap_active_ratio in compute_sizing(), updated i18n and tests)
+Plan: 2 of 2 in current phase
+Status: Phase 25 Plan 02 complete — vMSC split ratio UI controls and per-site host count display (VMSC-01/02/03)
+Last activity: 2026-02-23 — Phase 25 Plan 02 complete (vmsc_split_pct + ap_active_pct inputs in settings panel, Site A/Site B rows in results panel)
 
-Progress: [█████████████████░░░] 85% (milestones 1-4 complete, Phase 25 started)
+Progress: [██████████████████░░] 90% (milestones 1-4 complete, Phase 25 complete)
 
 ## Performance Metrics
 
@@ -39,6 +39,7 @@ Progress: [█████████████████░░░] 85% (mi
 | Phase 24-health-findings-export P02 | 12 | 2 tasks | 4 files |
 | Phase 24 P03 | 8 | 2 tasks | 3 files |
 | Phase 25-vmsc-dr-modeling P01 | 18 | 2 tasks | 5 files |
+| Phase 25-vmsc-dr-modeling P02 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,8 @@ Progress: [█████████████████░░░] 85% (mi
 - [Phase 25]: vmsc_split_ratio clamped to [0.01, 0.99] — never allows one site to carry 0% or 100% of load
 - [Phase 25]: vmsc_hosts_per_site removed in favor of distinct vmsc_site_a_hosts/vmsc_site_b_hosts — enables asymmetric UI display
 - [Phase 25]: ap_secondary remains at max(1, ceil(primary/2)) regardless of ap_active_ratio — cold standby convention
+- [Phase 25]: vmsc_split_pct/ap_active_pct stored as integer in tab storage, converted to float ratio at compute_sizing() call boundary
+- [Phase 25]: Site A and Site B displayed as distinct labeled rows in vMSC card (VMSC-03)
 
 ### Pending Todos
 
@@ -75,7 +78,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 25-vmsc-dr-modeling 25-01-PLAN.md
+Stopped at: Completed 25-vmsc-dr-modeling 25-02-PLAN.md
 Resume file: None
 
-Next step: Execute Phase 25 Plan 02 (UI controls for vmsc_split_ratio + ap_active_ratio)
+Next step: Execute Phase 26 (Documentation)

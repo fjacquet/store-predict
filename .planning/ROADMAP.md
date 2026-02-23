@@ -83,7 +83,7 @@ See [v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md) for full details.
 
 - [x] **Phase 23: Multi-Cluster Compute** - Parse cluster data and show per-cluster breakdown with health check context (completed 2026-02-23)
 - [x] **Phase 24: Health Findings Export** - Surface health findings in PDF and Excel exports (completed 2026-02-23)
-- [ ] **Phase 25: vMSC & DR Modeling** - Make site split ratios configurable and show per-site host counts
+- [x] **Phase 25: vMSC & DR Modeling** - Make site split ratios configurable and show per-site host counts (completed 2026-02-23)
 - [ ] **Phase 26: Documentation** - PRD (already complete)
 
 ## Phase Details
@@ -166,5 +166,5 @@ Plans:
 | 22. Compute Sizing | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 23. Multi-Cluster Compute | v5.0 | 2/2 | Complete | 2026-02-23 |
 | 24. Health Findings Export | v5.0 | 3/3 | Complete | 2026-02-23 |
-| 25. vMSC & DR Modeling | 1/2 | In Progress|  | - |
+| 25. vMSC & DR Modeling | 2/2 | Complete   | 2026-02-23 | - |
 | 26. Documentation | v5.0 | 0/TBD | Not started | - |
