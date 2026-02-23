@@ -84,56 +84,67 @@ See [v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md) for full details.
 - [x] **Phase 23: Multi-Cluster Compute** - Parse cluster data and show per-cluster breakdown with health check context (completed 2026-02-23)
 - [x] **Phase 24: Health Findings Export** - Surface health findings in PDF and Excel exports (completed 2026-02-23)
 - [x] **Phase 25: vMSC & DR Modeling** - Make site split ratios configurable and show per-site host counts (completed 2026-02-23)
-- [ ] **Phase 26: Documentation** - PRD (already complete)
+- [x] **Phase 26: Documentation** - PRD (already complete) (completed 2026-02-23)
 
 ## Phase Details
 
 ### Phase 23: Multi-Cluster Compute
+
 **Goal**: Engineers can see host count recommendations broken down per cluster, with health findings scoped to cluster where applicable
 **Depends on**: Phase 22 (Compute Sizing Module)
 **Requirements**: CLUS-01, CLUS-02, CLUS-03, CLUS-04
 **Success Criteria** (what must be TRUE):
+
   1. Engineer uploads an RVTools file with a Cluster column and sees VMs grouped by cluster name on the compute page
   2. The /compute page displays a per-cluster table showing cluster name, VM count, vCPU total, RAM total, and hosts needed for each cluster
   3. The per-cluster table includes a grand total row that sums all clusters
   4. Health check findings that apply per-cluster (HW version spread, HA ratio) display the cluster name alongside the finding
 **Plans**: 2 plans
 Plans:
+
 - [ ] 23-01-PLAN.md — Pipeline: ClusterSizingRow, compute_cluster_breakdown(), per-cluster health checks, i18n keys, tests
 - [ ] 23-02-PLAN.md — UI: per-cluster breakdown table on /compute, cluster badge on /concerns finding cards
 
 ### Phase 24: Health Findings Export
+
 **Goal**: Health check findings are included in both PDF and Excel exports so engineers can share environment concerns alongside sizing recommendations
 **Depends on**: Phase 23
 **Requirements**: HEXP-01, HEXP-02, HEXP-03
 **Success Criteria** (what must be TRUE):
+
   1. The main PDF sizing page includes a findings summary table showing count of findings grouped by severity (Critical, Warning, Info)
   2. The PDF report includes a dedicated findings detail appendix page listing every finding with its severity, category, and description
   3. The Excel export includes a "Findings" worksheet containing all health check results with columns for finding, severity, category, and detail
 **Plans**: 3 plans
 Plans:
+
 - [ ] 24-01-PLAN.md — i18n keys for findings sections + extend generate_report_pdf() with findings summary table (page 1) and detail appendix page
 - [ ] 24-02-PLAN.md — Excel Findings worksheet in generate_report_xlsx() + wire report.py to pass health_result to both exports + tests
 - [ ] 24-03-PLAN.md — Gap closure: serialize findings into print_session + render findings summary and detail sections in report_print.py (Playwright production PDF path)
 
 ### Phase 25: vMSC & DR Modeling
+
 **Goal**: Engineers can configure site-specific VM distribution for stretched cluster and disaster recovery scenarios, and see per-site host counts on the compute page
 **Depends on**: Phase 22 (Compute Sizing Module)
 **Requirements**: VMSC-01, VMSC-02, VMSC-03
 **Success Criteria** (what must be TRUE):
+
   1. In vMSC mode, engineer can set any VM split percentage between sites (e.g., 60/40) instead of the fixed 50/50
   2. In A/P DR mode, engineer can configure what percentage of VMs are active on the primary site
   3. The /compute page shows per-site host counts for vMSC and A/P DR as distinct labeled rows (Site A / Site B)
 **Plans**: 2 plans
 Plans:
+
 - [ ] 25-01-PLAN.md — Pipeline: add vmsc_split_ratio + ap_active_ratio to compute_sizing(), replace vmsc_hosts_per_site with vmsc_site_a_hosts/vmsc_site_b_hosts, update i18n and tests
 - [ ] 25-02-PLAN.md — UI: add ratio inputs to settings panel, update results panel to show Site A / Site B rows for vMSC and A/P DR
 
 ### Phase 26: Documentation
+
 **Goal**: PRD exists as a formal reference document for the project
 **Depends on**: Nothing (standalone documentation)
 **Requirements**: DOCS-01
 **Success Criteria** (what must be TRUE):
+
   1. A PRD document exists covering tool scope, user personas, use cases, feature rationale, and non-functional requirements
 **Plans**: TBD
 
@@ -167,4 +178,4 @@ Plans:
 | 23. Multi-Cluster Compute | v5.0 | 2/2 | Complete | 2026-02-23 |
 | 24. Health Findings Export | v5.0 | 3/3 | Complete | 2026-02-23 |
 | 25. vMSC & DR Modeling | 2/2 | Complete    | 2026-02-23 | - |
-| 26. Documentation | v5.0 | 0/TBD | Not started | - |
+| 26. Documentation | 1/1 | Complete   | 2026-02-23 | - |

@@ -40,6 +40,7 @@ Progress: [██████████████████░░] 90% (mi
 | Phase 24 P03 | 8 | 2 tasks | 3 files |
 | Phase 25-vmsc-dr-modeling P01 | 18 | 2 tasks | 5 files |
 | Phase 25-vmsc-dr-modeling P02 | 2 | 2 tasks | 3 files |
+| Phase 26-documentation P01 | 2 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,7 @@ Progress: [██████████████████░░] 90% (mi
 - [Phase 25]: ap_secondary remains at max(1, ceil(primary/2)) regardless of ap_active_ratio — cold standby convention
 - [Phase 25]: vmsc_split_pct/ap_active_pct stored as integer in tab storage, converted to float ratio at compute_sizing() call boundary
 - [Phase 25]: Site A and Site B displayed as distinct labeled rows in vMSC card (VMSC-03)
+- [Phase 26-documentation]: Section 10 converted from Planned to Shipped with phase delivery references — DOCS-01 is the last v5.0 requirement
 
 ### Pending Todos
 
