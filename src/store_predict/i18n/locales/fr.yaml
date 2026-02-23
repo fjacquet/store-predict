@@ -399,3 +399,4 @@ compute:
   no_cluster_label: "(Sans cluster)"
   cluster_breakdown_note: "Le total par cluster peut dépasser le total global — chaque cluster dispose de son propre hôte de basculement N+1."
   no_cluster_data_note: "Aucune donnée de cluster disponible. Téléchargez un fichier RVTools avec une colonne Cluster pour voir la répartition."
+  host_unit: "hôtes"

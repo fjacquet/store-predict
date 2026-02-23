@@ -399,3 +399,4 @@ compute:
   no_cluster_label: "(No Cluster)"
   cluster_breakdown_note: "Per-cluster total may exceed global due to independent N+1 buffer per cluster."
   no_cluster_data_note: "No cluster data available. Upload an RVTools file with a Cluster column to see the breakdown."
+  host_unit: "hosts"

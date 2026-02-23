@@ -209,14 +209,21 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
                     ui.icon("warning", size="1.2rem").classes("text-amber-500")
                     ui.label(t("compute.vmsc_no_dc_data")).classes("text-sm text-amber-700")
             else:
-                for site, host_count in zip(
-                    result.vmsc_sites,
-                    [result.vmsc_site_a_hosts, result.vmsc_site_b_hosts],
-                    strict=False,
-                ):
-                    with ui.row().classes("items-center gap-2"):
-                        ui.icon("location_on", size="1rem").classes("text-purple-500")
-                        ui.label(f"{site}: {host_count} hosts").classes("text-sm")
+                # Site A row
+                with ui.row().classes("items-center gap-3"):
+                    ui.icon("location_on", size="1rem").classes("text-purple-500")
+                    ui.label(t("compute.vmsc_site_a")).classes("text-sm font-medium w-16")
+                    ui.label(str(result.vmsc_site_a_hosts)).classes("text-2xl font-bold text-purple-700")
+                    ui.label(t("compute.host_unit")).classes("text-sm text-gray-500")
+                # Site B row
+                with ui.row().classes("items-center gap-3"):
+                    ui.icon("location_on", size="1rem").classes("text-purple-400")
+                    ui.label(t("compute.vmsc_site_b")).classes("text-sm font-medium w-16")
+                    ui.label(str(result.vmsc_site_b_hosts)).classes("text-2xl font-bold text-purple-600")
+                    ui.label(t("compute.host_unit")).classes("text-sm text-gray-500")
+                # Split label
+                site_b_pct = 100 - cfg["vmsc_split_pct"]
+                ui.label(f"{cfg['vmsc_split_pct']}% / {site_b_pct}%").classes("text-xs text-gray-400 mt-1")
 
     # Active/Passive section (show if toggle active)
     if cfg["ap_enabled"]:
@@ -230,6 +237,9 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
                     ui.label(t("compute.ap_secondary")).classes("text-sm text-gray-500")
                     ui.label(str(result.ap_secondary_hosts)).classes("text-2xl font-bold text-gray-600")
                     ui.label(t("compute.ap_secondary_detail")).classes("text-xs text-gray-400")
+            ui.label(
+                t("compute.ap_active_hint") + f" ({cfg['ap_active_pct']}%)"
+            ).classes("text-xs text-gray-400 mt-1")
 
     # Per-cluster breakdown (CLUS-02, CLUS-03)
     cluster_rows = compute_cluster_breakdown(
