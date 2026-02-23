@@ -97,7 +97,10 @@ See [v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md) for full details.
   2. The /compute page displays a per-cluster table showing cluster name, VM count, vCPU total, RAM total, and hosts needed for each cluster
   3. The per-cluster table includes a grand total row that sums all clusters
   4. Health check findings that apply per-cluster (HW version spread, HA ratio) display the cluster name alongside the finding
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 23-01-PLAN.md — Pipeline: ClusterSizingRow, compute_cluster_breakdown(), per-cluster health checks, i18n keys, tests
+- [ ] 23-02-PLAN.md — UI: per-cluster breakdown table on /compute, cluster badge on /concerns finding cards
 
 ### Phase 24: Health Findings Export
 **Goal**: Health check findings are included in both PDF and Excel exports so engineers can share environment concerns alongside sizing recommendations
@@ -154,7 +157,7 @@ See [v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md) for full details.
 | 20. Grid UX & VM Data Columns | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 21. Health Check & Concerns | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 22. Compute Sizing | v4.0 | 2/2 | Complete | 2026-02-22 |
-| 23. Multi-Cluster Compute | v5.0 | 0/TBD | Not started | - |
+| 23. Multi-Cluster Compute | v5.0 | 0/2 | Planned | - |
 | 24. Health Findings Export | v5.0 | 0/TBD | Not started | - |
 | 25. vMSC & DR Modeling | v5.0 | 0/TBD | Not started | - |
 | 26. Documentation | v5.0 | 0/TBD | Not started | - |
