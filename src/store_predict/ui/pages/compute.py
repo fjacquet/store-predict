@@ -37,6 +37,8 @@ class _ComputeConfig(TypedDict):
     custom_cores_per_socket: int
     custom_sockets: int
     custom_ram_gib: int
+    vmsc_split_pct: int   # Site A percentage, 1-99, stored as integer (e.g. 60 = 60%)
+    ap_active_pct: int    # Primary active percentage, 1-100, stored as integer
 
 
 # ---------------------------------------------------------------------------
@@ -60,6 +62,8 @@ def _load_compute_config() -> _ComputeConfig:
         "custom_cores_per_socket": int(app.storage.tab.get("compute_custom_cps", preset.cores_per_socket)),
         "custom_sockets": int(app.storage.tab.get("compute_custom_sockets", preset.sockets)),
         "custom_ram_gib": int(app.storage.tab.get("compute_custom_ram", preset.ram_gib)),
+        "vmsc_split_pct": int(app.storage.tab.get("compute_vmsc_split", 50)),
+        "ap_active_pct": int(app.storage.tab.get("compute_ap_active", 100)),
     }
 
 
@@ -166,6 +170,8 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
         host_config,
         overcommit_ratio=cfg["overcommit_ratio"],
         vmsc_enabled=cfg["vmsc_enabled"],
+        vmsc_split_ratio=cfg["vmsc_split_pct"] / 100.0,
+        ap_active_ratio=cfg["ap_active_pct"] / 100.0,
     )
 
     if not result.has_data:
@@ -206,6 +212,7 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
                 for site, host_count in zip(
                     result.vmsc_sites,
                     [result.vmsc_site_a_hosts, result.vmsc_site_b_hosts],
+                    strict=False,
                 ):
                     with ui.row().classes("items-center gap-2"):
                         ui.icon("location_on", size="1rem").classes("text-purple-500")
@@ -301,11 +308,31 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
             value=cfg["vmsc_enabled"],
         ).tooltip(t("tooltip.compute_vmsc"))
 
+        # vMSC split input — shown inline as part of the toggle area
+        vmsc_split_input = ui.number(
+            label=t("compute.vmsc_split_ratio"),
+            value=cfg["vmsc_split_pct"],
+            min=1,
+            max=99,
+            step=1,
+        ).classes("w-32").tooltip(t("compute.vmsc_split_hint"))
+        vmsc_split_input.set_visibility(cfg["vmsc_enabled"])
+
         # Active/Passive toggle
         ap_switch = ui.switch(
             t("compute.ap_toggle"),
             value=cfg["ap_enabled"],
         ).tooltip(t("tooltip.compute_ap"))
+
+        # AP active input — shown inline as part of the toggle area
+        ap_active_input = ui.number(
+            label=t("compute.ap_active_ratio"),
+            value=cfg["ap_active_pct"],
+            min=1,
+            max=100,
+            step=1,
+        ).classes("w-32").tooltip(t("compute.ap_active_hint"))
+        ap_active_input.set_visibility(cfg["ap_enabled"])
 
     # Wire on_change callbacks — save to session, then refresh results
     def _on_preset_change(e) -> None:  # type: ignore[no-untyped-def]
@@ -328,11 +355,23 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
 
     def _on_vmsc_change(e) -> None:  # type: ignore[no-untyped-def]
         app.storage.tab["compute_vmsc"] = bool(e.value)
+        vmsc_split_input.set_visibility(bool(e.value))
         refresh_fn()
 
     def _on_ap_change(e) -> None:  # type: ignore[no-untyped-def]
         app.storage.tab["compute_ap"] = bool(e.value)
+        ap_active_input.set_visibility(bool(e.value))
         refresh_fn()
+
+    def _on_vmsc_split_change(e) -> None:  # type: ignore[no-untyped-def]
+        if e.value is not None:
+            app.storage.tab["compute_vmsc_split"] = int(e.value)
+            refresh_fn()
+
+    def _on_ap_active_change(e) -> None:  # type: ignore[no-untyped-def]
+        if e.value is not None:
+            app.storage.tab["compute_ap_active"] = int(e.value)
+            refresh_fn()
 
     def _on_custom_cps_change(e) -> None:  # type: ignore[no-untyped-def]
         if e.value is not None:
@@ -356,6 +395,8 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
     cps_input.on_value_change(_on_custom_cps_change)
     sockets_input.on_value_change(_on_custom_sockets_change)
     ram_input.on_value_change(_on_custom_ram_change)
+    vmsc_split_input.on_value_change(_on_vmsc_split_change)
+    ap_active_input.on_value_change(_on_ap_active_change)
 
 
 # ---------------------------------------------------------------------------
