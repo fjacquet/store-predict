@@ -474,3 +474,98 @@ class TestClusterBreakdown:
         df = _make_active_df(is_powered_on=[False], cluster=["ClusterA"])
         result = compute_cluster_breakdown(df, _R760)
         assert result == []
+
+
+# ---------------------------------------------------------------------------
+# TestVMSCConfigurableSplit
+# ---------------------------------------------------------------------------
+
+
+class TestVMSCConfigurableSplit:
+    def _make_two_dc_df(self, num_cpus: int = 8, memory_mib: float = 8192.0) -> pd.DataFrame:
+        """Build a 2-VM DataFrame, one per datacenter, for vMSC split tests."""
+        rows = [
+            _make_active_df(vm_name=["vm-dc1"], datacenter=["DC1"], num_cpus=[num_cpus], memory_mib=[memory_mib]),
+            _make_active_df(vm_name=["vm-dc2"], datacenter=["DC2"], num_cpus=[num_cpus], memory_mib=[memory_mib]),
+        ]
+        return pd.concat(rows, ignore_index=True)
+
+    def test_vmsc_50_50_split_equals_legacy_behavior(self) -> None:
+        """50/50 split (default) -> site_a_hosts and site_b_hosts are equal (symmetric)."""
+        df = self._make_two_dc_df()
+        result = compute_sizing(df, _R760, vmsc_enabled=True, vmsc_split_ratio=0.5)
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts == result.vmsc_site_b_hosts
+
+    def test_vmsc_60_40_split_site_a_larger_or_equal(self) -> None:
+        """60/40 split -> site_a_hosts >= site_b_hosts (Site A carries more load)."""
+        # Use enough workload to produce a difference in host count
+        df = self._make_two_dc_df(num_cpus=1000, memory_mib=102400.0)
+        result = compute_sizing(df, _CUSTOM_SMALL, vmsc_enabled=True, vmsc_split_ratio=0.6)
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts >= result.vmsc_site_b_hosts
+
+    def test_vmsc_split_ratio_clamped_below_01(self) -> None:
+        """vmsc_split_ratio=0.0 is clamped to 0.01 — does not crash, returns positive hosts."""
+        df = self._make_two_dc_df()
+        result = compute_sizing(df, _R760, vmsc_enabled=True, vmsc_split_ratio=0.0)
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts >= 0
+        assert result.vmsc_site_b_hosts > 0  # Site B receives 0.99 of load -> positive
+
+    def test_vmsc_split_ratio_clamped_above_099(self) -> None:
+        """vmsc_split_ratio=1.0 is clamped to 0.99 — Site A is still bounded."""
+        df = self._make_two_dc_df()
+        result = compute_sizing(df, _R760, vmsc_enabled=True, vmsc_split_ratio=1.0)
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts > 0  # Site A carries 0.99 of load
+        assert result.vmsc_site_b_hosts >= 0
+
+    def test_vmsc_disabled_split_ratio_has_no_effect(self) -> None:
+        """vmsc_enabled=False -> site_a_hosts=site_b_hosts=0 regardless of ratio."""
+        df = self._make_two_dc_df()
+        result = compute_sizing(df, _R760, vmsc_enabled=False, vmsc_split_ratio=0.6)
+        assert result.vmsc_available is True  # sites detected, but toggle off
+        assert result.vmsc_site_a_hosts == 0
+        assert result.vmsc_site_b_hosts == 0
+
+
+# ---------------------------------------------------------------------------
+# TestAPActiveRatio
+# ---------------------------------------------------------------------------
+
+
+class TestAPActiveRatio:
+    def test_ap_active_ratio_default_equals_full_load(self) -> None:
+        """ap_active_ratio=1.0 (default) -> ap_primary_hosts equals hosts_n1."""
+        df = _make_active_df(num_cpus=[100], memory_mib=[1024.0])
+        result = compute_sizing(df, _R760, ap_active_ratio=1.0)
+        assert result.ap_primary_hosts == result.hosts_n1
+
+    def test_ap_active_ratio_80_percent_reduces_primary(self) -> None:
+        """ap_active_ratio=0.8 -> ap_primary_hosts <= hosts_n1 (fewer hosts for 80% load).
+
+        Uses a large workload + small host to amplify the difference in host counts.
+        """
+        df = _make_active_df(num_cpus=[1000], memory_mib=[1024.0])
+        result_full = compute_sizing(df, _CUSTOM_SMALL, ap_active_ratio=1.0)
+        result_80 = compute_sizing(df, _CUSTOM_SMALL, ap_active_ratio=0.8)
+        assert result_80.ap_primary_hosts <= result_full.ap_primary_hosts
+
+    def test_ap_active_ratio_clamped_below_001(self) -> None:
+        """ap_active_ratio=0.0 is clamped to 0.01 — does not crash, returns at least 1 due to N+1."""
+        df = _make_active_df(num_cpus=[100], memory_mib=[1024.0])
+        result = compute_sizing(df, _R760, ap_active_ratio=0.0)
+        assert result.ap_primary_hosts >= 0
+        assert result.ap_secondary_hosts >= 1
+
+    def test_ap_secondary_always_50_percent_of_primary(self) -> None:
+        """ap_secondary_hosts == max(1, ceil(ap_primary_hosts / 2)) for any ap_active_ratio."""
+        for ratio_val in [0.5, 0.8, 1.0]:
+            df = _make_active_df(num_cpus=[65], memory_mib=[1.0])
+            result = compute_sizing(df, _CUSTOM_SMALL, overcommit_ratio=4.0, ap_active_ratio=ratio_val)
+            expected_secondary = max(1, math.ceil(result.ap_primary_hosts / 2))
+            assert result.ap_secondary_hosts == expected_secondary, (
+                f"ap_active_ratio={ratio_val}: expected secondary={expected_secondary}, "
+                f"got {result.ap_secondary_hosts}"
+            )

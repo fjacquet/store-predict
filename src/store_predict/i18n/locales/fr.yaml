@@ -283,8 +283,8 @@ tooltip:
   quick_filter: "Recherche dans toutes les colonnes visibles. Afficher une colonne pour l'inclure dans la recherche."
   compute_preset: "Sélectionnez un modèle Dell PowerEdge ou entrez des spécifications personnalisées. Les cœurs indiqués sont des cœurs physiques, pas des threads HT."
   compute_overcommit: "Nombre de vCPUs par cœur physique. Plus élevé = plus de VMs par hôte mais plus de contention d'ordonnancement."
-  compute_vmsc: "VMware vSphere Metro Storage Cluster — actif/actif étiré sur deux sites. Nécessite une colonne Datacenter avec au moins 2 valeurs distinctes."
-  compute_ap: "DR Actif/Passif — site secondaire dimensionné à 50% du principal pour la veille froide."
+  compute_vmsc: "VMware vSphere Metro Storage Cluster — actif/actif étiré sur deux sites. Configurez le pourcentage du Site A."
+  compute_ap: "DR Actif/Passif — site secondaire dimensionné à 50% du principal calculé pour veille froide."
 
 chart:
   provisioned: "Provisionné"
@@ -380,6 +380,12 @@ compute:
   ap_primary: "Site principal"
   ap_secondary: "Site secondaire (passif)"
   ap_secondary_detail: "50% du principal — veille froide"
+  vmsc_split_ratio: "Répartition Site A (%)"
+  vmsc_split_hint: "Pourcentage des VM actives sur le Site A. Le Site B reçoit le reste."
+  vmsc_site_a: "Site A"
+  vmsc_site_b: "Site B"
+  ap_active_ratio: "% Actif principal"
+  ap_active_hint: "Pourcentage des VM actives sur le site principal."
   host_specs_heading: "Spécifications de l'hôte"
   breakdown_vcpu: "Par vCPU"
   breakdown_ram: "Par RAM"
