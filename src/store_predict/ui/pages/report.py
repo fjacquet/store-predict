@@ -27,7 +27,21 @@ from store_predict.services.pdf_report import (
     validate_logo,
 )
 from store_predict.ui.layout import layout
-from store_predict.ui.state import load_session_data
+from store_predict.ui.state import get_scope_selection, load_filtered_session_data
+
+
+def _scope_filename_suffix() -> str:
+    """Return a filename-safe scope suffix like '_DC1-DC2' when scope is filtered."""
+    selected_dcs, selected_cls = get_scope_selection()
+    parts = selected_dcs + selected_cls
+    if not parts:
+        return ""
+    # Keep it short — max 3 items, sanitized
+    short = [sanitize_filename(p)[:20] for p in parts[:3]]
+    suffix = "-".join(short)
+    if len(parts) > 3:
+        suffix += f"-and{len(parts) - 3}more"
+    return f"_{suffix}"
 
 
 @ui.page("/report")
@@ -35,10 +49,10 @@ async def report_page() -> None:
     """Display calculation summary, workload breakdown, and PDF download."""
     await ui.context.client.connected()
 
-    vm_data: list[dict[str, Any]] | None = app.storage.tab.get("vm_data")
+    df = load_filtered_session_data()
     project_name: str = str(app.storage.tab.get("project_name", ""))
 
-    if not vm_data:
+    if df is None or df.empty:
         with (
             layout("StorePredict - Report"),
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
@@ -53,20 +67,37 @@ async def report_page() -> None:
             ).classes("bg-blue-700 text-white")
         return
 
+    # Convert filtered DataFrame to row dicts for calculation
+    vm_data: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
+    for row in vm_data:
+        for key, val in row.items():
+            if isinstance(val, float) and val != val:  # NaN check
+                row[key] = None
+
     # Run calculation
     summary = calculate(vm_data)
 
-    # Run health checks for export enrichment
-    df = load_session_data()
-    health_result: HealthCheckResult | None = run_health_checks(df) if df is not None else None
+    # Run health checks on filtered data
+    health_result: HealthCheckResult | None = run_health_checks(df)
 
     with (
         layout("StorePredict - Report"),
         ui.column().classes("w-full p-4 gap-6"),
     ):
-        # Title row
+        # Title row with scope indicator
         with ui.row().classes("w-full items-center justify-between"):
-            ui.label(t("report.title")).classes("text-2xl font-bold")
+            with ui.row().classes("items-center gap-3"):
+                ui.label(t("report.title")).classes("text-2xl font-bold")
+                selected_dcs, selected_cls = get_scope_selection()
+                if selected_dcs or selected_cls:
+                    parts = []
+                    if selected_dcs:
+                        parts.append(f"{len(selected_dcs)} DC")
+                    if selected_cls:
+                        parts.append(f"{len(selected_cls)} CL")
+                    ui.badge(", ".join(parts), color="blue").classes("text-xs").tooltip(
+                        ", ".join(selected_dcs + selected_cls)
+                    )
             if project_name:
                 ui.label(t("report.project_label", name=project_name)).classes("text-lg text-gray-500")
 
@@ -269,7 +300,8 @@ async def _on_download_playwright(
 
     safe_name = sanitize_filename(project_name)
     date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
-    filename = f"StorePredict_{safe_name}_{date_str}.pdf"
+    scope_suffix = _scope_filename_suffix()
+    filename = f"StorePredict_{safe_name}{scope_suffix}_{date_str}.pdf"
     ui.download(pdf_bytes, filename=filename, media_type="application/pdf")
 
 
@@ -320,7 +352,8 @@ def _on_download_excel(
     xlsx_bytes = generate_report_xlsx(summary, project_name, locale=get_locale(), health_result=health_result)
     safe_name = sanitize_filename(project_name)
     date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
-    filename = f"StorePredict_{safe_name}_{date_str}.xlsx"
+    scope_suffix = _scope_filename_suffix()
+    filename = f"StorePredict_{safe_name}{scope_suffix}_{date_str}.xlsx"
     ui.download(
         xlsx_bytes,
         filename=filename,

@@ -14,6 +14,7 @@ import store_predict.ui.pages.layout_page
 import store_predict.ui.pages.report
 import store_predict.ui.pages.report_print
 import store_predict.ui.pages.review
+import store_predict.ui.pages.scope
 import store_predict.ui.pages.upload  # noqa: F401
 from store_predict.config import APP_PORT, APP_TITLE
 from store_predict.i18n import t

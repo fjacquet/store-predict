@@ -118,6 +118,20 @@ def create_vm_table(
             "filter": "agTextColumnFilter",
         },
         {
+            "field": "datacenter",
+            "headerName": t("columns.datacenter"),
+            "sortable": True,
+            "filter": "agTextColumnFilter",
+            "floatingFilter": True,
+        },
+        {
+            "field": "cluster",
+            "headerName": t("columns.cluster"),
+            "sortable": True,
+            "filter": "agTextColumnFilter",
+            "floatingFilter": True,
+        },
+        {
             "field": "num_cpus",
             "headerName": t("columns.num_cpus"),
             "hide": True,

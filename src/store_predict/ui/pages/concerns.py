@@ -7,7 +7,7 @@ from nicegui import ui
 from store_predict.i18n import t
 from store_predict.pipeline.health_checks import HealthCheckResult, HealthFinding, Severity, run_health_checks
 from store_predict.ui.layout import layout
-from store_predict.ui.state import load_session_data
+from store_predict.ui.state import load_filtered_session_data
 
 # ---------------------------------------------------------------------------
 # Severity styling helpers
@@ -115,7 +115,7 @@ async def concerns_page() -> None:
     """
     await ui.context.client.connected()
 
-    df = load_session_data()
+    df = load_filtered_session_data()
 
     if df is None or df.empty:
         with (

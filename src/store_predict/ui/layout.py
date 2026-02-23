@@ -23,6 +23,7 @@ def layout(title: str = "StorePredict") -> Iterator[None]:
         with ui.row().classes("gap-4 items-center"):
             ui.link(t("layout.home"), "/").classes("text-white no-underline hover:underline")
             ui.link(t("layout.upload"), "/upload").classes("text-white no-underline hover:underline")
+            ui.link(t("layout.scope"), "/scope").classes("text-white no-underline hover:underline")
             ui.link(t("layout.review"), "/review").classes("text-white no-underline hover:underline")
             ui.link(t("layout.report"), "/report").classes("text-white no-underline hover:underline")
             ui.link(t("layout.layout"), "/layout").classes("text-white no-underline hover:underline")

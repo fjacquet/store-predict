@@ -200,7 +200,7 @@ async def upload_page() -> None:
                     ui.notify(t("upload.loaded_notify", count=len(df)), type="positive")
                 await asyncio.sleep(0.3)
                 with upload_widget:
-                    ui.navigate.to("/review")
+                    ui.navigate.to("/scope")
 
             except IngestionError as exc:
                 with upload_widget:

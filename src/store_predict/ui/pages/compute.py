@@ -3,7 +3,7 @@
 ANTI-PATTERNS — never do these here:
 - Never call classify_dataframe() or any ingestion pipeline function
 - Never store ComputeSizingResult in app.storage.tab (only store config inputs)
-- Always use load_session_data() for the DataFrame
+- Always use load_filtered_session_data() for the DataFrame
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from store_predict.pipeline.compute_sizing import (
     compute_sizing,
 )
 from store_predict.ui.layout import layout
-from store_predict.ui.state import load_session_data
+from store_predict.ui.state import load_filtered_session_data
 
 # ---------------------------------------------------------------------------
 # Session config type
@@ -427,11 +427,11 @@ async def compute_page() -> None:
     """Compute Sizing page.
 
     Loads session data and renders reactive host count recommendations.
-    Never re-runs ingestion — always uses load_session_data().
+    Never re-runs ingestion — always uses load_filtered_session_data().
     ComputeSizingResult is computed on-demand from session config; never cached.
     """
     await ui.context.client.connected()
-    df = load_session_data()
+    df = load_filtered_session_data()
 
     if df is None or df.empty:
         with (
@@ -458,7 +458,7 @@ async def compute_page() -> None:
             with ui.column().classes("flex-1 min-w-72 gap-4"):
                 _render_settings_panel(
                     cfg,
-                    lambda: _results_panel.refresh(load_session_data(), _load_compute_config()),
+                    lambda: _results_panel.refresh(load_filtered_session_data(), _load_compute_config()),
                 )
 
             with ui.column().classes("flex-2 min-w-72 gap-4"):

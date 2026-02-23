@@ -127,7 +127,13 @@ def test_review_no_data_uses_button_not_link() -> None:
 def test_report_no_data_uses_button_not_link() -> None:
     """report.py no-data state must use ui.button for CTA, not ui.link."""
     source = _page_source("report")
-    no_data_section = source.split("if not vm_data:")[1].split("return")[0] if "if not vm_data:" in source else ""
+    # Support both old "if not vm_data:" and new "if df is None or df.empty:" patterns
+    if "if df is None or df.empty:" in source:
+        no_data_section = source.split("if df is None or df.empty:")[1].split("return")[0]
+    elif "if not vm_data:" in source:
+        no_data_section = source.split("if not vm_data:")[1].split("return")[0]
+    else:
+        no_data_section = ""
     assert "ui.button" in no_data_section, "report.py no-data state must use ui.button CTA"
     assert "ui.link" not in no_data_section, "report.py no-data state must not use ui.link"
 

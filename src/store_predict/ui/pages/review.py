@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import pandas as pd
 from nicegui import ui
 
 from store_predict.config import DRR_CSV_PATH, StorageModel
@@ -17,11 +16,12 @@ from store_predict.ui.layout import layout
 from store_predict.ui.state import (
     clear_session_data,
     get_project_name,
+    get_scope_selection,
     get_storage_model,
     get_workload_options,
+    load_filtered_session_data,
     load_rule_suggestions,
-    load_session_data,
-    save_session_data,
+    save_filtered_rows,
     set_storage_model,
 )
 
@@ -35,6 +35,7 @@ _GRID_COLS: frozenset[str] = frozenset({
     "num_cpus", "memory_mib", "avg_iops", "peak_iops",
     "os_name", "vm_description", "in_use_mib",
     "iops_8k_equivalent", "peak_throughput_mbs",
+    "datacenter", "cluster",
     "row_index",
 })
 
@@ -53,7 +54,7 @@ async def _on_quick_filter(e: Any, grid: ui.aggrid) -> None:
 async def review_page() -> None:
     """Review classified VMs with editable workload assignments."""
     await ui.context.client.connected()
-    df = load_session_data()
+    df = load_filtered_session_data()
     if df is None:
         with (
             layout("StorePredict - Review"),
@@ -89,9 +90,22 @@ async def review_page() -> None:
         layout("StorePredict - Review"),
         ui.column().classes("w-full p-4 gap-4"),
     ):
-        # Title row
+        # Title row with scope indicator
         with ui.row().classes("w-full items-center justify-between"):
-            ui.label(t("review.title")).classes("text-2xl font-bold")
+            with ui.row().classes("items-center gap-3"):
+                ui.label(t("review.title")).classes("text-2xl font-bold")
+                # Scope badge — show which datacenters/clusters are active
+                selected_dcs, selected_cls = get_scope_selection()
+                if selected_dcs or selected_cls:
+                    parts = []
+                    if selected_dcs:
+                        parts.append(f"{len(selected_dcs)} DC")
+                    if selected_cls:
+                        parts.append(f"{len(selected_cls)} CL")
+                    scope_label = ", ".join(parts)
+                    ui.badge(scope_label, color="blue").classes("text-xs").tooltip(
+                        ", ".join(selected_dcs + selected_cls)
+                    )
             project = get_project_name()
             if project:
                 ui.label(t("review.project_label", name=project)).classes("text-lg text-gray-500")
@@ -114,7 +128,7 @@ async def review_page() -> None:
         async def _on_model_change(new_model: StorageModel) -> None:
             set_storage_model(new_model)
             apply_storage_model(row_data, new_model, drr_table)
-            save_session_data(pd.DataFrame(row_data), get_project_name())
+            save_filtered_rows(row_data, get_project_name())
             trimmed = _to_grid_rows(row_data)
             grid.options["rowData"] = trimmed
             grid.run_grid_method("setGridOption", "rowData", trimmed)
@@ -170,6 +184,8 @@ async def review_page() -> None:
 
             # Column visibility panel (custom — AG Grid sidebar is Enterprise-only)
             toggleable_columns: list[tuple[str, str]] = [
+                ("datacenter", "columns.datacenter"),
+                ("cluster", "columns.cluster"),
                 ("num_cpus", "columns.num_cpus"),
                 ("memory_mib", "columns.memory_mib"),
                 ("avg_iops", "columns.avg_iops"),
@@ -345,7 +361,7 @@ async def _handle_bulk_update(
         await grid.run_grid_method("paginationGoToPage", current_page)
 
     # Persist to session
-    save_session_data(pd.DataFrame(row_data), get_project_name())
+    save_filtered_rows(row_data, get_project_name())
     ui.notify(
         t("review.updated_notify", count=len(selected_ids), category=new_category, subcategory=new_subcategory),
         type="positive",
@@ -420,7 +436,7 @@ async def _handle_cell_change(
         await grid.run_grid_method("paginationGoToPage", current_page)
 
     # Persist to session
-    save_session_data(pd.DataFrame(row_data), get_project_name())
+    save_filtered_rows(row_data, get_project_name())
 
 
 def _update_detail_bar(detail_bar: ui.row, row: dict[str, Any], has_performance_data: bool) -> None:
@@ -449,6 +465,8 @@ def _update_detail_bar(detail_bar: ui.row, row: dict[str, Any], has_performance_
         fields: list[tuple[str, str]] = [
             (t("detail_bar.os"), str(row.get("os_name") or "—")),
             (t("detail_bar.description"), str(row.get("vm_description") or "—")),
+            (t("columns.datacenter"), str(row.get("datacenter") or "—")),
+            (t("columns.cluster"), str(row.get("cluster") or "—")),
             (t("detail_bar.in_use"), _fmt_mib(row.get("in_use_mib"))),
         ]
         if has_performance_data:

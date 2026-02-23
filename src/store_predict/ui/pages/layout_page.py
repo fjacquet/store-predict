@@ -664,7 +664,16 @@ async def layout_page() -> None:
     """Layout recommendations page with three datastore strategies."""
     await ui.context.client.connected()
 
-    vm_data: list[dict[str, Any]] | None = app.storage.tab.get("vm_data")
+    from store_predict.ui.state import load_filtered_session_data
+
+    _df = load_filtered_session_data()
+    vm_data: list[dict[str, Any]] | None = None
+    if _df is not None and not _df.empty:
+        vm_data = _df.to_dict(orient="records")  # type: ignore[assignment]
+        for _row in vm_data:
+            for _k, _v in _row.items():
+                if isinstance(_v, float) and _v != _v:
+                    _row[_k] = None
 
     if not vm_data:
         with (

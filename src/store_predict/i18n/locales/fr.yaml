@@ -48,6 +48,18 @@ report:
   logo_remove: "Supprimer le logo"
   logo_removed: "Logo entreprise supprimé"
 
+scope:
+  title: "Sélection du périmètre d'analyse"
+  description: "Choisissez les datacenters et clusters à inclure dans l'analyse. Les éléments non sélectionnés seront exclus des calculs de dimensionnement et des rapports."
+  datacenter_label: "Datacenters"
+  cluster_label: "Clusters"
+  datacenter_placeholder: "Sélectionner les datacenters..."
+  cluster_placeholder: "Sélectionner les clusters..."
+  total_vms: "%{count} VMs réparties sur %{dcs} datacenter(s) et %{clusters} cluster(s)"
+  preview_count: "%{count} sur %{total} VMs sélectionnées"
+  select_all: "Tout sélectionner"
+  continue: "Continuer vers la révision"
+
 columns:
   vm_name: Nom de la VM
   os: "Système d'exploitation"
@@ -64,6 +76,8 @@ columns:
   num_cpus: "vCPUs"
   memory_mib: "RAM (Mio)"
   avg_iops: "IOPS moy."
+  datacenter: "Datacenter"
+  cluster: "Cluster"
 
 stats:
   total_vms: Total VMs
@@ -133,6 +147,7 @@ pdf:
 layout:
   home: Accueil
   upload: "Télécharger"
+  scope: "Périmètre"
   review: "Révision"
   report: Rapport
   layout: Disposition

@@ -48,6 +48,18 @@ report:
   logo_remove: "Remove Logo"
   logo_removed: "Company logo removed"
 
+scope:
+  title: "Select Analysis Scope"
+  description: "Choose which datacenters and clusters to include in the analysis. Unselected items will be excluded from sizing calculations and reports."
+  datacenter_label: "Datacenters"
+  cluster_label: "Clusters"
+  datacenter_placeholder: "Select datacenters..."
+  cluster_placeholder: "Select clusters..."
+  total_vms: "%{count} VMs across %{dcs} datacenter(s) and %{clusters} cluster(s)"
+  preview_count: "%{count} of %{total} VMs selected"
+  select_all: "Select All"
+  continue: "Continue to Review"
+
 columns:
   vm_name: VM Name
   os: OS
@@ -64,6 +76,8 @@ columns:
   num_cpus: "vCPUs"
   memory_mib: "RAM (MiB)"
   avg_iops: "Avg IOPS"
+  datacenter: "Datacenter"
+  cluster: "Cluster"
 
 stats:
   total_vms: Total VMs
@@ -133,6 +147,7 @@ pdf:
 layout:
   home: Home
   upload: Upload
+  scope: Scope
   review: Review
   report: Report
   layout: Layout

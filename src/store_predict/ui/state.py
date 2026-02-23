@@ -43,6 +43,78 @@ def clear_session_data() -> None:
     """
     app.storage.tab.pop("vm_data", None)
     app.storage.tab.pop("project_name", None)
+    app.storage.tab.pop("selected_datacenters", None)
+    app.storage.tab.pop("selected_clusters", None)
+
+
+def save_scope_selection(
+    datacenters: list[str] | None,
+    clusters: list[str] | None,
+) -> None:
+    """Persist datacenter/cluster scope selection in tab-scoped session.
+
+    Pass None or empty list to indicate "all" (no filtering).
+    """
+    app.storage.tab["selected_datacenters"] = datacenters or []
+    app.storage.tab["selected_clusters"] = clusters or []
+
+
+def get_scope_selection() -> tuple[list[str], list[str]]:
+    """Return (selected_datacenters, selected_clusters) from session.
+
+    Empty list means "all" (no filtering applied).
+    """
+    dcs: list[str] = app.storage.tab.get("selected_datacenters", [])
+    clusters: list[str] = app.storage.tab.get("selected_clusters", [])
+    return dcs, clusters
+
+
+def load_filtered_session_data() -> pd.DataFrame | None:
+    """Load session DataFrame filtered by datacenter/cluster scope selection.
+
+    Returns None if no data uploaded yet. If no scope is selected
+    (empty lists), returns the full DataFrame unfiltered.
+    """
+    df = load_session_data()
+    if df is None:
+        return None
+
+    selected_dcs, selected_clusters = get_scope_selection()
+
+    if selected_dcs and "datacenter" in df.columns:
+        df = df[df["datacenter"].isin(selected_dcs)]
+
+    if selected_clusters and "cluster" in df.columns:
+        df = df[df["cluster"].isin(selected_clusters)]
+
+    return df
+
+
+def save_filtered_rows(row_data: list[dict[str, Any]], project_name: str) -> None:
+    """Merge edited rows (potentially a filtered subset) back into full session data.
+
+    Uses row_index as the join key. Rows not present in row_data are kept unchanged.
+    """
+    full_records: list[dict[str, object]] | None = app.storage.tab.get("vm_data")
+    if full_records is None:
+        # No existing data — just save directly
+        save_session_data(pd.DataFrame(row_data), project_name)
+        return
+
+    # Build index for fast lookup
+    edited_by_idx: dict[int, dict[str, Any]] = {int(r.get("row_index", -1)): r for r in row_data}
+
+    # Merge changes into full records
+    for full_row in full_records:
+        idx = int(full_row.get("row_index", -1))  # type: ignore[arg-type]
+        if idx in edited_by_idx:
+            edited = edited_by_idx[idx]
+            for key in ("workload_category", "workload_subcategory", "drr"):
+                if key in edited:
+                    full_row[key] = edited[key]
+
+    app.storage.tab["vm_data"] = full_records
+    app.storage.tab["project_name"] = project_name
 
 
 def get_project_name() -> str:
