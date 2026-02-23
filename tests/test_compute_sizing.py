@@ -201,22 +201,27 @@ class TestOvercommitClamping:
 
 
 class TestVMSC:
-    def test_vmsc_unavailable_single_datacenter(self) -> None:
-        """All VMs in DC1 -> vmsc_available=False, vmsc_site_a_hosts=0, vmsc_site_b_hosts=0."""
+    def test_vmsc_enabled_single_datacenter_still_computes(self) -> None:
+        """Single DC with vmsc_enabled=True -> vmsc_available=True, per-site counts > 0.
+
+        Datacenter column is not required for vMSC sizing; the split ratio is applied
+        to total VMs regardless of DC data.
+        """
         df = _make_active_df(datacenter=["DC1"])
         result = compute_sizing(df, _R760, vmsc_enabled=True)
-        assert result.vmsc_available is False
-        assert result.vmsc_site_a_hosts == 0
-        assert result.vmsc_site_b_hosts == 0
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts > 0
+        assert result.vmsc_site_b_hosts > 0
 
-    def test_vmsc_unavailable_empty_datacenter(self) -> None:
-        """Empty datacenter string -> vmsc_available=False."""
+    def test_vmsc_enabled_empty_datacenter_still_computes(self) -> None:
+        """Empty datacenter string with vmsc_enabled=True -> vmsc_available=True."""
         df = _make_active_df(datacenter=[""])
         result = compute_sizing(df, _R760, vmsc_enabled=True)
-        assert result.vmsc_available is False
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts > 0
 
-    def test_vmsc_unavailable_no_datacenter_column(self) -> None:
-        """DataFrame without datacenter column -> vmsc_available=False."""
+    def test_vmsc_enabled_no_datacenter_column_still_computes(self) -> None:
+        """DataFrame without datacenter column + vmsc_enabled=True -> vmsc_available=True."""
         df = pd.DataFrame(
             {
                 "vm_name": ["vm-01"],
@@ -227,33 +232,33 @@ class TestVMSC:
             }
         )
         result = compute_sizing(df, _R760, vmsc_enabled=True)
-        assert result.vmsc_available is False
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts > 0
 
-    def test_vmsc_available_two_datacenters(self) -> None:
-        """Two distinct datacenters -> vmsc_available=True, len(vmsc_sites)==2."""
+    def test_vmsc_sites_informational_two_datacenters(self) -> None:
+        """Two distinct datacenters -> vmsc_sites tuple has 2 entries (informational)."""
         rows = [
             _make_active_df(vm_name=["vm-dc1"], datacenter=["DC1"]),
             _make_active_df(vm_name=["vm-dc2"], datacenter=["DC2"]),
         ]
         df = pd.concat(rows, ignore_index=True)
-        result = compute_sizing(df, _R760)
-        assert result.vmsc_available is True
+        result = compute_sizing(df, _R760, vmsc_enabled=True)
         assert len(result.vmsc_sites) == 2
 
     def test_vmsc_disabled_no_per_site_count(self) -> None:
-        """vmsc_available=True but vmsc_enabled=False -> vmsc_site_a_hosts=vmsc_site_b_hosts=0."""
+        """vmsc_enabled=False -> vmsc_available=False, vmsc_site_a_hosts=vmsc_site_b_hosts=0."""
         rows = [
             _make_active_df(vm_name=["vm-dc1"], datacenter=["DC1"]),
             _make_active_df(vm_name=["vm-dc2"], datacenter=["DC2"]),
         ]
         df = pd.concat(rows, ignore_index=True)
         result = compute_sizing(df, _R760, vmsc_enabled=False)
-        assert result.vmsc_available is True
+        assert result.vmsc_available is False
         assert result.vmsc_site_a_hosts == 0
         assert result.vmsc_site_b_hosts == 0
 
     def test_vmsc_enabled_returns_per_site_count(self) -> None:
-        """vmsc_available=True + vmsc_enabled=True -> vmsc_site_a_hosts > 0 and vmsc_site_b_hosts > 0."""
+        """vmsc_enabled=True -> vmsc_available=True, vmsc_site_a_hosts > 0, vmsc_site_b_hosts > 0."""
         rows = [
             _make_active_df(vm_name=["vm-dc1"], datacenter=["DC1"]),
             _make_active_df(vm_name=["vm-dc2"], datacenter=["DC2"]),
@@ -523,7 +528,7 @@ class TestVMSCConfigurableSplit:
         """vmsc_enabled=False -> site_a_hosts=site_b_hosts=0 regardless of ratio."""
         df = self._make_two_dc_df()
         result = compute_sizing(df, _R760, vmsc_enabled=False, vmsc_split_ratio=0.6)
-        assert result.vmsc_available is True  # sites detected, but toggle off
+        assert result.vmsc_available is False  # toggle off -> not available
         assert result.vmsc_site_a_hosts == 0
         assert result.vmsc_site_b_hosts == 0
 

@@ -310,10 +310,10 @@ def compute_sizing(
     hr = _hosts_by_ram(total_ram_gib, host_config.ram_gib)
     hosts = max(hv, hr)
 
-    # vMSC (stretch cluster) — requires 2+ distinct non-empty datacenter values
+    # vMSC (stretch cluster) — split ratio applied to total; datacenter column not required
     sites = _vmsc_sites(active)
-    vmsc_avail = len(sites) >= 2
-    if vmsc_enabled and vmsc_avail:
+    vmsc_avail = vmsc_enabled
+    if vmsc_enabled:
         # Per-site sizing using configurable split ratio
         site_a_vcpus = round(total_vcpus * clamped_vmsc_split)
         site_b_vcpus = total_vcpus - site_a_vcpus
@@ -349,7 +349,7 @@ def compute_sizing(
         hosts_by_ram=hr,
         hosts_n1=hosts,
         vmsc_available=vmsc_avail,
-        vmsc_sites=tuple(sites),
+        vmsc_sites=tuple(sites),  # informational only; not required for sizing
         vmsc_site_a_hosts=vmsc_site_a,
         vmsc_site_b_hosts=vmsc_site_b,
         ap_primary_hosts=ap_primary,

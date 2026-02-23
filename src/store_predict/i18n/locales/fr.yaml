@@ -392,7 +392,6 @@ compute:
   constraint_ram: "RAM"
   vmsc_toggle: "Cluster étiré vMSC"
   vmsc_site_heading: "Hôtes par site (vMSC)"
-  vmsc_no_dc_data: "La colonne Datacenter est vide ou n'a qu'une seule valeur distincte — impossible de calculer les comptes par site. L'export doit inclure une colonne Datacenter avec au moins 2 valeurs distinctes."
   ap_toggle: "DR Actif/Passif"
   ap_primary: "Site principal"
   ap_secondary: "Site secondaire (passif)"

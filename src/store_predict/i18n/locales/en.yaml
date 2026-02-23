@@ -392,7 +392,6 @@ compute:
   constraint_ram: "RAM"
   vmsc_toggle: "vMSC Stretch Cluster"
   vmsc_site_heading: "Hosts per Site (vMSC)"
-  vmsc_no_dc_data: "Datacenter column is empty or has only one distinct value — cannot compute per-site counts. Export must include a Datacenter column with at least 2 distinct values."
   ap_toggle: "Active/Passive DR"
   ap_primary: "Primary Site"
   ap_secondary: "Secondary Site (passive)"
