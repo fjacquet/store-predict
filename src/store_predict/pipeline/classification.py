@@ -397,7 +397,7 @@ def build_default_rules() -> list[ClassificationRule]:
             # [-_]EX\d = short Exchange hostname suffix (e.g. CIGES-EX1, CIGES-EX2)
             #   digit required to avoid matching EXTRANET, EXCEPT, etc.
             vm_name_patterns=(
-                *_patterns("EXCHANGE", "DOMINO", "ZIMBRA", "SENDMAIL", "MSG"),
+                *_patterns("EXCHANGE", "DOMINO", "ZIMBRA", "SENDMAIL", "MSG", "EXCHG"),
                 *_regex_patterns(r"[-_]EX\d"),
             ),
         ),
@@ -430,6 +430,15 @@ def build_default_rules() -> list[ClassificationRule]:
             vm_name_patterns=(
                 *_patterns("APPVOL", "APP VOLUMES", "APP-VOL"),  # VMware App Volumes (Horizon)
                 *_regex_patterns(r"VDI.*PROFIL|PROFIL.*VDI"),
+            ),
+        ),
+        ClassificationRule(
+            name="VDI Generic",
+            category="VDI",
+            subcategory="Linked Clone / PVS (Citrix)",
+            priority=224,
+            vm_name_patterns=(
+                *_patterns("VDI", "DESKTOP", "LOGINVSI", "LOGINENTERPRISE", "UAG", "RDS"),
             ),
         ),
         # === Tier 3: Infrastructure (300-399) ===
@@ -475,7 +484,10 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Containers",
             subcategory="Kubernetes, OpenShift, Docker, Tanzu, etc",
             priority=310,
-            vm_name_patterns=_patterns("DOCKER", "KUBERNETES", "K8S", "OPENSHIFT", "TANZU"),
+            vm_name_patterns=(
+                *_patterns("DOCKER", "KUBERNETES", "K8S", "OPENSHIFT", "TANZU", "TKG", "HARBOR"),
+                *_regex_patterns(r"photon-.*-kube"),
+            ),
         ),
         ClassificationRule(
             name="Web Servers",
@@ -496,7 +508,10 @@ def build_default_rules() -> list[ClassificationRule]:
             category="File",
             subcategory="Content Servers (Git, Sharepoint)",
             priority=340,
-            vm_name_patterns=_patterns("GIT", "GITLAB", "SHAREPOINT", "ALFRESCO"),
+            vm_name_patterns=(
+                *_patterns("GIT", "GITLAB", "SHAREPOINT", "ALFRESCO"),
+                *_patterns("SPBE", "SPFE", "SPOWA", "SPOFFICE"),
+            ),
         ),
         ClassificationRule(
             name="File Developer Workspaces",
@@ -534,6 +549,8 @@ def build_default_rules() -> list[ClassificationRule]:
                 "SYSLOG",
                 "POLLER",  # monitoring pollers (Centreon/Nagios)
                 "PRTG",  # PRTG Network Monitor (Paessler)
+                "LOGSTASH",  # Logstash log pipeline
+                "KIBANA",  # Kibana visualization (ELK stack)
             ),
             os_patterns=_patterns("FORTI"),
         ),
@@ -555,8 +572,8 @@ def build_default_rules() -> list[ClassificationRule]:
         ),
         ClassificationRule(
             name="Windows Desktop (OS fallback)",
-            category="Virtual Machines",
-            subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
+            category="VDI",
+            subcategory="Linked Clone / PVS (Citrix)",
             priority=905,
             os_patterns=_regex_patterns(r"windows 10|windows 11|windows 7"),
         ),

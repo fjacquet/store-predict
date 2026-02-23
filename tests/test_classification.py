@@ -355,3 +355,86 @@ def test_plain_sql_unaffected() -> None:
     """Plain SQL VMs (no TDE/compress) still classify as Microsoft SQL base."""
     result = _registry().classify("PROD-SQL-DB-01", "")
     assert result.subcategory == "Microsoft SQL"
+
+
+# ---------------------------------------------------------------------------
+# LiveOptics-driven classification improvements
+# ---------------------------------------------------------------------------
+
+
+class TestLiveOpticsImprovements:
+    """Tests for patterns added from LiveOptics 1483-VM analysis."""
+
+    def test_windows_desktop_os_fallback_vdi(self) -> None:
+        """Windows 10/11 OS → VDI Linked Clone (not Virtual Machines)."""
+        result = _registry().classify("GENERIC-PC-042", "Microsoft Windows 11 (64-bit)")
+        assert result.category == "VDI"
+        assert result.subcategory == "Linked Clone / PVS (Citrix)"
+        assert result.confidence == "os_fallback"
+
+    def test_generic_vdi_keyword(self) -> None:
+        """VM name containing VDI → VDI category."""
+        result = _registry().classify("VDIPOOL-01", "")
+        assert result.category == "VDI"
+        assert result.subcategory == "Linked Clone / PVS (Citrix)"
+        assert result.confidence == "rule_match"
+
+    def test_rds_vdi(self) -> None:
+        """RDS as word boundary → VDI (Remote Desktop Services)."""
+        result = _registry().classify("vsmrdsjenov", "")
+        assert result.category == "VDI"
+
+    def test_desktop_vdi(self) -> None:
+        """VM name containing DESKTOP → VDI."""
+        result = _registry().classify("DESKTOP-POOL-03", "")
+        assert result.category == "VDI"
+        assert result.confidence == "rule_match"
+
+    def test_loginvsi_vdi(self) -> None:
+        """LoginVSI (VDI benchmarking tool) → VDI."""
+        result = _registry().classify("LOGINVSI-DC1", "")
+        assert result.category == "VDI"
+
+    def test_uag_vdi(self) -> None:
+        """UAG (Unified Access Gateway) → VDI."""
+        result = _registry().classify("UAGDC1v25-06", "")
+        assert result.category == "VDI"
+
+    def test_tkg_containers(self) -> None:
+        """TKG (Tanzu Kubernetes Grid) → Containers."""
+        result = _registry().classify("vsltkg-dev-controlplane", "")
+        assert result.category == "Containers"
+
+    def test_photon_kube_containers(self) -> None:
+        """photon-*-kube pattern → Containers (Tanzu node images)."""
+        result = _registry().classify("photon-5-kube-v1.31.9", "")
+        assert result.category == "Containers"
+
+    def test_harbor_containers(self) -> None:
+        """Harbor (container registry) → Containers."""
+        result = _registry().classify("vslharbor1", "")
+        assert result.category == "Containers"
+
+    def test_exchg_email(self) -> None:
+        """EXCHG abbreviation → Email."""
+        result = _registry().classify("vsmexchgn01", "")
+        assert result.category == "Email"
+
+    def test_sharepoint_abbreviations(self) -> None:
+        """SharePoint abbreviations (SPBE, SPFE, SPOWA) → File Content Servers."""
+        for vm_name in ("vsmspbe1", "vsm22spfe1", "vsm22spowa1"):
+            result = _registry().classify(vm_name, "")
+            assert result.category == "File", f"{vm_name} should be File, got {result.category}"
+            assert result.subcategory == "Content Servers (Git, Sharepoint)", (
+                f"{vm_name} subcategory mismatch: {result.subcategory}"
+            )
+
+    def test_logstash_logging(self) -> None:
+        """Logstash → Logging - Analytics."""
+        result = _registry().classify("vsllogstashn1", "")
+        assert result.category == "Logging - Analytics"
+
+    def test_kibana_logging(self) -> None:
+        """Kibana → Logging - Analytics."""
+        result = _registry().classify("KIBANA-01", "")
+        assert result.category == "Logging - Analytics"
