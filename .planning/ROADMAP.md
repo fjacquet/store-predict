@@ -81,7 +81,7 @@ See [v4.0-ROADMAP.md](milestones/v4.0-ROADMAP.md) for full details.
 
 **Milestone Goal:** Add per-cluster compute breakdown, export health findings to PDF and Excel, and improve vMSC/DR modeling granularity.
 
-- [ ] **Phase 23: Multi-Cluster Compute** - Parse cluster data and show per-cluster breakdown with health check context
+- [x] **Phase 23: Multi-Cluster Compute** - Parse cluster data and show per-cluster breakdown with health check context (completed 2026-02-23)
 - [ ] **Phase 24: Health Findings Export** - Surface health findings in PDF and Excel exports
 - [ ] **Phase 25: vMSC & DR Modeling** - Make site split ratios configurable and show per-site host counts
 - [ ] **Phase 26: Documentation** - PRD (already complete)
@@ -157,7 +157,7 @@ Plans:
 | 20. Grid UX & VM Data Columns | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 21. Health Check & Concerns | v4.0 | 2/2 | Complete | 2026-02-22 |
 | 22. Compute Sizing | v4.0 | 2/2 | Complete | 2026-02-22 |
-| 23. Multi-Cluster Compute | 1/2 | In Progress|  | - |
+| 23. Multi-Cluster Compute | 2/2 | Complete   | 2026-02-23 | - |
 | 24. Health Findings Export | v5.0 | 0/TBD | Not started | - |
 | 25. vMSC & DR Modeling | v5.0 | 0/TBD | Not started | - |
 | 26. Documentation | v5.0 | 0/TBD | Not started | - |

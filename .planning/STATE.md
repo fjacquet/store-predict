@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23 after v5.0 milestone started)
 ## Current Position
 
 Phase: 23 of 26 (Multi-Cluster Compute)
-Plan: — of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-23 — v5.0 roadmap created (Phases 23-26)
+Plan: 2 of 2 in current phase
+Status: Phase 23 complete
+Last activity: 2026-02-23 — Phase 23 Plan 02 complete (per-cluster UI wired)
 
 Progress: [████████████████░░░░] 80% (milestones 1-4 complete)
 
@@ -34,6 +34,7 @@ Progress: [████████████████░░░░] 80% (mi
 
 *Updated after each plan completion*
 | Phase 23-multi-cluster-compute P01 | 4 | 3 tasks | 6 files |
+| Phase 23-multi-cluster-compute P02 | 1 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -47,6 +48,8 @@ Progress: [████████████████░░░░] 80% (mi
 - [Phase 23-multi-cluster-compute]: Sentinel __no_cluster__ used in compute_cluster_breakdown() for groupby key; UI display handled in Plan 02
 - [Phase 23-multi-cluster-compute]: _check_hw_version_per_cluster() replaces global HW check; cluster field on HealthFinding defaults to empty string
 - [Phase 23-multi-cluster-compute]: _check_small_cluster_ha() skips (No Cluster) group — standalone hosts have no HA context
+- [Phase 23-multi-cluster-compute]: __no_cluster__ sentinel translated to i18n label in display; sentinel check determines whether multi-cluster table is shown
+- [Phase 23-multi-cluster-compute]: cluster badge in concerns.py uses raw cluster name not i18n key — cluster names are vCenter environment data
 
 ### Pending Todos
 
@@ -59,7 +62,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: v5.0 roadmap created — Phases 23-26 defined
+Stopped at: Completed 23-multi-cluster-compute 23-02-PLAN.md
 Resume file: None
 
-Next step: `/gsd:plan-phase 23`
+Next step: `/gsd:plan-phase 24`
