@@ -99,8 +99,15 @@ def merge_dual_sources(rvtools_df: pd.DataFrame, liveoptics_df: pd.DataFrame) ->
         merged["tools_status"] = merged["tools_status"].fillna("")
 
     # LiveOptics-only performance columns — keep as-is (NaN for RVTools-only VMs)
-    for col in ("peak_iops", "avg_iops", "peak_throughput_mbps", "avg_throughput_mbps",
-                "avg_read_latency_ms", "avg_write_latency_ms", "iops_8k_equivalent"):
+    for col in (
+        "peak_iops",
+        "avg_iops",
+        "peak_throughput_mbps",
+        "avg_throughput_mbps",
+        "avg_read_latency_ms",
+        "avg_write_latency_ms",
+        "iops_8k_equivalent",
+    ):
         lo_col = f"{col}_lo"
         if lo_col in merged.columns:
             merged[col] = merged[lo_col]
@@ -116,11 +123,15 @@ def merge_dual_sources(rvtools_df: pd.DataFrame, liveoptics_df: pd.DataFrame) ->
 
     # Log match statistics (based on lowercased names for accuracy)
     total = len(merged)
-    rv_keys = set(rv["_join_key"].dropna()) if "_join_key" in rv.columns else set(
-        rv.get("vm_name_rv", pd.Series()).str.lower().dropna()
+    rv_keys = (
+        set(rv["_join_key"].dropna())
+        if "_join_key" in rv.columns
+        else set(rv.get("vm_name_rv", pd.Series()).str.lower().dropna())
     )
-    lo_keys = set(lo["_join_key"].dropna()) if "_join_key" in lo.columns else set(
-        lo.get("vm_name_lo", pd.Series()).str.lower().dropna()
+    lo_keys = (
+        set(lo["_join_key"].dropna())
+        if "_join_key" in lo.columns
+        else set(lo.get("vm_name_lo", pd.Series()).str.lower().dropna())
     )
     matched = len(rv_keys & lo_keys)
     rv_only = len(rv_keys - lo_keys)

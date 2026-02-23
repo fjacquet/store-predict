@@ -162,10 +162,7 @@ def ingest_two_files(path1: Path, path2: Path) -> pd.DataFrame:
     elif fmt2 == FileFormat.RVTOOLS and fmt1 in liveoptics_formats:
         rv_path, lo_path, lo_fmt = path2, path1, fmt1
     else:
-        raise IngestionError(
-            "Both files have the same format. "
-            "Upload one RVTools and one LiveOptics file."
-        )
+        raise IngestionError("Both files have the same format. Upload one RVTools and one LiveOptics file.")
 
     rv_df = parse_rvtools(rv_path)
 
