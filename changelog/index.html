@@ -1063,6 +1063,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v600-2026-02-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v6.0.0] - 2026-02-23
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v6.0.0] - 2026-02-23">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v500-2026-02-23" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1075,7 +1114,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#new-features" class="md-nav__link">
+  <a href="#new-features_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         New features
@@ -1103,7 +1142,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bug-fixes" class="md-nav__link">
+  <a href="#bug-fixes_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Bug fixes
@@ -3426,6 +3465,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v600-2026-02-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v6.0.0] - 2026-02-23
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v6.0.0] - 2026-02-23">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New features
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v500-2026-02-23" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3438,7 +3516,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#new-features" class="md-nav__link">
+  <a href="#new-features_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         New features
@@ -3466,7 +3544,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bug-fixes" class="md-nav__link">
+  <a href="#bug-fixes_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Bug fixes
@@ -4025,8 +4103,46 @@
 <h1 id="changelog">Changelog</h1>
 <p>All notable changes to StorePredict are documented here.</p>
 <h2 id="unreleased">[Unreleased]</h2>
-<h2 id="v500-2026-02-23">[v5.0.0] - 2026-02-23</h2>
+<h2 id="v600-2026-02-23">[v6.0.0] - 2026-02-23</h2>
 <h3 id="new-features">New features</h3>
+<ul>
+<li>
+<p><strong>Datacenter &amp; cluster filtering</strong> — new <code>/scope</code> page (between upload and
+  review) lets engineers select which datacenters and clusters to include in the
+  analysis. All downstream pages (review, report, compute, layout, concerns) use
+  the filtered dataset. Unselected VMs are preserved in session state so
+  re-scoping never requires a re-upload. Scope badge shown in review/report
+  headers; DC/cluster suffix appended to exported PDF and Excel filenames.</p>
+</li>
+<li>
+<p><strong>Improved workload classification</strong> — rule set updated from a 1,483-VM
+  LiveOptics analysis that previously left 92 % of VMs in <code>os_fallback</code>:</p>
+</li>
+<li>Windows 10/11 desktop VMs now classify as <strong>VDI / Linked Clone</strong> instead of
+    Virtual Machines (catches ~900 VMs in typical enterprise files)</li>
+<li>New generic VDI rule (priority 224): <code>VDI</code>, <code>DESKTOP</code>, <code>RDS</code>, <code>UAG</code>,
+    <code>LOGINVSI</code>, <code>LOGINENTERPRISE</code></li>
+<li>Containers: added <code>TKG</code>, <code>HARBOR</code>, and <code>photon-*-kube</code> regex for Tanzu node images</li>
+<li>Email: added <code>EXCHG</code> abbreviation</li>
+<li>File Content Servers: added SharePoint abbreviations <code>SPBE</code>, <code>SPFE</code>, <code>SPOWA</code>, <code>SPOFFICE</code></li>
+<li>Logging - Analytics: added <code>LOGSTASH</code> and <code>KIBANA</code></li>
+</ul>
+<h3 id="bug-fixes">Bug fixes</h3>
+<ul>
+<li><strong>AG Grid reliability</strong> — explicit <code>:valueGetter</code> on <code>vm_name</code> column fixes
+  silent field extraction failure after NiceGUI <code>update_grid()</code> cycles (AG Grid
+  v34). <code>typeof</code> guard on <code>:localeText</code> prevents ReferenceError when CDN hasn't
+  loaded. Grid refresh now uses <code>run_grid_method("setGridOption")</code> instead of
+  <code>update()</code> for reliable data refresh without destroy/recreate cycles.</li>
+<li><strong>"New Analysis" button</strong> — clears session and navigates back to upload page
+  without a full page reload.</li>
+<li><strong>Payload size</strong> — <code>_to_grid_rows()</code> trims row data sent to AG Grid (~35 %
+  smaller JSON on large files).</li>
+<li><strong>Type safety</strong> — fixed two mypy errors in <code>state.py</code> (unsafe <code>int()</code> cast on
+  <code>object</code>) and <code>layout_page.py</code> (union-attr on <code>list | None</code> iteration).</li>
+</ul>
+<h2 id="v500-2026-02-23">[v5.0.0] - 2026-02-23</h2>
+<h3 id="new-features_1">New features</h3>
 <ul>
 <li>
 <p><strong>Per-cluster compute breakdown</strong> — the <code>/compute</code> page now shows a breakdown table
@@ -4059,7 +4175,7 @@
 </li>
 </ul>
 <h2 id="v401-2026-02-22">[v4.0.1] - 2026-02-22</h2>
-<h3 id="bug-fixes">Bug fixes</h3>
+<h3 id="bug-fixes_1">Bug fixes</h3>
 <ul>
 <li><strong>Fix all event handlers on <code>/compute</code></strong> — replaced <code>.on("update:model-value")</code> with
   <code>.on_value_change()</code>. Every control (preset selector, overcommit ratio, vMSC toggle,
