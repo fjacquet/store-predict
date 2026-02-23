@@ -4,6 +4,33 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v6.1.0] - 2026-02-23
+
+### Bug fixes
+
+- **vMSC per-site sizing always available** — the "Hosts per site (vMSC)"
+  section no longer requires a Datacenter column with 2+ distinct values.
+  The split ratio is applied to total VMs; the Datacenter column is
+  informational only. Engineers can now use vMSC mode on any file,
+  including single-datacenter or datacenter-less RVTools exports.
+
+- **Type safety** — fixed two mypy errors: unsafe `int()` cast on `object`
+  in `state.py`, and union-attr on `list | None` iteration in `layout_page.py`.
+
+- **LLM config tests** — `test_llm_config_timeout_default` and
+  `test_llm_config_max_concurrent_default` now guard against shell-level
+  `LLM_TIMEOUT` / `LLM_MAX_CONCURRENT` env vars overriding pydantic-settings
+  defaults.
+
+### Documentation
+
+- ADR-064: Datacenter/cluster scope filtering as a dedicated pipeline stage
+- ADR-065: Windows Desktop OS fallback → VDI Linked Clone
+- PRD updated to v6.0 (§4.2b scope filtering, classification table, §11
+  shipped requirements)
+- Architecture updated: 5-stage pipeline, `/scope` in diagrams, session
+  state scope helpers, rule count 43 → 50
+
 ## [v6.0.0] - 2026-02-23
 
 ### New features
