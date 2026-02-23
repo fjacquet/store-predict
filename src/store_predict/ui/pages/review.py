@@ -29,15 +29,28 @@ from store_predict.ui.state import (
 # to reduce the JSON payload (~35% smaller) and avoid sending fields that
 # the review page never displays.  The full record is preserved in session
 # storage and written back on every cell-change save.
-_GRID_COLS: frozenset[str] = frozenset({
-    "vm_name", "workload_category", "workload_subcategory", "drr",
-    "provisioned_mib", "classification_confidence",
-    "num_cpus", "memory_mib", "avg_iops", "peak_iops",
-    "os_name", "vm_description", "in_use_mib",
-    "iops_8k_equivalent", "peak_throughput_mbs",
-    "datacenter", "cluster",
-    "row_index",
-})
+_GRID_COLS: frozenset[str] = frozenset(
+    {
+        "vm_name",
+        "workload_category",
+        "workload_subcategory",
+        "drr",
+        "provisioned_mib",
+        "classification_confidence",
+        "num_cpus",
+        "memory_mib",
+        "avg_iops",
+        "peak_iops",
+        "os_name",
+        "vm_description",
+        "in_use_mib",
+        "iops_8k_equivalent",
+        "peak_throughput_mbs",
+        "datacenter",
+        "cluster",
+        "row_index",
+    }
+)
 
 
 def _to_grid_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -203,6 +216,7 @@ async def review_page() -> None:
 
         # Bulk actions + navigation
         with ui.row().classes("w-full justify-between mt-4"):
+
             def _new_analysis() -> None:
                 clear_session_data()
                 ui.navigate.to("/upload")
