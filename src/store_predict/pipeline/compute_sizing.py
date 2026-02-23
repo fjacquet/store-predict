@@ -20,8 +20,10 @@ from store_predict.config import COMPUTE_PRESETS_CSV_PATH
 
 __all__ = [
     "DELL_POWEREDGE_PRESETS",
+    "ClusterSizingRow",
     "ComputeSizingResult",
     "HostConfig",
+    "compute_cluster_breakdown",
     "compute_sizing",
 ]
 
@@ -53,6 +55,17 @@ class HostConfig:
     def total_ram_mib(self) -> float:
         """Total host RAM in MiB."""
         return float(self.ram_gib * 1024)
+
+
+@dataclass(frozen=True)
+class ClusterSizingRow:
+    """Per-cluster sizing result for the compute breakdown table."""
+
+    cluster_name: str
+    vm_count: int
+    total_vcpus: int
+    total_ram_gib: float
+    hosts_needed: int
 
 
 @dataclass(frozen=True)
@@ -306,3 +319,66 @@ def compute_sizing(
         host_config=host_config,
         overcommit_ratio=ratio,
     )
+
+
+def compute_cluster_breakdown(
+    df: pd.DataFrame | None,
+    host_config: HostConfig,
+    overcommit_ratio: float = 4.0,
+) -> list[ClusterSizingRow]:
+    """Compute per-cluster ESXi host sizing from session DataFrame.
+
+    Groups active non-template VMs by cluster and computes hosts_needed per cluster
+    using the same N+1 HA formula as compute_sizing().
+
+    VMs with empty or null cluster are grouped under the sentinel "__no_cluster__".
+    Results are sorted alphabetically by cluster_name (via groupby sort=True).
+
+    Args:
+        df: Canonical DataFrame from load_session_data(), or None if no data uploaded.
+            Must include is_powered_on, is_template, num_cpus, memory_mib, cluster columns.
+        host_config: Physical host specification to size against.
+        overcommit_ratio: vCPU-to-pCPU overcommit. Clamped to [0.5, 20.0]. Default: 4.0.
+
+    Returns:
+        List of ClusterSizingRow, one per distinct cluster, sorted alphabetically.
+        Returns [] if df is None, empty, or all VMs are excluded.
+    """
+    if df is None or df.empty:
+        return []
+
+    # Filter to active, non-template VMs
+    active = df[(df["is_powered_on"] == True) & (df["is_template"] == False)]  # noqa: E712
+
+    if active.empty:
+        return []
+
+    ratio = _clamp_ratio(overcommit_ratio)
+
+    # Normalize cluster column: fill None, strip whitespace, replace empty with sentinel
+    df_work = active.copy()
+    cluster_col = df_work["cluster"].fillna("").astype(str).str.strip()
+    df_work = df_work.copy()
+    df_work["cluster_norm"] = cluster_col.replace("", "__no_cluster__")
+
+    rows: list[ClusterSizingRow] = []
+    for cluster_name, group in df_work.groupby("cluster_norm", sort=True):
+        total_vcpus = int(pd.to_numeric(group["num_cpus"], errors="coerce").fillna(0).sum())
+        total_ram_mib = float(pd.to_numeric(group["memory_mib"], errors="coerce").fillna(0).sum())
+        total_ram_gib = total_ram_mib / 1024.0
+
+        hv = _hosts_n1(total_vcpus, host_config.total_cores, ratio)
+        hr = _hosts_by_ram(total_ram_gib, host_config.ram_gib)
+        hosts_needed = max(hv, hr)
+
+        rows.append(
+            ClusterSizingRow(
+                cluster_name=str(cluster_name),
+                vm_count=len(group),
+                total_vcpus=total_vcpus,
+                total_ram_gib=total_ram_gib,
+                hosts_needed=hosts_needed,
+            )
+        )
+
+    return rows
