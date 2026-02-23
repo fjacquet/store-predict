@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23 after v5.0 milestone started)
 ## Current Position
 
 Phase: 24 of 26 (Health Findings Export)
-Plan: 1 of 2 in current phase
-Status: Phase 24 in progress — Plan 01 complete
-Last activity: 2026-02-23 — Phase 24 Plan 01 complete (PDF health findings export)
+Plan: 2 of 2 in current phase
+Status: Phase 24 complete — all plans done
+Last activity: 2026-02-23 — Phase 24 Plan 02 complete (Excel findings worksheet + report.py wiring)
 
 Progress: [████████████████░░░░] 80% (milestones 1-4 complete)
 
@@ -36,6 +36,7 @@ Progress: [████████████████░░░░] 80% (mi
 | Phase 23-multi-cluster-compute P01 | 4 | 3 tasks | 6 files |
 | Phase 23-multi-cluster-compute P02 | 1 | 2 tasks | 2 files |
 | Phase 24-health-findings-export P01 | 10 | 2 tasks | 3 files |
+| Phase 24-health-findings-export P02 | 12 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -53,6 +54,8 @@ Progress: [████████████████░░░░] 80% (mi
 - [Phase 23-multi-cluster-compute]: cluster badge in concerns.py uses raw cluster name not i18n key — cluster names are vCenter environment data
 - [Phase 24-health-findings-export]: HealthCheckResult imported via TYPE_CHECKING only; duck typing used at runtime to avoid circular imports
 - [Phase 24-health-findings-export]: _category_label() maps check_id prefix to translated category; findings sorted critical-first in appendix page
+- [Phase 24-health-findings-export]: Reuse pdf.findings_category_* keys in Excel sheet to avoid duplicate i18n translations
+- [Phase 24-health-findings-export]: Size-based PDF test assertions for backward-compatibility tests due to ReportLab non-deterministic bytes
 
 ### Pending Todos
 
@@ -65,7 +68,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 24-health-findings-export 24-01-PLAN.md
+Stopped at: Completed 24-health-findings-export 24-02-PLAN.md
 Resume file: None
 
-Next step: Execute 24-02-PLAN.md (next plan in phase 24)
+Next step: Execute Phase 25 (vMSC & DR Modeling)
