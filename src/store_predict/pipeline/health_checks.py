@@ -57,6 +57,7 @@ class HealthFinding:
     detail: str  # i18n key, e.g. "health.zero_provisioned.detail"
     affected_count: int  # Number of VMs triggering this finding
     affected_vms: tuple[str, ...]  # Sample VM names (max 5, for display only)
+    cluster: str = ""  # Cluster name for per-cluster findings; empty for global findings
 
 
 @dataclass(frozen=True)
@@ -118,7 +119,8 @@ def run_health_checks(df: pd.DataFrame | None) -> HealthCheckResult:
 
     # VMware best practice checks (HLT-03)
     findings.extend(_check_no_cluster(active))
-    findings.extend(_check_hw_version(active))
+    findings.extend(_check_hw_version_per_cluster(active))
+    findings.extend(_check_small_cluster_ha(active))
     findings.extend(_check_tools_status(active))
 
     return HealthCheckResult(
@@ -309,6 +311,8 @@ def _check_hw_version(df: pd.DataFrame) -> list[HealthFinding]:
     CRITICAL sentinel guard: hw_version == 0 means data not available
     (LiveOptics exports or RVTools without HW version column).
     Never flag sentinel 0 as old hardware.
+
+    # Superseded by _check_hw_version_per_cluster() — kept as private helper
     """
     hw = pd.to_numeric(df.get("hw_version", pd.Series([0] * len(df))), errors="coerce").fillna(0).astype(int)
 
@@ -345,6 +349,100 @@ def _check_hw_version(df: pd.DataFrame) -> list[HealthFinding]:
                     detail="health.old_hw_version.detail",
                     affected_count=len(old),
                     affected_vms=tuple(old["vm_name"].head(5).tolist()),
+                )
+            )
+
+    return findings
+
+
+def _check_hw_version_per_cluster(df: pd.DataFrame) -> list[HealthFinding]:
+    """Flag VMs with old VMware hardware version, grouped by cluster.
+
+    Emits one finding per affected cluster so the UI can show which clusters
+    have outdated hardware. CRITICAL sentinel guard: hw_version == 0 means
+    data not available — never flag sentinel 0 as old hardware.
+    """
+    hw = pd.to_numeric(df.get("hw_version", pd.Series([0] * len(df))), errors="coerce").fillna(0).astype(int)
+
+    # Skip entire check if no HW version data in this export
+    if (hw > 0).sum() == 0:
+        return []
+
+    df_work = df.copy()
+    df_work["_hw"] = hw
+
+    # Normalize cluster column for groupby labeling (do NOT log cluster names)
+    cluster_col = df_work["cluster"].fillna("").astype(str).str.strip().replace("", "(No Cluster)")
+    df_work["_cluster_label"] = cluster_col
+
+    findings: list[HealthFinding] = []
+    for cluster_name, group in df_work.groupby("_cluster_label", sort=True):
+        group_hw = group["_hw"]
+
+        # Skip if no HW data for this cluster
+        if (group_hw > 0).sum() == 0:
+            continue
+
+        # Very old: below vHW 14 (ESXi 6.7) -- Critical
+        very_old_mask = (group_hw > 0) & (group_hw < _VERY_OLD_HW_VERSION)
+        if very_old_mask.any():
+            findings.append(
+                HealthFinding(
+                    check_id="best_practice.very_old_hw_version",
+                    severity=Severity.CRITICAL,
+                    title="health.very_old_hw_version.title",
+                    detail="health.very_old_hw_version.detail",
+                    affected_count=len(group[very_old_mask]),
+                    affected_vms=tuple(group[very_old_mask]["vm_name"].head(5).tolist()),
+                    cluster=str(cluster_name),
+                )
+            )
+        else:
+            # Only check "old" (14-16) if none are "very old"
+            old_mask = (group_hw > 0) & (group_hw >= _VERY_OLD_HW_VERSION) & (group_hw < _OLD_HW_VERSION)
+            if old_mask.any():
+                findings.append(
+                    HealthFinding(
+                        check_id="best_practice.old_hw_version",
+                        severity=Severity.WARNING,
+                        title="health.old_hw_version.title",
+                        detail="health.old_hw_version.detail",
+                        affected_count=len(group[old_mask]),
+                        affected_vms=tuple(group[old_mask]["vm_name"].head(5).tolist()),
+                        cluster=str(cluster_name),
+                    )
+                )
+
+    return findings
+
+
+def _check_small_cluster_ha(df: pd.DataFrame) -> list[HealthFinding]:
+    """Flag clusters with fewer than 3 VMs as at-risk for N+1 HA.
+
+    Standalone hosts (empty/no cluster) are skipped — HA context doesn't apply.
+    Emits one finding per affected named cluster.
+    """
+    # Normalize cluster column — skip VMs without cluster assignment
+    cluster_col = df["cluster"].fillna("").astype(str).str.strip()
+    df_work = df.copy()
+    df_work["_cluster_label"] = cluster_col.replace("", "(No Cluster)")
+
+    findings: list[HealthFinding] = []
+    for cluster_name, group in df_work.groupby("_cluster_label", sort=True):
+        # Skip standalone hosts — no HA context
+        if str(cluster_name) == "(No Cluster)":
+            continue
+
+        if len(group) < 3:
+            findings.append(
+                HealthFinding(
+                    check_id="best_practice.small_cluster_ha",
+                    severity=Severity.WARNING,
+                    title="health.small_cluster_ha.title",
+                    detail="health.small_cluster_ha.detail",
+                    affected_count=len(group),
+                    affected_vms=tuple(group["vm_name"].head(5).tolist()),
+                    cluster=str(cluster_name),
                 )
             )
 
