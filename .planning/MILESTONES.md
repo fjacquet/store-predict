@@ -105,3 +105,13 @@
 - [v4.0-MILESTONE-AUDIT.md](milestones/v4.0-MILESTONE-AUDIT.md)
 
 ---
+
+## v5.0 Multi-Cluster & Export Completeness (Shipped: 2026-02-23)
+
+**Phases completed:** 4 phases, 8 plans, 5 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+

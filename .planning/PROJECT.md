@@ -47,20 +47,21 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 - Quick-filter search + column visibility toggle (CPU/RAM/IOPS columns) in VM review grid — v4.0
 - Health checks engine (11 checks: data quality, sizing risks, VMware best practices) + `/concerns` page — v4.0
 - Compute sizing pipeline (N+1 HA, vMSC, A/P DR) + `/compute` reactive page with 17 Dell PowerEdge presets — v4.0
+- Per-cluster compute breakdown table with grand total row on `/compute` — v5.0
+- Health findings in PDF export (severity summary + detail appendix) and Excel (Findings worksheet with Cluster column) — v5.0
+- Configurable vMSC split ratio (1–99%) and A/P DR active % with per-site Site A/B host count rows on `/compute` — v5.0
+- CycloneDX SBOM generation and Sigstore attestation on GitHub release — v5.0
+- PRD v5.0 formal product requirements document — v5.0
 
-## Current Milestone: v5.0 Multi-Cluster & Export Completeness
+## Current State: v5.0 Shipped
 
-**Goal:** Add per-cluster compute breakdown, export health findings to PDF and Excel, and improve vMSC/DR modeling granularity.
+**Shipped:** v5.0 Multi-Cluster & Export Completeness (2026-02-23)
 
-**Target features:**
-
-- Multi-cluster compute sizing: parse Cluster column, show per-cluster table + grand total on /compute
-- Health findings export: summary table on PDF page 1, detailed findings appendix page, findings tab in Excel
-- Better vMSC/DR modeling: more granular per-site inputs for stretched cluster and DR scenarios
+Tool now covers: storage sizing, datastore layout, environment health checks, compute sizing with per-cluster breakdown and configurable DR/vMSC site ratios, and full health findings export to PDF and Excel.
 
 ### Active
 
-<!-- v5.0 — Multi-Cluster & Export Completeness -->
+<!-- Next milestone requirements go here -->
 
 ### Out of Scope
 
@@ -81,10 +82,10 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 
 ## Context
 
-Shipped v4.0 with 439 tests passing, 8,166 LOC Python.
+Shipped v5.0 with 48 files changed (+5,919 LOC) over 44 commits.
 Tech stack: NiceGUI, pandas, openpyxl, ReportLab, AG Grid, XlsxWriter, Pillow, litellm, matplotlib, python-i18n, Playwright.
-Docker Compose deployment, MkDocs on GitHub Pages, GitHub Actions CI with Codecov.
-Tool now covers storage sizing, datastore layout planning, environment health checks, and ESXi compute sizing — a full pre-sales assessment platform.
+Docker Compose deployment, MkDocs on GitHub Pages, GitHub Actions CI with Codecov + CycloneDX SBOM.
+Tool covers storage sizing, datastore layout, health checks, compute sizing with multi-cluster breakdown, configurable DR/vMSC ratios, and full findings export — a complete pre-sales assessment platform.
 
 ## Constraints
 
@@ -129,5 +130,16 @@ Tool now covers storage sizing, datastore layout planning, environment health ch
 | TypedDict for NiceGUI session config | `dict[str, object]` too broad for Pyright; TypedDict coerces at read time | Good |
 | A/P DR always computed (no `ap_enabled` param) | Tests rely on values always being present; UI controls display only | Good |
 
+## Key Decisions (v5.0 additions)
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| `__no_cluster__` sentinel in compute groupby | Allows groupby without NaN/None; translated to i18n label in UI | Good |
+| HealthFinding.cluster as str (not Optional) | Empty string avoids None guards; `if finding.cluster:` is idiomatic | Good |
+| Serialize findings as list[dict] through print_session | Avoids re-running health checks in Playwright worker; PDF/UI consistency | Good |
+| vmsc_site_a_hosts / vmsc_site_b_hosts replace vmsc_hosts_per_site | Enables asymmetric site display; symmetric case still works with equal values | Good |
+| Split/active ratio as float [0.01, 0.99] / [0.01, 1.0] | Clamped to prevent degenerate single-site results; UI enforces 1–99/1–100 range | Good |
+| CycloneDX SBOM via anchore/sbom-action + Sigstore attestation | Supply chain transparency; auto-attached to GitHub releases | Good |
+
 ---
-*Last updated: 2026-02-23 after v5.0 milestone started*
+*Last updated: 2026-02-23 after v5.0 milestone complete*
