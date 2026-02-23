@@ -114,6 +114,20 @@ pdf:
   before_after_title: "Capacité : avant vs après DRR"
   layout_heading: "Recommandations de disposition des datastores"
   layout_strategy_label: "Stratégie"
+  findings_summary_heading: "Résumé des contrôles de santé"
+  findings_detail_heading: "Détail des problèmes détectés"
+  findings_col_severity: "Sévérité"
+  findings_col_category: "Catégorie"
+  findings_col_finding: "Problème"
+  findings_col_count: "VMs affectées"
+  findings_col_detail: "Détail"
+  findings_no_findings: "Aucun problème détecté — l'environnement est sain."
+  findings_category_data_quality: "Qualité des données"
+  findings_category_sizing_risk: "Risque de dimensionnement"
+  findings_category_best_practice: "Bonne pratique VMware"
+  findings_severity_critical: "Critique"
+  findings_severity_warning: "Avertissement"
+  findings_severity_info: "Information"
 
 layout:
   home: Accueil
@@ -244,6 +258,13 @@ excel:
   col_avg_iops: "IOPS moyennes"
   col_peak_mbs: "Débit de pointe (Mo/s)"
   col_iops_8k: "IOPS éq. 8K"
+  sheet_findings: "Problèmes détectés"
+  col_finding: "Problème"
+  col_severity: "Sévérité"
+  col_category: "Catégorie"
+  col_affected_vms: "VMs affectées"
+  col_detail: "Détail"
+  col_cluster: "Cluster"
 
 tooltip:
   llm_toggle: "Activer la classification par IA (LLM) pour les VMs inconnues"
@@ -262,8 +283,8 @@ tooltip:
   quick_filter: "Recherche dans toutes les colonnes visibles. Afficher une colonne pour l'inclure dans la recherche."
   compute_preset: "Sélectionnez un modèle Dell PowerEdge ou entrez des spécifications personnalisées. Les cœurs indiqués sont des cœurs physiques, pas des threads HT."
   compute_overcommit: "Nombre de vCPUs par cœur physique. Plus élevé = plus de VMs par hôte mais plus de contention d'ordonnancement."
-  compute_vmsc: "VMware vSphere Metro Storage Cluster — actif/actif étiré sur deux sites. Nécessite une colonne Datacenter avec au moins 2 valeurs distinctes."
-  compute_ap: "DR Actif/Passif — site secondaire dimensionné à 50% du principal pour la veille froide."
+  compute_vmsc: "VMware vSphere Metro Storage Cluster — actif/actif étiré sur deux sites. Configurez le pourcentage du Site A."
+  compute_ap: "DR Actif/Passif — site secondaire dimensionné à 50% du principal calculé pour veille froide."
 
 chart:
   provisioned: "Provisionné"
@@ -328,6 +349,9 @@ health:
   no_hw_data:
     title: "Données de version matérielle indisponibles"
     detail: "Cet export ne contient pas la colonne de version matérielle — la compatibilité matérielle ne peut pas être évaluée."
+  small_cluster_ha:
+    title: "Cluster avec peu de VMs (risque HA)"
+    detail: "%{count} VM(s) dans ce cluster — un minimum de 3 hôtes est recommandé pour N+1 HA."
 
 compute:
   title: "Dimensionnement calcul"
@@ -356,6 +380,23 @@ compute:
   ap_primary: "Site principal"
   ap_secondary: "Site secondaire (passif)"
   ap_secondary_detail: "50% du principal — veille froide"
+  vmsc_split_ratio: "Répartition Site A (%)"
+  vmsc_split_hint: "Pourcentage des VM actives sur le Site A. Le Site B reçoit le reste."
+  vmsc_site_a: "Site A"
+  vmsc_site_b: "Site B"
+  ap_active_ratio: "% Actif principal"
+  ap_active_hint: "Pourcentage des VM actives sur le site principal."
   host_specs_heading: "Spécifications de l'hôte"
   breakdown_vcpu: "Par vCPU"
   breakdown_ram: "Par RAM"
+  cluster_breakdown_heading: "Répartition par cluster"
+  cluster_col: "Cluster"
+  cluster_vm_count_col: "VMs"
+  cluster_vcpu_col: "vCPUs"
+  cluster_ram_col: "RAM (Gio)"
+  cluster_hosts_col: "Hôtes requis"
+  cluster_total: "Total"
+  no_cluster_label: "(Sans cluster)"
+  cluster_breakdown_note: "Le total par cluster peut dépasser le total global — chaque cluster dispose de son propre hôte de basculement N+1."
+  no_cluster_data_note: "Aucune donnée de cluster disponible. Téléchargez un fichier RVTools avec une colonne Cluster pour voir la répartition."
+  host_unit: "hôtes"

@@ -114,6 +114,20 @@ pdf:
   before_after_title: "Capacity: Before vs After DRR"
   layout_heading: "Datastore Layout Recommendations"
   layout_strategy_label: "Strategy"
+  findings_summary_heading: "Health Check Summary"
+  findings_detail_heading: "Health Check Findings"
+  findings_col_severity: "Severity"
+  findings_col_category: "Category"
+  findings_col_finding: "Finding"
+  findings_col_count: "Affected VMs"
+  findings_col_detail: "Detail"
+  findings_no_findings: "No concerns found — environment looks healthy."
+  findings_category_data_quality: "Data Quality"
+  findings_category_sizing_risk: "Sizing Risk"
+  findings_category_best_practice: "VMware Best Practice"
+  findings_severity_critical: "Critical"
+  findings_severity_warning: "Warning"
+  findings_severity_info: "Info"
 
 layout:
   home: Home
@@ -244,6 +258,13 @@ excel:
   col_avg_iops: Avg IOPS
   col_peak_mbs: "Peak MB/s"
   col_iops_8k: "8K Eq. IOPS"
+  sheet_findings: "Findings"
+  col_finding: "Finding"
+  col_severity: "Severity"
+  col_category: "Category"
+  col_affected_vms: "Affected VMs"
+  col_detail: "Detail"
+  col_cluster: "Cluster"
 
 tooltip:
   llm_toggle: "Enable AI (LLM) classification for unknown VMs"
@@ -262,8 +283,8 @@ tooltip:
   quick_filter: "Search across all visible columns. Show a column to include it in search."
   compute_preset: "Select a Dell PowerEdge server model or enter custom specs. Note: specs show physical cores, not HT threads."
   compute_overcommit: "Number of vCPUs per physical core. Higher = more VMs per host but more scheduling contention."
-  compute_vmsc: "VMware vSphere Metro Storage Cluster — active/active stretch across two sites. Requires datacenter column data with 2+ distinct values."
-  compute_ap: "Active/Passive DR — secondary site sized at 50% of primary for cold standby."
+  compute_vmsc: "VMware vSphere Metro Storage Cluster — active/active stretch across two sites. Configure the Site A split percentage."
+  compute_ap: "Active/Passive DR — secondary site sized at 50% of computed primary for cold standby."
 
 chart:
   provisioned: "Provisioned"
@@ -328,6 +349,9 @@ health:
   no_hw_data:
     title: "No Hardware Version Data Available"
     detail: "This export does not include the HW version column — hardware compatibility cannot be assessed."
+  small_cluster_ha:
+    title: "Small cluster (HA risk)"
+    detail: "%{count} VM(s) in this cluster — a minimum of 3 hosts is recommended for N+1 HA."
 
 compute:
   title: "Compute Sizing"
@@ -356,6 +380,23 @@ compute:
   ap_primary: "Primary Site"
   ap_secondary: "Secondary Site (passive)"
   ap_secondary_detail: "50% of primary — passive standby"
+  vmsc_split_ratio: "Site A Split (%)"
+  vmsc_split_hint: "Percentage of VMs active on Site A. Site B receives the remainder."
+  vmsc_site_a: "Site A"
+  vmsc_site_b: "Site B"
+  ap_active_ratio: "Primary Active (%)"
+  ap_active_hint: "Percentage of VMs running active on the primary site."
   host_specs_heading: "Host Specifications"
   breakdown_vcpu: "vCPU-based"
   breakdown_ram: "RAM-based"
+  cluster_breakdown_heading: "Per-Cluster Breakdown"
+  cluster_col: "Cluster"
+  cluster_vm_count_col: "VMs"
+  cluster_vcpu_col: "vCPUs"
+  cluster_ram_col: "RAM (GiB)"
+  cluster_hosts_col: "Hosts needed"
+  cluster_total: "Total"
+  no_cluster_label: "(No Cluster)"
+  cluster_breakdown_note: "Per-cluster total may exceed global due to independent N+1 buffer per cluster."
+  no_cluster_data_note: "No cluster data available. Upload an RVTools file with a Cluster column to see the breakdown."
+  host_unit: "hosts"

@@ -15,8 +15,10 @@ from nicegui import app, ui
 from store_predict.i18n import t
 from store_predict.pipeline.compute_sizing import (
     DELL_POWEREDGE_PRESETS,
+    ClusterSizingRow,
     ComputeSizingResult,
     HostConfig,
+    compute_cluster_breakdown,
     compute_sizing,
 )
 from store_predict.ui.layout import layout
@@ -35,6 +37,8 @@ class _ComputeConfig(TypedDict):
     custom_cores_per_socket: int
     custom_sockets: int
     custom_ram_gib: int
+    vmsc_split_pct: int   # Site A percentage, 1-99, stored as integer (e.g. 60 = 60%)
+    ap_active_pct: int    # Primary active percentage, 1-100, stored as integer
 
 
 # ---------------------------------------------------------------------------
@@ -58,6 +62,8 @@ def _load_compute_config() -> _ComputeConfig:
         "custom_cores_per_socket": int(app.storage.tab.get("compute_custom_cps", preset.cores_per_socket)),
         "custom_sockets": int(app.storage.tab.get("compute_custom_sockets", preset.sockets)),
         "custom_ram_gib": int(app.storage.tab.get("compute_custom_ram", preset.ram_gib)),
+        "vmsc_split_pct": int(app.storage.tab.get("compute_vmsc_split", 50)),
+        "ap_active_pct": int(app.storage.tab.get("compute_ap_active", 100)),
     }
 
 
@@ -91,6 +97,66 @@ def _render_aggregate_cards(result: ComputeSizingResult) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Per-cluster breakdown table
+# ---------------------------------------------------------------------------
+
+
+def _render_cluster_breakdown_table(
+    cluster_rows: list[ClusterSizingRow],
+) -> None:
+    """Render per-cluster breakdown as a ui.table with grand total row.
+
+    Suppressed if fewer than 2 distinct clusters (single-cluster or
+    no-cluster environments — grand total duplicates global figures).
+    Also suppressed if all VMs are in the __no_cluster__ sentinel group.
+    Shows an informational note explaining the N+1 buffer difference.
+    """
+    # Filter out the no-cluster sentinel to determine real cluster count
+    real_clusters = [r for r in cluster_rows if r.cluster_name != "__no_cluster__"]
+
+    if len(real_clusters) < 2:
+        # Single cluster or LiveOptics (no cluster data): show note instead
+        with ui.card().classes("w-full p-4 bg-gray-50 border-l-4 border-gray-300"):
+            ui.label(t("compute.no_cluster_data_note")).classes("text-sm text-gray-500")
+        return
+
+    ui.separator()
+    ui.label(t("compute.cluster_breakdown_heading")).classes("text-lg font-bold text-gray-700")
+
+    columns = [
+        {"name": "cluster", "label": t("compute.cluster_col"), "field": "cluster", "align": "left"},
+        {"name": "vm_count", "label": t("compute.cluster_vm_count_col"), "field": "vm_count", "align": "right"},
+        {"name": "vcpus", "label": t("compute.cluster_vcpu_col"), "field": "vcpus", "align": "right"},
+        {"name": "ram_gib", "label": t("compute.cluster_ram_col"), "field": "ram_gib", "align": "right"},
+        {"name": "hosts", "label": t("compute.cluster_hosts_col"), "field": "hosts", "align": "right"},
+    ]
+
+    # Build display rows — replace __no_cluster__ sentinel with i18n label
+    rows = [
+        {
+            "cluster": t("compute.no_cluster_label") if r.cluster_name == "__no_cluster__" else r.cluster_name,
+            "vm_count": str(r.vm_count),
+            "vcpus": str(r.total_vcpus),
+            "ram_gib": f"{r.total_ram_gib:.1f}",
+            "hosts": str(r.hosts_needed),
+        }
+        for r in cluster_rows
+    ]
+
+    # Grand total row (CLUS-03)
+    rows.append({
+        "cluster": t("compute.cluster_total"),
+        "vm_count": str(sum(r.vm_count for r in cluster_rows)),
+        "vcpus": str(sum(r.total_vcpus for r in cluster_rows)),
+        "ram_gib": f"{sum(r.total_ram_gib for r in cluster_rows):.1f}",
+        "hosts": str(sum(r.hosts_needed for r in cluster_rows)),
+    })
+
+    ui.table(columns=columns, rows=rows).classes("w-full")
+    ui.label(t("compute.cluster_breakdown_note")).classes("text-xs text-gray-400 mt-1")
+
+
+# ---------------------------------------------------------------------------
 # Results panel (refreshable)
 # ---------------------------------------------------------------------------
 
@@ -104,6 +170,8 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
         host_config,
         overcommit_ratio=cfg["overcommit_ratio"],
         vmsc_enabled=cfg["vmsc_enabled"],
+        vmsc_split_ratio=cfg["vmsc_split_pct"] / 100.0,
+        ap_active_ratio=cfg["ap_active_pct"] / 100.0,
     )
 
     if not result.has_data:
@@ -141,10 +209,21 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
                     ui.icon("warning", size="1.2rem").classes("text-amber-500")
                     ui.label(t("compute.vmsc_no_dc_data")).classes("text-sm text-amber-700")
             else:
-                for site in result.vmsc_sites:
-                    with ui.row().classes("items-center gap-2"):
-                        ui.icon("location_on", size="1rem").classes("text-purple-500")
-                        ui.label(f"{site}: {result.vmsc_hosts_per_site} hosts").classes("text-sm")
+                # Site A row
+                with ui.row().classes("items-center gap-3"):
+                    ui.icon("location_on", size="1rem").classes("text-purple-500")
+                    ui.label(t("compute.vmsc_site_a")).classes("text-sm font-medium w-16")
+                    ui.label(str(result.vmsc_site_a_hosts)).classes("text-2xl font-bold text-purple-700")
+                    ui.label(t("compute.host_unit")).classes("text-sm text-gray-500")
+                # Site B row
+                with ui.row().classes("items-center gap-3"):
+                    ui.icon("location_on", size="1rem").classes("text-purple-400")
+                    ui.label(t("compute.vmsc_site_b")).classes("text-sm font-medium w-16")
+                    ui.label(str(result.vmsc_site_b_hosts)).classes("text-2xl font-bold text-purple-600")
+                    ui.label(t("compute.host_unit")).classes("text-sm text-gray-500")
+                # Split label
+                site_b_pct = 100 - cfg["vmsc_split_pct"]
+                ui.label(f"{cfg['vmsc_split_pct']}% / {site_b_pct}%").classes("text-xs text-gray-400 mt-1")
 
     # Active/Passive section (show if toggle active)
     if cfg["ap_enabled"]:
@@ -158,6 +237,18 @@ def _results_panel(df, cfg: _ComputeConfig) -> None:  # type: ignore[no-untyped-
                     ui.label(t("compute.ap_secondary")).classes("text-sm text-gray-500")
                     ui.label(str(result.ap_secondary_hosts)).classes("text-2xl font-bold text-gray-600")
                     ui.label(t("compute.ap_secondary_detail")).classes("text-xs text-gray-400")
+            ui.label(
+                t("compute.ap_active_hint") + f" ({cfg['ap_active_pct']}%)"
+            ).classes("text-xs text-gray-400 mt-1")
+
+    # Per-cluster breakdown (CLUS-02, CLUS-03)
+    cluster_rows = compute_cluster_breakdown(
+        df,
+        host_config,
+        overcommit_ratio=cfg["overcommit_ratio"],
+    )
+    if cluster_rows:
+        _render_cluster_breakdown_table(cluster_rows)
 
 
 # ---------------------------------------------------------------------------
@@ -227,11 +318,31 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
             value=cfg["vmsc_enabled"],
         ).tooltip(t("tooltip.compute_vmsc"))
 
+        # vMSC split input — shown inline as part of the toggle area
+        vmsc_split_input = ui.number(
+            label=t("compute.vmsc_split_ratio"),
+            value=cfg["vmsc_split_pct"],
+            min=1,
+            max=99,
+            step=1,
+        ).classes("w-32").tooltip(t("compute.vmsc_split_hint"))
+        vmsc_split_input.set_visibility(cfg["vmsc_enabled"])
+
         # Active/Passive toggle
         ap_switch = ui.switch(
             t("compute.ap_toggle"),
             value=cfg["ap_enabled"],
         ).tooltip(t("tooltip.compute_ap"))
+
+        # AP active input — shown inline as part of the toggle area
+        ap_active_input = ui.number(
+            label=t("compute.ap_active_ratio"),
+            value=cfg["ap_active_pct"],
+            min=1,
+            max=100,
+            step=1,
+        ).classes("w-32").tooltip(t("compute.ap_active_hint"))
+        ap_active_input.set_visibility(cfg["ap_enabled"])
 
     # Wire on_change callbacks — save to session, then refresh results
     def _on_preset_change(e) -> None:  # type: ignore[no-untyped-def]
@@ -254,11 +365,23 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
 
     def _on_vmsc_change(e) -> None:  # type: ignore[no-untyped-def]
         app.storage.tab["compute_vmsc"] = bool(e.value)
+        vmsc_split_input.set_visibility(bool(e.value))
         refresh_fn()
 
     def _on_ap_change(e) -> None:  # type: ignore[no-untyped-def]
         app.storage.tab["compute_ap"] = bool(e.value)
+        ap_active_input.set_visibility(bool(e.value))
         refresh_fn()
+
+    def _on_vmsc_split_change(e) -> None:  # type: ignore[no-untyped-def]
+        if e.value is not None:
+            app.storage.tab["compute_vmsc_split"] = int(e.value)
+            refresh_fn()
+
+    def _on_ap_active_change(e) -> None:  # type: ignore[no-untyped-def]
+        if e.value is not None:
+            app.storage.tab["compute_ap_active"] = int(e.value)
+            refresh_fn()
 
     def _on_custom_cps_change(e) -> None:  # type: ignore[no-untyped-def]
         if e.value is not None:
@@ -282,6 +405,8 @@ def _render_settings_panel(cfg: _ComputeConfig, refresh_fn) -> None:  # type: ig
     cps_input.on_value_change(_on_custom_cps_change)
     sockets_input.on_value_change(_on_custom_sockets_change)
     ram_input.on_value_change(_on_custom_ram_change)
+    vmsc_split_input.on_value_change(_on_vmsc_split_change)
+    ap_active_input.on_value_change(_on_ap_active_change)
 
 
 # ---------------------------------------------------------------------------

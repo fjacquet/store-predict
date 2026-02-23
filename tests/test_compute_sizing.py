@@ -9,8 +9,10 @@ import pytest
 
 from store_predict.pipeline.compute_sizing import (
     DELL_POWEREDGE_PRESETS,
+    ClusterSizingRow,
     ComputeSizingResult,
     HostConfig,
+    compute_cluster_breakdown,
     compute_sizing,
 )
 
@@ -200,11 +202,12 @@ class TestOvercommitClamping:
 
 class TestVMSC:
     def test_vmsc_unavailable_single_datacenter(self) -> None:
-        """All VMs in DC1 -> vmsc_available=False, vmsc_hosts_per_site=0."""
+        """All VMs in DC1 -> vmsc_available=False, vmsc_site_a_hosts=0, vmsc_site_b_hosts=0."""
         df = _make_active_df(datacenter=["DC1"])
         result = compute_sizing(df, _R760, vmsc_enabled=True)
         assert result.vmsc_available is False
-        assert result.vmsc_hosts_per_site == 0
+        assert result.vmsc_site_a_hosts == 0
+        assert result.vmsc_site_b_hosts == 0
 
     def test_vmsc_unavailable_empty_datacenter(self) -> None:
         """Empty datacenter string -> vmsc_available=False."""
@@ -238,7 +241,7 @@ class TestVMSC:
         assert len(result.vmsc_sites) == 2
 
     def test_vmsc_disabled_no_per_site_count(self) -> None:
-        """vmsc_available=True but vmsc_enabled=False -> vmsc_hosts_per_site=0."""
+        """vmsc_available=True but vmsc_enabled=False -> vmsc_site_a_hosts=vmsc_site_b_hosts=0."""
         rows = [
             _make_active_df(vm_name=["vm-dc1"], datacenter=["DC1"]),
             _make_active_df(vm_name=["vm-dc2"], datacenter=["DC2"]),
@@ -246,10 +249,11 @@ class TestVMSC:
         df = pd.concat(rows, ignore_index=True)
         result = compute_sizing(df, _R760, vmsc_enabled=False)
         assert result.vmsc_available is True
-        assert result.vmsc_hosts_per_site == 0
+        assert result.vmsc_site_a_hosts == 0
+        assert result.vmsc_site_b_hosts == 0
 
     def test_vmsc_enabled_returns_per_site_count(self) -> None:
-        """vmsc_available=True + vmsc_enabled=True -> vmsc_hosts_per_site > 0."""
+        """vmsc_available=True + vmsc_enabled=True -> vmsc_site_a_hosts > 0 and vmsc_site_b_hosts > 0."""
         rows = [
             _make_active_df(vm_name=["vm-dc1"], datacenter=["DC1"]),
             _make_active_df(vm_name=["vm-dc2"], datacenter=["DC2"]),
@@ -257,7 +261,8 @@ class TestVMSC:
         df = pd.concat(rows, ignore_index=True)
         result = compute_sizing(df, _R760, vmsc_enabled=True)
         assert result.vmsc_available is True
-        assert result.vmsc_hosts_per_site > 0
+        assert result.vmsc_site_a_hosts > 0
+        assert result.vmsc_site_b_hosts > 0
 
 
 # ---------------------------------------------------------------------------
@@ -301,10 +306,10 @@ class TestActivePassive:
         assert result.ap_secondary_hosts == max(1, math.ceil(result.hosts_n1 / 2))
         assert result.ap_secondary_hosts >= 1
 
-    def test_ap_primary_equals_hosts_n1(self) -> None:
-        """ap_primary_hosts must always equal hosts_n1."""
+    def test_ap_primary_equals_hosts_n1_when_full_ratio(self) -> None:
+        """ap_active_ratio=1.0 (default) -> ap_primary_hosts equals hosts_n1."""
         df = _make_active_df(num_cpus=[100], memory_mib=[8192.0])
-        result = compute_sizing(df, _R760)
+        result = compute_sizing(df, _R760, ap_active_ratio=1.0)
         assert result.ap_primary_hosts == result.hosts_n1
 
 
@@ -385,3 +390,182 @@ class TestMemoryMibSessionRoundTrip:
         df = _make_active_df(num_cpus=[None])
         result = compute_sizing(df, _R760)
         assert result.total_active_vcpus == 0
+
+
+# ---------------------------------------------------------------------------
+# TestClusterBreakdown
+# ---------------------------------------------------------------------------
+
+
+class TestClusterBreakdown:
+    def test_cluster_breakdown_empty_df_returns_empty(self) -> None:
+        """None and empty DataFrame should both return []."""
+        assert compute_cluster_breakdown(None, _R760) == []
+        assert compute_cluster_breakdown(pd.DataFrame(), _R760) == []
+
+    def test_cluster_breakdown_single_cluster(self) -> None:
+        """3 VMs in ClusterA -> one ClusterSizingRow with vm_count=3."""
+        rows = [
+            _make_active_df(vm_name=[f"vm-{i}"], cluster=["ClusterA"]) for i in range(3)
+        ]
+        df = pd.concat(rows, ignore_index=True)
+        result = compute_cluster_breakdown(df, _R760)
+        assert len(result) == 1
+        assert result[0].cluster_name == "ClusterA"
+        assert result[0].vm_count == 3
+
+    def test_cluster_breakdown_two_clusters(self) -> None:
+        """2 VMs in ClusterA, 1 VM in ClusterB -> 2 rows sorted alphabetically."""
+        rows = [
+            _make_active_df(vm_name=["vm-a1"], cluster=["ClusterA"]),
+            _make_active_df(vm_name=["vm-a2"], cluster=["ClusterA"]),
+            _make_active_df(vm_name=["vm-b1"], cluster=["ClusterB"]),
+        ]
+        df = pd.concat(rows, ignore_index=True)
+        result = compute_cluster_breakdown(df, _R760)
+        assert len(result) == 2
+        assert result[0].cluster_name == "ClusterA"
+        assert result[1].cluster_name == "ClusterB"
+        assert result[0].vm_count == 2
+        assert result[1].vm_count == 1
+
+    def test_cluster_breakdown_no_cluster_vms(self) -> None:
+        """VMs with empty cluster string -> grouped under __no_cluster__."""
+        df = _make_active_df(cluster=[""])
+        result = compute_cluster_breakdown(df, _R760)
+        assert len(result) == 1
+        assert result[0].cluster_name == "__no_cluster__"
+
+    def test_cluster_breakdown_excludes_powered_off(self) -> None:
+        """Powered-off VMs must not be counted in breakdown."""
+        rows = [
+            _make_active_df(vm_name=["active-vm"], cluster=["ClusterA"], is_powered_on=[True]),
+            _make_active_df(vm_name=["off-vm"], cluster=["ClusterA"], is_powered_on=[False]),
+        ]
+        df = pd.concat(rows, ignore_index=True)
+        result = compute_cluster_breakdown(df, _R760)
+        assert len(result) == 1
+        assert result[0].vm_count == 1  # only active VM counted
+
+    def test_cluster_breakdown_hosts_formula(self) -> None:
+        """hosts_needed = max(_hosts_n1(...), _hosts_by_ram(...)) for known values."""
+        import math
+
+        # 8 vCPUs, 8192 MiB RAM, R760 (56 cores, 512 GiB RAM), ratio=4.0
+        # hv = ceil(8 / (56*4)) + 1 = ceil(0.036) + 1 = 1 + 1 = 2
+        # hr = ceil(8/512) + 1 = 1 + 1 = 2
+        # hosts_needed = max(2, 2) = 2
+        df = _make_active_df(num_cpus=[8], memory_mib=[8192.0], cluster=["ClusterA"])
+        result = compute_cluster_breakdown(df, _R760)
+        assert len(result) == 1
+        expected_hv = math.ceil(8 / (56 * 4.0)) + 1
+        expected_hr = math.ceil(8.0 / 1024.0 / 512) + 1
+        expected_hosts = max(expected_hv, expected_hr)
+        assert result[0].hosts_needed == expected_hosts
+
+    def test_cluster_breakdown_returns_cluster_sizing_rows(self) -> None:
+        """Return type elements must be ClusterSizingRow instances."""
+        df = _make_active_df(cluster=["ClusterA"])
+        result = compute_cluster_breakdown(df, _R760)
+        assert all(isinstance(r, ClusterSizingRow) for r in result)
+
+    def test_cluster_breakdown_all_powered_off_returns_empty(self) -> None:
+        """All powered-off VMs -> empty result (no active rows)."""
+        df = _make_active_df(is_powered_on=[False], cluster=["ClusterA"])
+        result = compute_cluster_breakdown(df, _R760)
+        assert result == []
+
+
+# ---------------------------------------------------------------------------
+# TestVMSCConfigurableSplit
+# ---------------------------------------------------------------------------
+
+
+class TestVMSCConfigurableSplit:
+    def _make_two_dc_df(self, num_cpus: int = 8, memory_mib: float = 8192.0) -> pd.DataFrame:
+        """Build a 2-VM DataFrame, one per datacenter, for vMSC split tests."""
+        rows = [
+            _make_active_df(vm_name=["vm-dc1"], datacenter=["DC1"], num_cpus=[num_cpus], memory_mib=[memory_mib]),
+            _make_active_df(vm_name=["vm-dc2"], datacenter=["DC2"], num_cpus=[num_cpus], memory_mib=[memory_mib]),
+        ]
+        return pd.concat(rows, ignore_index=True)
+
+    def test_vmsc_50_50_split_equals_legacy_behavior(self) -> None:
+        """50/50 split (default) -> site_a_hosts and site_b_hosts are equal (symmetric)."""
+        df = self._make_two_dc_df()
+        result = compute_sizing(df, _R760, vmsc_enabled=True, vmsc_split_ratio=0.5)
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts == result.vmsc_site_b_hosts
+
+    def test_vmsc_60_40_split_site_a_larger_or_equal(self) -> None:
+        """60/40 split -> site_a_hosts >= site_b_hosts (Site A carries more load)."""
+        # Use enough workload to produce a difference in host count
+        df = self._make_two_dc_df(num_cpus=1000, memory_mib=102400.0)
+        result = compute_sizing(df, _CUSTOM_SMALL, vmsc_enabled=True, vmsc_split_ratio=0.6)
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts >= result.vmsc_site_b_hosts
+
+    def test_vmsc_split_ratio_clamped_below_01(self) -> None:
+        """vmsc_split_ratio=0.0 is clamped to 0.01 — does not crash, returns positive hosts."""
+        df = self._make_two_dc_df()
+        result = compute_sizing(df, _R760, vmsc_enabled=True, vmsc_split_ratio=0.0)
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts >= 0
+        assert result.vmsc_site_b_hosts > 0  # Site B receives 0.99 of load -> positive
+
+    def test_vmsc_split_ratio_clamped_above_099(self) -> None:
+        """vmsc_split_ratio=1.0 is clamped to 0.99 — Site A is still bounded."""
+        df = self._make_two_dc_df()
+        result = compute_sizing(df, _R760, vmsc_enabled=True, vmsc_split_ratio=1.0)
+        assert result.vmsc_available is True
+        assert result.vmsc_site_a_hosts > 0  # Site A carries 0.99 of load
+        assert result.vmsc_site_b_hosts >= 0
+
+    def test_vmsc_disabled_split_ratio_has_no_effect(self) -> None:
+        """vmsc_enabled=False -> site_a_hosts=site_b_hosts=0 regardless of ratio."""
+        df = self._make_two_dc_df()
+        result = compute_sizing(df, _R760, vmsc_enabled=False, vmsc_split_ratio=0.6)
+        assert result.vmsc_available is True  # sites detected, but toggle off
+        assert result.vmsc_site_a_hosts == 0
+        assert result.vmsc_site_b_hosts == 0
+
+
+# ---------------------------------------------------------------------------
+# TestAPActiveRatio
+# ---------------------------------------------------------------------------
+
+
+class TestAPActiveRatio:
+    def test_ap_active_ratio_default_equals_full_load(self) -> None:
+        """ap_active_ratio=1.0 (default) -> ap_primary_hosts equals hosts_n1."""
+        df = _make_active_df(num_cpus=[100], memory_mib=[1024.0])
+        result = compute_sizing(df, _R760, ap_active_ratio=1.0)
+        assert result.ap_primary_hosts == result.hosts_n1
+
+    def test_ap_active_ratio_80_percent_reduces_primary(self) -> None:
+        """ap_active_ratio=0.8 -> ap_primary_hosts <= hosts_n1 (fewer hosts for 80% load).
+
+        Uses a large workload + small host to amplify the difference in host counts.
+        """
+        df = _make_active_df(num_cpus=[1000], memory_mib=[1024.0])
+        result_full = compute_sizing(df, _CUSTOM_SMALL, ap_active_ratio=1.0)
+        result_80 = compute_sizing(df, _CUSTOM_SMALL, ap_active_ratio=0.8)
+        assert result_80.ap_primary_hosts <= result_full.ap_primary_hosts
+
+    def test_ap_active_ratio_clamped_below_001(self) -> None:
+        """ap_active_ratio=0.0 is clamped to 0.01 — does not crash, returns at least 1 due to N+1."""
+        df = _make_active_df(num_cpus=[100], memory_mib=[1024.0])
+        result = compute_sizing(df, _R760, ap_active_ratio=0.0)
+        assert result.ap_primary_hosts >= 0
+        assert result.ap_secondary_hosts >= 1
+
+    def test_ap_secondary_always_50_percent_of_primary(self) -> None:
+        """ap_secondary_hosts == max(1, ceil(ap_primary_hosts / 2)) for any ap_active_ratio."""
+        for ratio_val in [0.5, 0.8, 1.0]:
+            df = _make_active_df(num_cpus=[65], memory_mib=[1.0])
+            result = compute_sizing(df, _CUSTOM_SMALL, overcommit_ratio=4.0, ap_active_ratio=ratio_val)
+            expected_secondary = max(1, math.ceil(result.ap_primary_hosts / 2))
+            assert result.ap_secondary_hosts == expected_secondary, (
+                f"ap_active_ratio={ratio_val}: expected secondary={expected_secondary}, "
+                f"got {result.ap_secondary_hosts}"
+            )

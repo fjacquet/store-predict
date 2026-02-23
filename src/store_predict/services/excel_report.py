@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from xlsxwriter.format import Format
 
     from store_predict.pipeline.calculation import CalculationSummary
+    from store_predict.pipeline.health_checks import HealthCheckResult
 
 __all__ = ["generate_report_xlsx"]
 
@@ -30,6 +31,7 @@ def generate_report_xlsx(
     summary: CalculationSummary,
     project_name: str,
     locale: str = "fr",
+    health_result: HealthCheckResult | None = None,
 ) -> bytes:
     """Generate a styled Excel workbook and return raw bytes.
 
@@ -37,6 +39,9 @@ def generate_report_xlsx(
         summary: Calculation results to render.
         project_name: Customer / project label, embedded as workbook title metadata.
         locale: Language for labels. Defaults to 'fr'.
+        health_result: Optional health check results. When provided and has findings,
+            a Findings worksheet is appended as the last sheet. Defaults to None
+            (backward-compatible — no Findings sheet).
 
     Returns:
         .xlsx document as bytes (PK ZIP format).
@@ -69,6 +74,7 @@ def generate_report_xlsx(
     _write_breakdown_sheet(wb, summary, header_fmt, number_fmt, int_fmt, alt_fmt, alt_right_fmt)
     _write_vm_detail_sheet(wb, summary, header_fmt, number_fmt, alt_fmt, alt_right_fmt)
     _write_layout_sheet(wb, summary, header_fmt, bold_fmt, number_fmt, indent_fmt, indent_num_fmt)
+    _write_findings_sheet(wb, health_result, header_fmt, alt_fmt)
 
     wb.close()
     return buf.getvalue()
@@ -303,6 +309,85 @@ def _write_layout_sheet(
                 row += 1
 
         row += 1  # blank separator between strategies
+
+    ws.freeze_panes(1, 0)
+    ws.autofit()
+
+
+def _write_findings_sheet(
+    wb: xlsxwriter.Workbook,
+    health_result: HealthCheckResult | None,
+    header_fmt: Format,
+    alt_fmt: Format,
+) -> None:
+    """Write the Findings sheet with one row per HealthFinding.
+
+    Skipped entirely if health_result is None or has no findings.
+    """
+    if health_result is None or not health_result.has_data or not health_result.findings:
+        return
+
+    from store_predict.pipeline.health_checks import Severity
+
+    ws = wb.add_worksheet(_i18n.t("excel.sheet_findings"))
+
+    headers = [
+        _i18n.t("excel.col_finding"),
+        _i18n.t("excel.col_severity"),
+        _i18n.t("excel.col_category"),
+        _i18n.t("excel.col_affected_vms"),
+        _i18n.t("excel.col_detail"),
+        _i18n.t("excel.col_cluster"),
+    ]
+    ws.write_row(0, 0, headers, header_fmt)
+
+    # Severity order for sorting
+    _sev_order = {Severity.CRITICAL: 0, Severity.WARNING: 1, Severity.INFO: 2}
+    sorted_findings = sorted(
+        health_result.findings,
+        key=lambda f: (_sev_order.get(f.severity, 3), f.check_id),
+    )
+
+    # Category mapping from check_id prefix — reuse pdf.findings_category_* keys
+    _cat_map = {
+        "data_quality": "pdf.findings_category_data_quality",
+        "sizing_risk": "pdf.findings_category_sizing_risk",
+        "best_practice": "pdf.findings_category_best_practice",
+    }
+
+    # Severity label mapping
+    _sev_label = {
+        Severity.CRITICAL: "pdf.findings_severity_critical",
+        Severity.WARNING: "pdf.findings_severity_warning",
+        Severity.INFO: "pdf.findings_severity_info",
+    }
+
+    for body_idx, finding in enumerate(sorted_findings):
+        row = body_idx + 1
+        is_even = body_idx % 2 == 0
+        str_fmt = alt_fmt if is_even else None
+
+        prefix = finding.check_id.split(".")[0] if "." in finding.check_id else finding.check_id
+        cat_key = _cat_map.get(prefix, f"pdf.findings_category_{prefix}")
+        try:
+            cat_str = _i18n.t(cat_key)
+        except Exception:
+            cat_str = prefix
+
+        sev_str = _i18n.t(_sev_label.get(finding.severity, "pdf.findings_severity_info"))
+        title_str = _i18n.t(finding.title)
+        detail_str = _i18n.t(
+            finding.detail,
+            count=finding.affected_count,
+            pct=round(finding.affected_count * 100 / max(health_result.total_vms_checked, 1), 1),
+        )
+
+        ws.write(row, 0, title_str, str_fmt)
+        ws.write(row, 1, sev_str, str_fmt)
+        ws.write(row, 2, cat_str, str_fmt)
+        ws.write(row, 3, finding.affected_count, str_fmt)
+        ws.write(row, 4, detail_str, str_fmt)
+        ws.write(row, 5, finding.cluster or "", str_fmt)
 
     ws.freeze_panes(1, 0)
     ws.autofit()

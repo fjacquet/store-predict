@@ -4,6 +4,34 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v5.0.0] - 2026-02-23
+
+### New features
+
+- **Per-cluster compute breakdown** — the `/compute` page now shows a breakdown table
+  grouping host recommendations by cluster name when the RVTools file contains a Cluster
+  column. A grand total row sums all clusters. Health check findings that apply per-cluster
+  (HW version spread, HA ratio) display the cluster name alongside the finding on
+  `/concerns`.
+
+- **Health findings in exports** — PDF report now includes a findings summary table
+  (Critical / Warning / Info counts) on the main sizing page, and a dedicated findings
+  detail appendix listing every finding sorted critical-first. Excel export includes a new
+  "Findings" worksheet with columns: Finding, Severity, Category, Affected VMs, Detail,
+  Cluster.
+
+- **Configurable vMSC site split ratio** — in vMSC (stretched cluster) mode, engineers
+  can set any VM split percentage between sites (e.g. 60/40) instead of the fixed 50/50.
+  The `/compute` settings panel exposes a 1–99% input visible only when vMSC is enabled.
+  Site A and Site B host counts display as distinct labeled rows in the results card.
+
+- **Configurable A/P DR active percentage** — in Active/Passive DR mode, engineers can
+  configure what percentage of VMs are active on the primary site (1–100%, default 100%).
+  Secondary site is sized at 50% of the computed primary (cold standby convention).
+
+- **PRD v5.0** — Product Requirements Document updated to reflect all v5.0 features,
+  personas, and non-functional requirements.
+
 ## [v4.0.1] - 2026-02-22
 
 ### Bug fixes

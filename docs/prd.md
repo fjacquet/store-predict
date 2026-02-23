@@ -1,6 +1,6 @@
 # Product Requirements Document — StorePredict
 
-**Version:** 4.0 (current as of 2026-02-22)
+**Version:** 5.0 (current as of 2026-02-23)
 **Status:** Living document — updated after each milestone
 **Owner:** Pre-Sales Engineering
 
@@ -19,7 +19,7 @@ The tool covers four analytical domains:
 | Storage sizing | Required capacity per workload with Data Reduction Ratios |
 | Datastore layout | Optimal VMFS datastore placement across three strategies |
 | Environment health | 11 checks surfacing data quality issues and VMware best practices violations |
-| Compute sizing | ESXi host count for N+1 HA, vMSC, and A/P DR scenarios |
+| Compute sizing | ESXi host count for N+1 HA, vMSC, and A/P DR scenarios; per-cluster breakdown and per-site (Site A / Site B) host count display |
 
 ### 1.2 Problem Statement
 
@@ -48,6 +48,7 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 **Who:** Dell storage pre-sales engineer or partner SE presenting PowerStore/PowerFlex/PowerVault proposals.
 
 **Context:**
+
 - Visits customer sites or works remotely with customer-provided exports
 - Has no access to live vCenter
 - Needs defensible numbers to put in proposals
@@ -55,12 +56,14 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 - Works in French (primary) or English
 
 **Goals:**
+
 - Produce accurate capacity sizing in minutes, not hours
 - Generate a customer-ready PDF without manual formatting
 - Identify risks in the customer environment before the proposal is challenged
 - Justify recommended ESXi host counts with formula-backed calculations
 
 **Pain points:**
+
 - Manual workload classification is tedious and inconsistent
 - DRR lookups require opening multiple reference documents
 - Datastore sizing rules (15-25 VMs, 4 TB) are applied inconsistently
@@ -72,11 +75,13 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 **Who:** Technical architect reviewing or co-authoring the pre-sales package.
 
 **Context:**
+
 - Reviews proposals before customer delivery
 - Validates that sizing assumptions are defensible
 - May override automated classifications for known workloads
 
 **Goals:**
+
 - Quickly validate that all VMs are correctly classified
 - Override individual VM classifications where business context is known
 - Review datastore layout strategy choices and adjust parameters
@@ -186,6 +191,7 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | Sizing risk checks | Unknown VM inflation, IOPS budget | v4.0 |
 | VMware best practice checks | HW version, cluster assignment, VMware Tools status | v4.0 |
 | `/concerns` page | Severity-coded cards; recomputed fresh per visit | v4.0 |
+| Per-cluster health findings | Each finding card shows a cluster badge when the source file includes a Cluster column; HW version check runs per-cluster instead of globally | v5.0 |
 
 ### 4.6 Compute Sizing (`/compute`)
 
@@ -197,6 +203,9 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | 17 PowerEdge presets | R760/R770/R860/R960/R7725/XE7745 from CSV | v4.0 |
 | Custom preset row | Engineer-defined spec for unlisted servers | v4.0 |
 | Reactive page | Results update immediately on preset/overcommit change | v4.0 |
+| Per-cluster compute breakdown | When the uploaded file includes a Cluster column, `/compute` groups host recommendations by cluster name with a grand-total row; single-cluster or no-cluster files show the existing flat table | v5.0 |
+| Configurable vMSC split ratio | Settings panel exposes a 1–99% slider for the VM split between Site A and Site B (default 50/50); results panel shows explicit Site A / Site B host count rows | v5.0 |
+| Configurable A/P DR active % | Settings panel exposes a 1–100% input for the percentage of VMs active on the primary site (default 100%); secondary site uses `max(1, ceil(primary/2))` cold-standby convention | v5.0 |
 
 ### 4.7 Datastore Layout (`/layout`)
 
@@ -217,7 +226,10 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | PDF page 2 — charts | ECharts-equivalent bar/pie + Sankey diagram | v1.1 |
 | PDF branding | Dell partner logo + optional custom company logo (PNG transparency) | v1.1 |
 | PDF layout page | Dedicated print page with always-expanded VM detail | v3.0 |
+| PDF findings summary | Health findings severity counts table (Critical / High / Medium / Low) on page 1 of PDF when findings exist | v5.0 |
+| PDF findings appendix | Dedicated appendix page listing all findings with Finding, Severity, Category, Affected VMs, Detail, and Cluster columns; findings sorted critical-first | v5.0 |
 | Excel export | Multi-sheet `.xlsx`: Summary, Workload Breakdown, VM Detail, Layout | v1.1 |
+| Excel Findings worksheet | Health findings exported as a dedicated worksheet with columns: Finding, Severity, Category, Affected VMs, Detail, Cluster | v5.0 |
 | French character support | Vera TTF fonts in ReportLab | v1.0 |
 
 ### 4.9 Internationalization
@@ -285,7 +297,7 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | Requirement | Detail |
 |-------------|--------|
 | Three-layer architecture | `pipeline/` → `services/` → `ui/`; no UI imports in pipeline |
-| Test coverage | 439 tests, 86% backend coverage (v4.0) |
+| Test coverage | 439+ tests, 86%+ backend coverage (v5.0) |
 | Code quality | ruff lint + mypy strict enforced in CI |
 | Reference data as CSV | DRR.csv, IOPS.csv, compute_presets.csv editable without code changes |
 | ADR library | 63 decisions documented; next is ADR-064 |
@@ -351,18 +363,21 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | v2.2 | AI Observability | AI toggle, LLM progress counter, rule suggestions |
 | v3.0 | Datastore Layout | BFD layout engine, 3 strategies, `/layout` page, IOPS defaults |
 | v4.0 | VM Improvements & Compute Sizing | Stable row identity, grid UX, health checks engine, `/concerns` page, compute sizing, `/compute` page |
+| v5.0 | Multi-Cluster & Export Completeness | Per-cluster compute breakdown, per-site host count display, per-cluster health findings, PDF findings summary + appendix, Excel Findings worksheet, configurable vMSC split ratio, configurable A/P DR active % |
 
 ---
 
-## 10. Planned: v5.0 — Multi-Cluster & Export Completeness
+## 10. Shipped: v5.0 — Multi-Cluster & Export Completeness
 
-| Requirement | Description |
-|-------------|-------------|
-| CLUS-01–04 | Parse Cluster column; per-cluster compute breakdown + grand total; per-cluster health findings |
-| HEXP-01–03 | PDF findings summary on page 1 + detail appendix; Excel Findings worksheet |
-| VMSC-01–03 | Configurable vMSC split ratio; configurable A/P DR active %; per-site host count rows |
-| DOCS-01 | This PRD (completed) |
+All v5.0 requirements shipped in Phases 23–26.
+
+| Requirement | Description | Status |
+|-------------|-------------|--------|
+| CLUS-01–04 | Parse Cluster column; per-cluster compute breakdown + grand total; per-cluster health findings | Shipped (Phase 23) |
+| HEXP-01–03 | PDF findings summary on page 1 + detail appendix; Excel Findings worksheet | Shipped (Phase 24) |
+| VMSC-01–03 | Configurable vMSC split ratio; configurable A/P DR active %; per-site host count rows | Shipped (Phase 25) |
+| DOCS-01 | PRD updated to v5.0 | Shipped (Phase 26) |
 
 ---
 
-*Last updated: 2026-02-23 after v4.0 milestone shipped and v5.0 started*
+*Last updated: 2026-02-23 after v5.0 milestone shipped*

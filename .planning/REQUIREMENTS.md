@@ -7,22 +7,22 @@
 
 ### Multi-Cluster Compute
 
-- [ ] **CLUS-01**: Tool parses Cluster column from RVTools vInfo tab and groups VMs by cluster
-- [ ] **CLUS-02**: `/compute` page shows per-cluster breakdown table (cluster name, VM count, vCPU/RAM totals, hosts needed per cluster)
-- [ ] **CLUS-03**: Per-cluster breakdown table includes a grand total row summing all clusters
-- [ ] **CLUS-04**: Health checks surface findings per cluster where applicable (e.g., HW version spread, HA host ratio per cluster)
+- [x] **CLUS-01**: Tool parses Cluster column from RVTools vInfo tab and groups VMs by cluster
+- [x] **CLUS-02**: `/compute` page shows per-cluster breakdown table (cluster name, VM count, vCPU/RAM totals, hosts needed per cluster)
+- [x] **CLUS-03**: Per-cluster breakdown table includes a grand total row summing all clusters
+- [x] **CLUS-04**: Health checks surface findings per cluster where applicable (e.g., HW version spread, HA host ratio per cluster)
 
 ### Health Findings Export
 
-- [ ] **HEXP-01**: PDF report includes a findings summary table (count by severity) on the main sizing page
-- [ ] **HEXP-02**: PDF report appends a dedicated findings detail page listing all findings with severity, category, and description
-- [ ] **HEXP-03**: Excel export includes a "Findings" worksheet with all health check results (finding, severity, category, detail)
+- [x] **HEXP-01**: PDF report includes a findings summary table (count by severity) on the main sizing page
+- [x] **HEXP-02**: PDF report appends a dedicated findings detail page listing all findings with severity, category, and description
+- [x] **HEXP-03**: Excel export includes a "Findings" worksheet with all health check results (finding, severity, category, detail)
 
 ### vMSC / DR Modeling
 
-- [ ] **VMSC-01**: vMSC mode allows engineer to configure VM split ratio between sites (not locked to 50/50)
-- [ ] **VMSC-02**: A/P DR mode allows engineer to configure what percentage of VMs run active on primary site
-- [ ] **VMSC-03**: Compute page shows per-site host count for vMSC and A/P DR scenarios as separate rows
+- [x] **VMSC-01**: vMSC mode allows engineer to configure VM split ratio between sites (not locked to 50/50)
+- [x] **VMSC-02**: A/P DR mode allows engineer to configure what percentage of VMs run active on primary site
+- [x] **VMSC-03**: Compute page shows per-site host count for vMSC and A/P DR scenarios as separate rows
 
 ### Documentation
 
@@ -48,16 +48,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLUS-01 | Phase 23 | Pending |
-| CLUS-02 | Phase 23 | Pending |
-| CLUS-03 | Phase 23 | Pending |
-| CLUS-04 | Phase 23 | Pending |
-| HEXP-01 | Phase 24 | Pending |
-| HEXP-02 | Phase 24 | Pending |
-| HEXP-03 | Phase 24 | Pending |
-| VMSC-01 | Phase 25 | Pending |
-| VMSC-02 | Phase 25 | Pending |
-| VMSC-03 | Phase 25 | Pending |
+| CLUS-01 | Phase 23 | Complete |
+| CLUS-02 | Phase 23 | Complete |
+| CLUS-03 | Phase 23 | Complete |
+| CLUS-04 | Phase 23 | Complete |
+| HEXP-01 | Phase 24 | Complete |
+| HEXP-02 | Phase 24 | Complete |
+| HEXP-03 | Phase 24 | Complete |
+| VMSC-01 | Phase 25 | Complete |
+| VMSC-02 | Phase 25 | Complete |
+| VMSC-03 | Phase 25 | Complete |
 | DOCS-01 | Phase 26 | Complete |
 
 **Coverage:**

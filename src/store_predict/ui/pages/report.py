@@ -12,6 +12,7 @@ from store_predict.config import APP_PORT
 from store_predict.i18n import t
 from store_predict.i18n.locale import get_locale
 from store_predict.pipeline.calculation import CalculationSummary, calculate
+from store_predict.pipeline.health_checks import HealthCheckResult, run_health_checks
 from store_predict.services import playwright_pdf, print_session
 from store_predict.services.charts import (
     echart_before_after_options,
@@ -26,6 +27,7 @@ from store_predict.services.pdf_report import (
     validate_logo,
 )
 from store_predict.ui.layout import layout
+from store_predict.ui.state import load_session_data
 
 
 @ui.page("/report")
@@ -53,6 +55,10 @@ async def report_page() -> None:
 
     # Run calculation
     summary = calculate(vm_data)
+
+    # Run health checks for export enrichment
+    df = load_session_data()
+    health_result: HealthCheckResult | None = run_health_checks(df) if df is not None else None
 
     with (
         layout("StorePredict - Report"),
@@ -157,14 +163,14 @@ async def report_page() -> None:
         async def on_download_pdf() -> None:
             pdf_btn.disable()
             try:
-                await _on_download_playwright(summary, project_name, pdf_btn)
+                await _on_download_playwright(summary, project_name, pdf_btn, health_result)
             finally:
                 pdf_btn.enable()
 
         async def on_download_excel() -> None:
             excel_btn.disable()
             try:
-                _on_download_excel(summary, project_name)
+                _on_download_excel(summary, project_name, health_result)
             finally:
                 excel_btn.enable()
 
@@ -206,7 +212,12 @@ def _summary_card(label: str, value: str) -> None:
         ui.label(value).classes("text-xl font-bold")
 
 
-async def _on_download_playwright(summary: object, project_name: str, btn: ui.button) -> None:
+async def _on_download_playwright(
+    summary: object,
+    project_name: str,
+    btn: ui.button,
+    health_result: HealthCheckResult | None = None,
+) -> None:
     """Generate PDF via Playwright and trigger browser download."""
     from store_predict.pipeline.calculation import CalculationSummary
 
@@ -234,6 +245,19 @@ async def _on_download_playwright(summary: object, project_name: str, btn: ui.bu
         "locale": locale,
         "company_logo_b64": company_logo_b64,
     }
+    findings_data: list[dict[str, Any]] = []
+    if health_result is not None and health_result.has_data:
+        for f in health_result.findings:
+            findings_data.append({
+                "check_id": f.check_id,
+                "severity": str(f.severity),
+                "title": f.title,
+                "detail": f.detail,
+                "affected_count": f.affected_count,
+                "affected_vms": list(f.affected_vms),
+                "cluster": f.cluster,
+            })
+    data["findings_data"] = findings_data
     token = print_session.create(data)
     try:
         pdf_bytes = await playwright_pdf.generate_pdf(token, APP_PORT)
@@ -282,12 +306,16 @@ def _remove_logo() -> None:
     ui.notify(t("report.logo_removed"), type="info")
 
 
-def _on_download_excel(summary: object, project_name: str) -> None:
+def _on_download_excel(
+    summary: object,
+    project_name: str,
+    health_result: HealthCheckResult | None = None,
+) -> None:
     """Generate Excel workbook and trigger browser download."""
     from store_predict.pipeline.calculation import CalculationSummary
 
     assert isinstance(summary, CalculationSummary)
-    xlsx_bytes = generate_report_xlsx(summary, project_name, locale=get_locale())
+    xlsx_bytes = generate_report_xlsx(summary, project_name, locale=get_locale(), health_result=health_result)
     safe_name = sanitize_filename(project_name)
     date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
     filename = f"StorePredict_{safe_name}_{date_str}.xlsx"

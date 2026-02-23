@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from reportlab.pdfgen.canvas import Canvas
 
     from store_predict.pipeline.calculation import CalculationSummary
+    from store_predict.pipeline.health_checks import HealthCheckResult
     from store_predict.pipeline.layout_models import LayoutProposal
 
 __all__ = ["_layout_metric_rows", "format_storage", "generate_report_pdf", "sanitize_filename", "validate_logo"]
@@ -241,7 +242,7 @@ def _layout_metric_rows(proposals: list[LayoutProposal]) -> list[tuple[str, str,
 # ---------------------------------------------------------------------------
 def _draw_header(
     canvas: Canvas,
-    doc: SimpleDocTemplate,
+    _doc: SimpleDocTemplate,
     project_name: str,
     report_title: str,
     dell_logo_bytes: bytes | None = None,
@@ -298,6 +299,22 @@ def _draw_header(
 
 
 # ---------------------------------------------------------------------------
+# Health findings helpers
+# ---------------------------------------------------------------------------
+
+
+def _category_label(check_id: str) -> str:
+    """Map check_id prefix to a translated category label."""
+    prefix = check_id.split(".")[0] if "." in check_id else check_id
+    key_map = {
+        "data_quality": "pdf.findings_category_data_quality",
+        "sizing_risk": "pdf.findings_category_sizing_risk",
+        "best_practice": "pdf.findings_category_best_practice",
+    }
+    return t(key_map.get(prefix, f"pdf.findings_category_{prefix}"))
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 def generate_report_pdf(
@@ -306,6 +323,7 @@ def generate_report_pdf(
     locale: str = "fr",
     dell_logo_bytes: bytes | None = None,
     company_logo_bytes: bytes | None = None,
+    health_result: HealthCheckResult | None = None,
 ) -> bytes:
     """Generate a branded PDF sizing report and return raw bytes.
 
@@ -318,6 +336,9 @@ def generate_report_pdf(
             Defaults to the bundled dell_logo.png if not provided.
         company_logo_bytes: Raw bytes of the customer company logo PNG/JPEG.
             Displayed left-aligned in the header bar.  ``None`` = no logo.
+        health_result: Optional HealthCheckResult for findings pages. When provided,
+            a health findings summary table is added to page 1, and a dedicated
+            findings detail appendix page is appended.  ``None`` = no findings sections.
 
     Returns:
         PDF document as ``bytes``.
@@ -471,6 +492,54 @@ def generate_report_pdf(
     table.setStyle(TableStyle(style_cmds))
     story.append(table)
 
+    # --- Health findings summary table (HEXP-01) -----------------------
+    if health_result is not None and health_result.has_data:
+        story.append(Spacer(1, 8))
+        story.append(Paragraph(t("pdf.findings_summary_heading"), heading_style))
+        story.append(Spacer(1, 4))
+        if not health_result.findings:
+            story.append(Paragraph(t("pdf.findings_no_findings"), body_style))
+        else:
+            _sev_label = {
+                "critical": t("pdf.findings_severity_critical"),
+                "warning": t("pdf.findings_severity_warning"),
+                "info": t("pdf.findings_severity_info"),
+            }
+            findings_summary_data: list[list[str]] = [
+                [t("pdf.findings_col_severity"), t("pdf.findings_col_count")]
+            ]
+            for sev_key, label in _sev_label.items():
+                count = sum(1 for f in health_result.findings if f.severity == sev_key)
+                if count > 0:
+                    findings_summary_data.append([label, str(count)])
+            if len(findings_summary_data) > 1:
+                sev_table = Table(findings_summary_data, colWidths=[120, 60])
+                _sev_colors = {
+                    "critical": colors.HexColor("#c0392b"),
+                    "warning": colors.HexColor("#e67e22"),
+                    "info": colors.HexColor("#2980b9"),
+                }
+                sev_style: list[Any] = [
+                    ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
+                    ("FONTNAME", (0, 1), (-1, -1), "Vera"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 9),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 3),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+                ]
+                # Color code severity labels
+                for r_idx, row_data in enumerate(findings_summary_data[1:], start=1):
+                    sev_name = next((k for k, v in _sev_label.items() if v == row_data[0]), None)
+                    if sev_name and sev_name in _sev_colors:
+                        sev_style.append(("TEXTCOLOR", (0, r_idx), (0, r_idx), _sev_colors[sev_name]))
+                        sev_style.append(("FONTNAME", (0, r_idx), (0, r_idx), "VeraBd"))
+                sev_table.setStyle(TableStyle(sev_style))
+                story.append(sev_table)
+
     # --- Page 2: Charts ----------------------------------------------------
     story.append(PageBreak())
     story.append(Paragraph(t("pdf.charts_heading"), heading_style))
@@ -532,6 +601,61 @@ def generate_report_pdf(
             )
         )
         story.append(layout_table)
+
+    # --- Page N: Findings detail appendix (HEXP-02) --------------------
+    if health_result is not None and health_result.has_data and health_result.findings:
+        story.append(PageBreak())
+        story.append(Paragraph(t("pdf.findings_detail_heading"), heading_style))
+        story.append(Spacer(1, 12))
+        detail_header = [
+            t("pdf.findings_col_severity"),
+            t("pdf.findings_col_category"),
+            t("pdf.findings_col_finding"),
+            t("pdf.findings_col_count"),
+        ]
+        detail_data: list[list[str]] = [detail_header]
+        _sev_order = {"critical": 0, "warning": 1, "info": 2}
+        sorted_findings = sorted(
+            health_result.findings,
+            key=lambda f: (_sev_order.get(str(f.severity), 3), f.check_id),
+        )
+        for finding in sorted_findings:
+            sev_str = t(f"pdf.findings_severity_{finding.severity}")
+            cat_str = _category_label(finding.check_id)
+            title_str = t(finding.title)
+            detail_data.append([sev_str, cat_str, title_str, str(finding.affected_count)])
+        detail_col_widths = [70, 110, 230, 60]
+        detail_table = Table(detail_data, colWidths=detail_col_widths)
+        _sev_colors_detail = {
+            "critical": colors.HexColor("#c0392b"),
+            "warning": colors.HexColor("#e67e22"),
+            "info": colors.HexColor("#2980b9"),
+        }
+        detail_style: list[Any] = [
+            ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
+            ("FONTNAME", (0, 1), (-1, -1), "Vera"),
+            ("FONTSIZE", (0, 0), (-1, -1), 8),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("ALIGN", (3, 0), (3, -1), "RIGHT"),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("TOPPADDING", (0, 0), (-1, -1), 3),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+            ("WORDWRAP", (2, 1), (2, -1), True),
+        ]
+        for r_idx, row_data in enumerate(detail_data[1:], start=1):
+            sev_name = next(
+                (k for k in _sev_colors_detail if t(f"pdf.findings_severity_{k}") == row_data[0]),
+                None,
+            )
+            if sev_name:
+                detail_style.append(("TEXTCOLOR", (0, r_idx), (0, r_idx), _sev_colors_detail[sev_name]))
+                detail_style.append(("FONTNAME", (0, r_idx), (0, r_idx), "VeraBd"))
+            if r_idx % 2 == 0:
+                detail_style.append(("BACKGROUND", (0, r_idx), (-1, r_idx), colors.HexColor("#f0f0f0")))
+        detail_table.setStyle(TableStyle(detail_style))
+        story.append(detail_table)
 
     # --- Build PDF ---------------------------------------------------------
     report_title = t("pdf.report_title")

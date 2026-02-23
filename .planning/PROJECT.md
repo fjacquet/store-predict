@@ -53,6 +53,7 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 **Goal:** Add per-cluster compute breakdown, export health findings to PDF and Excel, and improve vMSC/DR modeling granularity.
 
 **Target features:**
+
 - Multi-cluster compute sizing: parse Cluster column, show per-cluster table + grand total on /compute
 - Health findings export: summary table on PDF page 1, detailed findings appendix page, findings tab in Excel
 - Better vMSC/DR modeling: more granular per-site inputs for stretched cluster and DR scenarios

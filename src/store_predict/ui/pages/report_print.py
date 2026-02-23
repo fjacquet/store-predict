@@ -17,6 +17,7 @@ from starlette.requests import Request  # noqa: TC002
 from store_predict.i18n import t
 from store_predict.i18n.locale import set_locale
 from store_predict.pipeline.calculation import CalculationSummary, calculate
+from store_predict.pipeline.health_checks import HealthFinding, Severity
 from store_predict.pipeline.layout_engine import generate_all_proposals
 from store_predict.services import print_session
 from store_predict.services.charts import (
@@ -65,6 +66,21 @@ async def report_print_page(request: Request) -> None:
         return
 
     summary: CalculationSummary = calculate(vm_data)
+
+    findings_data = cast("list[dict[str, Any]]", data.get("findings_data", []))
+    health_findings: list[HealthFinding] = []
+    for fd in findings_data:
+        health_findings.append(
+            HealthFinding(
+                check_id=str(fd["check_id"]),
+                severity=Severity(str(fd["severity"])),
+                title=str(fd["title"]),
+                detail=str(fd["detail"]),
+                affected_count=int(fd["affected_count"]),
+                affected_vms=tuple(str(v) for v in fd.get("affected_vms", [])),
+                cluster=str(fd.get("cluster", "")),
+            )
+        )
 
     with ui.column().classes("w-full p-6 gap-6"):
         # Header row
@@ -128,6 +144,10 @@ async def report_print_page(request: Request) -> None:
         ]
         ui.table(columns=columns, rows=rows).classes("w-full")
 
+        # ── Health Findings Summary (HEXP-01) ─────────────────────────────────
+        if health_findings:
+            _build_findings_summary(health_findings)
+
         # ── Charts ────────────────────────────────────────────────────────────
         if summary.workload_groups:
             ui.label(t("report.charts_heading")).classes("text-xl font-bold mt-4")
@@ -145,6 +165,10 @@ async def report_print_page(request: Request) -> None:
         # ── Layout Recommendations ────────────────────────────────────────────
         if summary.total_vms > 0:
             _build_layout_section(summary)
+
+        # ── Health Findings Detail (HEXP-02) ──────────────────────────────────
+        if health_findings:
+            _build_findings_detail(health_findings)
 
 
 def _build_layout_section(summary: CalculationSummary) -> None:
@@ -169,6 +193,57 @@ def _build_layout_section(summary: CalculationSummary) -> None:
         }
         for key, consol_val, perf_val, uni_val in metric_rows
     ]
+    ui.table(columns=columns, rows=rows).classes("w-full")
+
+
+def _build_findings_summary(findings: list[HealthFinding]) -> None:
+    """Render findings severity summary table (HEXP-01)."""
+    _sev_order = ["critical", "warning", "info"]
+    severity_counts = {sev: sum(1 for f in findings if str(f.severity) == sev) for sev in _sev_order}
+
+    ui.label(t("pdf.findings_summary_heading")).classes("text-xl font-semibold mt-4")
+    columns = [
+        {"name": "severity", "label": t("pdf.findings_col_severity"), "field": "severity", "align": "left"},
+        {"name": "count", "label": t("pdf.findings_col_count"), "field": "count", "align": "right"},
+    ]
+    rows = [
+        {"severity": t(f"pdf.findings_severity_{sev}"), "count": cnt}
+        for sev, cnt in severity_counts.items()
+        if cnt > 0
+    ]
+    if rows:
+        ui.table(columns=columns, rows=rows).classes("w-full max-w-xs")
+    else:
+        ui.label(t("pdf.findings_no_findings")).classes("text-gray-500 italic")
+
+
+def _build_findings_detail(findings: list[HealthFinding]) -> None:
+    """Render findings detail appendix section (HEXP-02)."""
+    _sev_order = {"critical": 0, "warning": 1, "info": 2}
+    sorted_findings = sorted(findings, key=lambda f: (_sev_order.get(str(f.severity), 3), f.check_id))
+
+    ui.label(t("pdf.findings_detail_heading")).classes("text-xl font-bold mt-6")
+    columns = [
+        {"name": "severity", "label": t("pdf.findings_col_severity"), "field": "severity", "align": "left"},
+        {"name": "category", "label": t("pdf.findings_col_category"), "field": "category", "align": "left"},
+        {"name": "finding", "label": t("pdf.findings_col_finding"), "field": "finding", "align": "left"},
+        {"name": "count", "label": t("pdf.findings_col_count"), "field": "count", "align": "right"},
+    ]
+    _prefix_key = {
+        "data_quality": "pdf.findings_category_data_quality",
+        "sizing_risk": "pdf.findings_category_sizing_risk",
+        "best_practice": "pdf.findings_category_best_practice",
+    }
+    rows = []
+    for f in sorted_findings:
+        prefix = f.check_id.split(".")[0] if "." in f.check_id else f.check_id
+        cat = t(_prefix_key.get(prefix, f"pdf.findings_category_{prefix}"))
+        rows.append({
+            "severity": t(f"pdf.findings_severity_{f.severity}"),
+            "category": cat,
+            "finding": t(f.title),
+            "count": f.affected_count,
+        })
     ui.table(columns=columns, rows=rows).classes("w-full")
 
 

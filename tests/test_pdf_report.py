@@ -177,3 +177,67 @@ class TestPdfLayoutPage:
         full_bytes = generate_report_pdf(full_summary, "Full")
         # Full report has more pages (including layout page), so it should be larger
         assert len(full_bytes) > len(empty_bytes)
+
+
+# ---------------------------------------------------------------------------
+# PDF findings pages tests
+# ---------------------------------------------------------------------------
+from store_predict.pipeline.health_checks import HealthCheckResult, HealthFinding, Severity  # noqa: E402
+
+
+class TestPdfFindingsPages:
+    """Tests for health findings sections in the PDF report."""
+
+    def _make_health_result(self) -> HealthCheckResult:
+        findings = (
+            HealthFinding(
+                check_id="data_quality.missing_os",
+                severity=Severity.WARNING,
+                title="health.missing_os.title",
+                detail="health.missing_os.detail",
+                affected_count=5,
+                affected_vms=("vm1",),
+            ),
+            HealthFinding(
+                check_id="best_practice.tools_not_installed",
+                severity=Severity.CRITICAL,
+                title="health.tools_not_installed.title",
+                detail="health.tools_not_installed.detail",
+                affected_count=2,
+                affected_vms=("vm2",),
+            ),
+        )
+        return HealthCheckResult(findings=findings, total_vms_checked=10, has_data=True)
+
+    def test_pdf_with_findings_larger_than_without(self) -> None:
+        summary = _make_summary([("Virtual Machines", 2, 10240.0, 5.0)])
+        health_result = self._make_health_result()
+        pdf_without = generate_report_pdf(summary, "Test")
+        pdf_with = generate_report_pdf(summary, "Test", health_result=health_result)
+        # PDF with findings is larger (extra table on page 1 + appendix page)
+        assert len(pdf_with) > len(pdf_without)
+
+    def test_pdf_with_none_health_result_same_size(self) -> None:
+        """PDF with health_result=None should be the same size as PDF without the parameter.
+
+        Note: ReportLab PDFs are not byte-for-byte reproducible across calls (internal
+        IDs vary), so we compare file sizes which are stable for equivalent content.
+        """
+        summary = _make_summary([("Virtual Machines", 2, 10240.0, 5.0)])
+        pdf_no_param = generate_report_pdf(summary, "Test")
+        pdf_none_param = generate_report_pdf(summary, "Test", health_result=None)
+        # Allow 1% tolerance for any minor non-deterministic differences
+        assert abs(len(pdf_no_param) - len(pdf_none_param)) < len(pdf_no_param) * 0.01
+
+    def test_pdf_with_empty_findings_same_size(self) -> None:
+        """PDF with empty findings should be the same size as PDF without health_result.
+
+        Note: ReportLab PDFs are not byte-for-byte reproducible across calls (internal
+        IDs vary), so we compare file sizes which are stable for equivalent content.
+        """
+        summary = _make_summary([("Virtual Machines", 2, 10240.0, 5.0)])
+        empty_health = HealthCheckResult(findings=(), total_vms_checked=10, has_data=True)
+        pdf_no_param = generate_report_pdf(summary, "Test")
+        pdf_empty = generate_report_pdf(summary, "Test", health_result=empty_health)
+        # Allow 1% tolerance for any minor non-deterministic differences
+        assert abs(len(pdf_no_param) - len(pdf_empty)) < len(pdf_no_param) * 0.01
