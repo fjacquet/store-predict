@@ -48,9 +48,18 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 - Health checks engine (11 checks: data quality, sizing risks, VMware best practices) + `/concerns` page — v4.0
 - Compute sizing pipeline (N+1 HA, vMSC, A/P DR) + `/compute` reactive page with 17 Dell PowerEdge presets — v4.0
 
+## Current Milestone: v5.0 Multi-Cluster & Export Completeness
+
+**Goal:** Add per-cluster compute breakdown, export health findings to PDF and Excel, and improve vMSC/DR modeling granularity.
+
+**Target features:**
+- Multi-cluster compute sizing: parse Cluster column, show per-cluster table + grand total on /compute
+- Health findings export: summary table on PDF page 1, detailed findings appendix page, findings tab in Excel
+- Better vMSC/DR modeling: more granular per-site inputs for stretched cluster and DR scenarios
+
 ### Active
 
-<!-- v5.0 — next milestone; TBD via /gsd:new-milestone -->
+<!-- v5.0 — Multi-Cluster & Export Completeness -->
 
 ### Out of Scope
 
@@ -120,4 +129,4 @@ Tool now covers storage sizing, datastore layout planning, environment health ch
 | A/P DR always computed (no `ap_enabled` param) | Tests rely on values always being present; UI controls display only | Good |
 
 ---
-*Last updated: 2026-02-22 after v4.0 milestone shipped*
+*Last updated: 2026-02-23 after v5.0 milestone started*

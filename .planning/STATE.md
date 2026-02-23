@@ -9,15 +9,14 @@ See: .planning/PROJECT.md (updated 2026-02-22 after v4.0 milestone)
 
 ## Current Position
 
-Phase: 22 of 22 (v4.0 complete)
-Status: v4.0 SHIPPED — archived, tagged, ready for next milestone
-Last activity: 2026-02-22 — v4.0 milestone complete and archived
-
-Progress: [██████████████████████████████] 22 phases complete
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-23 — Milestone v5.0 started
 
 ## Milestone
 
-v4.0 VM Improvements & Compute Sizing — SHIPPED ✅
+v5.0 Multi-Cluster & Export Completeness — IN PROGRESS
 
 ## Completed
 
