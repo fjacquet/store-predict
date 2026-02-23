@@ -4,6 +4,42 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v6.0.0] - 2026-02-23
+
+### New features
+
+- **Datacenter & cluster filtering** — new `/scope` page (between upload and
+  review) lets engineers select which datacenters and clusters to include in the
+  analysis. All downstream pages (review, report, compute, layout, concerns) use
+  the filtered dataset. Unselected VMs are preserved in session state so
+  re-scoping never requires a re-upload. Scope badge shown in review/report
+  headers; DC/cluster suffix appended to exported PDF and Excel filenames.
+
+- **Improved workload classification** — rule set updated from a 1,483-VM
+  LiveOptics analysis that previously left 92 % of VMs in `os_fallback`:
+  - Windows 10/11 desktop VMs now classify as **VDI / Linked Clone** instead of
+    Virtual Machines (catches ~900 VMs in typical enterprise files)
+  - New generic VDI rule (priority 224): `VDI`, `DESKTOP`, `RDS`, `UAG`,
+    `LOGINVSI`, `LOGINENTERPRISE`
+  - Containers: added `TKG`, `HARBOR`, and `photon-*-kube` regex for Tanzu node images
+  - Email: added `EXCHG` abbreviation
+  - File Content Servers: added SharePoint abbreviations `SPBE`, `SPFE`, `SPOWA`, `SPOFFICE`
+  - Logging - Analytics: added `LOGSTASH` and `KIBANA`
+
+### Bug fixes
+
+- **AG Grid reliability** — explicit `:valueGetter` on `vm_name` column fixes
+  silent field extraction failure after NiceGUI `update_grid()` cycles (AG Grid
+  v34). `typeof` guard on `:localeText` prevents ReferenceError when CDN hasn't
+  loaded. Grid refresh now uses `run_grid_method("setGridOption")` instead of
+  `update()` for reliable data refresh without destroy/recreate cycles.
+- **"New Analysis" button** — clears session and navigates back to upload page
+  without a full page reload.
+- **Payload size** — `_to_grid_rows()` trims row data sent to AG Grid (~35 %
+  smaller JSON on large files).
+- **Type safety** — fixed two mypy errors in `state.py` (unsafe `int()` cast on
+  `object`) and `layout_page.py` (union-attr on `list | None` iteration).
+
 ## [v5.0.0] - 2026-02-23
 
 ### New features
