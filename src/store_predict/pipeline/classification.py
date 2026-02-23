@@ -437,9 +437,7 @@ def build_default_rules() -> list[ClassificationRule]:
             category="VDI",
             subcategory="Linked Clone / PVS (Citrix)",
             priority=224,
-            vm_name_patterns=(
-                *_patterns("VDI", "DESKTOP", "LOGINVSI", "LOGINENTERPRISE", "UAG", "RDS"),
-            ),
+            vm_name_patterns=(*_patterns("VDI", "DESKTOP", "LOGINVSI", "LOGINENTERPRISE", "UAG", "RDS"),),
         ),
         # === Tier 3: Infrastructure (300-399) ===
         # Compressed/dedup backup variants (lower DRR) come before plain rules.
