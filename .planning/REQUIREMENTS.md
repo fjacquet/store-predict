@@ -20,8 +20,8 @@
 
 ### vMSC / DR Modeling
 
-- [ ] **VMSC-01**: vMSC mode allows engineer to configure VM split ratio between sites (not locked to 50/50)
-- [ ] **VMSC-02**: A/P DR mode allows engineer to configure what percentage of VMs run active on primary site
+- [x] **VMSC-01**: vMSC mode allows engineer to configure VM split ratio between sites (not locked to 50/50)
+- [x] **VMSC-02**: A/P DR mode allows engineer to configure what percentage of VMs run active on primary site
 - [ ] **VMSC-03**: Compute page shows per-site host count for vMSC and A/P DR scenarios as separate rows
 
 ### Documentation
@@ -55,8 +55,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HEXP-01 | Phase 24 | Complete |
 | HEXP-02 | Phase 24 | Complete |
 | HEXP-03 | Phase 24 | Complete |
-| VMSC-01 | Phase 25 | Pending |
-| VMSC-02 | Phase 25 | Pending |
+| VMSC-01 | Phase 25 | Complete |
+| VMSC-02 | Phase 25 | Complete |
 | VMSC-03 | Phase 25 | Pending |
 | DOCS-01 | Phase 26 | Complete |
 

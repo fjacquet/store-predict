@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-23 after v5.0 milestone started)
 
 ## Current Position
 
-Phase: 24 of 26 (Health Findings Export)
-Plan: 2 of 2 in current phase
-Status: Phase 24 complete — all plans done (including gap closure plan 03)
-Last activity: 2026-02-23 — Phase 24 Plan 03 complete (HEXP-01/02 gap closure: findings in Playwright PDF via report_print.py)
+Phase: 25 of 26 (vMSC & DR Modeling)
+Plan: 1 of 2 in current phase
+Status: Phase 25 Plan 01 complete — configurable site split ratios for vMSC and AP DR
+Last activity: 2026-02-23 — Phase 25 Plan 01 complete (vmsc_split_ratio + ap_active_ratio in compute_sizing(), updated i18n and tests)
 
-Progress: [████████████████░░░░] 80% (milestones 1-4 complete)
+Progress: [█████████████████░░░] 85% (milestones 1-4 complete, Phase 25 started)
 
 ## Performance Metrics
 
@@ -38,6 +38,7 @@ Progress: [████████████████░░░░] 80% (mi
 | Phase 24-health-findings-export P01 | 10 | 2 tasks | 3 files |
 | Phase 24-health-findings-export P02 | 12 | 2 tasks | 4 files |
 | Phase 24 P03 | 8 | 2 tasks | 3 files |
+| Phase 25-vmsc-dr-modeling P01 | 18 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -59,6 +60,9 @@ Progress: [████████████████░░░░] 80% (mi
 - [Phase 24-health-findings-export]: Size-based PDF test assertions for backward-compatibility tests due to ReportLab non-deterministic bytes
 - [Phase 24]: Serialize findings as list[dict] in print_session rather than re-running run_health_checks() in report_print.py — avoids duplicate computation and ensures PDF/UI consistency
 - [Phase 24]: HealthFinding.affected_vms (tuple) serialized as list for JSON safety, reconstructed as tuple on deserialization in report_print.py
+- [Phase 25]: vmsc_split_ratio clamped to [0.01, 0.99] — never allows one site to carry 0% or 100% of load
+- [Phase 25]: vmsc_hosts_per_site removed in favor of distinct vmsc_site_a_hosts/vmsc_site_b_hosts — enables asymmetric UI display
+- [Phase 25]: ap_secondary remains at max(1, ceil(primary/2)) regardless of ap_active_ratio — cold standby convention
 
 ### Pending Todos
 
@@ -71,7 +75,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 24-health-findings-export 24-03-PLAN.md
+Stopped at: Completed 25-vmsc-dr-modeling 25-01-PLAN.md
 Resume file: None
 
-Next step: Execute Phase 25 (vMSC & DR Modeling)
+Next step: Execute Phase 25 Plan 02 (UI controls for vmsc_split_ratio + ap_active_ratio)
