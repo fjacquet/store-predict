@@ -62,13 +62,15 @@ def test_classifier_skips_non_default_records(drr_table: DRRTable) -> None:
 
 
 def test_llm_config_max_concurrent_default() -> None:
-    """max_concurrent defaults to 5."""
+    """max_concurrent defaults to 5 when no env var is set."""
+    os.environ.pop("LLM_MAX_CONCURRENT", None)
     config = LLMConfig()
     assert config.max_concurrent == 5
 
 
 def test_llm_config_timeout_default() -> None:
-    """timeout defaults to 30 seconds."""
+    """timeout defaults to 30 seconds when no env var is set."""
+    os.environ.pop("LLM_TIMEOUT", None)
     config = LLMConfig()
     assert config.timeout == 30
 
