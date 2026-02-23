@@ -114,6 +114,20 @@ pdf:
   before_after_title: "Capacité : avant vs après DRR"
   layout_heading: "Recommandations de disposition des datastores"
   layout_strategy_label: "Stratégie"
+  findings_summary_heading: "Résumé des contrôles de santé"
+  findings_detail_heading: "Détail des problèmes détectés"
+  findings_col_severity: "Sévérité"
+  findings_col_category: "Catégorie"
+  findings_col_finding: "Problème"
+  findings_col_count: "VMs affectées"
+  findings_col_detail: "Détail"
+  findings_no_findings: "Aucun problème détecté — l'environnement est sain."
+  findings_category_data_quality: "Qualité des données"
+  findings_category_sizing_risk: "Risque de dimensionnement"
+  findings_category_best_practice: "Bonne pratique VMware"
+  findings_severity_critical: "Critique"
+  findings_severity_warning: "Avertissement"
+  findings_severity_info: "Information"
 
 layout:
   home: Accueil
@@ -244,6 +258,13 @@ excel:
   col_avg_iops: "IOPS moyennes"
   col_peak_mbs: "Débit de pointe (Mo/s)"
   col_iops_8k: "IOPS éq. 8K"
+  sheet_findings: "Problèmes détectés"
+  col_finding: "Problème"
+  col_severity: "Sévérité"
+  col_category: "Catégorie"
+  col_affected_vms: "VMs affectées"
+  col_detail: "Détail"
+  col_cluster: "Cluster"
 
 tooltip:
   llm_toggle: "Activer la classification par IA (LLM) pour les VMs inconnues"
