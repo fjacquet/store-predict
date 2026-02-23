@@ -556,6 +556,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#42b-scope-filtering-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2b Scope Filtering (/scope)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#43-vm-review-grid" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -769,6 +780,17 @@
     <span class="md-ellipsis">
       
         10. Shipped: v5.0 — Multi-Cluster &amp; Export Completeness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-shipped-v60-scope-filtering-classifier-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Shipped: v6.0 — Scope Filtering &amp; Classifier Accuracy
       
     </span>
   </a>
@@ -3415,6 +3437,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#42b-scope-filtering-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2b Scope Filtering (/scope)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#43-vm-review-grid" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3634,6 +3667,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#11-shipped-v60-scope-filtering-classifier-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Shipped: v6.0 — Scope Filtering &amp; Classifier Accuracy
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3846,8 +3890,8 @@
 <tbody>
 <tr>
 <td>Rules-based classifier</td>
-<td>43 priority-ordered patterns, first-match-wins</td>
-<td>v1.0</td>
+<td>50 priority-ordered patterns, first-match-wins</td>
+<td>v1.0 / v6.0</td>
 </tr>
 <tr>
 <td>Substring matching</td>
@@ -3888,6 +3932,78 @@
 <td>Rule suggestion feedback</td>
 <td>LLM suggests ready-to-paste <code>ClassificationRule</code> snippets</td>
 <td>v2.2</td>
+</tr>
+<tr>
+<td>Windows Desktop → VDI reclassification</td>
+<td>Windows 10/11 OS-fallback VMs classified as VDI Linked Clone (DRR=4) instead of Virtual Machines</td>
+<td>v6.0</td>
+</tr>
+<tr>
+<td>Generic VDI keyword rule</td>
+<td><code>VDI</code>, <code>DESKTOP</code>, <code>RDS</code>, <code>UAG</code>, <code>LOGINVSI</code>, <code>LOGINENTERPRISE</code> patterns (priority 224)</td>
+<td>v6.0</td>
+</tr>
+<tr>
+<td>Extended Containers patterns</td>
+<td><code>TKG</code>, <code>HARBOR</code>, <code>photon-*-kube</code> for Tanzu node images</td>
+<td>v6.0</td>
+</tr>
+<tr>
+<td>Extended Email pattern</td>
+<td><code>EXCHG</code> abbreviation for Exchange mail stores</td>
+<td>v6.0</td>
+</tr>
+<tr>
+<td>Extended SharePoint patterns</td>
+<td><code>SPBE</code>, <code>SPFE</code>, <code>SPOWA</code>, <code>SPOFFICE</code> abbreviations</td>
+<td>v6.0</td>
+</tr>
+<tr>
+<td>Extended Logging patterns</td>
+<td><code>LOGSTASH</code>, <code>KIBANA</code> for ELK-stack nodes</td>
+<td>v6.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42b-scope-filtering-scope">4.2b Scope Filtering (<code>/scope</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Detail</th>
+<th>Shipped</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Datacenter picker</td>
+<td>Multi-select list of datacenters found in uploaded file</td>
+<td>v6.0</td>
+</tr>
+<tr>
+<td>Cluster picker</td>
+<td>Multi-select list of clusters found in uploaded file</td>
+<td>v6.0</td>
+</tr>
+<tr>
+<td>Live VM count preview</td>
+<td>Shows how many VMs match the current selection before proceeding</td>
+<td>v6.0</td>
+</tr>
+<tr>
+<td>Scope badge</td>
+<td>Review and report page headers display selected DC/cluster scope</td>
+<td>v6.0</td>
+</tr>
+<tr>
+<td>Scope-suffixed filenames</td>
+<td>Exported PDF and Excel filenames include a DC/cluster suffix</td>
+<td>v6.0</td>
+</tr>
+<tr>
+<td>Full dataset preserved</td>
+<td>Unselected VMs stay in session; re-scoping never requires re-upload</td>
+<td>v6.0</td>
 </tr>
 </tbody>
 </table>
@@ -4607,6 +4723,11 @@
 <td>Multi-Cluster &amp; Export Completeness</td>
 <td>Per-cluster compute breakdown, per-site host count display, per-cluster health findings, PDF findings summary + appendix, Excel Findings worksheet, configurable vMSC split ratio, configurable A/P DR active %</td>
 </tr>
+<tr>
+<td>v6.0</td>
+<td>Scope Filtering &amp; Classifier Accuracy</td>
+<td><code>/scope</code> page with DC/cluster filtering, Windows Desktop → VDI reclassification, +7 new classifier patterns (TKG, HARBOR, RDS, UAG, EXCHG, SPBE/SPFE/SPOWA, LOGSTASH/KIBANA), AG Grid reliability fixes</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -4644,8 +4765,85 @@
 </tbody>
 </table>
 <hr />
-<p><em>Last updated: 2026-02-23 after v5.0 milestone shipped</em>
-2025-11-25-W11-24h2-Cortex-12GB-DC1</p>
+<h2 id="11-shipped-v60-scope-filtering-classifier-accuracy">11. Shipped: v6.0 — Scope Filtering &amp; Classifier Accuracy</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SCOPE-01</td>
+<td><code>/scope</code> page with datacenter and cluster multi-select pickers</td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>SCOPE-02</td>
+<td>Live VM count preview on scope page</td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>SCOPE-03</td>
+<td>Scope badge in review and report page headers</td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>SCOPE-04</td>
+<td>DC/cluster scope suffix in exported PDF and Excel filenames</td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>SCOPE-05</td>
+<td>Full dataset preserved in session; re-scoping without re-upload</td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>CLASS-01</td>
+<td>Windows Desktop OS (Win 10/11/7) → VDI Linked Clone (DRR=4)</td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>CLASS-02</td>
+<td>Generic VDI keyword rule: <code>VDI</code>, <code>DESKTOP</code>, <code>RDS</code>, <code>UAG</code>, <code>LOGINVSI</code></td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>CLASS-03</td>
+<td>Containers: <code>TKG</code>, <code>HARBOR</code>, <code>photon-*-kube</code></td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>CLASS-04</td>
+<td>Email: <code>EXCHG</code> abbreviation</td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>CLASS-05</td>
+<td>File Content Servers: <code>SPBE</code>, <code>SPFE</code>, <code>SPOWA</code>, <code>SPOFFICE</code></td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>CLASS-06</td>
+<td>Logging: <code>LOGSTASH</code>, <code>KIBANA</code></td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>FIX-01</td>
+<td>AG Grid <code>valueGetter</code>, <code>localeText</code> guard, <code>setGridOption</code> refresh</td>
+<td>Shipped</td>
+</tr>
+<tr>
+<td>FIX-02</td>
+<td>mypy: safe <code>int()</code> cast and <code>list\|None</code> narrowing in state/layout</td>
+<td>Shipped</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Last updated: 2026-02-23 after v6.0 shipped</em></p>
 
 
 

@@ -11,28 +11,24 @@
       
       
       
-        <link rel="prev" href="../prd/">
-      
-      
-        <link rel="next" href="../user-guide/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
     
     
       
-        <title>Architecture - StorePredict</title>
+        <title>ADR-065: Windows Desktop OS fallback → VDI Linked Clone - StorePredict</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +47,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture" class="md-skip">
+        <a href="#adr-065-windows-desktop-os-fallback-vdi-linked-clone" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +88,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="StorePredict" class="md-header__button md-logo" aria-label="StorePredict" data-md-component="logo">
+    <a href="../.." title="StorePredict" class="md-header__button md-logo" aria-label="StorePredict" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture
+              ADR-065: Windows Desktop OS fallback → VDI Linked Clone
             
           </span>
         </div>
@@ -228,7 +224,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="StorePredict" class="md-nav__button md-logo" aria-label="StorePredict" data-md-component="logo">
+    <a href="../.." title="StorePredict" class="md-nav__button md-logo" aria-label="StorePredict" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -258,7 +254,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -285,7 +281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/" class="md-nav__link">
+      <a href="../../getting-started/" class="md-nav__link">
         
   
   
@@ -312,7 +308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prd/" class="md-nav__link">
+      <a href="../../prd/" class="md-nav__link">
         
   
   
@@ -336,37 +332,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
         
   
   
@@ -382,197 +351,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pipeline-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pipeline Architecture
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Flow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-components" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Components
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Key Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#parsers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parsers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#classification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Classification
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#drr-table" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        DRR Table
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#storage-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Storage Model
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#calculation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Calculation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#layout-engine" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Layout Engine
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pdf-report" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PDF Report
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#scope-filtering" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope Filtering
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#session-state" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Session State
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#session-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Session Model
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#technology-stack" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Technology Stack
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -638,7 +416,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/" class="md-nav__link">
+      <a href="../../user-guide/" class="md-nav__link">
         
   
   
@@ -727,7 +505,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/" class="md-nav__link">
+      <a href="../../research/" class="md-nav__link">
         
   
   
@@ -755,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-01-foundation/" class="md-nav__link">
+      <a href="../../research/phase-01-foundation/" class="md-nav__link">
         
   
   
@@ -783,7 +561,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-02-ingestion/" class="md-nav__link">
+      <a href="../../research/phase-02-ingestion/" class="md-nav__link">
         
   
   
@@ -811,7 +589,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-03-classification/" class="md-nav__link">
+      <a href="../../research/phase-03-classification/" class="md-nav__link">
         
   
   
@@ -839,7 +617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-04-ui/" class="md-nav__link">
+      <a href="../../research/phase-04-ui/" class="md-nav__link">
         
   
   
@@ -867,7 +645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-05-calculation/" class="md-nav__link">
+      <a href="../../research/phase-05-calculation/" class="md-nav__link">
         
   
   
@@ -895,7 +673,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-06-polish/" class="md-nav__link">
+      <a href="../../research/phase-06-polish/" class="md-nav__link">
         
   
   
@@ -923,7 +701,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-07-ui-enhancements/" class="md-nav__link">
+      <a href="../../research/phase-07-ui-enhancements/" class="md-nav__link">
         
   
   
@@ -951,7 +729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-08-i18n/" class="md-nav__link">
+      <a href="../../research/phase-08-i18n/" class="md-nav__link">
         
   
   
@@ -979,7 +757,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-08.1-liveoptics-zip/" class="md-nav__link">
+      <a href="../../research/phase-08.1-liveoptics-zip/" class="md-nav__link">
         
   
   
@@ -1007,7 +785,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-09-excel-export/" class="md-nav__link">
+      <a href="../../research/phase-09-excel-export/" class="md-nav__link">
         
   
   
@@ -1035,7 +813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-10-pdf-branding/" class="md-nav__link">
+      <a href="../../research/phase-10-pdf-branding/" class="md-nav__link">
         
   
   
@@ -1063,7 +841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-11-llm-classification/" class="md-nav__link">
+      <a href="../../research/phase-11-llm-classification/" class="md-nav__link">
         
   
   
@@ -1091,7 +869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-12-ux-polish/" class="md-nav__link">
+      <a href="../../research/phase-12-ux-polish/" class="md-nav__link">
         
   
   
@@ -1119,7 +897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-13-graphics/" class="md-nav__link">
+      <a href="../../research/phase-13-graphics/" class="md-nav__link">
         
   
   
@@ -1147,7 +925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-14-app-level-drr-variants/" class="md-nav__link">
+      <a href="../../research/phase-14-app-level-drr-variants/" class="md-nav__link">
         
   
   
@@ -1175,7 +953,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-15-default-iops/" class="md-nav__link">
+      <a href="../../research/phase-15-default-iops/" class="md-nav__link">
         
   
   
@@ -1210,7 +988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/" class="md-nav__link">
+      <a href="../../changelog/" class="md-nav__link">
         
   
   
@@ -1291,7 +1069,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1319,7 +1097,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/001-nicegui-framework/" class="md-nav__link">
+      <a href="../001-nicegui-framework/" class="md-nav__link">
         
   
   
@@ -1347,7 +1125,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/002-drr-csv-reference/" class="md-nav__link">
+      <a href="../002-drr-csv-reference/" class="md-nav__link">
         
   
   
@@ -1375,7 +1153,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/003-alias-not-fuzzy-matching/" class="md-nav__link">
+      <a href="../003-alias-not-fuzzy-matching/" class="md-nav__link">
         
   
   
@@ -1403,7 +1181,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/004-dataframe-not-dataclass/" class="md-nav__link">
+      <a href="../004-dataframe-not-dataclass/" class="md-nav__link">
         
   
   
@@ -1431,7 +1209,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/005-conservative-drr/" class="md-nav__link">
+      <a href="../005-conservative-drr/" class="md-nav__link">
         
   
   
@@ -1459,7 +1237,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/006-no-mocks-testing/" class="md-nav__link">
+      <a href="../006-no-mocks-testing/" class="md-nav__link">
         
   
   
@@ -1487,7 +1265,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/007-aggrid-vm-table/" class="md-nav__link">
+      <a href="../007-aggrid-vm-table/" class="md-nav__link">
         
   
   
@@ -1515,7 +1293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/008-session-storage-split/" class="md-nav__link">
+      <a href="../008-session-storage-split/" class="md-nav__link">
         
   
   
@@ -1543,7 +1321,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/009-dialog-multi-workload/" class="md-nav__link">
+      <a href="../009-dialog-multi-workload/" class="md-nav__link">
         
   
   
@@ -1571,7 +1349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/010-nicegui-3x/" class="md-nav__link">
+      <a href="../010-nicegui-3x/" class="md-nav__link">
         
   
   
@@ -1599,7 +1377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/011-substring-matching/" class="md-nav__link">
+      <a href="../011-substring-matching/" class="md-nav__link">
         
   
   
@@ -1627,7 +1405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/012-priority-ordered-rules/" class="md-nav__link">
+      <a href="../012-priority-ordered-rules/" class="md-nav__link">
         
   
   
@@ -1655,7 +1433,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/013-weighted-average-drr/" class="md-nav__link">
+      <a href="../013-weighted-average-drr/" class="md-nav__link">
         
   
   
@@ -1683,7 +1461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/014-drr-guard/" class="md-nav__link">
+      <a href="../014-drr-guard/" class="md-nav__link">
         
   
   
@@ -1711,7 +1489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/015-canonical-dataframe-schema/" class="md-nav__link">
+      <a href="../015-canonical-dataframe-schema/" class="md-nav__link">
         
   
   
@@ -1739,7 +1517,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/016-template-filter-orchestrator/" class="md-nav__link">
+      <a href="../016-template-filter-orchestrator/" class="md-nav__link">
         
   
   
@@ -1767,7 +1545,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/017-rvtools-mb-as-mib/" class="md-nav__link">
+      <a href="../017-rvtools-mb-as-mib/" class="md-nav__link">
         
   
   
@@ -1795,7 +1573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/018-openpyxl-read-only-detection/" class="md-nav__link">
+      <a href="../018-openpyxl-read-only-detection/" class="md-nav__link">
         
   
   
@@ -1823,7 +1601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/019-shared-liveoptics-helper/" class="md-nav__link">
+      <a href="../019-shared-liveoptics-helper/" class="md-nav__link">
         
   
   
@@ -1851,7 +1629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/020-dark-mode-user-storage/" class="md-nav__link">
+      <a href="../020-dark-mode-user-storage/" class="md-nav__link">
         
   
   
@@ -1879,7 +1657,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/021-dual-workload-edit/" class="md-nav__link">
+      <a href="../021-dual-workload-edit/" class="md-nav__link">
         
   
   
@@ -1907,7 +1685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/022-stats-clear-rebuild/" class="md-nav__link">
+      <a href="../022-stats-clear-rebuild/" class="md-nav__link">
         
   
   
@@ -1935,7 +1713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/023-page-routes-side-effects/" class="md-nav__link">
+      <a href="../023-page-routes-side-effects/" class="md-nav__link">
         
   
   
@@ -1963,7 +1741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/024-workload-dialog-props/" class="md-nav__link">
+      <a href="../024-workload-dialog-props/" class="md-nav__link">
         
   
   
@@ -1991,7 +1769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/025-reportlab-platypus/" class="md-nav__link">
+      <a href="../025-reportlab-platypus/" class="md-nav__link">
         
   
   
@@ -2019,7 +1797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/026-vera-ttf-fonts/" class="md-nav__link">
+      <a href="../026-vera-ttf-fonts/" class="md-nav__link">
         
   
   
@@ -2047,7 +1825,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/027-pdf-in-memory-bytesio/" class="md-nav__link">
+      <a href="../027-pdf-in-memory-bytesio/" class="md-nav__link">
         
   
   
@@ -2075,7 +1853,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/028-ui-table-report-page/" class="md-nav__link">
+      <a href="../028-ui-table-report-page/" class="md-nav__link">
         
   
   
@@ -2103,7 +1881,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/029-three-layer-architecture/" class="md-nav__link">
+      <a href="../029-three-layer-architecture/" class="md-nav__link">
         
   
   
@@ -2131,7 +1909,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/030-docker-single-container/" class="md-nav__link">
+      <a href="../030-docker-single-container/" class="md-nav__link">
         
   
   
@@ -2159,7 +1937,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/031-magic-byte-validation/" class="md-nav__link">
+      <a href="../031-magic-byte-validation/" class="md-nav__link">
         
   
   
@@ -2187,7 +1965,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/032-log-sanitization/" class="md-nav__link">
+      <a href="../032-log-sanitization/" class="md-nav__link">
         
   
   
@@ -2215,7 +1993,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/033-context-manager-layout/" class="md-nav__link">
+      <a href="../033-context-manager-layout/" class="md-nav__link">
         
   
   
@@ -2243,7 +2021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/034-sap-word-boundary/" class="md-nav__link">
+      <a href="../034-sap-word-boundary/" class="md-nav__link">
         
   
   
@@ -2271,7 +2049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/035-postgres-mysql-before-sql/" class="md-nav__link">
+      <a href="../035-postgres-mysql-before-sql/" class="md-nav__link">
         
   
   
@@ -2299,7 +2077,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/036-citrix-full-clone-default/" class="md-nav__link">
+      <a href="../036-citrix-full-clone-default/" class="md-nav__link">
         
   
   
@@ -2327,7 +2105,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/037-fortinet-os-field-detection/" class="md-nav__link">
+      <a href="../037-fortinet-os-field-detection/" class="md-nav__link">
         
   
   
@@ -2355,7 +2133,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/038-mkdocs-material/" class="md-nav__link">
+      <a href="../038-mkdocs-material/" class="md-nav__link">
         
   
   
@@ -2383,7 +2161,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/039-uv-package-manager/" class="md-nav__link">
+      <a href="../039-uv-package-manager/" class="md-nav__link">
         
   
   
@@ -2411,7 +2189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/040-pyproject-single-config/" class="md-nav__link">
+      <a href="../040-pyproject-single-config/" class="md-nav__link">
         
   
   
@@ -2439,7 +2217,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/041-strict-mypy-type-checking/" class="md-nav__link">
+      <a href="../041-strict-mypy-type-checking/" class="md-nav__link">
         
   
   
@@ -2467,7 +2245,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/042-web-server-content-included-default/" class="md-nav__link">
+      <a href="../042-web-server-content-included-default/" class="md-nav__link">
         
   
   
@@ -2495,7 +2273,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/043-i18n-architecture-t-wrapper-yaml/" class="md-nav__link">
+      <a href="../043-i18n-architecture-t-wrapper-yaml/" class="md-nav__link">
         
   
   
@@ -2523,7 +2301,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/044-language-switch-page-reload/" class="md-nav__link">
+      <a href="../044-language-switch-page-reload/" class="md-nav__link">
         
   
   
@@ -2551,7 +2329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/045-echart-for-web-charts/" class="md-nav__link">
+      <a href="../045-echart-for-web-charts/" class="md-nav__link">
         
   
   
@@ -2579,7 +2357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/046-pdf-charts-page-two/" class="md-nav__link">
+      <a href="../046-pdf-charts-page-two/" class="md-nav__link">
         
   
   
@@ -2607,7 +2385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/047-sankey-reportlab-strategy/" class="md-nav__link">
+      <a href="../047-sankey-reportlab-strategy/" class="md-nav__link">
         
   
   
@@ -2635,7 +2413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/048-aggrid-community-detail-bar/" class="md-nav__link">
+      <a href="../048-aggrid-community-detail-bar/" class="md-nav__link">
         
   
   
@@ -2663,7 +2441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/049-aggrid-event-args-filter/" class="md-nav__link">
+      <a href="../049-aggrid-event-args-filter/" class="md-nav__link">
         
   
   
@@ -2691,7 +2469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/050-click-zoom-vs-reclassify/" class="md-nav__link">
+      <a href="../050-click-zoom-vs-reclassify/" class="md-nav__link">
         
   
   
@@ -2719,7 +2497,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/051-llm-rule-suggestion-loop/" class="md-nav__link">
+      <a href="../051-llm-rule-suggestion-loop/" class="md-nav__link">
         
   
   
@@ -2747,7 +2525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/052-storage-model-flat-drr-override/" class="md-nav__link">
+      <a href="../052-storage-model-flat-drr-override/" class="md-nav__link">
         
   
   
@@ -2775,7 +2553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/053-app-level-drr-as-csv-variants/" class="md-nav__link">
+      <a href="../053-app-level-drr-as-csv-variants/" class="md-nav__link">
         
   
   
@@ -2803,7 +2581,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/054-llm-toggle-session-scoped/" class="md-nav__link">
+      <a href="../054-llm-toggle-session-scoped/" class="md-nav__link">
         
   
   
@@ -2831,7 +2609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/055-layout-engine-bfd-heuristic/" class="md-nav__link">
+      <a href="../055-layout-engine-bfd-heuristic/" class="md-nav__link">
         
   
   
@@ -2859,7 +2637,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/056-three-layout-strategies/" class="md-nav__link">
+      <a href="../056-three-layout-strategies/" class="md-nav__link">
         
   
   
@@ -2887,7 +2665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/057-vmfs-not-vvol-layout/" class="md-nav__link">
+      <a href="../057-vmfs-not-vvol-layout/" class="md-nav__link">
         
   
   
@@ -2915,7 +2693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/058-isolated-vm-dedicated-datastore/" class="md-nav__link">
+      <a href="../058-isolated-vm-dedicated-datastore/" class="md-nav__link">
         
   
   
@@ -2943,7 +2721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/059-default-iops-estimates/" class="md-nav__link">
+      <a href="../059-default-iops-estimates/" class="md-nav__link">
         
   
   
@@ -2998,10 +2776,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#context" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Context
       
     </span>
   </a>
@@ -3009,10 +2787,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pipeline-architecture" class="md-nav__link">
+  <a href="#decision" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline Architecture
+        Decision
       
     </span>
   </a>
@@ -3020,10 +2798,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-flow" class="md-nav__link">
+  <a href="#rationale" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Flow
+        Rationale
       
     </span>
   </a>
@@ -3031,137 +2809,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-components" class="md-nav__link">
+  <a href="#consequences" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Components
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Key Components">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#parsers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parsers
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#classification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Classification
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#drr-table" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        DRR Table
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#storage-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Storage Model
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#calculation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Calculation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#layout-engine" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Layout Engine
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pdf-report" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PDF Report
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#scope-filtering" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scope Filtering
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#session-state" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Session State
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#session-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Session Model
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#technology-stack" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Technology Stack
+        Consequences
       
     </span>
   </a>
@@ -3188,278 +2839,51 @@
   
 
 
-<h1 id="architecture">Architecture</h1>
-<h2 id="overview">Overview</h2>
-<p>StorePredict is a full-Python web application for Dell pre-sales engineers.
-It implements a <strong>5-stage pipeline</strong> that ingests VMware workload exports,
-lets engineers filter by datacenter/cluster scope, classifies virtual machines
-into workload categories, predicts Data Reduction Ratios (DRR) for Dell
-PowerStore arrays, and produces datastore layout recommendations using three
-placement strategies.</p>
-<p>The result is a one-page PDF sizing report that pre-sales engineers can
-present to customers with defensible capacity numbers and optimal datastore
-layout proposals.</p>
-<h2 id="pipeline-architecture">Pipeline Architecture</h2>
-<pre class="mermaid"><code>flowchart TD
-    Upload["User uploads .xlsx / .csv"] --&gt; Detect["Format Detection"]
-
-    Detect --&gt; RV["parse_rvtools"]
-    Detect --&gt; LOX["parse_liveoptics_xlsx"]
-    Detect --&gt; LOC["parse_liveoptics_csv"]
-
-    RV --&gt; Norm["Normalized DataFrame&lt;br/&gt;(9 canonical columns)"]
-    LOX --&gt; Norm
-    LOC --&gt; Norm
-
-    Norm --&gt; Scope["/scope page&lt;br/&gt;DC / Cluster filter"]
-    Scope --&gt; Class["Classification Engine&lt;br/&gt;RuleRegistry — 50 rules"]
-    Class --&gt; Categories["Workload Categories"]
-
-    Categories --&gt; DRR["DRR Lookup&lt;br/&gt;(DRR.csv — 42 entries, incl. encrypted variants)"]
-    DRR --&gt; Review["Review Page&lt;br/&gt;AG Grid + WorkloadDialog"]
-    Review --&gt; Model["Storage Model Selector&lt;br/&gt;PowerStore / PowerFlex / PowerVault"]
-    Model --&gt; Overrides["User Overrides"]
-
-    Overrides --&gt; Calc["Calculation Engine"]
-    Calc --&gt; Summary["SizingSummary"]
-
-    Summary --&gt; Layout["Layout Engine&lt;br/&gt;3 strategies (BFD / tier BFD / LPT)"]
-    Layout --&gt; Proposals["LayoutProposal[]&lt;br/&gt;(consolidation, performance, uniform)"]
-    Proposals --&gt; PDF["PDF Report&lt;br/&gt;(ReportLab)"]</code></pre>
-<h2 id="data-flow">Data Flow</h2>
-<pre class="mermaid"><code>flowchart LR
-    A[".xlsx / .csv&lt;br/&gt;Upload"] --&gt; B["DataFrame&lt;br/&gt;9 canonical columns"]
-    B --&gt; SC["Scope filter&lt;br/&gt;(DC / Cluster)"]
-    SC --&gt; C["Classified&lt;br/&gt;DataFrame"]
-    C --&gt; D["SizingSummary&lt;br/&gt;per-VM + grouped"]
-    D --&gt; E1["LayoutProposal[]&lt;br/&gt;3 strategies"]
-    E1 --&gt; E["PDF Report"]</code></pre>
-<p>The canonical columns after ingestion are:</p>
-<table>
-<thead>
-<tr>
-<th>Column</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>vm_name</code></td>
-<td>Virtual machine name</td>
-</tr>
-<tr>
-<td><code>os</code></td>
-<td>Guest OS as reported by VMware Tools</td>
-</tr>
-<tr>
-<td><code>provisioned_mib</code></td>
-<td>Total provisioned disk (MiB)</td>
-</tr>
-<tr>
-<td><code>in_use_mib</code></td>
-<td>Actual disk usage (MiB)</td>
-</tr>
-<tr>
-<td><code>cpu_count</code></td>
-<td>Number of vCPUs</td>
-</tr>
-<tr>
-<td><code>memory_mib</code></td>
-<td>Allocated RAM (MiB)</td>
-</tr>
-<tr>
-<td><code>power_state</code></td>
-<td>Power state (on/off)</td>
-</tr>
-<tr>
-<td><code>is_template</code></td>
-<td>Whether the VM is a template</td>
-</tr>
-<tr>
-<td><code>source_format</code></td>
-<td>Origin format (rvtools / liveoptics)</td>
-</tr>
-</tbody>
-</table>
-<h2 id="key-components">Key Components</h2>
-<h3 id="parsers">Parsers</h3>
+<h1 id="adr-065-windows-desktop-os-fallback-vdi-linked-clone">ADR-065: Windows Desktop OS fallback → VDI Linked Clone</h1>
+<p><strong>Date:</strong> 2026-02-23
+<strong>Status:</strong> Accepted</p>
+<h2 id="context">Context</h2>
+<p>Analysis of a real 1,483-VM LiveOptics export showed that 92 % of VMs (1,366)
+fell through to the <code>os_fallback</code> confidence bucket, meaning no VM name pattern
+matched and only the OS field was used. Of those, ~904 VMs had a Windows 10,
+Windows 11, or Windows 7 guest OS.</p>
+<p>The previous rule (priority 905) classified all Windows Desktop OS VMs as
+<code>Virtual Machines / VMware / Hyper-V / KVM - No Database, File nor Email</code>
+with a DRR of 5. While defensible, this misrepresents the actual workload:
+desktop OS VMs in a datacenter are overwhelmingly VDI endpoints (Citrix PVS,
+VMware Horizon linked clones, Citrix MCS).</p>
+<h2 id="decision">Decision</h2>
+<p>Change the "Windows Desktop (OS fallback)" rule (priority 905) to classify as:</p>
 <ul>
-<li><strong><code>pipeline/parsers/rvtools.py</code></strong> -- Parses RVTools <code>.xlsx</code> exports (vInfo tab).</li>
-<li><strong><code>pipeline/parsers/liveoptics.py</code></strong> -- Parses LiveOptics <code>.xlsx</code> and <code>.csv</code> exports (VMs tab).</li>
-<li><strong><code>pipeline/parsers/columns.py</code></strong> -- Column alias resolution via dict lookup for format normalization.</li>
+<li><strong>Category:</strong> <code>VDI</code></li>
+<li><strong>Subcategory:</strong> <code>Linked Clone / PVS (Citrix)</code> (DRR = 4)</li>
 </ul>
-<h3 id="classification">Classification</h3>
+<p>The OS pattern (<code>windows 10|windows 11|windows 7</code>) is unchanged.</p>
+<p>Additionally, add a new "VDI Generic" rule (priority 224, name-based) covering
+explicit VDI infrastructure keywords: <code>VDI</code>, <code>DESKTOP</code>, <code>RDS</code>, <code>UAG</code>,
+<code>LOGINVSI</code>, <code>LOGINENTERPRISE</code>.</p>
+<h2 id="rationale">Rationale</h2>
 <ul>
-<li><strong><code>pipeline/classification.py</code></strong> -- Rule-based classification engine with 50 priority-ordered rules.
-  Each rule matches patterns in VM name and OS fields to assign workload categories
-  (e.g., SQL, Oracle, VDI, SAP). Windows Desktop OS VMs (Win 10/11/7) fall back to
-  VDI Linked Clone rather than the generic Virtual Machines bucket (ADR-065).</li>
+<li>In enterprise VMware environments, Windows 10/11 VMs running in a datacenter
+  are almost exclusively VDI linked clones or MCS clones. Physical desktops are
+  not inventoried in RVTools or LiveOptics.</li>
+<li>VDI Linked Clone (DRR=4) is a conservative estimate; Full Clone (DRR=8) and
+  Instant Clone (DRR=6) are higher. Using the lower value maintains the
+  pre-sales defensibility principle (ADR-005).</li>
+<li>This change improves the classification rate from ~8 % rule_match to ~75 %
+  on the reference file, making the report far more actionable.</li>
 </ul>
-<h3 id="drr-table">DRR Table</h3>
+<h2 id="consequences">Consequences</h2>
 <ul>
-<li><strong><code>services/drr_table.py</code></strong> -- Loads the reference DRR table from <code>src/store_predict/data/DRR.csv</code>
-  (semicolon-delimited, 42 entries). Maps workload categories and subcategories to
-  reduction ratios, including application-level encryption/compression variants
-  (Oracle TDE, SQL Server Page Compression, DDVE, etc.).</li>
+<li><strong>Positive:</strong> ~900 Windows Desktop VMs now get a more accurate workload
+  category and DRR in typical enterprise files.</li>
+<li><strong>Positive:</strong> Engineers reviewing VDI-heavy environments see a realistic
+  capacity estimate, not a generic "Virtual Machines" bucket.</li>
+<li><strong>Negative:</strong> Any genuine Windows 10/11 server-role VM (edge case) will be
+  mis-classified as VDI; engineers can correct via the review grid.</li>
+<li><strong>Pattern:</strong> OS-fallback rules should reflect the most probable datacenter
+  usage of that OS, not the broadest possible category.</li>
 </ul>
-<h3 id="storage-model">Storage Model</h3>
-<ul>
-<li><strong><code>config.py</code> — <code>StorageModel</code> enum</strong> — Three target platforms with different
-  data-reduction capabilities:</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>Platform</th>
-<th>Dedup</th>
-<th>Compression</th>
-<th>DRR source</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>PowerStore</td>
-<td>✅</td>
-<td>✅</td>
-<td>Per workload from DRR.csv</td>
-</tr>
-<tr>
-<td>PowerFlex</td>
-<td>❌</td>
-<td>✅</td>
-<td>Flat 2.0</td>
-</tr>
-<tr>
-<td>PowerVault</td>
-<td>❌</td>
-<td>❌</td>
-<td>Flat 1.0</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><strong><code>services/drr_table.py</code> — <code>apply_storage_model()</code></strong> -- Overwrites per-VM DRR
-  values in session based on the selected platform. Called on every review page load
-  and on toggle change.</li>
-<li><strong><code>ui/state.py</code> — <code>get/set_storage_model()</code></strong> -- Persists the selection in
-  <code>app.storage.tab["storage_model"]</code>.</li>
-</ul>
-<h3 id="calculation">Calculation</h3>
-<ul>
-<li><strong><code>services/calculation.py</code></strong> -- Computes per-VM required capacity as
-  <code>Provisioned / DRR</code>. For multi-workload VMs, uses the lowest (most conservative)
-  DRR. Weighted average DRR = <code>total_provisioned / total_required</code>.</li>
-</ul>
-<h3 id="layout-engine">Layout Engine</h3>
-<ul>
-<li>
-<p><strong><code>pipeline/layout_models.py</code></strong> — Frozen dataclasses for layout domain:
-  <code>PlacementConstraints</code> (4 TiB DS, 25 VMs/DS, 100K IOPS/DS defaults),
-  <code>DatastoreRecommendation</code> (immutable DS snapshot with assigned VMs),
-  <code>LayoutMetrics</code> (15-field aggregate metrics),
-  <code>LayoutProposal</code> (strategy name + datastores + metrics).
-  Also provides <code>DEFAULT_IOPS_BY_WORKLOAD</code> loaded from <code>src/store_predict/data/IOPS.csv</code>.</p>
-</li>
-<li>
-<p><strong><code>pipeline/layout_engine.py</code></strong> — Three layout strategies producing datastore
-  placement recommendations:</p>
-</li>
-<li><strong>Consolidation:</strong> Multi-dimensional BFD bin-packing minimizing datastore count</li>
-<li><strong>Performance:</strong> Phase 0 mission-critical isolation (SAP HANA, Exchange, &gt;2 TiB,
-    &gt;5000 IOPS) + three-tier (HOT/WARM/COLD) independent BFD</li>
-<li><strong>Uniform:</strong> LPT (Longest Processing Time) across pre-computed equal-sized bins</li>
-<li><code>generate_all_proposals()</code> — Public entry point returning all 3 strategies</li>
-</ul>
-<h3 id="pdf-report">PDF Report</h3>
-<ul>
-<li><strong><code>services/pdf_report.py</code></strong> -- Generates a branded one-page PDF using ReportLab
-  with Vera/VeraBd fonts for French character support.</li>
-</ul>
-<h3 id="scope-filtering">Scope Filtering</h3>
-<ul>
-<li><strong><code>ui/pages/scope_page.py</code></strong> -- <code>/scope</code> page rendered between upload and review.
-  Reads <code>datacenter</code> and <code>cluster</code> columns from the canonical DataFrame and presents
-  multi-select pickers. Persists selection via <code>save_scope_selection()</code>.</li>
-</ul>
-<h3 id="session-state">Session State</h3>
-<ul>
-<li><strong><code>ui/state.py</code></strong> -- Tab-scoped session storage via <code>app.storage.tab</code>.
-  Each browser tab maintains independent pipeline state. Key scope helpers:</li>
-<li><code>save_scope_selection(datacenters, clusters)</code> — persist selected sets</li>
-<li><code>get_scope_selection()</code> — retrieve <code>(set[str], set[str])</code></li>
-<li><code>load_filtered_session_data()</code> — return DataFrame filtered to selected scope</li>
-<li><code>save_filtered_rows(row_data)</code> — merge AG Grid edits back into the full dataset</li>
-</ul>
-<h2 id="session-model">Session Model</h2>
-<pre class="mermaid"><code>flowchart TD
-    subgraph Browser
-        Tab1["Tab 1"]
-        Tab2["Tab 2"]
-    end
-
-    subgraph Server["NiceGUI Server"]
-        S1["app.storage.tab&lt;br/&gt;(Tab 1 state)"]
-        S2["app.storage.tab&lt;br/&gt;(Tab 2 state)"]
-        U["app.storage.user&lt;br/&gt;(dark mode pref)"]
-    end
-
-    Tab1 --&gt; S1
-    Tab2 --&gt; S2
-    Tab1 --&gt; U
-    Tab2 --&gt; U</code></pre>
-<ul>
-<li><strong>Tab-scoped</strong> (<code>app.storage.tab</code>): uploaded file, DataFrame, classification results,
-  SizingSummary, selected storage model, AI toggle state, scope selection
-  (selected datacenters and clusters).</li>
-<li><strong>User-scoped</strong> (<code>app.storage.user</code>): dark mode preference (persists across pages and tabs).</li>
-</ul>
-<h2 id="technology-stack">Technology Stack</h2>
-<table>
-<thead>
-<tr>
-<th>Layer</th>
-<th>Technology</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Web framework</td>
-<td><a href="https://nicegui.io/">NiceGUI</a></td>
-</tr>
-<tr>
-<td>Styling</td>
-<td>Tailwind CSS</td>
-</tr>
-<tr>
-<td>Data grid</td>
-<td>AG Grid (Community)</td>
-</tr>
-<tr>
-<td>Data processing</td>
-<td>pandas, openpyxl</td>
-</tr>
-<tr>
-<td>PDF generation</td>
-<td>ReportLab</td>
-</tr>
-<tr>
-<td>Testing</td>
-<td>pytest</td>
-</tr>
-<tr>
-<td>Linting</td>
-<td>ruff, mypy</td>
-</tr>
-<tr>
-<td>Documentation</td>
-<td>MkDocs Material</td>
-</tr>
-<tr>
-<td>Deployment</td>
-<td>Docker Compose</td>
-</tr>
-</tbody>
-</table>
 
 
 
@@ -3509,10 +2933,10 @@ layout proposals.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

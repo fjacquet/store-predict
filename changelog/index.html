@@ -1063,6 +1063,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v610-2026-02-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v6.1.0] - 2026-02-23
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v6.1.0] - 2026-02-23">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v600-2026-02-23" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1086,7 +1125,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#bug-fixes" class="md-nav__link">
+  <a href="#bug-fixes_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Bug fixes
@@ -1142,7 +1181,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bug-fixes_1" class="md-nav__link">
+  <a href="#bug-fixes_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Bug fixes
@@ -1303,7 +1342,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
+  <a href="#documentation_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Documentation
@@ -1436,7 +1475,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#documentation_1" class="md-nav__link">
+  <a href="#documentation_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Documentation
@@ -3465,6 +3504,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v610-2026-02-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v6.1.0] - 2026-02-23
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v6.1.0] - 2026-02-23">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v600-2026-02-23" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3488,7 +3566,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#bug-fixes" class="md-nav__link">
+  <a href="#bug-fixes_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Bug fixes
@@ -3544,7 +3622,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#bug-fixes_1" class="md-nav__link">
+  <a href="#bug-fixes_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Bug fixes
@@ -3705,7 +3783,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
+  <a href="#documentation_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Documentation
@@ -3838,7 +3916,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#documentation_1" class="md-nav__link">
+  <a href="#documentation_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Documentation
@@ -4103,6 +4181,36 @@
 <h1 id="changelog">Changelog</h1>
 <p>All notable changes to StorePredict are documented here.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h2 id="v610-2026-02-23">[v6.1.0] - 2026-02-23</h2>
+<h3 id="bug-fixes">Bug fixes</h3>
+<ul>
+<li>
+<p><strong>vMSC per-site sizing always available</strong> — the "Hosts per site (vMSC)"
+  section no longer requires a Datacenter column with 2+ distinct values.
+  The split ratio is applied to total VMs; the Datacenter column is
+  informational only. Engineers can now use vMSC mode on any file,
+  including single-datacenter or datacenter-less RVTools exports.</p>
+</li>
+<li>
+<p><strong>Type safety</strong> — fixed two mypy errors: unsafe <code>int()</code> cast on <code>object</code>
+  in <code>state.py</code>, and union-attr on <code>list | None</code> iteration in <code>layout_page.py</code>.</p>
+</li>
+<li>
+<p><strong>LLM config tests</strong> — <code>test_llm_config_timeout_default</code> and
+  <code>test_llm_config_max_concurrent_default</code> now guard against shell-level
+  <code>LLM_TIMEOUT</code> / <code>LLM_MAX_CONCURRENT</code> env vars overriding pydantic-settings
+  defaults.</p>
+</li>
+</ul>
+<h3 id="documentation">Documentation</h3>
+<ul>
+<li>ADR-064: Datacenter/cluster scope filtering as a dedicated pipeline stage</li>
+<li>ADR-065: Windows Desktop OS fallback → VDI Linked Clone</li>
+<li>PRD updated to v6.0 (§4.2b scope filtering, classification table, §11
+  shipped requirements)</li>
+<li>Architecture updated: 5-stage pipeline, <code>/scope</code> in diagrams, session
+  state scope helpers, rule count 43 → 50</li>
+</ul>
 <h2 id="v600-2026-02-23">[v6.0.0] - 2026-02-23</h2>
 <h3 id="new-features">New features</h3>
 <ul>
@@ -4127,7 +4235,7 @@
 <li>File Content Servers: added SharePoint abbreviations <code>SPBE</code>, <code>SPFE</code>, <code>SPOWA</code>, <code>SPOFFICE</code></li>
 <li>Logging - Analytics: added <code>LOGSTASH</code> and <code>KIBANA</code></li>
 </ul>
-<h3 id="bug-fixes">Bug fixes</h3>
+<h3 id="bug-fixes_1">Bug fixes</h3>
 <ul>
 <li><strong>AG Grid reliability</strong> — explicit <code>:valueGetter</code> on <code>vm_name</code> column fixes
   silent field extraction failure after NiceGUI <code>update_grid()</code> cycles (AG Grid
@@ -4175,7 +4283,7 @@
 </li>
 </ul>
 <h2 id="v401-2026-02-22">[v4.0.1] - 2026-02-22</h2>
-<h3 id="bug-fixes_1">Bug fixes</h3>
+<h3 id="bug-fixes_2">Bug fixes</h3>
 <ul>
 <li><strong>Fix all event handlers on <code>/compute</code></strong> — replaced <code>.on("update:model-value")</code> with
   <code>.on_value_change()</code>. Every control (preset selector, overcommit ratio, vMSC toggle,
@@ -4316,7 +4424,7 @@
 <li>Configurable via <code>src/store_predict/data/IOPS.csv</code> (semicolon-delimited, same pattern as DRR.csv)</li>
 <li>Hardcoded fallback when CSV is missing — tests remain independent</li>
 </ul>
-<h3 id="documentation">Documentation</h3>
+<h3 id="documentation_1">Documentation</h3>
 <ul>
 <li>ADR-059: Workload-based IOPS defaults for RVTools sizing</li>
 <li>Research page: Default IOPS domain knowledge (sources, conservative bias, peak vs average)</li>
@@ -4379,7 +4487,7 @@ compressed Veeam/Commvault variants also added.</p>
 <p>Per-session <code>ui.switch</code> on the upload page to disable LLM classification without
 server restart. Greyed out with hint when <code>LLM_ENABLED=false</code>. State persisted in
 <code>app.storage.tab["llm_ui_enabled"]</code>.</p>
-<h3 id="documentation_1">Documentation</h3>
+<h3 id="documentation_2">Documentation</h3>
 <ul>
 <li>ADR-052: Flat DRR override for non-PowerStore storage models</li>
 <li>ADR-053: Application-level DRR degradation as CSV subcategory variants</li>
