@@ -427,3 +427,96 @@ class TestAffectedVms:
 
         with pytest.raises((AttributeError, TypeError)):
             finding.affected_count = 999  # type: ignore[misc]
+
+
+# ---------------------------------------------------------------------------
+# Per-cluster health check tests
+# ---------------------------------------------------------------------------
+
+
+class TestPerClusterHealthChecks:
+    def test_hw_version_per_cluster_emits_finding_per_cluster(self) -> None:
+        """2 clusters each with old HW -> 2 findings with distinct cluster values."""
+        rows = [
+            _make_active_df(vm_name=["vm-a"], cluster=["ClusterA"], hw_version=[11]),
+            _make_active_df(vm_name=["vm-b"], cluster=["ClusterB"], hw_version=[11]),
+        ]
+        df = pd.concat(rows, ignore_index=True)
+        result = run_health_checks(df)
+        hw_findings = [f for f in result.findings if "hw_version" in f.check_id]
+        assert len(hw_findings) == 2
+        cluster_values = {f.cluster for f in hw_findings}
+        assert "ClusterA" in cluster_values
+        assert "ClusterB" in cluster_values
+
+    def test_hw_version_per_cluster_finding_has_cluster_name(self) -> None:
+        """Single cluster with old HW -> finding.cluster == 'ClusterA'."""
+        df = _make_active_df(cluster=["ClusterA"], hw_version=[11])
+        result = run_health_checks(df)
+        hw_finding = next(f for f in result.findings if "hw_version" in f.check_id)
+        assert hw_finding.cluster == "ClusterA"
+
+    def test_global_finding_has_empty_cluster(self) -> None:
+        """Data quality findings (not per-cluster) must have cluster == ''."""
+        df = _make_active_df(os_name=[""])
+        result = run_health_checks(df)
+        missing_os = next(f for f in result.findings if f.check_id == "data_quality.missing_os")
+        assert missing_os.cluster == ""
+
+    def test_small_cluster_ha_finding(self) -> None:
+        """Cluster with 2 VMs -> one best_practice.small_cluster_ha finding with correct cluster."""
+        rows = [
+            _make_active_df(vm_name=["vm-1"], cluster=["ClusterA"]),
+            _make_active_df(vm_name=["vm-2"], cluster=["ClusterA"]),
+        ]
+        df = pd.concat(rows, ignore_index=True)
+        result = run_health_checks(df)
+        small_findings = [f for f in result.findings if f.check_id == "best_practice.small_cluster_ha"]
+        assert len(small_findings) == 1
+        assert small_findings[0].cluster == "ClusterA"
+        assert small_findings[0].affected_count == 2
+
+    def test_small_cluster_ha_no_finding_for_no_cluster(self) -> None:
+        """VMs with empty cluster must NOT get small_cluster_ha finding."""
+        rows = [
+            _make_active_df(vm_name=[f"standalone-{i}"], cluster=[""]) for i in range(2)
+        ]
+        df = pd.concat(rows, ignore_index=True)
+        result = run_health_checks(df)
+        small_findings = [f for f in result.findings if f.check_id == "best_practice.small_cluster_ha"]
+        assert len(small_findings) == 0
+
+    def test_small_cluster_ha_no_finding_for_large_cluster(self) -> None:
+        """Cluster with 3+ VMs must NOT trigger small_cluster_ha."""
+        rows = [
+            _make_active_df(vm_name=[f"vm-{i}"], cluster=["ClusterA"]) for i in range(3)
+        ]
+        df = pd.concat(rows, ignore_index=True)
+        result = run_health_checks(df)
+        small_findings = [f for f in result.findings if f.check_id == "best_practice.small_cluster_ha"]
+        assert len(small_findings) == 0
+
+    def test_health_finding_cluster_field_default_empty(self) -> None:
+        """HealthFinding constructed without cluster= must default to ''."""
+        finding = HealthFinding(
+            check_id="test.check",
+            severity=Severity.INFO,
+            title="test.title",
+            detail="test.detail",
+            affected_count=1,
+            affected_vms=("vm-01",),
+        )
+        assert finding.cluster == ""
+
+    def test_health_finding_cluster_field_set(self) -> None:
+        """HealthFinding with cluster= must store the value."""
+        finding = HealthFinding(
+            check_id="test.check",
+            severity=Severity.INFO,
+            title="test.title",
+            detail="test.detail",
+            affected_count=1,
+            affected_vms=("vm-01",),
+            cluster="ClusterA",
+        )
+        assert finding.cluster == "ClusterA"

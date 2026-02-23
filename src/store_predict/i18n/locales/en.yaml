@@ -328,6 +328,9 @@ health:
   no_hw_data:
     title: "No Hardware Version Data Available"
     detail: "This export does not include the HW version column — hardware compatibility cannot be assessed."
+  small_cluster_ha:
+    title: "Small cluster (HA risk)"
+    detail: "%{count} VM(s) in this cluster — a minimum of 3 hosts is recommended for N+1 HA."
 
 compute:
   title: "Compute Sizing"
@@ -359,3 +362,13 @@ compute:
   host_specs_heading: "Host Specifications"
   breakdown_vcpu: "vCPU-based"
   breakdown_ram: "RAM-based"
+  cluster_breakdown_heading: "Per-Cluster Breakdown"
+  cluster_col: "Cluster"
+  cluster_vm_count_col: "VMs"
+  cluster_vcpu_col: "vCPUs"
+  cluster_ram_col: "RAM (GiB)"
+  cluster_hosts_col: "Hosts needed"
+  cluster_total: "Total"
+  no_cluster_label: "(No Cluster)"
+  cluster_breakdown_note: "Per-cluster total may exceed global due to independent N+1 buffer per cluster."
+  no_cluster_data_note: "No cluster data available. Upload an RVTools file with a Cluster column to see the breakdown."

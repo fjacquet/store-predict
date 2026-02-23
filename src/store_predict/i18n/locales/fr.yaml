@@ -328,6 +328,9 @@ health:
   no_hw_data:
     title: "Données de version matérielle indisponibles"
     detail: "Cet export ne contient pas la colonne de version matérielle — la compatibilité matérielle ne peut pas être évaluée."
+  small_cluster_ha:
+    title: "Cluster avec peu de VMs (risque HA)"
+    detail: "%{count} VM(s) dans ce cluster — un minimum de 3 hôtes est recommandé pour N+1 HA."
 
 compute:
   title: "Dimensionnement calcul"
@@ -359,3 +362,13 @@ compute:
   host_specs_heading: "Spécifications de l'hôte"
   breakdown_vcpu: "Par vCPU"
   breakdown_ram: "Par RAM"
+  cluster_breakdown_heading: "Répartition par cluster"
+  cluster_col: "Cluster"
+  cluster_vm_count_col: "VMs"
+  cluster_vcpu_col: "vCPUs"
+  cluster_ram_col: "RAM (Gio)"
+  cluster_hosts_col: "Hôtes requis"
+  cluster_total: "Total"
+  no_cluster_label: "(Sans cluster)"
+  cluster_breakdown_note: "Le total par cluster peut dépasser le total global — chaque cluster dispose de son propre hôte de basculement N+1."
+  no_cluster_data_note: "Aucune donnée de cluster disponible. Téléchargez un fichier RVTools avec une colonne Cluster pour voir la répartition."

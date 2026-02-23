@@ -9,8 +9,10 @@ import pytest
 
 from store_predict.pipeline.compute_sizing import (
     DELL_POWEREDGE_PRESETS,
+    ClusterSizingRow,
     ComputeSizingResult,
     HostConfig,
+    compute_cluster_breakdown,
     compute_sizing,
 )
 
@@ -385,3 +387,87 @@ class TestMemoryMibSessionRoundTrip:
         df = _make_active_df(num_cpus=[None])
         result = compute_sizing(df, _R760)
         assert result.total_active_vcpus == 0
+
+
+# ---------------------------------------------------------------------------
+# TestClusterBreakdown
+# ---------------------------------------------------------------------------
+
+
+class TestClusterBreakdown:
+    def test_cluster_breakdown_empty_df_returns_empty(self) -> None:
+        """None and empty DataFrame should both return []."""
+        assert compute_cluster_breakdown(None, _R760) == []
+        assert compute_cluster_breakdown(pd.DataFrame(), _R760) == []
+
+    def test_cluster_breakdown_single_cluster(self) -> None:
+        """3 VMs in ClusterA -> one ClusterSizingRow with vm_count=3."""
+        rows = [
+            _make_active_df(vm_name=[f"vm-{i}"], cluster=["ClusterA"]) for i in range(3)
+        ]
+        df = pd.concat(rows, ignore_index=True)
+        result = compute_cluster_breakdown(df, _R760)
+        assert len(result) == 1
+        assert result[0].cluster_name == "ClusterA"
+        assert result[0].vm_count == 3
+
+    def test_cluster_breakdown_two_clusters(self) -> None:
+        """2 VMs in ClusterA, 1 VM in ClusterB -> 2 rows sorted alphabetically."""
+        rows = [
+            _make_active_df(vm_name=["vm-a1"], cluster=["ClusterA"]),
+            _make_active_df(vm_name=["vm-a2"], cluster=["ClusterA"]),
+            _make_active_df(vm_name=["vm-b1"], cluster=["ClusterB"]),
+        ]
+        df = pd.concat(rows, ignore_index=True)
+        result = compute_cluster_breakdown(df, _R760)
+        assert len(result) == 2
+        assert result[0].cluster_name == "ClusterA"
+        assert result[1].cluster_name == "ClusterB"
+        assert result[0].vm_count == 2
+        assert result[1].vm_count == 1
+
+    def test_cluster_breakdown_no_cluster_vms(self) -> None:
+        """VMs with empty cluster string -> grouped under __no_cluster__."""
+        df = _make_active_df(cluster=[""])
+        result = compute_cluster_breakdown(df, _R760)
+        assert len(result) == 1
+        assert result[0].cluster_name == "__no_cluster__"
+
+    def test_cluster_breakdown_excludes_powered_off(self) -> None:
+        """Powered-off VMs must not be counted in breakdown."""
+        rows = [
+            _make_active_df(vm_name=["active-vm"], cluster=["ClusterA"], is_powered_on=[True]),
+            _make_active_df(vm_name=["off-vm"], cluster=["ClusterA"], is_powered_on=[False]),
+        ]
+        df = pd.concat(rows, ignore_index=True)
+        result = compute_cluster_breakdown(df, _R760)
+        assert len(result) == 1
+        assert result[0].vm_count == 1  # only active VM counted
+
+    def test_cluster_breakdown_hosts_formula(self) -> None:
+        """hosts_needed = max(_hosts_n1(...), _hosts_by_ram(...)) for known values."""
+        import math
+
+        # 8 vCPUs, 8192 MiB RAM, R760 (56 cores, 512 GiB RAM), ratio=4.0
+        # hv = ceil(8 / (56*4)) + 1 = ceil(0.036) + 1 = 1 + 1 = 2
+        # hr = ceil(8/512) + 1 = 1 + 1 = 2
+        # hosts_needed = max(2, 2) = 2
+        df = _make_active_df(num_cpus=[8], memory_mib=[8192.0], cluster=["ClusterA"])
+        result = compute_cluster_breakdown(df, _R760)
+        assert len(result) == 1
+        expected_hv = math.ceil(8 / (56 * 4.0)) + 1
+        expected_hr = math.ceil(8.0 / 1024.0 / 512) + 1
+        expected_hosts = max(expected_hv, expected_hr)
+        assert result[0].hosts_needed == expected_hosts
+
+    def test_cluster_breakdown_returns_cluster_sizing_rows(self) -> None:
+        """Return type elements must be ClusterSizingRow instances."""
+        df = _make_active_df(cluster=["ClusterA"])
+        result = compute_cluster_breakdown(df, _R760)
+        assert all(isinstance(r, ClusterSizingRow) for r in result)
+
+    def test_cluster_breakdown_all_powered_off_returns_empty(self) -> None:
+        """All powered-off VMs -> empty result (no active rows)."""
+        df = _make_active_df(is_powered_on=[False], cluster=["ClusterA"])
+        result = compute_cluster_breakdown(df, _R760)
+        assert result == []
