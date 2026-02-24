@@ -21,6 +21,7 @@ from store_predict.pipeline.classification import (
 from store_predict.pipeline.errors import IngestionError
 from store_predict.pipeline.ingestion import ingest_file, ingest_two_files
 from store_predict.pipeline.llm_classifier import classify_unknown_vms_async
+from store_predict.pipeline.session_archive import is_session_zip, restore_session_zip
 from store_predict.pipeline.validation import validate_upload
 from store_predict.pipeline.zip_extraction import extract_liveoptics_from_zip
 from store_predict.services.drr_table import DRRTable
@@ -118,6 +119,27 @@ async def upload_page() -> None:
                 llm_switch.disable()
                 ui.label(t("upload.llm_disabled_hint")).classes("text-xs text-gray-400 italic")
 
+        async def _handle_session_restore(zip_bytes: bytes) -> None:
+            """Restore a StorePredict session archive into app.storage.tab and navigate to /review."""
+            try:
+                restored = await run.io_bound(restore_session_zip, zip_bytes)
+            except IngestionError as exc:
+                with upload_widget:
+                    ui.notify(t("session.restore_error", reason=str(exc)), type="negative")
+                return
+
+            with upload_widget:
+                # Store original file bytes for future re-save
+                app.storage.tab["_session_original_bytes"] = restored.pop("_restored_original_bytes", b"")
+                app.storage.tab["_session_original_filename"] = restored.pop(
+                    "_restored_original_filename", "upload.xlsx"
+                )
+                # Restore all session keys
+                app.storage.tab.update(restored)
+                vm_count = len(restored.get("vm_data") or [])  # type: ignore[arg-type]
+                ui.notify(t("session.restore_success", count=vm_count), type="positive")
+                ui.navigate.to("/review")
+
         async def handle_upload(e: object) -> None:
             """Stage an uploaded file: validate, write to temp, update chips.
 
@@ -132,6 +154,13 @@ async def upload_page() -> None:
 
                 original_filename = e.file.name  # type: ignore[attr-defined]
                 filename = original_filename
+
+                # Session restore path: detect StorePredict session .zip before LiveOptics extraction
+                if filename.lower().endswith(".zip") and is_session_zip(content):
+                    await _handle_session_restore(content)
+                    return
+
+                # Existing LiveOptics zip path (unchanged)
                 if filename.lower().endswith(".zip"):
                     content, filename = extract_liveoptics_from_zip(content)
                 validate_upload(content, filename)
@@ -150,6 +179,9 @@ async def upload_page() -> None:
 
                 with upload_widget:
                     add_pending_file(str(tmp_path), fmt.value, filename)
+                    # Store for session save: capture latest file for single-file sessions
+                    app.storage.tab["_session_original_bytes"] = content
+                    app.storage.tab["_session_original_filename"] = original_filename
                     _refresh_chips()
 
             except IngestionError as exc:
