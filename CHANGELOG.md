@@ -4,6 +4,51 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.0.0] - 2026-02-24
+
+### New features
+
+- **Session save & restore** — engineers can save a complete sizing session
+  to a portable `.zip` archive and restore it later by re-uploading on the
+  Upload page. The archive contains the original uploaded file plus a
+  `session.json` snapshot capturing VM list, workload classifications, DRR
+  overrides, layout settings, and compute settings. Works with all input
+  formats (RVTools, LiveOptics xlsx/csv, dual-source merge).
+
+- **Concerns remediation hints** — every health finding card on `/concerns`
+  now shows a concise actionable hint in italic gray text explaining what
+  action to take (e.g., "Re-run RVTools after VMware Tools is installed to
+  populate OS fields"). All 14 finding types across 13 health checks include
+  hints.
+
+- **Concerns PDF export** — new "Export PDF" button on `/concerns` downloads
+  a standalone A4 PDF report (ReportLab Platypus, Vera fonts) containing all
+  findings with severity-colour-coded tables and remediation hint text.
+  Independent of the main sizing report pipeline.
+
+- **Concerns CSV export** — new "Export CSV" button on `/concerns` downloads
+  a UTF-8 BOM CSV (Excel-compatible) with one row per finding and columns:
+  severity, check_id, title, detail, remediation, affected_count, cluster.
+
+### Bug fixes
+
+- **Session restore: layout and compute pages no longer crash** — after
+  restoring a session saved before the layout or compute pages were visited,
+  `_load_constraints()` and `_load_compute_config()` now use `or`-fallback
+  defaults so that falsy restored values (`0`, `0.0`, `""`) correctly resolve
+  to page defaults (4 TB DS capacity, "R760" preset) instead of causing
+  `ValueError: Invalid value` in `ui.select()`.
+
+### Documentation
+
+- ADR-066: Session persistence via self-contained zip archive
+- ADR-067: SESSION_ZIP_SENTINEL to distinguish session archives from LiveOptics zips
+- ADR-068: Remediation hints as hardcoded English strings
+- ADR-069: Standalone concerns export as pure ReportLab
+- PRD updated to v7.0 (§4.11 session persistence, §4.12 concerns enhancements,
+  updated user journey, milestone history)
+- Architecture updated: session persistence and concerns export modules
+
 ## [v6.1.0] - 2026-02-23
 
 ### Bug fixes

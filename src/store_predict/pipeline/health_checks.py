@@ -58,6 +58,7 @@ class HealthFinding:
     affected_count: int  # Number of VMs triggering this finding
     affected_vms: tuple[str, ...]  # Sample VM names (max 5, for display only)
     cluster: str = ""  # Cluster name for per-cluster findings; empty for global findings
+    remediation: str = ""  # Actionable English hint for pre-sales engineers
 
 
 @dataclass(frozen=True)
@@ -149,6 +150,10 @@ def _check_missing_os(df: pd.DataFrame) -> list[HealthFinding]:
             detail="health.missing_os.detail",
             affected_count=len(bad),
             affected_vms=tuple(bad["vm_name"].head(5).tolist()),
+            remediation=(
+                "Export the RVTools file after ensuring VMware Tools is running on affected VMs"
+                " -- Tools populates the OS field."
+            ),
         )
     ]
 
@@ -167,6 +172,10 @@ def _check_zero_provisioned(df: pd.DataFrame) -> list[HealthFinding]:
             detail="health.zero_provisioned.detail",
             affected_count=len(bad),
             affected_vms=tuple(bad["vm_name"].head(5).tolist()),
+            remediation=(
+                "Re-export the RVTools file; zero provisioned storage usually indicates"
+                " a snapshot-only or powered-off VM missing disk data."
+            ),
         )
     ]
 
@@ -185,6 +194,10 @@ def _check_missing_cpu(df: pd.DataFrame) -> list[HealthFinding]:
             detail="health.missing_cpu.detail",
             affected_count=len(bad),
             affected_vms=tuple(bad["vm_name"].head(5).tolist()),
+            remediation=(
+                "Re-export after powering on these VMs"
+                " -- CPU data is absent for powered-off VMs in some RVTools versions."
+            ),
         )
     ]
 
@@ -203,6 +216,10 @@ def _check_missing_ram(df: pd.DataFrame) -> list[HealthFinding]:
             detail="health.missing_ram.detail",
             affected_count=len(bad),
             affected_vms=tuple(bad["vm_name"].head(5).tolist()),
+            remediation=(
+                "Re-export after powering on these VMs"
+                " -- RAM data is absent for powered-off VMs in some RVTools versions."
+            ),
         )
     ]
 
@@ -224,6 +241,10 @@ def _check_high_powered_off_ratio(full_df: pd.DataFrame, _active: pd.DataFrame) 
             detail="health.high_powered_off_ratio.detail",
             affected_count=powered_off_count,
             affected_vms=(),
+            remediation=(
+                "Confirm with the customer whether these are truly decommissioned VMs"
+                " or if the export was taken during a maintenance window."
+            ),
         )
     ]
 
@@ -246,6 +267,10 @@ def _check_high_unknown_ratio(df: pd.DataFrame) -> list[HealthFinding]:
             detail="health.high_unknown_ratio.detail",
             affected_count=int(unknown_count),
             affected_vms=tuple(df[unknown_mask]["vm_name"].head(5).tolist()),
+            remediation=(
+                "Review the VM Review page and manually classify these VMs,"
+                " or add pattern rules to the classifier for your customer's naming convention."
+            ),
         )
     ]
 
@@ -266,6 +291,10 @@ def _check_large_unknown_vms(df: pd.DataFrame) -> list[HealthFinding]:
             detail="health.large_unknown_vms.detail",
             affected_count=len(bad),
             affected_vms=tuple(bad["vm_name"].head(5).tolist()),
+            remediation=(
+                "Classify these large VMs on the VM Review page before generating the final report"
+                " -- their DRR has a major impact on total required capacity."
+            ),
         )
     ]
 
@@ -284,6 +313,10 @@ def _check_iops_budget_exceeded(df: pd.DataFrame) -> list[HealthFinding]:
             detail="health.iops_budget_exceeded.detail",
             affected_count=len(bad),
             affected_vms=tuple(bad["vm_name"].head(5).tolist()),
+            remediation=(
+                "These VMs will require a dedicated datastore or a high-performance NVMe-tier datastore;"
+                " discuss PowerStore T-series options with the customer."
+            ),
         )
     ]
 
@@ -301,6 +334,10 @@ def _check_no_cluster(df: pd.DataFrame) -> list[HealthFinding]:
             detail="health.no_cluster.detail",
             affected_count=len(bad),
             affected_vms=tuple(bad["vm_name"].head(5).tolist()),
+            remediation=(
+                "These standalone hosts cannot use vMotion;"
+                " confirm whether they are test/dev hosts or production hosts that should be clustered."
+            ),
         )
     ]
 
@@ -345,6 +382,10 @@ def _check_hw_version_per_cluster(df: pd.DataFrame) -> list[HealthFinding]:
                     affected_count=len(group[very_old_mask]),
                     affected_vms=tuple(group[very_old_mask]["vm_name"].head(5).tolist()),
                     cluster=str(cluster_name),
+                    remediation=(
+                        "Schedule an immediate ESXi upgrade to 7.0 U3 or later for this cluster"
+                        " -- vHW below 14 is incompatible with modern vSphere features."
+                    ),
                 )
             )
         else:
@@ -360,6 +401,10 @@ def _check_hw_version_per_cluster(df: pd.DataFrame) -> list[HealthFinding]:
                         affected_count=len(group[old_mask]),
                         affected_vms=tuple(group[old_mask]["vm_name"].head(5).tolist()),
                         cluster=str(cluster_name),
+                        remediation=(
+                            "Plan an ESXi upgrade to 7.0 U3 or later for this cluster"
+                            " -- vHW 14-16 cannot use the latest VM features and paravirtual drivers."
+                        ),
                     )
                 )
 
@@ -393,6 +438,10 @@ def _check_small_cluster_ha(df: pd.DataFrame) -> list[HealthFinding]:
                     affected_count=len(group),
                     affected_vms=tuple(group["vm_name"].head(5).tolist()),
                     cluster=str(cluster_name),
+                    remediation=(
+                        "Add at least one more ESXi host to this cluster to achieve N+1 HA;"
+                        " a 2-host cluster loses 50% capacity on a single host failure."
+                    ),
                 )
             )
 
@@ -420,6 +469,10 @@ def _check_tools_status(df: pd.DataFrame) -> list[HealthFinding]:
                 detail="health.tools_not_installed.detail",
                 affected_count=len(not_installed),
                 affected_vms=tuple(not_installed["vm_name"].head(5).tolist()),
+                remediation=(
+                    "Install VMware Tools on these VMs before migration"
+                    " -- without Tools, quiesced snapshots and guest OS commands are unavailable."
+                ),
             )
         )
 
@@ -433,6 +486,10 @@ def _check_tools_status(df: pd.DataFrame) -> list[HealthFinding]:
                 detail="health.tools_not_running.detail",
                 affected_count=len(not_running),
                 affected_vms=tuple(not_running["vm_name"].head(5).tolist()),
+                remediation=(
+                    "Start the VMware Tools service on these VMs"
+                    " -- Tools is installed but inactive, which disables quiesced snapshots and in-guest commands."
+                ),
             )
         )
 

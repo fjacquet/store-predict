@@ -2,31 +2,29 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-24 after v7.0 milestone started)
+See: .planning/PROJECT.md (updated 2026-02-24 after v7.0 milestone shipped)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** Phase 27 — Session Save & Restore
+**Current focus:** v7.0 milestone SHIPPED — planning next milestone
 
 ## Current Position
 
-Phase: 27 of 28 (Session Save & Restore)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-02-24 — v7.0 roadmap created (Phases 27–28)
+Phase: 28 of 28 (v7.0 complete)
+Plan: 4 of 4 (milestone complete)
+Status: v7.0 SHIPPED — milestone archived
 
-Progress: [░░░░░░░░░░] 0% (v7.0 milestone)
+Last activity: 2026-02-24 — v7.0 milestone complete (session save/restore + concerns enrichment + docs + bug fix)
+
+Progress: [██████████] 100% (v7.0 milestone — 4 plans done, all archived)
 
 ## Performance Metrics
 
-**Velocity (v5.0 carry-forward):**
-- Total plans completed v5.0: 8 (avg ~7 min/plan)
-
 | Phase | Plans | Duration | Files |
 |-------|-------|----------|-------|
-| Phase 23-multi-cluster-compute | 2 | ~5 min | 8 |
-| Phase 24-health-findings-export | 3 | ~30 min | 10 |
-| Phase 25-vmsc-dr-modeling | 2 | ~20 min | 8 |
-| Phase 26-documentation | 1 | ~2 min | 1 |
+| Phase 27 P01 | 1 | ~3 min | 4 |
+| Phase 27 P02 | 1 | ~5 min | 2 |
+| Phase 28 P01 | 1 | ~10 min | 5 |
+| Phase 28 P02 | 1 | ~8 min | 3 |
 
 ## Accumulated Context
 
@@ -39,13 +37,9 @@ Progress: [░░░░░░░░░░] 0% (v7.0 milestone)
 - __no_cluster__ sentinel in compute groupby (not None/NaN); translated to i18n in UI
 - vmsc_site_a_hosts / vmsc_site_b_hosts enable asymmetric site display
 - ap_secondary = max(1, ceil(primary/2)) — cold standby convention
-
-### Decisions (v7.0 planning)
-
-- Session .zip format: original uploaded file + JSON snapshot (not DB, not pickle — portable and human-inspectable)
-- Restore entry point: Upload page (not a separate route — keeps UX simple, users already know Upload page)
-- CONC-01 remediation hints: extend HealthCheckResult dataclass with remediation: str field
-- CONC-02/03 exports: standalone from /concerns page — independent of main report pipeline
+- SESSION_ZIP_SENTINEL = "session.json" — presence in zip root identifies StorePredict archives
+- session zip detection runs BEFORE LiveOptics zip extraction in handle_upload
+- `or`-fallback in _load_constraints() and _load_compute_config() handles restored falsy values
 
 ### Pending Todos
 
@@ -53,14 +47,12 @@ None.
 
 ### Blockers/Concerns
 
-- CONC-01: Verify HealthCheckResult dataclass structure before extending with remediation field
-- CONC-02: Confirm PDF approach (reuse Platypus pipeline vs new standalone ReportLab route)
-- SAVE restore: Define JSON schema for session snapshot (vm_df serialization via orient="records" + dtypes map)
+None.
 
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: v7.0 roadmap created — Phases 27–28 defined, ready to plan Phase 27
+Stopped at: v7.0 milestone archived — docs updated, bug fixed, ready for release
 Resume file: None
 
-Next step: /gsd:plan-phase 27
+Next step: `/gsd:new-milestone` to start v8.0 planning.

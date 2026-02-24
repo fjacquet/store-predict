@@ -516,3 +516,36 @@ class TestPerClusterHealthChecks:
             cluster="ClusterA",
         )
         assert finding.cluster == "ClusterA"
+
+
+# ---------------------------------------------------------------------------
+# Remediation field tests
+# ---------------------------------------------------------------------------
+
+
+class TestRemediationField:
+    def test_remediation_field_present_for_missing_os(self) -> None:
+        """Findings for missing_os must carry a non-empty remediation hint."""
+        df = _make_active_df(os_name=[""])
+        result = run_health_checks(df)
+        finding = next(f for f in result.findings if f.check_id == "data_quality.missing_os")
+        assert finding.remediation != ""
+
+    def test_remediation_field_present_for_tools_not_installed(self) -> None:
+        """Findings for tools_not_installed must carry a non-empty remediation hint."""
+        df = _make_active_df(tools_status=["toolsNotInstalled"])
+        result = run_health_checks(df)
+        finding = next(f for f in result.findings if f.check_id == "best_practice.tools_not_installed")
+        assert finding.remediation != ""
+
+    def test_remediation_field_default_empty(self) -> None:
+        """HealthFinding constructed without remediation= must default to ''."""
+        finding = HealthFinding(
+            check_id="test.check",
+            severity=Severity.INFO,
+            title="test.title",
+            detail="test.detail",
+            affected_count=1,
+            affected_vms=("vm-01",),
+        )
+        assert finding.remediation == ""

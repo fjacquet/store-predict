@@ -52,18 +52,18 @@ _DEFAULT_PRESET = _PRESET_NAMES[0]  # "R760"
 
 def _load_compute_config() -> _ComputeConfig:
     """Load compute sizing config from tab-scoped session storage."""
-    preset_name = str(app.storage.tab.get("compute_preset", _DEFAULT_PRESET))
+    preset_name = str(app.storage.tab.get("compute_preset") or _DEFAULT_PRESET)
     preset = _PRESET_BY_NAME.get(preset_name) or DELL_POWEREDGE_PRESETS[-1]
     return {
         "preset_name": preset_name,
-        "overcommit_ratio": float(app.storage.tab.get("compute_overcommit", 4.0)),
+        "overcommit_ratio": float(app.storage.tab.get("compute_overcommit") or 4.0),
         "vmsc_enabled": bool(app.storage.tab.get("compute_vmsc", False)),
         "ap_enabled": bool(app.storage.tab.get("compute_ap", False)),
-        "custom_cores_per_socket": int(app.storage.tab.get("compute_custom_cps", preset.cores_per_socket)),
-        "custom_sockets": int(app.storage.tab.get("compute_custom_sockets", preset.sockets)),
-        "custom_ram_gib": int(app.storage.tab.get("compute_custom_ram", preset.ram_gib)),
-        "vmsc_split_pct": int(app.storage.tab.get("compute_vmsc_split", 50)),
-        "ap_active_pct": int(app.storage.tab.get("compute_ap_active", 100)),
+        "custom_cores_per_socket": int(app.storage.tab.get("compute_custom_cps") or preset.cores_per_socket),
+        "custom_sockets": int(app.storage.tab.get("compute_custom_sockets") or preset.sockets),
+        "custom_ram_gib": int(app.storage.tab.get("compute_custom_ram") or preset.ram_gib),
+        "vmsc_split_pct": int(app.storage.tab.get("compute_vmsc_split") or 50),
+        "ap_active_pct": int(app.storage.tab.get("compute_ap_active") or 100),
     }
 
 

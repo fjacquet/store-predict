@@ -6,6 +6,7 @@ from nicegui import ui
 
 from store_predict.i18n import t
 from store_predict.pipeline.health_checks import HealthCheckResult, HealthFinding, Severity, run_health_checks
+from store_predict.services.concerns_export import generate_concerns_csv, generate_concerns_pdf
 from store_predict.ui.layout import layout
 from store_predict.ui.state import load_filtered_session_data
 
@@ -68,6 +69,8 @@ def _render_finding_card(finding: HealthFinding) -> None:
             if finding.cluster:
                 ui.label(finding.cluster).classes("text-xs font-mono bg-gray-100 text-gray-700 px-2 py-0.5 rounded")
         ui.label(t(finding.detail, count=finding.affected_count)).classes("text-sm text-gray-700")
+        if finding.remediation:
+            ui.label(finding.remediation).classes("text-sm text-gray-500 italic mt-1")
         if finding.affected_vms:
             names_str = ", ".join(finding.affected_vms)
             ui.label(t("concerns.affected_vms", names=names_str)).classes("text-xs text-gray-500 font-mono")
@@ -98,6 +101,18 @@ def _render_findings_by_severity(findings: tuple[HealthFinding, ...]) -> None:
     _render_findings_section(t("concerns.section_data_quality"), data_quality)
     _render_findings_section(t("concerns.section_sizing_risk"), sizing_risk)
     _render_findings_section(t("concerns.section_best_practice"), best_practice)
+
+
+# ---------------------------------------------------------------------------
+# Export helpers
+# ---------------------------------------------------------------------------
+
+
+def _get_locale() -> str:
+    """Return the current locale from tab storage, defaulting to 'fr'."""
+    from nicegui import app
+
+    return str(app.storage.tab.get("locale", "fr"))
 
 
 # ---------------------------------------------------------------------------
@@ -137,6 +152,23 @@ async def concerns_page() -> None:
     with layout("StorePredict - " + t("concerns.title")), ui.column().classes("w-full max-w-4xl mx-auto p-4 gap-4"):
         ui.label(t("concerns.title")).classes("text-2xl font-bold text-blue-900")
         _render_summary_badges(result)
+        with ui.row().classes("gap-2 items-center"):
+            ui.button(
+                t("concerns.export_pdf"),
+                icon="picture_as_pdf",
+                on_click=lambda: ui.download(
+                    generate_concerns_pdf(result, locale=_get_locale()),
+                    t("concerns.export_pdf_filename"),
+                ),
+            ).classes("bg-blue-700 text-white text-sm")
+            ui.button(
+                t("concerns.export_csv"),
+                icon="download",
+                on_click=lambda: ui.download(
+                    generate_concerns_csv(result),
+                    t("concerns.export_csv_filename"),
+                ),
+            ).classes("bg-green-700 text-white text-sm")
         ui.separator()
         if not result.findings:
             with ui.row().classes("items-center gap-2"):

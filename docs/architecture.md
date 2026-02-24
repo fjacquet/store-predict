@@ -137,6 +137,23 @@ The canonical columns after ingestion are:
 - **`services/pdf_report.py`** -- Generates a branded one-page PDF using ReportLab
   with Vera/VeraBd fonts for French character support.
 
+### Session Persistence
+
+- **`pipeline/session_archive.py`** — Self-contained session archive module.
+  `save_session_zip()` serialises the full `app.storage.tab` state plus the
+  original uploaded file into a `.zip` archive. `restore_session_zip()` reads
+  the archive and returns a flat dict ready to write back to `app.storage.tab`.
+  `is_session_zip()` detects StorePredict archives via the `session.json`
+  sentinel without parsing JSON (see ADR-066, ADR-067).
+
+### Concerns Export
+
+- **`services/concerns_export.py`** — Pure-service module (zero UI imports) for
+  standalone concerns exports. `generate_concerns_pdf()` produces an A4 ReportLab
+  PDF with severity-coloured tables and remediation hints. `generate_concerns_csv()`
+  produces a UTF-8-BOM CSV with one row per finding. Both functions accept a
+  `HealthCheckResult` and return raw bytes (see ADR-069).
+
 ### Scope Filtering
 
 - **`ui/pages/scope_page.py`** -- `/scope` page rendered between upload and review.
@@ -175,7 +192,9 @@ flowchart TD
 
 - **Tab-scoped** (`app.storage.tab`): uploaded file, DataFrame, classification results,
   SizingSummary, selected storage model, AI toggle state, scope selection
-  (selected datacenters and clusters).
+  (selected datacenters and clusters), layout constraints, compute config.
+  The full tab state can be serialised to a portable `.zip` archive via
+  `pipeline/session_archive.py` and restored on a subsequent upload.
 - **User-scoped** (`app.storage.user`): dark mode preference (persists across pages and tabs).
 
 ## Technology Stack
