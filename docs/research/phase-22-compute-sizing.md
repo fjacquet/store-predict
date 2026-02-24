@@ -25,7 +25,7 @@ for Phase 22.
 VMware Architecture Toolkit guidance: size `N` hosts to carry the full workload,
 then add `+1` for failover.
 
-```
+```text
 hosts_n1 = ceil(total_vcpus / (host_pcores × overcommit_ratio)) + 1
 hosts_n1 = max(hosts_by_vcpu, hosts_by_ram)   # binding constraint
 ```
