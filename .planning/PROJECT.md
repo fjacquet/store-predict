@@ -52,16 +52,27 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 - Configurable vMSC split ratio (1–99%) and A/P DR active % with per-site Site A/B host count rows on `/compute` — v5.0
 - CycloneDX SBOM generation and Sigstore attestation on GitHub release — v5.0
 - PRD v5.0 formal product requirements document — v5.0
+- Datacenter & cluster scope filtering — `/scope` page between upload and review, scope badge in headers, DC/cluster suffix on exported filenames — v6.0
+- Improved workload classification: Windows 10/11 → VDI Linked Clone, Tanzu nodes, SharePoint abbreviations, Logstash/Kibana, EXCHG — v6.0
+- Dual-source merge: upload RVTools + LiveOptics simultaneously, merge on VM name — v6.1
 
-## Current State: v5.0 Shipped
+## Current Milestone: v7.0 Save & Restore + Concerns
 
-**Shipped:** v5.0 Multi-Cluster & Export Completeness (2026-02-23)
+**Goal:** Enable pre-sales engineers to save a complete sizing session to a file and restore it later, plus enrich the /concerns page with actionable remediation hints and standalone export.
 
-Tool now covers: storage sizing, datastore layout, environment health checks, compute sizing with per-cluster breakdown and configurable DR/vMSC site ratios, and full health findings export to PDF and Excel.
+**Target features:**
+- Save entire session (VM list, classifications, DRR overrides, layout settings, compute settings) to a self-contained .zip archive
+- Restore a session from .zip — drops directly into Upload page with all state loaded
+- Actionable remediation hints on each health finding in /concerns
+- Standalone /concerns export as PDF or CSV
 
 ### Active
 
-<!-- Next milestone requirements go here -->
+- [ ] User can save the current session to a .zip file
+- [ ] User can restore a session from a .zip file — lands on Upload page with all state loaded
+- [ ] Each health finding on /concerns shows an actionable remediation hint
+- [ ] User can export the /concerns page as a standalone PDF
+- [ ] User can export the /concerns page as a standalone CSV
 
 ### Out of Scope
 
@@ -71,7 +82,10 @@ Tool now covers: storage sizing, datastore layout, environment health checks, co
 | SIOKit (.siokit) binary format | Focus on xlsx/csv exports |
 | Real-time data collection | Tool works with exported files only |
 | User authentication | Internal tool, single-user sessions |
-| Data persistence between sessions | In-memory per tab by design |
+| Browser auto-save (localStorage) | File-based save is more explicit and portable; no server-side state |
+| Named project library / server-side persistence | File-based approach is simpler; users manage files in their filesystem |
+| Custom concern thresholds | Adds complexity; default thresholds cover standard VMware best practices |
+| Severity filtering on /concerns | Current page is already scannable; filtering deferred to v8+ |
 | LLM as primary classifier | Rules remain primary, LLM is fallback only |
 | Babel/gettext for i18n | Overkill for 2 languages; python-i18n with YAML is simpler |
 | LangChain | Massive dependency, overkill for single classification call |
@@ -141,5 +155,12 @@ Tool covers storage sizing, datastore layout, health checks, compute sizing with
 | Split/active ratio as float [0.01, 0.99] / [0.01, 1.0] | Clamped to prevent degenerate single-site results; UI enforces 1–99/1–100 range | Good |
 | CycloneDX SBOM via anchore/sbom-action + Sigstore attestation | Supply chain transparency; auto-attached to GitHub releases | Good |
 
+## Key Decisions (v6.0 additions)
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| /scope page between upload and review | Scope selection is a distinct step; filters propagate to all downstream pages | Good |
+| Unselected VMs preserved in session | Re-scoping never requires re-upload; filtered VMs stay in memory | Good |
+
 ---
-*Last updated: 2026-02-23 after v5.0 milestone complete*
+*Last updated: 2026-02-24 after v7.0 milestone started*
