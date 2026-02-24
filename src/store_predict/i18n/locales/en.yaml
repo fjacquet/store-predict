@@ -18,6 +18,13 @@ upload:
   format_conflict: "Both files have the same format. Upload one RVTools and one LiveOptics file."
   file_ready: "%{name} ready (%{fmt})"
 
+session:
+  save_button: "Save Session"
+  save_tooltip: "Download a .zip archive containing the original export and all settings from this session"
+  restore_success: "Session restored — %{count} VM(s) loaded"
+  restore_error: "Could not restore session: %{reason}"
+  restore_format_hint: "StorePredict session file detected"
+
 review:
   title: Review Classifications
   project_label: "Project: %{name}"
