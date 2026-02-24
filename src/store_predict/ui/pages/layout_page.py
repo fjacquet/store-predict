@@ -26,11 +26,11 @@ from store_predict.ui.layout import layout
 def _load_constraints() -> PlacementConstraints:
     """Read constraint values from tab session, using defaults."""
     return PlacementConstraints(
-        max_ds_capacity_mib=float(app.storage.tab.get("layout_max_ds_mib", 4 * 1024 * 1024)),
-        max_vms_per_ds=int(app.storage.tab.get("layout_max_vms", 25)),
-        iops_budget_per_ds=float(app.storage.tab.get("layout_iops_budget", 100_000.0)),
-        snapshot_reserve_pct=float(app.storage.tab.get("layout_snapshot_pct", 15.0)),
-        growth_margin_pct=float(app.storage.tab.get("layout_growth_pct", 20.0)),
+        max_ds_capacity_mib=float(app.storage.tab.get("layout_max_ds_mib") or 4 * 1024 * 1024),
+        max_vms_per_ds=int(app.storage.tab.get("layout_max_vms") or 25),
+        iops_budget_per_ds=float(app.storage.tab.get("layout_iops_budget") or 100_000.0),
+        snapshot_reserve_pct=float(app.storage.tab.get("layout_snapshot_pct") or 15.0),
+        growth_margin_pct=float(app.storage.tab.get("layout_growth_pct") or 20.0),
     )
 
 

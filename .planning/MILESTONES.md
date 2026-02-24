@@ -115,3 +115,13 @@
 
 ---
 
+
+## v7.0 Save & Restore + Concerns (Shipped: 2026-02-24)
+
+**Phases completed:** 2 phases, 4 plans, 7 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+

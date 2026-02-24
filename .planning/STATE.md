@@ -2,35 +2,29 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-24 after v7.0 milestone started)
+See: .planning/PROJECT.md (updated 2026-02-24 after v7.0 milestone shipped)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** Phase 28 complete — v7.0 milestone DONE
+**Current focus:** v7.0 milestone SHIPPED — planning next milestone
 
 ## Current Position
 
-Phase: 28 of 28 (Concerns Enrichment)
-Plan: 2 of 2 in current phase (28-02 complete — phase DONE)
-Status: Phase 28 COMPLETE — v7.0 milestone achieved
-Last activity: 2026-02-24 — 28-02 complete (concerns PDF/CSV export + /concerns page export buttons)
+Phase: 28 of 28 (v7.0 complete)
+Plan: 4 of 4 (milestone complete)
+Status: v7.0 SHIPPED — milestone archived
 
-Progress: [██████████] 100% (v7.0 milestone — 4 plans done)
+Last activity: 2026-02-24 — v7.0 milestone complete (session save/restore + concerns enrichment + docs + bug fix)
+
+Progress: [██████████] 100% (v7.0 milestone — 4 plans done, all archived)
 
 ## Performance Metrics
 
-**Velocity (v5.0 carry-forward):**
-- Total plans completed v5.0: 8 (avg ~7 min/plan)
-
 | Phase | Plans | Duration | Files |
 |-------|-------|----------|-------|
-| Phase 23-multi-cluster-compute | 2 | ~5 min | 8 |
-| Phase 24-health-findings-export | 3 | ~30 min | 10 |
-| Phase 25-vmsc-dr-modeling | 2 | ~20 min | 8 |
-| Phase 26-documentation | 1 | ~2 min | 1 |
-| Phase 27-session-save-restore P01 | 1 | ~3 min | 4 |
-| Phase 27-session-save-restore P02 | 8 | 2 tasks | 2 files |
-| Phase 28 P01 | 586 | 2 tasks | 5 files |
-| Phase 28-concerns-enrichment P28-02 | 168 | 2 tasks | 3 files |
+| Phase 27 P01 | 1 | ~3 min | 4 |
+| Phase 27 P02 | 1 | ~5 min | 2 |
+| Phase 28 P01 | 1 | ~10 min | 5 |
+| Phase 28 P02 | 1 | ~8 min | 3 |
 
 ## Accumulated Context
 
@@ -43,20 +37,9 @@ Progress: [██████████] 100% (v7.0 milestone — 4 plans done
 - __no_cluster__ sentinel in compute groupby (not None/NaN); translated to i18n in UI
 - vmsc_site_a_hosts / vmsc_site_b_hosts enable asymmetric site display
 - ap_secondary = max(1, ceil(primary/2)) — cold standby convention
-
-### Decisions (v7.0 planning)
-
-- Session .zip format: original uploaded file + JSON snapshot (not DB, not pickle — portable and human-inspectable)
-- Restore entry point: Upload page (not a separate route — keeps UX simple, users already know Upload page)
-- CONC-01 remediation hints: extend HealthCheckResult dataclass with remediation: str field
-- CONC-02/03 exports: standalone from /concerns page — independent of main report pipeline
-- Session archive schema_version=1 in JSON for forward compatibility; is_session_zip() never raises
-- restore_session_zip() uses IngestionError (not ValueError/KeyError) to integrate cleanly with pipeline error handling
-- Layout/compute sub-dict types: dict[str, float | int] / dict[str, float | int | bool | str] for mypy compliance
-- Save Session button uses purple styling to differentiate from PDF (blue) and Excel (green) download buttons
-- Session zip detection runs BEFORE LiveOptics zip extraction in handle_upload to avoid false positive extraction
-- generate_concerns_pdf uses English strings for standalone engineering doc; locale param reserved for future i18n
-- concerns_export.py is a pure service module with zero UI imports (same pattern as health_checks.py)
+- SESSION_ZIP_SENTINEL = "session.json" — presence in zip root identifies StorePredict archives
+- session zip detection runs BEFORE LiveOptics zip extraction in handle_upload
+- `or`-fallback in _load_constraints() and _load_compute_config() handles restored falsy values
 
 ### Pending Todos
 
@@ -64,12 +47,12 @@ None.
 
 ### Blockers/Concerns
 
-None — CONC-02 resolved: standalone ReportLab route chosen (no dependency on main report pipeline).
+None.
 
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 28-02-PLAN.md — concerns PDF/CSV export + /concerns page export buttons
+Stopped at: v7.0 milestone archived — docs updated, bug fixed, ready for release
 Resume file: None
 
-Next step: v7.0 milestone complete — plan next milestone or ship.
+Next step: `/gsd:new-milestone` to start v8.0 planning.
