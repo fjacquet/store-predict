@@ -11,10 +11,6 @@
       
       
       
-        <link rel="prev" href="../036-citrix-full-clone-default/">
-      
-      
-        <link rel="next" href="../038-mkdocs-material/">
       
       
         
@@ -25,7 +21,7 @@
     
     
       
-        <title>037 - FortiNet OS Field Detection - StorePredict</title>
+        <title>ADR-066: Session persistence via self-contained zip archive - StorePredict</title>
       
     
     
@@ -76,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-037-fortinet-detection-via-os-field" class="md-skip">
+        <a href="#adr-066-session-persistence-via-self-contained-zip-archive" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              037 - FortiNet OS Field Detection
+              ADR-066: Session persistence via self-contained zip archive
             
           </span>
         </div>
@@ -1016,8 +1012,6 @@
       
   
   
-    
-  
   
   
     
@@ -1030,11 +1024,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
         
           
           <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
@@ -1055,7 +1051,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2106,37 +2102,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    037 - FortiNet OS Field Detection
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../037-fortinet-os-field-detection/" class="md-nav__link">
         
   
   
@@ -2152,81 +2121,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#alternatives-considered" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Alternatives Considered
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consequences
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2915,17 +2809,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#alternatives-considered" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Alternatives Considered
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#consequences" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2956,27 +2839,67 @@
   
 
 
-<h1 id="adr-037-fortinet-detection-via-os-field">ADR-037: FortiNet Detection via OS Field</h1>
-<p><strong>Status:</strong> Accepted
-<strong>Date:</strong> 2026-02-19</p>
+<h1 id="adr-066-session-persistence-via-self-contained-zip-archive">ADR-066: Session persistence via self-contained zip archive</h1>
+<p><strong>Date:</strong> 2026-02-24
+<strong>Status:</strong> Accepted</p>
 <h2 id="context">Context</h2>
-<p>FortiNet security appliances (FortiGate, FortiAnalyzer, FortiManager) are virtualised in VMware environments. Their VM names often follow internal naming conventions that do not contain "FORTI" (e.g., "xxx-FAZ" for a FortiAnalyzer instance).</p>
+<p>Pre-sales engineers build sizing sessions that may take 20–30 minutes to
+complete (classification review, manual overrides, layout tuning, compute
+adjustments). When they need to resume work the next day, share a session
+with a colleague, or re-open a session after a browser restart, all state is
+lost because StorePredict holds data in <code>app.storage.tab</code> (in-memory,
+tab-scoped).</p>
+<p>Three persistence options were considered:</p>
+<ol>
+<li><strong>Browser <code>localStorage</code></strong> — limited to ~5 MB, not portable between machines,
+   tied to browser profile, cleared on browser data wipe.</li>
+<li><strong>Server-side project library</strong> — requires a database, authentication,
+   multi-user data isolation, and a new UI surface for browsing/deleting saved
+   sessions. Significant scope increase.</li>
+<li><strong>File-based zip archive</strong> — user downloads a <code>.zip</code> file and re-uploads it
+   later. No server state, fully portable, human-inspectable.</li>
+</ol>
 <h2 id="decision">Decision</h2>
-<p>The FortiNet classification rule matches "FORTI" in either the VM name OR the OS field. The two conditions are evaluated with OR logic.</p>
+<p>Implement a self-contained <code>.zip</code> archive as the session persistence format.
+A new <code>save_session_zip()</code> function in <code>pipeline/session_archive.py</code> bundles:</p>
+<ul>
+<li>A <code>session.json</code> file at the zip root containing a JSON snapshot of all
+  session state (VM list, workload classifications, DRR overrides, layout
+  settings, compute settings, project name, selected scope).</li>
+<li>The original uploaded file (RVTools <code>.xlsx</code>, LiveOptics <code>.xlsx</code>/<code>.csv</code>, or
+  dual-source merge result) stored at its original filename path.</li>
+</ul>
+<p>The <code>session.json</code> snapshot uses <code>schema_version: 1</code> for forward compatibility.</p>
+<p>Restore is handled by re-uploading the <code>.zip</code> on the Upload page. The existing
+upload handler detects session zips via the <code>SESSION_ZIP_SENTINEL</code> (see
+ADR-067) before the LiveOptics zip extraction path, calls
+<code>restore_session_zip()</code>, and updates <code>app.storage.tab</code> directly.</p>
 <h2 id="rationale">Rationale</h2>
 <ul>
-<li>VMware Tools reports the OS as "FortiOS" or similar for FortiNet appliances even when the VM name is opaque</li>
-<li>OR logic ensures that either signal alone is sufficient for a match</li>
-<li>Without OS field matching, many FortiNet appliances would fall through to the Unknown Reducible default</li>
-</ul>
-<h2 id="alternatives-considered">Alternatives Considered</h2>
-<ul>
-<li><strong>VM name patterns only:</strong> Misses appliances with internal naming conventions; requires customers to maintain descriptive names that they may not control</li>
+<li><strong>Portability:</strong> A file on disk is portable between machines, shareable via
+  email or Teams, and doesn't require the server to be running.</li>
+<li><strong>No infrastructure cost:</strong> Zero database, zero auth, zero multi-user
+  isolation complexity.</li>
+<li><strong>Human-inspectable:</strong> Engineers can open the zip and read <code>session.json</code>
+  to debug unexpected classification results.</li>
+<li><strong>Minimal code surface:</strong> stdlib <code>zipfile</code> + <code>json</code>; no new dependencies.</li>
+<li><strong>Existing UX re-use:</strong> The Upload page is the natural entry point — users
+  already know how to upload files there.</li>
 </ul>
 <h2 id="consequences">Consequences</h2>
 <ul>
-<li>The classification rule requires inspecting two columns per VM instead of one</li>
-<li>The OR logic pattern (vm_name_patterns OR os_patterns) becomes the template for other appliance types that use similar naming conventions</li>
+<li><strong>Positive:</strong> Engineers can share sessions across machines and colleagues.</li>
+<li><strong>Positive:</strong> Sessions survive browser restarts, tab closes, and server
+  restarts.</li>
+<li><strong>Positive:</strong> File-based storage means no server-side cleanup or quota
+  management.</li>
+<li><strong>Negative:</strong> User is responsible for managing <code>.zip</code> files on their
+  filesystem (naming, storing, finding).</li>
+<li><strong>Negative:</strong> Session state is a point-in-time snapshot; no merge or
+  incremental update — re-saving overwrites the previous file.</li>
+<li><strong>Out of scope:</strong> Browser auto-save, named project library, and session
+  merge with a fresh upload are explicitly deferred (see REQUIREMENTS.md
+  Future section).</li>
 </ul>
 
 

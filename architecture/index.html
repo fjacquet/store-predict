@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -514,6 +514,28 @@
     <span class="md-ellipsis">
       
         PDF Report
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#session-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session Persistence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#concerns-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concerns Export
       
     </span>
   </a>
@@ -3120,6 +3142,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#session-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session Persistence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#concerns-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concerns Export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#scope-filtering" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3375,6 +3419,23 @@ layout proposals.</p>
 <li><strong><code>services/pdf_report.py</code></strong> -- Generates a branded one-page PDF using ReportLab
   with Vera/VeraBd fonts for French character support.</li>
 </ul>
+<h3 id="session-persistence">Session Persistence</h3>
+<ul>
+<li><strong><code>pipeline/session_archive.py</code></strong> — Self-contained session archive module.
+  <code>save_session_zip()</code> serialises the full <code>app.storage.tab</code> state plus the
+  original uploaded file into a <code>.zip</code> archive. <code>restore_session_zip()</code> reads
+  the archive and returns a flat dict ready to write back to <code>app.storage.tab</code>.
+  <code>is_session_zip()</code> detects StorePredict archives via the <code>session.json</code>
+  sentinel without parsing JSON (see ADR-066, ADR-067).</li>
+</ul>
+<h3 id="concerns-export">Concerns Export</h3>
+<ul>
+<li><strong><code>services/concerns_export.py</code></strong> — Pure-service module (zero UI imports) for
+  standalone concerns exports. <code>generate_concerns_pdf()</code> produces an A4 ReportLab
+  PDF with severity-coloured tables and remediation hints. <code>generate_concerns_csv()</code>
+  produces a UTF-8-BOM CSV with one row per finding. Both functions accept a
+  <code>HealthCheckResult</code> and return raw bytes (see ADR-069).</li>
+</ul>
 <h3 id="scope-filtering">Scope Filtering</h3>
 <ul>
 <li><strong><code>ui/pages/scope_page.py</code></strong> -- <code>/scope</code> page rendered between upload and review.
@@ -3410,7 +3471,9 @@ layout proposals.</p>
 <ul>
 <li><strong>Tab-scoped</strong> (<code>app.storage.tab</code>): uploaded file, DataFrame, classification results,
   SizingSummary, selected storage model, AI toggle state, scope selection
-  (selected datacenters and clusters).</li>
+  (selected datacenters and clusters), layout constraints, compute config.
+  The full tab state can be serialised to a portable <code>.zip</code> archive via
+  <code>pipeline/session_archive.py</code> and restored on a subsequent upload.</li>
 <li><strong>User-scoped</strong> (<code>app.storage.user</code>): dark mode preference (persists across pages and tabs).</li>
 </ul>
 <h2 id="technology-stack">Technology Stack</h2>

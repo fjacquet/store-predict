@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -484,6 +484,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#35-session-save-restore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Session Save &amp; Restore
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#32-liveoptics-sizing-with-performance-data" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -626,6 +637,17 @@
     <span class="md-ellipsis">
       
         4.8 Exports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#411-session-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.11 Session Persistence
       
     </span>
   </a>
@@ -791,6 +813,28 @@
     <span class="md-ellipsis">
       
         11. Shipped: v6.0 — Scope Filtering &amp; Classifier Accuracy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-shipped-v70-save-restore-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Shipped: v7.0 — Save &amp; Restore + Concerns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-out-of-scope-updated-v70" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Out of Scope (updated v7.0)
       
     </span>
   </a>
@@ -3365,6 +3409,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#35-session-save-restore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Session Save &amp; Restore
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#32-liveoptics-sizing-with-performance-data" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3507,6 +3562,17 @@
     <span class="md-ellipsis">
       
         4.8 Exports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#411-session-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.11 Session Persistence
       
     </span>
   </a>
@@ -3678,6 +3744,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#12-shipped-v70-save-restore-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Shipped: v7.0 — Save &amp; Restore + Concerns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-out-of-scope-updated-v70" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Out of Scope (updated v7.0)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3699,7 +3787,7 @@
 
 
 <h1 id="product-requirements-document-storepredict">Product Requirements Document — StorePredict</h1>
-<p><strong>Version:</strong> 5.0 (current as of 2026-02-23)
+<p><strong>Version:</strong> 7.0 (current as of 2026-02-24)
 <strong>Status:</strong> Living document — updated after each milestone
 <strong>Owner:</strong> Pre-Sales Engineering</p>
 <hr />
@@ -3725,7 +3813,7 @@
 </tr>
 <tr>
 <td>Environment health</td>
-<td>11 checks surfacing data quality issues and VMware best practices violations</td>
+<td>13 checks surfacing data quality issues and VMware best practices violations; actionable remediation hints per finding</td>
 </tr>
 <tr>
 <td>Compute sizing</td>
@@ -3800,9 +3888,19 @@
 <li>Review auto-classified VM grid; adjust workload types inline or via multi-select dialog</li>
 <li>Navigate to <code>/report</code> to review capacity totals, workload breakdown, and performance summary</li>
 <li>Navigate to <code>/layout</code> to select preferred datastore strategy (Consolidation / Performance / Uniform)</li>
-<li>Navigate to <code>/concerns</code> to review health check findings</li>
+<li>Navigate to <code>/concerns</code> to review health check findings and remediation hints; optionally export as PDF or CSV</li>
 <li>Navigate to <code>/compute</code> to review ESXi host count recommendations</li>
 <li>Download one-page PDF and <code>.xlsx</code> export for customer delivery</li>
+<li><em>(Optional)</em> Click <strong>Save Session</strong> on the report page to download a <code>.zip</code> archive for later restore</li>
+</ol>
+<h3 id="35-session-save-restore">3.5 Session Save &amp; Restore</h3>
+<ol>
+<li>Complete a sizing session (classify VMs, tune layout, adjust compute settings)</li>
+<li>Click the <strong>Save Session</strong> button (purple) on the <code>/report</code> page</li>
+<li>Browser downloads a <code>.zip</code> archive containing the original file and a <code>session.json</code> snapshot</li>
+<li>On a different machine or at a later date, upload the <code>.zip</code> on the Upload page</li>
+<li>StorePredict detects the session archive, restores all VM data, classifications, and settings</li>
+<li>The tool lands on <code>/review</code> with the full session state intact — no re-classification needed</li>
 </ol>
 <h3 id="32-liveoptics-sizing-with-performance-data">3.2 LiveOptics Sizing with Performance Data</h3>
 <ol>
@@ -4118,8 +4216,8 @@
 <tbody>
 <tr>
 <td>Health checks engine</td>
-<td>Pure pipeline module; 11 checks, 3 categories</td>
-<td>v4.0</td>
+<td>Pure pipeline module; 13 checks, 3 categories</td>
+<td>v4.0 / v7.0</td>
 </tr>
 <tr>
 <td>Data quality checks</td>
@@ -4145,6 +4243,21 @@
 <td>Per-cluster health findings</td>
 <td>Each finding card shows a cluster badge when the source file includes a Cluster column; HW version check runs per-cluster instead of globally</td>
 <td>v5.0</td>
+</tr>
+<tr>
+<td>Remediation hints</td>
+<td>Each finding card shows a concise actionable hint in italic gray text</td>
+<td>v7.0</td>
+</tr>
+<tr>
+<td>Concerns PDF export</td>
+<td>Standalone A4 PDF (ReportLab) with severity-coloured tables and hints</td>
+<td>v7.0</td>
+</tr>
+<tr>
+<td>Concerns CSV export</td>
+<td>UTF-8 BOM CSV with severity, check_id, title, detail, remediation, affected_count, cluster</td>
+<td>v7.0</td>
 </tr>
 </tbody>
 </table>
@@ -4301,6 +4414,43 @@
 <td>French character support</td>
 <td>Vera TTF fonts in ReportLab</td>
 <td>v1.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="411-session-persistence">4.11 Session Persistence</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Detail</th>
+<th>Shipped</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Save session to zip</td>
+<td>"Save Session" button on <code>/report</code> downloads a <code>.zip</code> archive (original file + <code>session.json</code>)</td>
+<td>v7.0</td>
+</tr>
+<tr>
+<td>Restore from zip</td>
+<td>Upload page detects session archives via <code>session.json</code> sentinel and restores full state</td>
+<td>v7.0</td>
+</tr>
+<tr>
+<td>State captured</td>
+<td>VM list, workload classifications, DRR overrides, layout settings, compute settings, project name, selected scope</td>
+<td>v7.0</td>
+</tr>
+<tr>
+<td>Format-agnostic</td>
+<td>Save/restore works for RVTools, LiveOptics xlsx/csv, and dual-source merge sessions</td>
+<td>v7.0</td>
+</tr>
+<tr>
+<td>Schema versioning</td>
+<td><code>schema_version: 1</code> in <code>session.json</code> for forward compatibility</td>
+<td>v7.0</td>
 </tr>
 </tbody>
 </table>
@@ -4502,7 +4652,7 @@
 </tr>
 <tr>
 <td>Test coverage</td>
-<td>439+ tests, 86%+ backend coverage (v5.0)</td>
+<td>552+ tests, 88%+ backend coverage (v7.0)</td>
 </tr>
 <tr>
 <td>Code quality</td>
@@ -4514,7 +4664,7 @@
 </tr>
 <tr>
 <td>ADR library</td>
-<td>63 decisions documented; next is ADR-064</td>
+<td>69 decisions documented</td>
 </tr>
 </tbody>
 </table>
@@ -4728,6 +4878,16 @@
 <td>Scope Filtering &amp; Classifier Accuracy</td>
 <td><code>/scope</code> page with DC/cluster filtering, Windows Desktop → VDI reclassification, +7 new classifier patterns (TKG, HARBOR, RDS, UAG, EXCHG, SPBE/SPFE/SPOWA, LOGSTASH/KIBANA), AG Grid reliability fixes</td>
 </tr>
+<tr>
+<td>v6.1</td>
+<td>Dual-Source Merge &amp; vMSC Fix</td>
+<td>RVTools + LiveOptics dual-source merge; vMSC per-site sizing without requiring 2+ distinct datacenters</td>
+</tr>
+<tr>
+<td>v7.0</td>
+<td>Save &amp; Restore + Concerns</td>
+<td>Session save/restore via zip archive; concerns remediation hints; standalone concerns PDF and CSV exports</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -4843,7 +5003,121 @@
 </tbody>
 </table>
 <hr />
-<p><em>Last updated: 2026-02-23 after v6.0 shipped</em></p>
+<hr />
+<h2 id="12-shipped-v70-save-restore-concerns">12. Shipped: v7.0 — Save &amp; Restore + Concerns</h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SAVE-01</td>
+<td>Save current session to a <code>.zip</code> archive (original file + JSON state)</td>
+<td>Shipped (Phase 27)</td>
+</tr>
+<tr>
+<td>SAVE-02</td>
+<td>Archive captures VM list, classifications, DRR overrides, layout and compute settings</td>
+<td>Shipped (Phase 27)</td>
+</tr>
+<tr>
+<td>SAVE-03</td>
+<td>Restore session from <code>.zip</code> via Upload page</td>
+<td>Shipped (Phase 27)</td>
+</tr>
+<tr>
+<td>SAVE-04</td>
+<td>After restore: all VM data, classifications, and settings loaded as when saved</td>
+<td>Shipped (Phase 27)</td>
+</tr>
+<tr>
+<td>SAVE-05</td>
+<td>Save/restore works for all input formats (RVTools, LiveOptics xlsx/csv, dual-source)</td>
+<td>Shipped (Phase 27)</td>
+</tr>
+<tr>
+<td>CONC-01</td>
+<td>Each health finding on <code>/concerns</code> shows an actionable remediation hint</td>
+<td>Shipped (Phase 28)</td>
+</tr>
+<tr>
+<td>CONC-02</td>
+<td>Export <code>/concerns</code> as standalone PDF report</td>
+<td>Shipped (Phase 28)</td>
+</tr>
+<tr>
+<td>CONC-03</td>
+<td>Export <code>/concerns</code> as CSV with all findings and remediation hints</td>
+<td>Shipped (Phase 28)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-out-of-scope-updated-v70">7. Out of Scope (updated v7.0)</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PowerStore model recommendation</td>
+<td>Model selection is a separate sales conversation</td>
+</tr>
+<tr>
+<td>SIOKit <code>.siokit</code> binary format</td>
+<td>Xlsx/csv exports are the practical reality</td>
+</tr>
+<tr>
+<td>Real-time vCenter data collection</td>
+<td>Tool works with exported files only — by design</td>
+</tr>
+<tr>
+<td>User authentication</td>
+<td>Internal tool; single-user sessions are sufficient</td>
+</tr>
+<tr>
+<td>Browser auto-save (localStorage)</td>
+<td>File-based save is more explicit and portable</td>
+</tr>
+<tr>
+<td>Server-side project library</td>
+<td>File-based approach is simpler; users manage files in filesystem</td>
+</tr>
+<tr>
+<td>Custom concern thresholds</td>
+<td>Adds complexity; standard VMware best-practice thresholds cover most cases</td>
+</tr>
+<tr>
+<td>Severity filtering on <code>/concerns</code></td>
+<td>Current scannable page is sufficient; deferred to v8+</td>
+</tr>
+<tr>
+<td>Session merge with fresh upload</td>
+<td>High complexity, edge cases; file-based restore is clear and simple</td>
+</tr>
+<tr>
+<td>LLM as primary classifier</td>
+<td>Rules remain primary; LLM is opt-in fallback only</td>
+</tr>
+<tr>
+<td>ILP/OR-Tools for exact optimal placement</td>
+<td>BFD heuristic is within 10-15% of optimal; no heavy dependency</td>
+</tr>
+<tr>
+<td>vVol layout recommendations</td>
+<td>VMFS is the practical reality for migration projects</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Last updated: 2026-02-24 after v7.0 shipped</em></p>
 
 
 

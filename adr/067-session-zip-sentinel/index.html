@@ -11,10 +11,6 @@
       
       
       
-        <link rel="prev" href="../036-citrix-full-clone-default/">
-      
-      
-        <link rel="next" href="../038-mkdocs-material/">
       
       
         
@@ -25,7 +21,7 @@
     
     
       
-        <title>037 - FortiNet OS Field Detection - StorePredict</title>
+        <title>ADR-067: SESSION_ZIP_SENTINEL to distinguish session archives from LiveOptics zips - StorePredict</title>
       
     
     
@@ -76,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-037-fortinet-detection-via-os-field" class="md-skip">
+        <a href="#adr-067-session_zip_sentinel-to-distinguish-session-archives-from-liveoptics-zips" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              037 - FortiNet OS Field Detection
+              ADR-067: SESSION_ZIP_SENTINEL to distinguish session archives from LiveOptics zips
             
           </span>
         </div>
@@ -1016,8 +1012,6 @@
       
   
   
-    
-  
   
   
     
@@ -1030,11 +1024,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
         
           
           <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
@@ -1055,7 +1051,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2106,37 +2102,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    037 - FortiNet OS Field Detection
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../037-fortinet-os-field-detection/" class="md-nav__link">
         
   
   
@@ -2152,81 +2121,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#alternatives-considered" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Alternatives Considered
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consequences
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2915,17 +2809,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#alternatives-considered" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Alternatives Considered
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#consequences" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2956,27 +2839,55 @@
   
 
 
-<h1 id="adr-037-fortinet-detection-via-os-field">ADR-037: FortiNet Detection via OS Field</h1>
-<p><strong>Status:</strong> Accepted
-<strong>Date:</strong> 2026-02-19</p>
+<h1 id="adr-067-session_zip_sentinel-to-distinguish-session-archives-from-liveoptics-zips">ADR-067: SESSION_ZIP_SENTINEL to distinguish session archives from LiveOptics zips</h1>
+<p><strong>Date:</strong> 2026-02-24
+<strong>Status:</strong> Accepted</p>
 <h2 id="context">Context</h2>
-<p>FortiNet security appliances (FortiGate, FortiAnalyzer, FortiManager) are virtualised in VMware environments. Their VM names often follow internal naming conventions that do not contain "FORTI" (e.g., "xxx-FAZ" for a FortiAnalyzer instance).</p>
+<p>StorePredict already accepts LiveOptics <code>.zip</code> archives on the Upload page
+(since v1.1). When a user re-uploads a StorePredict session archive (also a
+<code>.zip</code>), the upload handler must distinguish between the two without forcing
+users to use a different file extension.</p>
+<p>A naive approach would check the filename or MIME type, but both are under
+user control and can be renamed. A structural check on the zip contents is
+more reliable.</p>
 <h2 id="decision">Decision</h2>
-<p>The FortiNet classification rule matches "FORTI" in either the VM name OR the OS field. The two conditions are evaluated with OR logic.</p>
+<p>Define <code>SESSION_ZIP_SENTINEL = "session.json"</code> as a constant in
+<code>pipeline/session_archive.py</code>. Every StorePredict session archive contains
+this file at the zip root. The <code>is_session_zip(content: bytes) -&gt; bool</code>
+helper function checks for its presence without parsing the JSON.</p>
+<p>In <code>upload.py</code>, the session zip detection runs <strong>before</strong> the LiveOptics zip
+extraction branch:</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">is_session_zip</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+    <span class="n">_handle_session_restore</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span>
+<span class="c1"># ... existing LiveOptics zip extraction path unchanged</span>
+</code></pre></div>
+<p>LiveOptics archives never contain a <code>session.json</code> file, so there is no risk
+of false positives. The sentinel check is O(1) (zip directory scan only, no
+file extraction).</p>
 <h2 id="rationale">Rationale</h2>
 <ul>
-<li>VMware Tools reports the OS as "FortiOS" or similar for FortiNet appliances even when the VM name is opaque</li>
-<li>OR logic ensures that either signal alone is sufficient for a match</li>
-<li>Without OS field matching, many FortiNet appliances would fall through to the Unknown Reducible default</li>
-</ul>
-<h2 id="alternatives-considered">Alternatives Considered</h2>
-<ul>
-<li><strong>VM name patterns only:</strong> Misses appliances with internal naming conventions; requires customers to maintain descriptive names that they may not control</li>
+<li><strong>Structural over naming:</strong> Checking zip contents is robust against file
+  renames and user errors.</li>
+<li><strong>Zero false positives:</strong> LiveOptics archives contain xlsx/csv/xml files;
+  <code>session.json</code> is a StorePredict-specific name that would never appear in a
+  vendor export.</li>
+<li><strong>Order matters:</strong> Checking session zip first means the LiveOptics path is
+  reached only for genuine LiveOptics archives. The existing extraction code
+  is unchanged, eliminating regression risk.</li>
+<li><strong><code>is_session_zip</code> never raises:</strong> Catches all exceptions internally and
+  returns <code>False</code> on any error, making the upload handler safe against
+  malformed zip content.</li>
 </ul>
 <h2 id="consequences">Consequences</h2>
 <ul>
-<li>The classification rule requires inspecting two columns per VM instead of one</li>
-<li>The OR logic pattern (vm_name_patterns OR os_patterns) becomes the template for other appliance types that use similar naming conventions</li>
+<li><strong>Positive:</strong> Session restore and LiveOptics zip extraction coexist on the
+  same Upload page without UX changes.</li>
+<li><strong>Positive:</strong> The sentinel is part of the documented archive schema, so
+  third-party tools can detect StorePredict archives reliably.</li>
+<li><strong>Negative:</strong> If a future LiveOptics export format happens to include a file
+  named <code>session.json</code>, it would be misidentified as a StorePredict archive
+  (extremely unlikely; monitor if LiveOptics format changes).</li>
 </ul>
 
 

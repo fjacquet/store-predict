@@ -11,10 +11,6 @@
       
       
       
-        <link rel="prev" href="../036-citrix-full-clone-default/">
-      
-      
-        <link rel="next" href="../038-mkdocs-material/">
       
       
         
@@ -25,7 +21,7 @@
     
     
       
-        <title>037 - FortiNet OS Field Detection - StorePredict</title>
+        <title>ADR-069: Standalone concerns export as pure ReportLab (no Playwright) - StorePredict</title>
       
     
     
@@ -76,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-037-fortinet-detection-via-os-field" class="md-skip">
+        <a href="#adr-069-standalone-concerns-export-as-pure-reportlab-no-playwright" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              037 - FortiNet OS Field Detection
+              ADR-069: Standalone concerns export as pure ReportLab (no Playwright)
             
           </span>
         </div>
@@ -1016,8 +1012,6 @@
       
   
   
-    
-  
   
   
     
@@ -1030,11 +1024,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
         
           
           <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
@@ -1055,7 +1051,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2106,37 +2102,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    037 - FortiNet OS Field Detection
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../037-fortinet-os-field-detection/" class="md-nav__link">
         
   
   
@@ -2152,81 +2121,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Decision
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rationale" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rationale
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#alternatives-considered" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Alternatives Considered
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Consequences
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2915,17 +2809,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#alternatives-considered" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Alternatives Considered
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#consequences" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2956,27 +2839,55 @@
   
 
 
-<h1 id="adr-037-fortinet-detection-via-os-field">ADR-037: FortiNet Detection via OS Field</h1>
-<p><strong>Status:</strong> Accepted
-<strong>Date:</strong> 2026-02-19</p>
+<h1 id="adr-069-standalone-concerns-export-as-pure-reportlab-no-playwright">ADR-069: Standalone concerns export as pure ReportLab (no Playwright)</h1>
+<p><strong>Date:</strong> 2026-02-24
+<strong>Status:</strong> Accepted</p>
 <h2 id="context">Context</h2>
-<p>FortiNet security appliances (FortiGate, FortiAnalyzer, FortiManager) are virtualised in VMware environments. Their VM names often follow internal naming conventions that do not contain "FORTI" (e.g., "xxx-FAZ" for a FortiAnalyzer instance).</p>
+<p>CONC-02 requires a standalone PDF export of the <code>/concerns</code> page. Three
+approaches were considered:</p>
+<ol>
+<li><strong>Playwright print-to-PDF</strong> — render the <code>/concerns</code> page in a headless
+   browser and print it. Already used for the main sizing report.</li>
+<li><strong>WeasyPrint</strong> — convert HTML to PDF. Large Docker image (~200–400 MB
+   additional dependencies).</li>
+<li><strong>Pure ReportLab</strong> — generate the PDF programmatically using ReportLab
+   Platypus, the same library used for the main sizing PDF.</li>
+</ol>
 <h2 id="decision">Decision</h2>
-<p>The FortiNet classification rule matches "FORTI" in either the VM name OR the OS field. The two conditions are evaluated with OR logic.</p>
+<p>Implement <code>generate_concerns_pdf()</code> in a new pure-service module
+<code>services/concerns_export.py</code> using ReportLab Platypus directly. The module
+has zero UI imports and is callable from anywhere in the pipeline.</p>
+<p>The PDF uses A4 format, Vera TTF fonts (French character support), and a
+severity-colour-coded table layout with italic remediation hint text per
+finding. A companion <code>generate_concerns_csv()</code> function in the same module
+produces a UTF-8 BOM CSV for Excel compatibility.</p>
 <h2 id="rationale">Rationale</h2>
 <ul>
-<li>VMware Tools reports the OS as "FortiOS" or similar for FortiNet appliances even when the VM name is opaque</li>
-<li>OR logic ensures that either signal alone is sufficient for a match</li>
-<li>Without OS field matching, many FortiNet appliances would fall through to the Unknown Reducible default</li>
-</ul>
-<h2 id="alternatives-considered">Alternatives Considered</h2>
-<ul>
-<li><strong>VM name patterns only:</strong> Misses appliances with internal naming conventions; requires customers to maintain descriptive names that they may not control</li>
+<li><strong>Playwright path is complex:</strong> The main sizing report PDF uses a
+  serialize-in-report.py → print_session token → deserialize-in-report_print.py
+  round-trip. Adding a second Playwright path for concerns would replicate this
+  complexity.</li>
+<li><strong>Independence:</strong> A pure service function is simpler to test (no browser
+  needed), works offline, and runs synchronously without async plumbing.</li>
+<li><strong>Reuse of existing stack:</strong> ReportLab and Vera fonts are already
+  dependencies; no new packages required.</li>
+<li><strong><code>concerns_export.py</code> as a pure service module:</strong> Follows the established
+  pattern of <code>health_checks.py</code> — zero UI imports, pure function interface,
+  independently testable.</li>
 </ul>
 <h2 id="consequences">Consequences</h2>
 <ul>
-<li>The classification rule requires inspecting two columns per VM instead of one</li>
-<li>The OR logic pattern (vm_name_patterns OR os_patterns) becomes the template for other appliance types that use similar naming conventions</li>
+<li><strong>Positive:</strong> <code>generate_concerns_pdf()</code> and <code>generate_concerns_csv()</code> are
+  independently testable with 10 automated tests (no browser, no async).</li>
+<li><strong>Positive:</strong> Export is available from any context — UI button, CLI, test
+  suite — without NiceGUI running.</li>
+<li><strong>Positive:</strong> PDF styling is consistent with the main report (same fonts,
+  same colour palette).</li>
+<li><strong>Negative:</strong> PDF layout is a programmatic approximation of the web UI;
+  does not pixel-match the browser-rendered <code>/concerns</code> page.</li>
+<li><strong>Note:</strong> The CSV export uses a UTF-8 BOM (<code>\xef\xbb\xbf</code>) header for
+  Excel compatibility. This is intentional and tested (see
+  <code>test_generate_concerns_csv_utf8_bom</code>).</li>
 </ul>
 
 
