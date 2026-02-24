@@ -221,9 +221,7 @@ async def report_page() -> None:
             original_bytes_raw = app.storage.tab.get("_session_original_bytes")
             original_bytes = bytes(original_bytes_raw) if isinstance(original_bytes_raw, (bytes, bytearray)) else b""
             original_filename = str(app.storage.tab.get("_session_original_filename", "upload.xlsx"))
-            zip_bytes = await run.io_bound(
-                save_session_zip, session_snapshot, original_bytes, original_filename
-            )
+            zip_bytes = await run.io_bound(save_session_zip, session_snapshot, original_bytes, original_filename)
             # Derive archive filename from project name
             proj = str(app.storage.tab.get("project_name", "session")).replace(" ", "_")
             archive_name = f"{proj}_session.zip"
