@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import pandas as pd
 
-from store_predict.pipeline.health_checks import HealthCheckResult, HealthFinding, Severity, run_health_checks
+from store_predict.pipeline.health_checks import HealthCheckResult, run_health_checks
 from store_predict.services.concerns_export import generate_concerns_csv, generate_concerns_pdf
-
 
 # ---------------------------------------------------------------------------
 # Test data builders (mirrors test_health_checks.py _make_active_df pattern)
