@@ -1,14 +1,28 @@
+# syntax=docker/dockerfile:1
 FROM python:3.12-slim
 
 WORKDIR /app
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-COPY pyproject.toml .
-COPY src/ src/
+ENV UV_LINK_MODE=copy
 
-RUN uv venv .venv && . .venv/bin/activate && uv pip install --no-cache .
+# ── Layer 1: Install Python dependencies only (cached until uv.lock changes) ──
+# uv sync --no-install-project installs all deps without the project package.
+# This layer only re-runs when pyproject.toml or uv.lock changes.
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project
+
+# ── Layer 2: Playwright (cached until Python deps change) ──────────────────
+# Runs only when the previous layer is invalidated (new/changed dependency).
 RUN .venv/bin/playwright install chromium --with-deps
+
+# ── Layer 3: Install the project itself (fast — code only, no downloads) ────
+# This is the only layer that re-runs on regular code changes.
+COPY src/ src/
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen
 
 RUN useradd --create-home --shell /bin/bash appuser && chown -R appuser:appuser /app
 USER appuser

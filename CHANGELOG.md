@@ -4,6 +4,16 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.0.1] - 2026-02-24
+
+### Performance
+
+- **Docker build time ~5–10 s for code-only changes** (down from 3+ minutes) —
+  reordered Dockerfile layers so Python dependencies and Playwright are cached
+  separately from source code. Uses `uv sync --frozen --no-install-project` to
+  install deps before copying `src/`, BuildKit `--mount=type=cache` for the uv
+  package cache, and `UV_LINK_MODE=copy` to suppress hardlink warnings.
+
 ## [v7.0.0] - 2026-02-24
 
 ### New features
