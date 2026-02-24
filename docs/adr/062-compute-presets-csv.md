@@ -17,7 +17,7 @@ change and redeployment.
 Store host presets in `src/store_predict/data/compute_presets.csv`, loaded at
 module import time via `load_presets()`. The CSV format is:
 
-```
+```text
 name;server_model;cpu_family;cpu_name;cores_per_socket;sockets;ram_gib
 ```
 
