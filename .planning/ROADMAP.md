@@ -58,11 +58,15 @@ Plans:
   2. User can click an Export PDF button on /concerns and download a standalone PDF report containing all findings and remediation hints
   3. User can click an Export CSV button on /concerns and download a CSV file with one row per finding, including severity, description, and remediation hint columns
   4. The standalone PDF and CSV exports are independent of the main sizing report and can be generated without navigating away from /concerns
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 28-01-PLAN.md — HealthFinding remediation field + all 13 check hints + /concerns card UI + i18n keys + tests
+- [ ] 28-02-PLAN.md — Standalone concerns PDF generator + CSV generator + export buttons on /concerns + tests
 
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 27. Session Save & Restore | 2/2 | Complete    | 2026-02-24 | - |
-| 28. Concerns Enrichment | v7.0 | 0/? | Not started | - |
+| 28. Concerns Enrichment | v7.0 | 0/2 | Not started | - |
