@@ -6,7 +6,7 @@ import base64
 from datetime import UTC, datetime
 from typing import Any
 
-from nicegui import app, ui
+from nicegui import app, run, ui
 
 from store_predict.config import APP_PORT
 from store_predict.i18n import t
@@ -26,6 +26,7 @@ from store_predict.services.pdf_report import (
     sanitize_filename,
     validate_logo,
 )
+from store_predict.pipeline.session_archive import save_session_zip
 from store_predict.ui.layout import layout
 from store_predict.ui.state import get_scope_selection, load_filtered_session_data
 
@@ -186,6 +187,15 @@ async def report_page() -> None:
                 .tooltip(t("tooltip.download_excel"))
             )
 
+            save_btn = (
+                ui.button(
+                    t("session.save_button"),
+                    icon="save",
+                )
+                .classes("bg-purple-700 text-white")
+                .tooltip(t("session.save_tooltip"))
+            )
+
             ui.button(
                 t("report.back_to_review"),
                 on_click=lambda: ui.navigate.to("/review"),
@@ -205,8 +215,26 @@ async def report_page() -> None:
             finally:
                 excel_btn.enable()
 
+        async def _save_session() -> None:
+            session_snapshot: dict[str, object] = dict(app.storage.tab)
+            # Get original file bytes — stored as raw bytes; fall back to empty
+            original_bytes_raw = app.storage.tab.get("_session_original_bytes")
+            if isinstance(original_bytes_raw, (bytes, bytearray)):
+                original_bytes = bytes(original_bytes_raw)
+            else:
+                original_bytes = b""
+            original_filename = str(app.storage.tab.get("_session_original_filename", "upload.xlsx"))
+            zip_bytes = await run.io_bound(
+                save_session_zip, session_snapshot, original_bytes, original_filename
+            )
+            # Derive archive filename from project name
+            proj = str(app.storage.tab.get("project_name", "session")).replace(" ", "_")
+            archive_name = f"{proj}_session.zip"
+            ui.download(zip_bytes, archive_name)
+
         pdf_btn.on("click", on_download_pdf)
         excel_btn.on("click", on_download_excel)
+        save_btn.on("click", _save_session)
 
         # Charts section
         _build_charts_section(summary)
