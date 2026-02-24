@@ -148,8 +148,8 @@ def restore_session_zip(content: bytes) -> dict[str, object]:
             details=str(exc),
         ) from exc
 
-    layout: dict[str, float | int] = snapshot.get("layout") or {}
-    compute: dict[str, float | int | bool | str] = snapshot.get("compute") or {}
+    layout = snapshot.get("layout") or {}
+    compute = snapshot.get("compute") or {}
 
     result: dict[str, object] = {
         "vm_data": snapshot.get("vm_data", []),
