@@ -43,7 +43,11 @@ with actionable remediation hints and standalone PDF/CSV exports.
   3. User can upload a .zip file on the Upload page and have the tool recognize it as a session restore
   4. After restore, the tool lands on the Upload page with all VM data, classifications, and settings loaded exactly as they were when saved
   5. Save and restore work regardless of whether the original input was RVTools .xlsx, LiveOptics .xlsx, LiveOptics .csv, or a dual-source merge
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 27-01-PLAN.md — Session archive module (save_session_zip, restore_session_zip) + i18n keys + tests
+- [ ] 27-02-PLAN.md — Upload page session restore branch + report page Save Session button
 
 ### Phase 28: Concerns Enrichment
 **Goal**: Each health finding on /concerns includes an actionable remediation hint, and the full concerns report is exportable as a standalone PDF or CSV
@@ -60,5 +64,5 @@ with actionable remediation hints and standalone PDF/CSV exports.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 27. Session Save & Restore | v7.0 | 0/? | Not started | - |
+| 27. Session Save & Restore | v7.0 | 0/2 | In planning | - |
 | 28. Concerns Enrichment | v7.0 | 0/? | Not started | - |
