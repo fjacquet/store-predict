@@ -271,7 +271,7 @@ def _summary_card(label: str, value: str) -> None:
 async def _on_download_playwright(
     summary: object,
     project_name: str,
-    btn: ui.button,
+    _btn: ui.button,
     health_result: HealthCheckResult | None = None,
 ) -> None:
     """Generate PDF via Playwright and trigger browser download."""
