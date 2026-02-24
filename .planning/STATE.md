@@ -5,22 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v7.0 milestone started)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** v7.0 Save & Restore + Concerns
+**Current focus:** Phase 27 — Session Save & Restore
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements for v7.0
-Last activity: 2026-02-24 — Milestone v7.0 started
+Phase: 27 of 28 (Session Save & Restore)
+Plan: 0 of ? in current phase
+Status: Ready to plan
+Last activity: 2026-02-24 — v7.0 roadmap created (Phases 27–28)
 
-Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (v7.0 starting)
+Progress: [░░░░░░░░░░] 0% (v7.0 milestone)
 
 ## Performance Metrics
 
-**Velocity (v5.0):**
-- Total plans completed: 8
-- Total execution time: ~57 min (avg ~7 min/plan)
+**Velocity (v5.0 carry-forward):**
+- Total plans completed v5.0: 8 (avg ~7 min/plan)
 
 | Phase | Plans | Duration | Files |
 |-------|-------|----------|-------|
@@ -35,11 +34,18 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (v7.
 
 - HealthCheckResult recomputed per-visit, not cached in session storage
 - compute_sizing() AP values always computed; ap_enabled only controls UI display
-- AG Grid row grouping is Enterprise-only — cannot use for cluster grouping (Community edition)
+- AG Grid row grouping is Enterprise-only — cluster grouping uses a separate table
 - Playwright PDF path: serialize in report.py → print_session token → deserialize in report_print.py
 - __no_cluster__ sentinel in compute groupby (not None/NaN); translated to i18n in UI
-- vmsc_site_a_hosts / vmsc_site_b_hosts (not vmsc_hosts_per_site) — enables asymmetric display
-- ap_secondary = max(1, ceil(primary/2)) regardless of ap_active_ratio — cold standby convention
+- vmsc_site_a_hosts / vmsc_site_b_hosts enable asymmetric site display
+- ap_secondary = max(1, ceil(primary/2)) — cold standby convention
+
+### Decisions (v7.0 planning)
+
+- Session .zip format: original uploaded file + JSON snapshot (not DB, not pickle — portable and human-inspectable)
+- Restore entry point: Upload page (not a separate route — keeps UX simple, users already know Upload page)
+- CONC-01 remediation hints: extend HealthCheckResult dataclass with remediation: str field
+- CONC-02/03 exports: standalone from /concerns page — independent of main report pipeline
 
 ### Pending Todos
 
@@ -47,12 +53,14 @@ None.
 
 ### Blockers/Concerns
 
-- AG Grid Community edition: cluster grouping in VM grid not available — per-cluster breakdown uses a separate table (locked decision)
+- CONC-01: Verify HealthCheckResult dataclass structure before extending with remediation field
+- CONC-02: Confirm PDF approach (reuse Platypus pipeline vs new standalone ReportLab route)
+- SAVE restore: Define JSON schema for session snapshot (vm_df serialization via orient="records" + dtypes map)
 
 ## Session Continuity
 
-Last session: 2026-02-23
-Stopped at: v5.0 milestone archived and released
+Last session: 2026-02-24
+Stopped at: v7.0 roadmap created — Phases 27–28 defined, ready to plan Phase 27
 Resume file: None
 
-Next step: /gsd:plan-phase 27 — plan first phase of v7.0
+Next step: /gsd:plan-phase 27
