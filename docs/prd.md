@@ -1,6 +1,6 @@
 # Product Requirements Document — StorePredict
 
-**Version:** 5.0 (current as of 2026-02-23)
+**Version:** 7.0 (current as of 2026-02-24)
 **Status:** Living document — updated after each milestone
 **Owner:** Pre-Sales Engineering
 
@@ -18,7 +18,7 @@ The tool covers four analytical domains:
 |--------|--------|
 | Storage sizing | Required capacity per workload with Data Reduction Ratios |
 | Datastore layout | Optimal VMFS datastore placement across three strategies |
-| Environment health | 11 checks surfacing data quality issues and VMware best practices violations |
+| Environment health | 13 checks surfacing data quality issues and VMware best practices violations; actionable remediation hints per finding |
 | Compute sizing | ESXi host count for N+1 HA, vMSC, and A/P DR scenarios; per-cluster breakdown and per-site (Site A / Site B) host count display |
 
 ### 1.2 Problem Statement
@@ -98,9 +98,19 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 3. Review auto-classified VM grid; adjust workload types inline or via multi-select dialog
 4. Navigate to `/report` to review capacity totals, workload breakdown, and performance summary
 5. Navigate to `/layout` to select preferred datastore strategy (Consolidation / Performance / Uniform)
-6. Navigate to `/concerns` to review health check findings
+6. Navigate to `/concerns` to review health check findings and remediation hints; optionally export as PDF or CSV
 7. Navigate to `/compute` to review ESXi host count recommendations
 8. Download one-page PDF and `.xlsx` export for customer delivery
+9. *(Optional)* Click **Save Session** on the report page to download a `.zip` archive for later restore
+
+### 3.5 Session Save & Restore
+
+1. Complete a sizing session (classify VMs, tune layout, adjust compute settings)
+2. Click the **Save Session** button (purple) on the `/report` page
+3. Browser downloads a `.zip` archive containing the original file and a `session.json` snapshot
+4. On a different machine or at a later date, upload the `.zip` on the Upload page
+5. StorePredict detects the session archive, restores all VM data, classifications, and settings
+6. The tool lands on `/review` with the full session state intact — no re-classification needed
 
 ### 3.2 LiveOptics Sizing with Performance Data
 
@@ -203,12 +213,15 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 
 | Feature | Detail | Shipped |
 |---------|--------|---------|
-| Health checks engine | Pure pipeline module; 11 checks, 3 categories | v4.0 |
+| Health checks engine | Pure pipeline module; 13 checks, 3 categories | v4.0 / v7.0 |
 | Data quality checks | Missing OS, zero storage/CPU/RAM, powered-off ratio | v4.0 |
 | Sizing risk checks | Unknown VM inflation, IOPS budget | v4.0 |
 | VMware best practice checks | HW version, cluster assignment, VMware Tools status | v4.0 |
 | `/concerns` page | Severity-coded cards; recomputed fresh per visit | v4.0 |
 | Per-cluster health findings | Each finding card shows a cluster badge when the source file includes a Cluster column; HW version check runs per-cluster instead of globally | v5.0 |
+| Remediation hints | Each finding card shows a concise actionable hint in italic gray text | v7.0 |
+| Concerns PDF export | Standalone A4 PDF (ReportLab) with severity-coloured tables and hints | v7.0 |
+| Concerns CSV export | UTF-8 BOM CSV with severity, check_id, title, detail, remediation, affected_count, cluster | v7.0 |
 
 ### 4.6 Compute Sizing (`/compute`)
 
@@ -248,6 +261,16 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | Excel export | Multi-sheet `.xlsx`: Summary, Workload Breakdown, VM Detail, Layout | v1.1 |
 | Excel Findings worksheet | Health findings exported as a dedicated worksheet with columns: Finding, Severity, Category, Affected VMs, Detail, Cluster | v5.0 |
 | French character support | Vera TTF fonts in ReportLab | v1.0 |
+
+### 4.11 Session Persistence
+
+| Feature | Detail | Shipped |
+|---------|--------|---------|
+| Save session to zip | "Save Session" button on `/report` downloads a `.zip` archive (original file + `session.json`) | v7.0 |
+| Restore from zip | Upload page detects session archives via `session.json` sentinel and restores full state | v7.0 |
+| State captured | VM list, workload classifications, DRR overrides, layout settings, compute settings, project name, selected scope | v7.0 |
+| Format-agnostic | Save/restore works for RVTools, LiveOptics xlsx/csv, and dual-source merge sessions | v7.0 |
+| Schema versioning | `schema_version: 1` in `session.json` for forward compatibility | v7.0 |
 
 ### 4.9 Internationalization
 
@@ -314,10 +337,10 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | Requirement | Detail |
 |-------------|--------|
 | Three-layer architecture | `pipeline/` → `services/` → `ui/`; no UI imports in pipeline |
-| Test coverage | 439+ tests, 86%+ backend coverage (v5.0) |
+| Test coverage | 552+ tests, 88%+ backend coverage (v7.0) |
 | Code quality | ruff lint + mypy strict enforced in CI |
 | Reference data as CSV | DRR.csv, IOPS.csv, compute_presets.csv editable without code changes |
-| ADR library | 63 decisions documented; next is ADR-064 |
+| ADR library | 69 decisions documented |
 
 ---
 
@@ -382,6 +405,8 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | v4.0 | VM Improvements & Compute Sizing | Stable row identity, grid UX, health checks engine, `/concerns` page, compute sizing, `/compute` page |
 | v5.0 | Multi-Cluster & Export Completeness | Per-cluster compute breakdown, per-site host count display, per-cluster health findings, PDF findings summary + appendix, Excel Findings worksheet, configurable vMSC split ratio, configurable A/P DR active % |
 | v6.0 | Scope Filtering & Classifier Accuracy | `/scope` page with DC/cluster filtering, Windows Desktop → VDI reclassification, +7 new classifier patterns (TKG, HARBOR, RDS, UAG, EXCHG, SPBE/SPFE/SPOWA, LOGSTASH/KIBANA), AG Grid reliability fixes |
+| v6.1 | Dual-Source Merge & vMSC Fix | RVTools + LiveOptics dual-source merge; vMSC per-site sizing without requiring 2+ distinct datacenters |
+| v7.0 | Save & Restore + Concerns | Session save/restore via zip archive; concerns remediation hints; standalone concerns PDF and CSV exports |
 
 ---
 
@@ -418,4 +443,40 @@ All v5.0 requirements shipped in Phases 23–26.
 
 ---
 
-*Last updated: 2026-02-23 after v6.0 shipped*
+---
+
+## 12. Shipped: v7.0 — Save & Restore + Concerns
+
+| Requirement | Description | Status |
+|-------------|-------------|--------|
+| SAVE-01 | Save current session to a `.zip` archive (original file + JSON state) | Shipped (Phase 27) |
+| SAVE-02 | Archive captures VM list, classifications, DRR overrides, layout and compute settings | Shipped (Phase 27) |
+| SAVE-03 | Restore session from `.zip` via Upload page | Shipped (Phase 27) |
+| SAVE-04 | After restore: all VM data, classifications, and settings loaded as when saved | Shipped (Phase 27) |
+| SAVE-05 | Save/restore works for all input formats (RVTools, LiveOptics xlsx/csv, dual-source) | Shipped (Phase 27) |
+| CONC-01 | Each health finding on `/concerns` shows an actionable remediation hint | Shipped (Phase 28) |
+| CONC-02 | Export `/concerns` as standalone PDF report | Shipped (Phase 28) |
+| CONC-03 | Export `/concerns` as CSV with all findings and remediation hints | Shipped (Phase 28) |
+
+---
+
+## 7. Out of Scope (updated v7.0)
+
+| Feature | Reason |
+|---------|--------|
+| PowerStore model recommendation | Model selection is a separate sales conversation |
+| SIOKit `.siokit` binary format | Xlsx/csv exports are the practical reality |
+| Real-time vCenter data collection | Tool works with exported files only — by design |
+| User authentication | Internal tool; single-user sessions are sufficient |
+| Browser auto-save (localStorage) | File-based save is more explicit and portable |
+| Server-side project library | File-based approach is simpler; users manage files in filesystem |
+| Custom concern thresholds | Adds complexity; standard VMware best-practice thresholds cover most cases |
+| Severity filtering on `/concerns` | Current scannable page is sufficient; deferred to v8+ |
+| Session merge with fresh upload | High complexity, edge cases; file-based restore is clear and simple |
+| LLM as primary classifier | Rules remain primary; LLM is opt-in fallback only |
+| ILP/OR-Tools for exact optimal placement | BFD heuristic is within 10-15% of optimal; no heavy dependency |
+| vVol layout recommendations | VMFS is the practical reality for migration projects |
+
+---
+
+*Last updated: 2026-02-24 after v7.0 shipped*

@@ -55,24 +55,13 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 - Datacenter & cluster scope filtering — `/scope` page between upload and review, scope badge in headers, DC/cluster suffix on exported filenames — v6.0
 - Improved workload classification: Windows 10/11 → VDI Linked Clone, Tanzu nodes, SharePoint abbreviations, Logstash/Kibana, EXCHG — v6.0
 - Dual-source merge: upload RVTools + LiveOptics simultaneously, merge on VM name — v6.1
-
-## Current Milestone: v7.0 Save & Restore + Concerns
-
-**Goal:** Enable pre-sales engineers to save a complete sizing session to a file and restore it later, plus enrich the /concerns page with actionable remediation hints and standalone export.
-
-**Target features:**
-- Save entire session (VM list, classifications, DRR overrides, layout settings, compute settings) to a self-contained .zip archive
-- Restore a session from .zip — drops directly into Upload page with all state loaded
-- Actionable remediation hints on each health finding in /concerns
-- Standalone /concerns export as PDF or CSV
+- Session save/restore: self-contained .zip archive with session.json snapshot — v7.0
+- Concerns remediation hints: actionable hint per health finding in /concerns — v7.0
+- Standalone /concerns export as PDF and CSV — v7.0
 
 ### Active
 
-- [ ] User can save the current session to a .zip file
-- [ ] User can restore a session from a .zip file — lands on Upload page with all state loaded
-- [ ] Each health finding on /concerns shows an actionable remediation hint
-- [ ] User can export the /concerns page as a standalone PDF
-- [ ] User can export the /concerns page as a standalone CSV
+(None — start fresh with `/gsd:new-milestone`)
 
 ### Out of Scope
 
@@ -96,10 +85,11 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 
 ## Context
 
-Shipped v5.0 with 48 files changed (+5,919 LOC) over 44 commits.
+Shipped v7.0 with 32 files changed (+4,223 LOC / -24) over 25 commits in the v7.0 milestone branch.
 Tech stack: NiceGUI, pandas, openpyxl, ReportLab, AG Grid, XlsxWriter, Pillow, litellm, matplotlib, python-i18n, Playwright.
 Docker Compose deployment, MkDocs on GitHub Pages, GitHub Actions CI with Codecov + CycloneDX SBOM.
-Tool covers storage sizing, datastore layout, health checks, compute sizing with multi-cluster breakdown, configurable DR/vMSC ratios, and full findings export — a complete pre-sales assessment platform.
+552 tests, 88% backend coverage.
+Tool covers storage sizing, datastore layout, health checks with remediation hints, compute sizing, full findings/concerns export, and session save/restore — a complete pre-sales assessment platform.
 
 ## Constraints
 
@@ -108,7 +98,7 @@ Tool covers storage sizing, datastore layout, health checks, compute sizing with
 - **PDF generation:** ReportLab Platypus with Vera fonts
 - **Deployment:** Docker Compose, single container, port 8080
 - **Documentation:** MkDocs with Material theme + Mermaid diagrams
-- **Code quality:** ruff + mypy strict + pytest (353 tests, 86% coverage)
+- **Code quality:** ruff + mypy strict + pytest (552 tests, 88% coverage)
 - **CI/CD:** GitHub Actions (lint, test, docs deploy, Codecov)
 - **Layout engine:** Pure Python heuristics (no external optimization libraries)
 
@@ -162,5 +152,16 @@ Tool covers storage sizing, datastore layout, health checks, compute sizing with
 | /scope page between upload and review | Scope selection is a distinct step; filters propagate to all downstream pages | Good |
 | Unselected VMs preserved in session | Re-scoping never requires re-upload; filtered VMs stay in memory | Good |
 
+## Key Decisions (v7.0 additions)
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| File-based session persistence (.zip) over localStorage/server-side | Portable, human-inspectable, no server state | Good |
+| SESSION_ZIP_SENTINEL = "session.json" to detect session archives | Robust structural check; LiveOptics zips never contain session.json | Good |
+| Session zip detection before LiveOptics zip extraction | Prevents false positive extraction; existing LiveOptics path unchanged | Good |
+| Remediation hints as hardcoded English (not i18n) | Pre-sales engineering audience; EN acceptable for technical hints | Good |
+| concerns_export.py as pure service module (zero UI imports) | Same pattern as health_checks.py; independently testable | Good |
+| `or`-fallback in _load_constraints / _load_compute_config | Handles restored falsy values (0/"") that bypass dict.get defaults | Good |
+
 ---
-*Last updated: 2026-02-24 after v7.0 milestone started*
+*Last updated: 2026-02-24 after v7.0 milestone shipped*

@@ -1,4 +1,4 @@
-.PHONY: all help install dev run stop lint format typecheck test test-cov docs docs-build docker-up docker-down clean
+.PHONY: all help install dev run stop lint format typecheck test test-cov md-lint docs docs-build docker-up docker-down clean
 
 PYTHON ?= python
 PORT ?= 8080
@@ -90,6 +90,9 @@ test: ## Run all tests
 
 test-cov: ## Run tests with coverage report
 	pytest --cov=store_predict --cov-report=term-missing
+
+md-lint: ## Check markdown with markdownlint
+	markdownlint --fix .
 
 quality: lint typecheck test ## Run full quality gate (lint + types + tests)
 
