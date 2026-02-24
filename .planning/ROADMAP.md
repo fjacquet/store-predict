@@ -69,4 +69,4 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 27. Session Save & Restore | 2/2 | Complete    | 2026-02-24 | - |
-| 28. Concerns Enrichment | v7.0 | 0/2 | Not started | - |
+| 28. Concerns Enrichment | 1/2 | In Progress|  | - |

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v7.0 milestone started)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** Phase 27 — Session Save & Restore
+**Current focus:** Phase 28 — Concerns Enrichment
 
 ## Current Position
 
-Phase: 27 of 28 (Session Save & Restore)
-Plan: 2 of 2 in current phase (27-01, 27-02 complete)
-Status: Phase 27 complete
-Last activity: 2026-02-24 — 27-02 complete (Save Session button in report.py + session restore branch in upload.py)
+Phase: 28 of 28 (Concerns Enrichment)
+Plan: 1 of 2 in current phase (28-01 complete)
+Status: Phase 28 in progress
+Last activity: 2026-02-24 — 28-01 complete (HealthFinding remediation field + concerns page UI update)
 
-Progress: [██░░░░░░░░] 20% (v7.0 milestone — 2 plans done)
+Progress: [███░░░░░░░] 30% (v7.0 milestone — 3 plans done)
 
 ## Performance Metrics
 
@@ -29,6 +29,7 @@ Progress: [██░░░░░░░░] 20% (v7.0 milestone — 2 plans done)
 | Phase 26-documentation | 1 | ~2 min | 1 |
 | Phase 27-session-save-restore P01 | 1 | ~3 min | 4 |
 | Phase 27-session-save-restore P02 | 8 | 2 tasks | 2 files |
+| Phase 28 P01 | 586 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -60,13 +61,12 @@ None.
 
 ### Blockers/Concerns
 
-- CONC-01: Verify HealthCheckResult dataclass structure before extending with remediation field
 - CONC-02: Confirm PDF approach (reuse Platypus pipeline vs new standalone ReportLab route)
 
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 27-02-PLAN.md — Save Session button + session restore UI wiring
+Stopped at: Completed 28-01-PLAN.md — HealthFinding remediation field + concerns page UI update
 Resume file: None
 
-Next step: Phase 27 complete — proceed to Phase 28
+Next step: Execute 28-02-PLAN.md (concerns export functionality)
