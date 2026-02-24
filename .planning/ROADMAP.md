@@ -64,5 +64,5 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 27. Session Save & Restore | v7.0 | 0/2 | In planning | - |
+| 27. Session Save & Restore | 1/2 | In Progress|  | - |
 | 28. Concerns Enrichment | v7.0 | 0/? | Not started | - |
