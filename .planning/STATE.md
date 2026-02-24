@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-24 after v7.0 milestone started)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** Phase 28 — Concerns Enrichment
+**Current focus:** Phase 28 complete — v7.0 milestone DONE
 
 ## Current Position
 
 Phase: 28 of 28 (Concerns Enrichment)
-Plan: 1 of 2 in current phase (28-01 complete)
-Status: Phase 28 in progress
-Last activity: 2026-02-24 — 28-01 complete (HealthFinding remediation field + concerns page UI update)
+Plan: 2 of 2 in current phase (28-02 complete — phase DONE)
+Status: Phase 28 COMPLETE — v7.0 milestone achieved
+Last activity: 2026-02-24 — 28-02 complete (concerns PDF/CSV export + /concerns page export buttons)
 
-Progress: [███░░░░░░░] 30% (v7.0 milestone — 3 plans done)
+Progress: [██████████] 100% (v7.0 milestone — 4 plans done)
 
 ## Performance Metrics
 
@@ -30,6 +30,7 @@ Progress: [███░░░░░░░] 30% (v7.0 milestone — 3 plans done)
 | Phase 27-session-save-restore P01 | 1 | ~3 min | 4 |
 | Phase 27-session-save-restore P02 | 8 | 2 tasks | 2 files |
 | Phase 28 P01 | 586 | 2 tasks | 5 files |
+| Phase 28-concerns-enrichment P28-02 | 168 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -54,6 +55,8 @@ Progress: [███░░░░░░░] 30% (v7.0 milestone — 3 plans done)
 - Layout/compute sub-dict types: dict[str, float | int] / dict[str, float | int | bool | str] for mypy compliance
 - Save Session button uses purple styling to differentiate from PDF (blue) and Excel (green) download buttons
 - Session zip detection runs BEFORE LiveOptics zip extraction in handle_upload to avoid false positive extraction
+- generate_concerns_pdf uses English strings for standalone engineering doc; locale param reserved for future i18n
+- concerns_export.py is a pure service module with zero UI imports (same pattern as health_checks.py)
 
 ### Pending Todos
 
@@ -61,12 +64,12 @@ None.
 
 ### Blockers/Concerns
 
-- CONC-02: Confirm PDF approach (reuse Platypus pipeline vs new standalone ReportLab route)
+None — CONC-02 resolved: standalone ReportLab route chosen (no dependency on main report pipeline).
 
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 28-01-PLAN.md — HealthFinding remediation field + concerns page UI update
+Stopped at: Completed 28-02-PLAN.md — concerns PDF/CSV export + /concerns page export buttons
 Resume file: None
 
-Next step: Execute 28-02-PLAN.md (concerns export functionality)
+Next step: v7.0 milestone complete — plan next milestone or ship.

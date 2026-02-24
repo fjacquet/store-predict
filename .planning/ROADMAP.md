@@ -29,7 +29,7 @@ to a portable .zip archive and restore it later, plus enrich the /concerns page
 with actionable remediation hints and standalone PDF/CSV exports.
 
 - [x] **Phase 27: Session Save & Restore** - User can save and restore a full sizing session via a self-contained .zip file (completed 2026-02-24)
-- [ ] **Phase 28: Concerns Enrichment** - Each health finding displays a remediation hint; /concerns is exportable as standalone PDF and CSV
+- [x] **Phase 28: Concerns Enrichment** - Each health finding displays a remediation hint; /concerns is exportable as standalone PDF and CSV (completed 2026-02-24)
 
 ## Phase Details
 
@@ -69,4 +69,4 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 27. Session Save & Restore | 2/2 | Complete    | 2026-02-24 | - |
-| 28. Concerns Enrichment | 1/2 | In Progress|  | - |
+| 28. Concerns Enrichment | 2/2 | Complete   | 2026-02-24 | - |
