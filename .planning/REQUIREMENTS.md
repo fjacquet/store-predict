@@ -17,7 +17,7 @@ Requirements for the Save & Restore + Concerns milestone. Each maps to roadmap p
 
 ### Concerns Enhancements
 
-- [ ] **CONC-01**: Each health finding on /concerns displays an actionable remediation hint explaining what to do about the issue
+- [x] **CONC-01**: Each health finding on /concerns displays an actionable remediation hint explaining what to do about the issue
 - [ ] **CONC-02**: User can export the /concerns page as a standalone PDF report
 - [ ] **CONC-03**: User can export the /concerns page as a standalone CSV file with all findings and remediation hints
 
@@ -59,7 +59,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SAVE-03 | Phase 27 | Complete |
 | SAVE-04 | Phase 27 | Complete |
 | SAVE-05 | Phase 27 | Complete |
-| CONC-01 | Phase 28 | Pending |
+| CONC-01 | Phase 28 | Complete |
 | CONC-02 | Phase 28 | Pending |
 | CONC-03 | Phase 28 | Pending |
 
