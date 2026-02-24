@@ -18,6 +18,13 @@ upload:
   format_conflict: "Les deux fichiers ont le même format. Veuillez téléverser un fichier RVTools et un fichier LiveOptics."
   file_ready: "%{name} prêt (%{fmt})"
 
+session:
+  save_button: "Sauvegarder la session"
+  save_tooltip: "Télécharger un archive .zip contenant l'export original et tous les réglages de cette session"
+  restore_success: "Session restaurée — %{count} VM(s) chargées"
+  restore_error: "Impossible de restaurer la session : %{reason}"
+  restore_format_hint: "Fichier de session StorePredict détecté"
+
 review:
   title: "Révision des classifications"
   project_label: "Projet : %{name}"
