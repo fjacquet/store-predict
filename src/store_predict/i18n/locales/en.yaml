@@ -333,6 +333,10 @@ concerns:
   section_best_practice: "VMware Best Practices"
   affected_vms: "Affected VMs: %{names}"
   affected_count: "%{count} VM(s)"
+  export_pdf: "Export PDF"
+  export_csv: "Export CSV"
+  export_pdf_filename: "concerns-report.pdf"
+  export_csv_filename: "concerns-report.csv"
 
 health:
   missing_os:
