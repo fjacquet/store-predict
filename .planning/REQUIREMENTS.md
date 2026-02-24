@@ -11,8 +11,8 @@ Requirements for the Save & Restore + Concerns milestone. Each maps to roadmap p
 
 - [x] **SAVE-01**: User can save the current session to a .zip archive (contains original uploaded file + JSON state)
 - [x] **SAVE-02**: The .zip archive captures VM list, workload classifications, DRR overrides, layout settings, and compute settings
-- [ ] **SAVE-03**: User can restore a session from a .zip file via the Upload page
-- [ ] **SAVE-04**: After restore, the tool lands on the Upload page with all VM data, classifications, and settings loaded — same state as when saved
+- [x] **SAVE-03**: User can restore a session from a .zip file via the Upload page
+- [x] **SAVE-04**: After restore, the tool lands on the Upload page with all VM data, classifications, and settings loaded — same state as when saved
 - [x] **SAVE-05**: Save and restore are available regardless of which input format was used (RVTools, LiveOptics xlsx, LiveOptics csv, dual-source merge)
 
 ### Concerns Enhancements
@@ -56,8 +56,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | SAVE-01 | Phase 27 | Complete |
 | SAVE-02 | Phase 27 | Complete |
-| SAVE-03 | Phase 27 | Pending |
-| SAVE-04 | Phase 27 | Pending |
+| SAVE-03 | Phase 27 | Complete |
+| SAVE-04 | Phase 27 | Complete |
 | SAVE-05 | Phase 27 | Complete |
 | CONC-01 | Phase 28 | Pending |
 | CONC-02 | Phase 28 | Pending |

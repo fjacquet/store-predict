@@ -28,7 +28,7 @@ dual-source merge. See MILESTONES.md for detail.
 to a portable .zip archive and restore it later, plus enrich the /concerns page
 with actionable remediation hints and standalone PDF/CSV exports.
 
-- [ ] **Phase 27: Session Save & Restore** - User can save and restore a full sizing session via a self-contained .zip file
+- [x] **Phase 27: Session Save & Restore** - User can save and restore a full sizing session via a self-contained .zip file (completed 2026-02-24)
 - [ ] **Phase 28: Concerns Enrichment** - Each health finding displays a remediation hint; /concerns is exportable as standalone PDF and CSV
 
 ## Phase Details
@@ -64,5 +64,5 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 27. Session Save & Restore | 1/2 | In Progress|  | - |
+| 27. Session Save & Restore | 2/2 | Complete   | 2026-02-24 | - |
 | 28. Concerns Enrichment | v7.0 | 0/? | Not started | - |

@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-24 after v7.0 milestone started)
 ## Current Position
 
 Phase: 27 of 28 (Session Save & Restore)
-Plan: 1 of ? in current phase (27-01 complete)
-Status: In progress
-Last activity: 2026-02-24 — 27-01 complete (session_archive module, i18n keys, 15 tests)
+Plan: 2 of 2 in current phase (27-01, 27-02 complete)
+Status: Phase 27 complete
+Last activity: 2026-02-24 — 27-02 complete (Save Session button in report.py + session restore branch in upload.py)
 
-Progress: [█░░░░░░░░░] 10% (v7.0 milestone — 1 plan done)
+Progress: [██░░░░░░░░] 20% (v7.0 milestone — 2 plans done)
 
 ## Performance Metrics
 
@@ -28,6 +28,7 @@ Progress: [█░░░░░░░░░] 10% (v7.0 milestone — 1 plan done)
 | Phase 25-vmsc-dr-modeling | 2 | ~20 min | 8 |
 | Phase 26-documentation | 1 | ~2 min | 1 |
 | Phase 27-session-save-restore P01 | 1 | ~3 min | 4 |
+| Phase 27-session-save-restore P02 | 8 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -50,6 +51,8 @@ Progress: [█░░░░░░░░░] 10% (v7.0 milestone — 1 plan done)
 - Session archive schema_version=1 in JSON for forward compatibility; is_session_zip() never raises
 - restore_session_zip() uses IngestionError (not ValueError/KeyError) to integrate cleanly with pipeline error handling
 - Layout/compute sub-dict types: dict[str, float | int] / dict[str, float | int | bool | str] for mypy compliance
+- Save Session button uses purple styling to differentiate from PDF (blue) and Excel (green) download buttons
+- Session zip detection runs BEFORE LiveOptics zip extraction in handle_upload to avoid false positive extraction
 
 ### Pending Todos
 
@@ -63,7 +66,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 27-01-PLAN.md — session_archive module, i18n keys, 15 tests
+Stopped at: Completed 27-02-PLAN.md — Save Session button + session restore UI wiring
 Resume file: None
 
-Next step: /gsd:execute-phase 27 (Plan 02 — wire up session save/restore UI in upload.py)
+Next step: Phase 27 complete — proceed to Phase 28
