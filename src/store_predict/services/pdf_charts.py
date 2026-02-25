@@ -1,4 +1,4 @@
-"""ReportLab Drawing builders and matplotlib Sankey PNG flowable for PDF report page 2."""
+"""ReportLab Drawing builders and Plotly Sankey PNG flowable for PDF report page 2."""
 
 from __future__ import annotations
 
@@ -105,46 +105,54 @@ def make_pie_drawing(summary: CalculationSummary, width: int = 250, height: int 
 
 
 def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500, height_pt: int = 200) -> Flowable:
-    """Return a ReportLab Image flowable containing a matplotlib Sankey diagram as a PNG.
+    """Return a ReportLab Image flowable containing a Plotly Sankey diagram as a PNG.
 
-    matplotlib is imported lazily to avoid startup cost when the PDF chart page is not used.
-    The matplotlib figure is always closed in a finally block to prevent memory leaks.
+    plotly and kaleido are imported lazily to avoid startup cost when the PDF chart
+    page is not used.
     """
-    # Lazy import — matplotlib must not be imported at module level
-    import matplotlib
-
-    matplotlib.use("Agg")  # Must be set before importing pyplot
-    import matplotlib.pyplot as plt
-    from matplotlib.sankey import Sankey
+    import plotly.graph_objects as go
+    import plotly.io as pio
 
     if not summary.workload_groups or summary.total_provisioned_mib == 0:
         return Spacer(width_pt, 0)
 
-    total = summary.total_provisioned_mib
-    flows = [total] + [-grp.total_required_mib for grp in summary.workload_groups]
-    labels = ["Provisioned"] + [f"{grp.category[:12]}\n{grp.avg_drr:.1f}x" for grp in summary.workload_groups]
-    orientations = [0] + [-1 for _ in summary.workload_groups]
+    groups = summary.workload_groups
+    n = len(groups)
 
-    fig, ax = plt.subplots(figsize=(width_pt / 72, height_pt / 72), dpi=150)
-    ax.set_axis_off()
-    ax.set_xticks([])
-    ax.set_yticks([])
+    # Nodes: Provisioned (0), workload categories (1..n), Required (n+1)
+    labels = ["Provisioned"] + [grp.category[:20] for grp in groups] + ["Required"]
+    node_colors = ["#007DB8"] + ["#CED4DA"] * n + ["#40A8D8"]
 
-    scale = 1.0 / total
-    try:
-        sankey = Sankey(ax=ax, scale=scale, offset=0.15, unit="GiB", format="%.0f")
-        sankey.add(
-            flows=flows,
-            labels=labels,
-            orientations=orientations,
-            pathlengths=[0.2] * len(flows),
-            patchlabel="Data\nReduction",
-            facecolor="#007DB8",
+    # Links: Provisioned → each category (provisioned GiB), each category → Required (required GiB)
+    link_sources = [0] * n + list(range(1, n + 1))
+    link_targets = list(range(1, n + 1)) + [n + 1] * n
+    link_values = [grp.total_provisioned_mib / 1024 for grp in groups] + [
+        grp.total_required_mib / 1024 for grp in groups
+    ]
+
+    fig = go.Figure(
+        go.Sankey(
+            arrangement="snap",
+            node=dict(
+                pad=15,
+                thickness=20,
+                line=dict(color="#cccccc", width=0.5),
+                label=labels,
+                color=node_colors,
+            ),
+            link=dict(
+                source=link_sources,
+                target=link_targets,
+                value=link_values,
+                color="rgba(0, 125, 184, 0.25)",
+            ),
         )
-        sankey.finish()
-        buf = BytesIO()
-        fig.savefig(buf, format="png", dpi=150, bbox_inches="tight", facecolor="white", transparent=False)
-        buf.seek(0)
-        return Image(buf, width=width_pt, height=height_pt)
-    finally:
-        plt.close(fig)
+    )
+    fig.update_layout(
+        margin=dict(l=10, r=10, t=10, b=10),
+        paper_bgcolor="white",
+        font=dict(family="Arial, sans-serif", size=11, color="#333333"),
+    )
+
+    png_bytes = pio.to_image(fig, format="png", width=int(width_pt * 2), height=int(height_pt * 2), scale=1)
+    return Image(BytesIO(png_bytes), width=width_pt, height=height_pt)

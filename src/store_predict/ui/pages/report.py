@@ -8,13 +8,14 @@ from typing import Any
 
 from nicegui import app, run, ui
 
-from store_predict.config import APP_PORT
 from store_predict.i18n import t
 from store_predict.i18n.locale import get_locale
 from store_predict.pipeline.calculation import CalculationSummary, calculate
 from store_predict.pipeline.health_checks import HealthCheckResult, run_health_checks
 from store_predict.pipeline.session_archive import save_session_zip
-from store_predict.services import playwright_pdf, print_session
+from nicegui import run
+
+from store_predict.services.pdf_report import generate_report_pdf
 from store_predict.services.charts import (
     echart_before_after_options,
     echart_drr_bar_options,
@@ -204,7 +205,7 @@ async def report_page() -> None:
         async def on_download_pdf() -> None:
             pdf_btn.disable()
             try:
-                await _on_download_playwright(summary, project_name, pdf_btn, health_result)
+                await _on_download_pdf(summary, project_name, pdf_btn, health_result)
             finally:
                 pdf_btn.enable()
 
@@ -266,13 +267,13 @@ def _summary_card(label: str, value: str) -> None:
         ui.label(value).classes("text-xl font-bold")
 
 
-async def _on_download_playwright(
+async def _on_download_pdf(
     summary: object,
     project_name: str,
     _btn: ui.button,
     health_result: HealthCheckResult | None = None,
 ) -> None:
-    """Generate PDF via Playwright and trigger browser download."""
+    """Generate PDF via ReportLab and trigger browser download."""
     from store_predict.pipeline.calculation import CalculationSummary
 
     assert isinstance(summary, CalculationSummary)
@@ -280,43 +281,20 @@ async def _on_download_playwright(
     company_logo_b64: str = app.storage.tab.get("company_logo_b64", "")
     locale = get_locale()
 
-    data: dict[str, Any] = {
-        "vm_data": [
-            {
-                "vm_name": vm.vm_name,
-                "workload_category": vm.workload_category,
-                "provisioned_mib": vm.provisioned_mib,
-                "in_use_mib": vm.in_use_mib,
-                "drr": vm.drr,
-                "peak_iops": vm.peak_iops,
-                "avg_iops": vm.avg_iops,
-                "peak_throughput_mbs": vm.peak_throughput_mbs,
-                "iops_8k_equivalent": vm.iops_8k_equivalent,
-            }
-            for vm in summary.vm_calculations
-        ],
-        "project_name": project_name,
-        "locale": locale,
-        "company_logo_b64": company_logo_b64,
-    }
-    findings_data: list[dict[str, Any]] = []
-    if health_result is not None and health_result.has_data:
-        for f in health_result.findings:
-            findings_data.append(
-                {
-                    "check_id": f.check_id,
-                    "severity": str(f.severity),
-                    "title": f.title,
-                    "detail": f.detail,
-                    "affected_count": f.affected_count,
-                    "affected_vms": list(f.affected_vms),
-                    "cluster": f.cluster,
-                }
-            )
-    data["findings_data"] = findings_data
-    token = print_session.create(data)
+    company_logo_bytes: bytes | None = None
+    if company_logo_b64:
+        company_logo_bytes = base64.b64decode(company_logo_b64)
+
     try:
-        pdf_bytes = await playwright_pdf.generate_pdf(token, APP_PORT)
+        pdf_bytes = await run.io_bound(
+            generate_report_pdf,
+            summary,
+            project_name,
+            locale,
+            None,
+            company_logo_bytes,
+            health_result,
+        )
     except Exception:
         ui.notify(t("error.unexpected"), type="negative")
         return

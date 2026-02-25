@@ -4,6 +4,37 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.0.4] - 2026-02-25
+
+### Changed
+
+- **PDF charts: matplotlib Sankey replaced by Plotly + kaleido** — the Sankey diagram
+  in PDF exports is now rendered by `plotly.graph_objects.Sankey` and exported as PNG
+  via kaleido, producing a cleaner, more professional output that closely matches the
+  ECharts Sankey visible in the web UI.
+
+### Removed
+
+- **Playwright / headless Chromium removed** — PDF export no longer requires a browser.
+  The existing ReportLab path (`pdf_report.py`) is now wired directly to both the
+  Report and Layout download buttons. The HTML print routes (`/report/print`,
+  `/layout/print`) and the one-time print-session token mechanism are deleted.
+- **matplotlib removed** — was only used for the Sankey diagram; replaced by Plotly.
+
+### Added
+
+- `generate_layout_pdf()` public function in `pdf_report.py` — standalone
+  layout-recommendations PDF with optional `PlacementConstraints` parameter.
+
+### Dependencies
+
+- **Added:** `plotly>=5.0`, `kaleido>=0.2`
+- **Removed:** `playwright>=1.40`, `matplotlib>=3.8`
+
+### Docker
+
+- Image shrinks by **~430 MB** — Playwright Chromium layer eliminated. (ADR-071)
+
 ## [v7.0.3] - 2026-02-25
 
 ### Dependencies

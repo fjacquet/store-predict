@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from store_predict.pipeline.health_checks import HealthCheckResult
     from store_predict.pipeline.layout_models import LayoutProposal
 
-__all__ = ["_layout_metric_rows", "format_storage", "generate_report_pdf", "sanitize_filename", "validate_logo"]
+__all__ = ["_layout_metric_rows", "format_storage", "generate_layout_pdf", "generate_report_pdf", "sanitize_filename", "validate_logo"]
 
 # ---------------------------------------------------------------------------
 # Font registration
@@ -665,4 +665,90 @@ def generate_report_pdf(
         _draw_header(canvas, doc, project_name, report_title, dell_logo_preprocessed, company_logo_preprocessed)
 
     doc.build(story, onFirstPage=on_first_page, onLaterPages=on_later_pages)
+    return buf.getvalue()
+
+
+def generate_layout_pdf(
+    summary: CalculationSummary,
+    project_name: str,
+    locale: str = "fr",
+    constraints: object | None = None,
+) -> bytes:
+    """Generate a standalone layout recommendations PDF and return raw bytes.
+
+    Args:
+        summary: Calculation results used to derive layout proposals.
+        project_name: Customer / project label for the header.
+        locale: Language for report labels, e.g. ``"fr"`` or ``"en"``.
+        constraints: Optional PlacementConstraints; uses defaults if None.
+    """
+    from store_predict.pipeline.layout_engine import generate_all_proposals
+    from store_predict.pipeline.layout_models import PlacementConstraints
+
+    _i18n.set("locale", locale)
+    _i18n.set("fallback", "en")
+
+    buf = BytesIO()
+    doc = SimpleDocTemplate(
+        buf,
+        pagesize=A4,
+        rightMargin=20 * mm,
+        leftMargin=20 * mm,
+        topMargin=60 * mm,
+        bottomMargin=20 * mm,
+    )
+
+    styles = getSampleStyleSheet()
+    heading_style = ParagraphStyle(
+        "Heading", parent=styles["Heading2"], fontName="VeraBd", fontSize=13, textColor=_BRAND_BLUE, spaceAfter=6
+    )
+    body_style = ParagraphStyle("Body", parent=styles["Normal"], fontName="Vera", fontSize=9, leading=13)
+
+    real_constraints = constraints if isinstance(constraints, PlacementConstraints) else PlacementConstraints()
+    proposals = generate_all_proposals(summary, real_constraints)
+
+    story: list[Flowable] = []
+    story.append(Paragraph(t("pdf.layout_heading"), heading_style))
+    story.append(Spacer(1, 12))
+
+    if not proposals:
+        story.append(Paragraph(t("pdf.no_data"), body_style))
+    else:
+        layout_header = [
+            t("layout_page.metric"),
+            t("strategy.consolidation"),
+            t("strategy.performance"),
+            t("strategy.uniform"),
+        ]
+        layout_data: list[list[str]] = [layout_header]
+        for metric_key, c_val, p_val, u_val in _layout_metric_rows(proposals):
+            layout_data.append([t(f"metrics.{metric_key}"), c_val, p_val, u_val])
+
+        layout_col_widths = [160, 100, 100, 100]
+        layout_table = Table(layout_data, colWidths=layout_col_widths)
+        layout_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
+                    ("FONTNAME", (0, 1), (-1, -1), "Vera"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 9),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("TOPPADDING", (0, 0), (-1, -1), 3),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+                ]
+            )
+        )
+        story.append(layout_table)
+
+    dell_logo_preprocessed = _preprocess_logo(_DELL_LOGO_BYTES) if _DELL_LOGO_BYTES else None
+    report_title = t("pdf.layout_heading")
+
+    def on_page(canvas: Canvas, doc: SimpleDocTemplate) -> None:
+        _draw_header(canvas, doc, project_name, report_title, dell_logo_preprocessed, None)
+
+    doc.build(story, onFirstPage=on_page, onLaterPages=on_page)
     return buf.getvalue()

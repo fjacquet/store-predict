@@ -7,13 +7,11 @@ from typing import Any
 
 from nicegui import app, ui
 
-from store_predict.config import APP_PORT
 from store_predict.i18n import t
 from store_predict.i18n.locale import get_locale
 from store_predict.pipeline.calculation import CalculationSummary, calculate
 from store_predict.pipeline.layout_engine import generate_all_proposals
 from store_predict.pipeline.layout_models import DatastoreRecommendation, LayoutProposal, PlacementConstraints
-from store_predict.services import playwright_pdf, print_session
 from store_predict.services.excel_report import generate_report_xlsx
 from store_predict.services.pdf_report import sanitize_filename
 from store_predict.ui.layout import layout
@@ -467,38 +465,16 @@ def _rebuild_layout(
 
 
 async def _on_download_layout_pdf(summary: CalculationSummary, project_name: str) -> None:
-    """Generate layout PDF via Playwright layout print page and trigger download."""
+    """Generate layout PDF via ReportLab and trigger browser download."""
+    from nicegui import run
+
+    from store_predict.services.pdf_report import generate_layout_pdf
+
     locale = get_locale()
     constraints = _load_constraints()
 
-    data: dict[str, Any] = {
-        "vm_data": [
-            {
-                "vm_name": vm.vm_name,
-                "workload_category": vm.workload_category,
-                "provisioned_mib": vm.provisioned_mib,
-                "in_use_mib": vm.in_use_mib,
-                "drr": vm.drr,
-                "peak_iops": vm.peak_iops,
-                "avg_iops": vm.avg_iops,
-                "peak_throughput_mbs": vm.peak_throughput_mbs,
-                "iops_8k_equivalent": vm.iops_8k_equivalent,
-            }
-            for vm in summary.vm_calculations
-        ],
-        "project_name": project_name,
-        "locale": locale,
-        "constraints": {
-            "max_ds_capacity_mib": constraints.max_ds_capacity_mib,
-            "max_vms_per_ds": constraints.max_vms_per_ds,
-            "iops_budget_per_ds": constraints.iops_budget_per_ds,
-            "snapshot_reserve_pct": constraints.snapshot_reserve_pct,
-            "growth_margin_pct": constraints.growth_margin_pct,
-        },
-    }
-    token = print_session.create(data)
     try:
-        pdf_bytes = await playwright_pdf.generate_layout_pdf(token, APP_PORT)
+        pdf_bytes = await run.io_bound(generate_layout_pdf, summary, project_name, locale, constraints)
     except Exception:
         ui.notify(t("error.unexpected"), type="negative")
         return
