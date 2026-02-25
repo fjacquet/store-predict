@@ -235,7 +235,6 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
                 color=txt_color,
                 zorder=4,
                 fontproperties=_fp,
-            ): apply Open Sans to all chart labels (bar, pie, Sankey))
             )
 
         _flow_band(left_x + node_w, seg_left_y0, seg_prov_h, mid_x, seg_mid_y0, seg_mid_h, color)
