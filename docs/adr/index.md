@@ -75,3 +75,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [069](069-concerns-export-pure-reportlab.md) | Standalone concerns export as pure ReportLab | Accepted | 2026-02-24 |
 | [070](070-playwright-browsers-path-docker.md) | PLAYWRIGHT_BROWSERS_PATH for non-root Docker execution | Accepted | 2026-02-25 |
 | [071](071-plotly-kaleido-pdf-charts.md) | Plotly + Kaleido for PDF charts, Playwright removed | Accepted | 2026-02-25 |
+| [072](072-dark-mode-auto-detect.md) | Auto-detect OS dark mode on first visit | Accepted | 2026-02-25 |
