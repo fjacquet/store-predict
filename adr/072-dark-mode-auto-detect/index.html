@@ -21,7 +21,7 @@
     
     
       
-        <title>ADR-044: Language Switch via Full Page Reload - StorePredict</title>
+        <title>ADR-072: Auto-Detect OS Dark Mode on First Visit - StorePredict</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-044-language-switch-via-full-page-reload" class="md-skip">
+        <a href="#adr-072-auto-detect-os-dark-mode-on-first-visit" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR-044: Language Switch via Full Page Reload
+              ADR-072: Auto-Detect OS Dark Mode on First Visit
             
           </span>
         </div>
@@ -564,44 +564,50 @@
   
 
 
-<h1 id="adr-044-language-switch-via-full-page-reload">ADR-044: Language Switch via Full Page Reload</h1>
+<h1 id="adr-072-auto-detect-os-dark-mode-on-first-visit">ADR-072: Auto-Detect OS Dark Mode on First Visit</h1>
 <p><strong>Status:</strong> Accepted
-<strong>Date:</strong> 2026-02-20</p>
+<strong>Date:</strong> 2026-02-25
+<strong>Amends:</strong> ADR-020</p>
 <h2 id="context">Context</h2>
-<p>When a user toggles the FR/EN language switch in the header, all visible UI elements must update to the new language. NiceGUI's reactive UI system (<code>@ui.refreshable</code>) is the natural mechanism for this, but it has a constraint: <code>ui.header</code> (and its children, including the nav bar and language toggle) cannot be placed inside a <code>@ui.refreshable</code> function in NiceGUI 1.5+.</p>
-<p>This means the header — which contains nav links and the locale toggle — cannot be dynamically re-rendered without a page reload.</p>
+<p>ADR-020 established that the dark mode preference is persisted in <code>app.storage.user</code>.
+The initial implementation defaulted to <strong>light mode</strong> on first visit — <code>app.storage.user["dark_mode"]</code>
+is absent for new users, <code>ui.dark_mode()</code> receives <code>None</code> via <code>bind_value</code>, which NiceGUI
+interprets as "auto", but the bound <code>ui.switch</code> appears as <em>off</em> (falsy), giving no visual
+cue and leaving users on light mode even when their OS is in dark mode.</p>
+<p>Pre-sales engineers frequently use StorePredict on MacBooks in dark mode. Having to
+manually toggle the switch on every fresh session degrades the experience.</p>
 <h2 id="decision">Decision</h2>
-<p>Language switching triggers a full browser page reload via <code>ui.run_javascript('location.reload()')</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_locale_toggle</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">target_locale</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span> <span class="k">if</span> <span class="n">get_locale</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;fr&quot;</span> <span class="k">else</span> <span class="s2">&quot;fr&quot;</span>
-    <span class="n">target_label</span> <span class="o">=</span> <span class="n">t</span><span class="p">(</span><span class="s2">&quot;layout.language&quot;</span><span class="p">)</span>  <span class="c1"># &quot;EN&quot; when current is FR, &quot;FR&quot; when current is EN</span>
-
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_switch</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">set_locale</span><span class="p">(</span><span class="n">target_locale</span><span class="p">)</span>
-        <span class="k">await</span> <span class="n">ui</span><span class="o">.</span><span class="n">run_javascript</span><span class="p">(</span><span class="s2">&quot;location.reload()&quot;</span><span class="p">)</span>
-
-    <span class="n">ui</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">target_label</span><span class="p">,</span> <span class="n">on_click</span><span class="o">=</span><span class="n">_switch</span><span class="p">)</span><span class="o">.</span><span class="n">props</span><span class="p">(</span><span class="s2">&quot;flat dense&quot;</span><span class="p">)</span>
+<p>On first visit (no <code>"dark_mode"</code> key in <code>app.storage.user</code>), call <code>ui.dark_mode().auto()</code>
+explicitly before binding. This signals NiceGUI to honour the browser's
+<code>prefers-color-scheme</code> media query, applying dark or light mode automatically to match
+the OS setting.</p>
+<div class="highlight"><pre><span></span><code><span class="n">dark</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">dark_mode</span><span class="p">()</span>
+<span class="k">if</span> <span class="s2">&quot;dark_mode&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">app</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">user</span><span class="p">:</span>
+    <span class="n">dark</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+<span class="n">dark</span><span class="o">.</span><span class="n">bind_value</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="s2">&quot;dark_mode&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>The new locale is persisted to <code>app.storage.tab['locale']</code> before the reload, so the page reloads in the correct language.</p>
+<p>Once the user explicitly toggles the switch, <code>True</code> or <code>False</code> is written to storage and
+auto-detection is no longer applied on subsequent visits.</p>
 <h2 id="rationale">Rationale</h2>
 <ul>
-<li><strong>Correctness over elegance</strong>: A full reload guarantees all elements reflect the new locale — including the header, AG Grid column headers (set at construction time), and any string computed outside the refreshable scope</li>
-<li><strong>No partial-update bugs</strong>: Partial refresh approaches (refreshing only the body) risk leaving stale strings in the header or in AG Grid</li>
-<li><strong>Acceptable UX cost</strong>: Language switching is infrequent (done once per session). The reload is fast given the app's small payload</li>
-<li><strong>AG Grid column headers</strong>: AG Grid community edition does not support dynamic locale switching. Column headers are set at construction time via <code>t("columns.*")</code>. A page reload is the only way to re-render them in the new locale</li>
+<li><code>ui.dark_mode().auto()</code> is a first-class NiceGUI API — no JavaScript or CSS hacks required.</li>
+<li>The stored preference (ADR-020) is still respected: <code>if "dark_mode" not in storage</code> ensures
+  auto-detect only runs when no explicit choice has been made.</li>
+<li>Clearing browser cookies resets to auto-detect, which is the correct default.</li>
 </ul>
 <h2 id="alternatives-considered">Alternatives Considered</h2>
 <ul>
-<li><strong><code>@ui.refreshable</code> for entire page body</strong>: Feasible for body content but impossible for <code>ui.header</code>. Would still leave header strings stale after language switch</li>
-<li><strong>Reactive string bindings</strong>: NiceGUI does not support reactive string bindings that would auto-update all <code>ui.label</code> elements on a state change</li>
-<li><strong>Dynamic AG Grid column re-definition</strong>: AG Grid community edition does not expose a public API to replace column definitions after initialization without destroying and recreating the grid (which is equivalent to a page reload anyway)</li>
+<li><strong>Set default to <code>True</code> (always dark):</strong> Forces dark mode on users who prefer light. Rejected.</li>
+<li><strong>Read <code>prefers-color-scheme</code> via JavaScript and write to storage:</strong> More complex; the
+  NiceGUI <code>.auto()</code> API achieves the same outcome natively. Rejected.</li>
 </ul>
 <h2 id="consequences">Consequences</h2>
 <ul>
-<li>Language switch always works correctly for all UI elements</li>
-<li>Slight UX friction on language switch — accepted given the infrequent nature of the action</li>
-<li>I18N-05 requirement wording updated to reflect this constraint: "Language switch updates all visible UI elements (implemented via full page reload — NiceGUI 1.5+ prohibits <code>ui.header</code> inside <code>@ui.refreshable</code>)"</li>
-<li>If NiceGUI adds support for refreshable headers in a future version, the reload can be replaced with <code>ui.refreshable</code> without changing the public API of <code>add_locale_toggle()</code></li>
+<li>First-time visitors automatically match their OS theme with zero interaction required.</li>
+<li>The manual toggle switch remains for users who want to override the OS preference.</li>
+<li>The toggle switch shows <em>off</em> (falsy) when auto-dark is active and the user has never
+  manually set a preference. This is a minor UX imprecision but acceptable given the
+  simplicity of the implementation.</li>
 </ul>
 
 
