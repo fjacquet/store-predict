@@ -52,9 +52,13 @@ def generate_report_xlsx(
     wb = xlsxwriter.Workbook(buf, {"in_memory": True})
     wb.set_properties({"title": project_name})
 
+    _font = "Open Sans"
+    _font_light = "Open Sans Light"
+
     header_fmt = wb.add_format(
         {
             "bold": True,
+            "font_name": _font,
             "bg_color": _BRAND_BLUE,
             "font_color": _BRAND_WHITE,
             "border": 1,
@@ -62,13 +66,17 @@ def generate_report_xlsx(
             "valign": "vcenter",
         }
     )
-    bold_fmt = wb.add_format({"bold": True})
-    number_fmt = wb.add_format({"num_format": "0.00", "align": "right"})
-    int_fmt = wb.add_format({"num_format": "0", "align": "right"})
-    alt_fmt = wb.add_format({"bg_color": _LIGHT_GREY})
-    alt_right_fmt = wb.add_format({"bg_color": _LIGHT_GREY, "num_format": "0.00", "align": "right"})
-    indent_fmt = wb.add_format({"indent": 2, "font_color": "#555555"})
-    indent_num_fmt = wb.add_format({"indent": 1, "font_color": "#555555", "num_format": "0.00", "align": "right"})
+    bold_fmt = wb.add_format({"bold": True, "font_name": _font})
+    number_fmt = wb.add_format({"font_name": _font_light, "num_format": "0.00", "align": "right"})
+    int_fmt = wb.add_format({"font_name": _font_light, "num_format": "0", "align": "right"})
+    alt_fmt = wb.add_format({"font_name": _font_light, "bg_color": _LIGHT_GREY})
+    alt_right_fmt = wb.add_format(
+        {"font_name": _font_light, "bg_color": _LIGHT_GREY, "num_format": "0.00", "align": "right"}
+    )
+    indent_fmt = wb.add_format({"font_name": _font_light, "indent": 2, "font_color": "#555555"})
+    indent_num_fmt = wb.add_format(
+        {"font_name": _font_light, "indent": 1, "font_color": "#555555", "num_format": "0.00", "align": "right"}
+    )
 
     _write_summary_sheet(wb, summary, header_fmt, bold_fmt, number_fmt, int_fmt)
     _write_breakdown_sheet(wb, summary, header_fmt, number_fmt, int_fmt, alt_fmt, alt_right_fmt)
@@ -166,9 +174,9 @@ def _write_breakdown_sheet(
 
     # Totals row
     totals_row = len(summary.workload_groups) + 1
-    bold_int_fmt = wb.add_format({"bold": True, "num_format": "0", "align": "right"})
-    bold_num_fmt = wb.add_format({"bold": True, "num_format": "0.00", "align": "right"})
-    bold_fmt_cell = wb.add_format({"bold": True})
+    bold_int_fmt = wb.add_format({"bold": True, "font_name": "Open Sans", "num_format": "0", "align": "right"})
+    bold_num_fmt = wb.add_format({"bold": True, "font_name": "Open Sans", "num_format": "0.00", "align": "right"})
+    bold_fmt_cell = wb.add_format({"bold": True, "font_name": "Open Sans"})
     ws.write(totals_row, 0, "TOTAL", bold_fmt_cell)
     ws.write(totals_row, 1, summary.total_vms, bold_int_fmt)
     ws.write(totals_row, 2, summary.total_provisioned_mib / 1024.0, bold_num_fmt)
