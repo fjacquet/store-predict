@@ -77,3 +77,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [071](071-plotly-kaleido-pdf-charts.md) | Plotly + Kaleido for PDF charts, Playwright removed | Accepted | 2026-02-25 |
 | [072](072-dark-mode-auto-detect.md) | Auto-detect OS dark mode on first visit | Accepted | 2026-02-25 |
 | [073](073-open-sans-kpi-pdf-polish.md) | Open Sans fonts, KPI cards, and PDF visual polish | Accepted | 2026-02-25 |
+| [074](074-open-sans-excel-chart-typography.md) | Open Sans typography in Excel export and PDF charts | Accepted | 2026-02-25 |

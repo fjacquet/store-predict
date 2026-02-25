@@ -1,6 +1,6 @@
 # Product Requirements Document — StorePredict
 
-**Version:** 7.1 (current as of 2026-02-25)
+**Version:** 7.1.3 (current as of 2026-02-25)
 **Status:** Living document — updated after each milestone
 **Owner:** Pre-Sales Engineering
 
@@ -262,6 +262,8 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | Excel Findings worksheet | Health findings exported as a dedicated worksheet with columns: Finding, Severity, Category, Affected VMs, Detail, Cluster | v5.0 |
 | French character support | Open Sans Light/SemiBold TTF (OFL) in ReportLab; Vera fallback in test environments | v1.0 / v7.1.2 |
 | PDF visual polish | KPI card strip for totals (brand-blue, 2 rows × 3 cards); page-number footer; brand-blue HRFlowable rules under all section headings; KeepTogether on health findings summary; styled DS→VM header rows | v7.1.2 |
+| Excel typography | Open Sans (headers/bold) and Open Sans Light (body/numbers) applied to all XlsxWriter cell formats; font shared via `_fonts.py` constant | v7.1.3 |
+| PDF chart typography | Open Sans applied to bar-chart axis labels, pie-chart slice labels, and Sankey `ax.text()` calls via `FONT_REGULAR` / `FontProperties` from shared `_fonts.py` | v7.1.3 |
 
 ### 4.11 Session Persistence
 
@@ -409,6 +411,7 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | v6.1 | Dual-Source Merge & vMSC Fix | RVTools + LiveOptics dual-source merge; vMSC per-site sizing without requiring 2+ distinct datacenters |
 | v7.0 | Save & Restore + Concerns | Session save/restore via zip archive; concerns remediation hints; standalone concerns PDF and CSV exports |
 | v7.1 | PDF Visual Polish & Container Fixes | Open Sans fonts; KPI card totals strip; page-number footer; section rule dividers; health-table orphan fix; styled DS→VM headers; matplotlib Agg Sankey (container-safe) |
+| v7.1.3 | Typography Completeness | Open Sans applied to PDF chart labels (bar, pie, Sankey) and all Excel cell formats; `_fonts.py` shared module for consistent font registration across PDF and Excel |
 
 ---
 
