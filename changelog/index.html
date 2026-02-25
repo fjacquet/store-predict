@@ -464,6 +464,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v713-2026-02-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v7.1.3] - 2026-02-25
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v7.1.3] - 2026-02-25">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v712-2026-02-25" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -476,7 +515,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -515,7 +554,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -593,7 +632,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -721,7 +760,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#added_2" class="md-nav__link">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -799,7 +838,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed_1" class="md-nav__link">
+  <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -1647,6 +1686,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v713-2026-02-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v7.1.3] - 2026-02-25
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v7.1.3] - 2026-02-25">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v712-2026-02-25" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1659,7 +1737,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added" class="md-nav__link">
+  <a href="#added_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1698,7 +1776,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#fixed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -1776,7 +1854,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#added_1" class="md-nav__link">
+  <a href="#added_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1904,7 +1982,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#added_2" class="md-nav__link">
+  <a href="#added_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         Added
@@ -1982,7 +2060,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fixed_1" class="md-nav__link">
+  <a href="#fixed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Fixed
@@ -2753,8 +2831,18 @@
 <h1 id="changelog">Changelog</h1>
 <p>All notable changes to StorePredict are documented here.</p>
 <h2 id="unreleased">[Unreleased]</h2>
-<h2 id="v712-2026-02-25">[v7.1.2] - 2026-02-25</h2>
+<h2 id="v713-2026-02-25">[v7.1.3] - 2026-02-25</h2>
 <h3 id="added">Added</h3>
+<ul>
+<li><strong>Open Sans in Excel report</strong> — all XlsxWriter cell formats now specify <code>"Open Sans"</code> (bold/header) or <code>"Open Sans Light"</code> (body/numbers), matching PDF report typography.</li>
+</ul>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li><strong>PDF chart labels font</strong> — bar charts, pie chart, and Sankey diagram now render axis/slice labels in Open Sans via <code>FONT_REGULAR</code> constant imported from the shared <code>_fonts.py</code> module.</li>
+<li><strong>Rebase artifact</strong> — stray commit-message text left in <code>pdf_charts.py</code> line 238 by a rebase conflict caused a <code>SyntaxError</code> at runtime; removed.</li>
+</ul>
+<h2 id="v712-2026-02-25">[v7.1.2] - 2026-02-25</h2>
+<h3 id="added_1">Added</h3>
 <ul>
 <li><strong>Open Sans fonts bundled</strong> — <code>OpenSansLight.ttf</code> and <code>OpenSansSemiBold.ttf</code> (OFL) shipped in <code>data/</code>; registered as <code>AppFont</code>/<code>AppFontBd</code> via <code>_register_fonts()</code> with automatic fallback to Vera when fonts are absent (test environments).</li>
 <li><strong>KPI card strip</strong> — totals section replaced by two rows of brand-blue KPI cards (<code>_make_kpi_cards</code>): VMs / CPUs / Memory on row 1, Provisioned / In-Use / Required on row 2. Values use a compact single-unit formatter (<code>_fmt_kpi_storage</code>: <code>"5.2 TiB"</code> instead of <code>"5284.0 GiB (5.2 TiB)"</code>) to prevent wrapping at 17 pt.</li>
@@ -2770,7 +2858,7 @@
 <li>All <code>"Vera"</code> / <code>"VeraBd"</code> literals in <code>pdf_report.py</code> replaced by <code>_FONT_REGULAR</code> / <code>_FONT_BOLD</code> constants.</li>
 </ul>
 <h2 id="v711-2026-02-25">[v7.1.1] - 2026-02-25</h2>
-<h3 id="fixed">Fixed</h3>
+<h3 id="fixed_1">Fixed</h3>
 <ul>
 <li><strong>PDF in container</strong>: replaced Plotly + kaleido Sankey with matplotlib Agg backend — kaleido 1.2.0 required a headless browser unavailable in the slim Docker image, causing PDF generation to fail silently. Cubic Bezier sigmoid flow bands rendered via <code>FigureCanvasAgg</code> give the same professional appearance without any system dependencies.</li>
 </ul>
@@ -2794,7 +2882,7 @@
   removed, phase directories 27–28 archived to <code>milestones/v7.0-phases/</code>.</li>
 </ul>
 <h2 id="v707-2026-02-25">[v7.0.7] - 2026-02-25</h2>
-<h3 id="added_1">Added</h3>
+<h3 id="added_2">Added</h3>
 <ul>
 <li><strong>Automatic dark mode</strong> — the app now follows the browser/OS <code>prefers-color-scheme</code>
   setting on first visit. Users who have never set a preference see dark mode automatically
@@ -2848,7 +2936,7 @@
   <code>/layout/print</code>) and the one-time print-session token mechanism are deleted.</li>
 <li><strong>matplotlib removed</strong> — was only used for the Sankey diagram; replaced by Plotly.</li>
 </ul>
-<h3 id="added_2">Added</h3>
+<h3 id="added_3">Added</h3>
 <ul>
 <li><code>generate_layout_pdf()</code> public function in <code>pdf_report.py</code> — standalone
   layout-recommendations PDF with optional <code>PlacementConstraints</code> parameter.</li>
@@ -2874,7 +2962,7 @@
 <li><strong>openai</strong> 2.21.0 → 2.24.0</li>
 </ul>
 <h2 id="v702-2026-02-25">[v7.0.2] - 2026-02-25</h2>
-<h3 id="fixed_1">Fixed</h3>
+<h3 id="fixed_2">Fixed</h3>
 <ul>
 <li><strong>PDF export broken in production container</strong> — Playwright's Chromium was
   installed to <code>/root/.cache/ms-playwright</code> (root) but the app runs as <code>appuser</code>,
