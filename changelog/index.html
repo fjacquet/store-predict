@@ -1063,6 +1063,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v706-2026-02-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v7.0.6] - 2026-02-25
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v7.0.6] - 2026-02-25">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v705-2026-02-25" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1086,7 +1125,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -1114,7 +1153,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#changed_1" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -1125,7 +1164,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed" class="md-nav__link">
+  <a href="#removed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Removed
@@ -3749,6 +3788,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v706-2026-02-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v7.0.6] - 2026-02-25
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v7.0.6] - 2026-02-25">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v705-2026-02-25" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3772,7 +3850,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -3800,7 +3878,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#changed_1" class="md-nav__link">
+  <a href="#changed_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Changed
@@ -3811,7 +3889,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed" class="md-nav__link">
+  <a href="#removed_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Removed
@@ -4671,6 +4749,24 @@
 <h1 id="changelog">Changelog</h1>
 <p>All notable changes to StorePredict are documented here.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h2 id="v706-2026-02-25">[v7.0.6] - 2026-02-25</h2>
+<h3 id="changed">Changed</h3>
+<ul>
+<li><strong>Single comprehensive PDF</strong> — the layout datastore detail (per-strategy tables with
+  DS capacity, utilisation, IOPS, and workload types) is now appended directly to the
+  main sizing report PDF. The separate Layout PDF download button is removed; one
+  download from the Report page delivers everything.</li>
+<li><strong>Improved DS detail table formatting</strong> — workload-type column is now word-wrapped
+  (no more 30-character truncation); column widths are rebalanced to fill the full A4
+  usable width (482 pt).</li>
+<li><strong>VM lists rendered as compact 3-column tables</strong> — replacing the previous plain
+  comma-separated paragraph, making the assignment lists scannable at a glance.</li>
+</ul>
+<h3 id="removed">Removed</h3>
+<ul>
+<li><code>generate_layout_pdf()</code> function — superseded by the extended <code>generate_report_pdf()</code>.</li>
+<li>Layout PDF download button from the Layout page.</li>
+</ul>
 <h2 id="v705-2026-02-25">[v7.0.5] - 2026-02-25</h2>
 <h3 id="performance">Performance</h3>
 <ul>
@@ -4679,20 +4775,20 @@
   on all <code>COPY</code> instructions. The venv is now created as <code>appuser</code> from the start;
   no ownership fixup layer is needed.</li>
 </ul>
-<h3 id="changed">Changed</h3>
+<h3 id="changed_1">Changed</h3>
 <ul>
 <li><strong><code>pyright</code> moved to dev dependencies</strong> — it is a static type-checker, not a runtime
   dependency, and should not be installed in production containers.</li>
 </ul>
 <h2 id="v704-2026-02-25">[v7.0.4] - 2026-02-25</h2>
-<h3 id="changed_1">Changed</h3>
+<h3 id="changed_2">Changed</h3>
 <ul>
 <li><strong>PDF charts: matplotlib Sankey replaced by Plotly + kaleido</strong> — the Sankey diagram
   in PDF exports is now rendered by <code>plotly.graph_objects.Sankey</code> and exported as PNG
   via kaleido, producing a cleaner, more professional output that closely matches the
   ECharts Sankey visible in the web UI.</li>
 </ul>
-<h3 id="removed">Removed</h3>
+<h3 id="removed_1">Removed</h3>
 <ul>
 <li><strong>Playwright / headless Chromium removed</strong> — PDF export no longer requires a browser.
   The existing ReportLab path (<code>pdf_report.py</code>) is now wired directly to both the
