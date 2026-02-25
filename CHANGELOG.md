@@ -4,6 +4,16 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.1.1] - 2026-02-25
+
+### Fixed
+
+- **PDF in container**: replaced Plotly + kaleido Sankey with matplotlib Agg backend — kaleido 1.2.0 required a headless browser unavailable in the slim Docker image, causing PDF generation to fail silently. Cubic Bezier sigmoid flow bands rendered via `FigureCanvasAgg` give the same professional appearance without any system dependencies.
+
+### Removed
+
+- `plotly>=5.0` and `kaleido>=0.2` dependencies (replaced by `matplotlib>=3.8`)
+
 ## [v7.1.0] - 2026-02-25
 
 ### Changed
