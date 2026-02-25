@@ -4,6 +4,22 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.1.0] - 2026-02-25
+
+### Changed
+
+- **MkDocs navigation clean-up** — individual ADR and Research pages are now
+  declared `not_in_nav`; `mkdocs build` is warning-free. Pages are still built
+  and fully reachable via their index tables (`adr/index.md`,
+  `research/index.md`). Navigation collapses to index pages only, keeping the
+  sidebar concise.
+
+### Internal
+
+- GSD planning files updated: v5.0 and v7.0 milestone accomplishments filled in,
+  v7.0.x key decisions captured in PROJECT.md, stale Playwright references
+  removed, phase directories 27–28 archived to `milestones/v7.0-phases/`.
+
 ## [v7.0.7] - 2026-02-25
 
 ### Added
