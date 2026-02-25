@@ -12,7 +12,6 @@ import store_predict.ui.pages.concerns
 # Import pages to register their routes with NiceGUI
 import store_predict.ui.pages.layout_page
 import store_predict.ui.pages.report
-import store_predict.ui.pages.report_print
 import store_predict.ui.pages.review
 import store_predict.ui.pages.scope
 import store_predict.ui.pages.upload  # noqa: F401
