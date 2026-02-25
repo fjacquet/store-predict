@@ -1,27 +1,30 @@
 # syntax=docker/dockerfile:1
 FROM python:3.12-slim
 
-WORKDIR /app
-
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-ENV UV_LINK_MODE=copy
+# Create non-root user before any files land in /app — eliminates chown -R layer
+RUN useradd --uid 1000 --create-home --shell /bin/bash appuser
 
-# ── Layer 1: Install Python dependencies only (cached until uv.lock changes) ──
-# uv sync --no-install-project installs all deps without the project package.
-# This layer only re-runs when pyproject.toml or uv.lock changes.
-COPY pyproject.toml uv.lock ./
-RUN --mount=type=cache,target=/root/.cache/uv \
+WORKDIR /app
+RUN chown appuser:appuser /app
+
+ENV UV_LINK_MODE=copy
+# Use a writable cache dir accessible to appuser
+ENV UV_CACHE_DIR=/tmp/uv-cache
+
+USER appuser
+
+# ── Layer 1: Install Python dependencies (cached until uv.lock changes) ──────
+# Files are owned by appuser from the start — no chown -R needed later.
+COPY --chown=appuser:appuser pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/tmp/uv-cache,uid=1000,gid=1000 \
     uv sync --frozen --no-install-project
 
-# ── Layer 2: Install the project itself (fast — code only, no downloads) ────
-# This is the only layer that re-runs on regular code changes.
-COPY src/ src/
-RUN --mount=type=cache,target=/root/.cache/uv \
+# ── Layer 2: Install the project itself (fast — code changes only) ────────────
+COPY --chown=appuser:appuser src/ src/
+RUN --mount=type=cache,target=/tmp/uv-cache,uid=1000,gid=1000 \
     uv sync --frozen
-
-RUN useradd --create-home --shell /bin/bash appuser && chown -R appuser:appuser /app
-USER appuser
 
 EXPOSE 8080
 
