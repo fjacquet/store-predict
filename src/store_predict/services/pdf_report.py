@@ -6,23 +6,18 @@ with Open Sans Light/SemiBold (falls back to Vera in test environments).
 
 from __future__ import annotations
 
-import os
 import re
 from datetime import UTC, datetime
 from io import BytesIO
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import i18n as _i18n
-import reportlab
 from PIL import Image as PilImage
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     Flowable,
     HRFlowable,
@@ -36,6 +31,8 @@ from reportlab.platypus import (
 )
 
 from store_predict.i18n import t
+from store_predict.services._fonts import FONT_BOLD as _FONT_BOLD
+from store_predict.services._fonts import FONT_REGULAR as _FONT_REGULAR
 from store_predict.services.pdf_charts import (
     make_before_after_bar_drawing,
     make_drr_bar_drawing,
@@ -51,28 +48,6 @@ if TYPE_CHECKING:
     from store_predict.pipeline.layout_models import LayoutProposal
 
 __all__ = ["_layout_metric_rows", "format_storage", "generate_report_pdf", "sanitize_filename", "validate_logo"]
-
-# ---------------------------------------------------------------------------
-# Font registration
-# ---------------------------------------------------------------------------
-_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
-_FONT_DIR = os.path.join(os.path.dirname(reportlab.__file__), "fonts")
-
-
-def _register_fonts() -> tuple[str, str]:
-    """Register Open Sans Light/SemiBold; fall back to Vera if not bundled."""
-    light = _DATA_DIR / "OpenSansLight.ttf"
-    bold = _DATA_DIR / "OpenSansSemiBold.ttf"
-    if light.exists() and bold.exists():
-        pdfmetrics.registerFont(TTFont("AppFont", str(light)))
-        pdfmetrics.registerFont(TTFont("AppFontBd", str(bold)))
-        return "AppFont", "AppFontBd"
-    pdfmetrics.registerFont(TTFont("AppFont", os.path.join(_FONT_DIR, "Vera.ttf")))
-    pdfmetrics.registerFont(TTFont("AppFontBd", os.path.join(_FONT_DIR, "VeraBd.ttf")))
-    return "AppFont", "AppFontBd"
-
-
-_FONT_REGULAR, _FONT_BOLD = _register_fonts()
 
 # Brand colour
 _BRAND_BLUE = colors.HexColor("#1e3a5f")

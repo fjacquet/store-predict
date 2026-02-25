@@ -11,6 +11,8 @@ from reportlab.graphics.shapes import Drawing
 from reportlab.lib import colors
 from reportlab.platypus import Flowable, Image, Spacer
 
+from store_predict.services._fonts import FONT_PATH_LIGHT, FONT_REGULAR
+
 if TYPE_CHECKING:
     from store_predict.pipeline.calculation import CalculationSummary
 
@@ -48,6 +50,10 @@ def make_drr_bar_drawing(summary: CalculationSummary, width: int = 400, height: 
     bc.categoryAxis.categoryNames = categories
     bc.categoryAxis.labels.angle = 30
     bc.categoryAxis.labels.boxAnchor = "ne"
+    bc.categoryAxis.labels.fontName = FONT_REGULAR
+    bc.categoryAxis.labels.fontSize = 7
+    bc.valueAxis.labels.fontName = FONT_REGULAR
+    bc.valueAxis.labels.fontSize = 7
     bc.bars[0].fillColor = DELL_BLUE_RL
     bc.valueAxis.valueMin = 0
 
@@ -75,6 +81,10 @@ def make_before_after_bar_drawing(summary: CalculationSummary, width: int = 500,
     bc.categoryAxis.categoryNames = categories
     bc.categoryAxis.labels.angle = 30
     bc.categoryAxis.labels.boxAnchor = "ne"
+    bc.categoryAxis.labels.fontName = FONT_REGULAR
+    bc.categoryAxis.labels.fontSize = 7
+    bc.valueAxis.labels.fontName = FONT_REGULAR
+    bc.valueAxis.labels.fontSize = 7
     bc.bars[0].fillColor = DELL_BLUE_RL
     bc.bars[1].fillColor = LIGHT_BLUE_RL
     bc.valueAxis.valueMin = 0
@@ -96,6 +106,8 @@ def make_pie_drawing(summary: CalculationSummary, width: int = 250, height: int 
     pc.height = 130
     pc.data = [grp.total_provisioned_mib for grp in summary.workload_groups]
     pc.labels = [grp.category[:15] for grp in summary.workload_groups]
+    pc.slices.fontName = FONT_REGULAR
+    pc.slices.fontSize = 7
 
     for i in range(len(pc.data)):
         pc.slices[i].fillColor = DELL_PALETTE_RL[i % len(DELL_PALETTE_RL)]
@@ -112,11 +124,14 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
     """
     from matplotlib.backends.backend_agg import FigureCanvasAgg
     from matplotlib.figure import Figure
+    from matplotlib.font_manager import FontProperties
     from matplotlib.patches import PathPatch, Rectangle
     from matplotlib.path import Path as MplPath
 
     if not summary.workload_groups or summary.total_provisioned_mib == 0:
         return Spacer(width_pt, 0)
+
+    _fp = FontProperties(fname=str(FONT_PATH_LIGHT)) if FONT_PATH_LIGHT.exists() else FontProperties()
 
     groups = summary.workload_groups
     total_prov = summary.total_provisioned_mib
@@ -151,7 +166,7 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
         ax.add_patch(Rectangle((x, y0), node_w, h, facecolor=color, edgecolor="none", zorder=3))
 
     def _label(x: float, y: float, text: str, size: float = 6.5, va: str = "bottom") -> None:
-        ax.text(x, y, text, ha="center", va=va, fontsize=size, color="#333333", zorder=5)
+        ax.text(x, y, text, ha="center", va=va, fontsize=size, color="#333333", zorder=5, fontproperties=_fp)
 
     def _hex_rgba(hx: str, alpha: float) -> tuple[float, float, float, float]:
         return (int(hx[1:3], 16) / 255, int(hx[3:5], 16) / 255, int(hx[5:7], 16) / 255, alpha)
@@ -219,6 +234,8 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
                 fontsize=5,
                 color=txt_color,
                 zorder=4,
+                fontproperties=_fp,
+            ): apply Open Sans to all chart labels (bar, pie, Sankey))
             )
 
         _flow_band(left_x + node_w, seg_left_y0, seg_prov_h, mid_x, seg_mid_y0, seg_mid_h, color)
