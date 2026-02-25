@@ -1,6 +1,6 @@
 # Product Requirements Document — StorePredict
 
-**Version:** 7.0 (current as of 2026-02-24)
+**Version:** 7.1 (current as of 2026-02-25)
 **Status:** Living document — updated after each milestone
 **Owner:** Pre-Sales Engineering
 
@@ -260,7 +260,8 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | PDF findings appendix | Dedicated appendix page listing all findings with Finding, Severity, Category, Affected VMs, Detail, and Cluster columns; findings sorted critical-first | v5.0 |
 | Excel export | Multi-sheet `.xlsx`: Summary, Workload Breakdown, VM Detail, Layout | v1.1 |
 | Excel Findings worksheet | Health findings exported as a dedicated worksheet with columns: Finding, Severity, Category, Affected VMs, Detail, Cluster | v5.0 |
-| French character support | Vera TTF fonts in ReportLab | v1.0 |
+| French character support | Open Sans Light/SemiBold TTF (OFL) in ReportLab; Vera fallback in test environments | v1.0 / v7.1.2 |
+| PDF visual polish | KPI card strip for totals (brand-blue, 2 rows × 3 cards); page-number footer; brand-blue HRFlowable rules under all section headings; KeepTogether on health findings summary; styled DS→VM header rows | v7.1.2 |
 
 ### 4.11 Session Persistence
 
@@ -350,7 +351,7 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 |------|-----------|-----------|
 | Language | Full Python (NiceGUI) | Single language, simpler deployment, no JS build step |
 | Data processing | pandas + openpyxl | Standard Python data stack; no heavy ML dependencies |
-| PDF | ReportLab Platypus + Vera fonts | Not WeasyPrint (200-400 MB Docker image overhead) |
+| PDF | ReportLab Platypus + Open Sans Light/SemiBold (OFL, bundled) | Not WeasyPrint (200-400 MB Docker image overhead); Vera fallback if fonts absent |
 | Deployment | Docker Compose, single container | Internal tool; no orchestration complexity needed |
 | Grid | AG Grid Community edition | Enterprise edition not licensed; master-detail unavailable |
 | Layout engine | Pure Python heuristics | No ILP/OR-Tools; BFD within 10-15% of optimal |
@@ -407,6 +408,7 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | v6.0 | Scope Filtering & Classifier Accuracy | `/scope` page with DC/cluster filtering, Windows Desktop → VDI reclassification, +7 new classifier patterns (TKG, HARBOR, RDS, UAG, EXCHG, SPBE/SPFE/SPOWA, LOGSTASH/KIBANA), AG Grid reliability fixes |
 | v6.1 | Dual-Source Merge & vMSC Fix | RVTools + LiveOptics dual-source merge; vMSC per-site sizing without requiring 2+ distinct datacenters |
 | v7.0 | Save & Restore + Concerns | Session save/restore via zip archive; concerns remediation hints; standalone concerns PDF and CSV exports |
+| v7.1 | PDF Visual Polish & Container Fixes | Open Sans fonts; KPI card totals strip; page-number footer; section rule dividers; health-table orphan fix; styled DS→VM headers; matplotlib Agg Sankey (container-safe) |
 
 ---
 

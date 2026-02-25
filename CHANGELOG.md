@@ -4,6 +4,23 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.1.2] - 2026-02-25
+
+### Added
+
+- **Open Sans fonts bundled** — `OpenSansLight.ttf` and `OpenSansSemiBold.ttf` (OFL) shipped in `data/`; registered as `AppFont`/`AppFontBd` via `_register_fonts()` with automatic fallback to Vera when fonts are absent (test environments).
+- **KPI card strip** — totals section replaced by two rows of brand-blue KPI cards (`_make_kpi_cards`): VMs / CPUs / Memory on row 1, Provisioned / In-Use / Required on row 2. Values use a compact single-unit formatter (`_fmt_kpi_storage`: `"5.2 TiB"` instead of `"5284.0 GiB (5.2 TiB)"`) to prevent wrapping at 17 pt.
+- **Page-number footer** — `_draw_footer` draws a `#cccccc` rule and a centred grey page number on every page.
+- **Section rules** — 1.5 pt brand-blue `HRFlowable` added after every section heading (Totals, Averages, Performance, Breakdown, Health, Charts, Layout, Findings detail).
+- **Health table orphan fix** — health findings summary block wrapped in `KeepTogether` so the heading and severity table always land on the same page.
+- **Datastore → VM styled header** — per-datastore VM lists now use a single `Table` per datastore: row 0 is the DS name as a light-blue (`#d0e8f4`) spanning header with brand-blue bold text; rows below are the 3-column VM name grid.
+
+### Changed
+
+- Heading style parent changed from `Heading2` to `Normal` (removes left indent); colour set to `_BRAND_BLUE`; font switched to `AppFontBd` (Open Sans SemiBold).
+- Dell logo no longer auto-injected from the bundled asset — logo only appears when the caller explicitly provides bytes.
+- All `"Vera"` / `"VeraBd"` literals in `pdf_report.py` replaced by `_FONT_REGULAR` / `_FONT_BOLD` constants.
+
 ## [v7.1.1] - 2026-02-25
 
 ### Fixed
