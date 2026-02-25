@@ -4,6 +4,20 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.0.5] - 2026-02-25
+
+### Performance
+
+- **Docker image ~389 MB smaller** — eliminated the `chown -R appuser:appuser /app`
+  layer by creating `appuser` before any `COPY` steps and using `--chown=appuser:appuser`
+  on all `COPY` instructions. The venv is now created as `appuser` from the start;
+  no ownership fixup layer is needed.
+
+### Changed
+
+- **`pyright` moved to dev dependencies** — it is a static type-checker, not a runtime
+  dependency, and should not be installed in production containers.
+
 ## [v7.0.4] - 2026-02-25
 
 ### Changed
