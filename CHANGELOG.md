@@ -4,6 +4,25 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.0.6] - 2026-02-25
+
+### Changed
+
+- **Single comprehensive PDF** — the layout datastore detail (per-strategy tables with
+  DS capacity, utilisation, IOPS, and workload types) is now appended directly to the
+  main sizing report PDF. The separate Layout PDF download button is removed; one
+  download from the Report page delivers everything.
+- **Improved DS detail table formatting** — workload-type column is now word-wrapped
+  (no more 30-character truncation); column widths are rebalanced to fill the full A4
+  usable width (482 pt).
+- **VM lists rendered as compact 3-column tables** — replacing the previous plain
+  comma-separated paragraph, making the assignment lists scannable at a glance.
+
+### Removed
+
+- `generate_layout_pdf()` function — superseded by the extended `generate_report_pdf()`.
+- Layout PDF download button from the Layout page.
+
 ## [v7.0.5] - 2026-02-25
 
 ### Performance

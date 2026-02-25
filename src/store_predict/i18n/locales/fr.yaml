@@ -139,6 +139,7 @@ pdf:
   drr_bar_title: "DRR par catégorie"
   before_after_title: "Capacité : avant vs après DRR"
   layout_heading: "Recommandations de disposition des datastores"
+  ds_detail_heading: "Datastores"
   layout_strategy_label: "Stratégie"
   findings_summary_heading: "Résumé des contrôles de santé"
   findings_detail_heading: "Détail des problèmes détectés"

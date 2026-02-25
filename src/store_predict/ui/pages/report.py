@@ -13,9 +13,6 @@ from store_predict.i18n.locale import get_locale
 from store_predict.pipeline.calculation import CalculationSummary, calculate
 from store_predict.pipeline.health_checks import HealthCheckResult, run_health_checks
 from store_predict.pipeline.session_archive import save_session_zip
-from nicegui import run
-
-from store_predict.services.pdf_report import generate_report_pdf
 from store_predict.services.charts import (
     echart_before_after_options,
     echart_drr_bar_options,
@@ -25,6 +22,7 @@ from store_predict.services.charts import (
 from store_predict.services.excel_report import generate_report_xlsx
 from store_predict.services.pdf_report import (
     format_storage,
+    generate_report_pdf,
     sanitize_filename,
     validate_logo,
 )

@@ -464,27 +464,6 @@ def _rebuild_layout(
 # ---------------------------------------------------------------------------
 
 
-async def _on_download_layout_pdf(summary: CalculationSummary, project_name: str) -> None:
-    """Generate layout PDF via ReportLab and trigger browser download."""
-    from nicegui import run
-
-    from store_predict.services.pdf_report import generate_layout_pdf
-
-    locale = get_locale()
-    constraints = _load_constraints()
-
-    try:
-        pdf_bytes = await run.io_bound(generate_layout_pdf, summary, project_name, locale, constraints)
-    except Exception:
-        ui.notify(t("error.unexpected"), type="negative")
-        return
-
-    safe_name = sanitize_filename(project_name)
-    date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
-    filename = f"StorePredict_Layout_{safe_name}_{date_str}.pdf"
-    ui.download(pdf_bytes, filename=filename, media_type="application/pdf")
-
-
 def _on_download_layout_excel(summary: CalculationSummary, project_name: str) -> None:
     """Generate Excel workbook (including layout sheet) and trigger download."""
     locale = get_locale()
@@ -676,21 +655,10 @@ async def layout_page() -> None:
         with ui.row().classes("w-full items-center justify-between"):
             ui.label(t("layout_page.title")).classes("text-2xl font-bold")
             with ui.row().classes("gap-2"):
-                pdf_btn = ui.button(
-                    t("layout_page.download_pdf"),
-                    icon="picture_as_pdf",
-                ).classes("bg-blue-700 text-white")
                 excel_btn = ui.button(
                     t("layout_page.download_excel"),
                     icon="table_view",
                 ).classes("bg-green-700 text-white")
-
-        async def _on_pdf() -> None:
-            pdf_btn.disable()
-            try:
-                await _on_download_layout_pdf(summary, project_name)
-            finally:
-                pdf_btn.enable()
 
         def _on_excel() -> None:
             excel_btn.disable()
@@ -699,7 +667,6 @@ async def layout_page() -> None:
             finally:
                 excel_btn.enable()
 
-        pdf_btn.on("click", _on_pdf)
         excel_btn.on("click", _on_excel)
 
         # Results container — holds comparison table; updated on settings change

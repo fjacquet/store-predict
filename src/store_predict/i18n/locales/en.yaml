@@ -139,6 +139,7 @@ pdf:
   drr_bar_title: "DRR by Workload Category"
   before_after_title: "Capacity: Before vs After DRR"
   layout_heading: "Datastore Layout Recommendations"
+  ds_detail_heading: "Datastores"
   layout_strategy_label: "Strategy"
   findings_summary_heading: "Health Check Summary"
   findings_detail_heading: "Health Check Findings"
