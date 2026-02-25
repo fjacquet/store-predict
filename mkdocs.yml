@@ -33,6 +33,10 @@ markdown_extensions:
   - admonition
   - tables
 
+not_in_nav: |
+  adr/0*.md
+  research/phase-*.md
+
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
