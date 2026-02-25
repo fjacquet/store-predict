@@ -4,6 +4,17 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.1.3] - 2026-02-25
+
+### Added
+
+- **Open Sans in Excel report** — all XlsxWriter cell formats now specify `"Open Sans"` (bold/header) or `"Open Sans Light"` (body/numbers), matching PDF report typography.
+
+### Fixed
+
+- **PDF chart labels font** — bar charts, pie chart, and Sankey diagram now render axis/slice labels in Open Sans via `FONT_REGULAR` constant imported from the shared `_fonts.py` module.
+- **Rebase artifact** — stray commit-message text left in `pdf_charts.py` line 238 by a rebase conflict caused a `SyntaxError` at runtime; removed.
+
 ## [v7.1.2] - 2026-02-25
 
 ### Added
