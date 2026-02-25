@@ -18,7 +18,6 @@ dependencies = [
     "litellm>=1.81.13",
     "pydantic>=2.12.5",
     "pydantic-settings>=2.13.0,<3.0",
-    "pyright>=1.1.408",
     "plotly>=5.0",
     "kaleido>=0.2",
 ]
@@ -29,6 +28,7 @@ dev = [
     "pytest-cov>=5.0",
     "ruff>=0.9",
     "mypy>=1.10",
+    "pyright>=1.1.408",
     "pandas-stubs>=2.2",
 ]
 docs = [
