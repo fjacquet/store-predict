@@ -11,28 +11,24 @@
       
       
       
-        <link rel="prev" href="../changelog/">
-      
-      
-        <link rel="next" href="001-nicegui-framework/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
-        <title>Overview - StorePredict</title>
+        <title>ADR-070: PLAYWRIGHT_BROWSERS_PATH for Non-Root Docker Execution - StorePredict</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +47,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture-decision-records" class="md-skip">
+        <a href="#adr-070-playwright_browsers_path-for-non-root-docker-execution" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +88,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="StorePredict" class="md-header__button md-logo" aria-label="StorePredict" data-md-component="logo">
+    <a href="../.." title="StorePredict" class="md-header__button md-logo" aria-label="StorePredict" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              ADR-070: PLAYWRIGHT_BROWSERS_PATH for Non-Root Docker Execution
             
           </span>
         </div>
@@ -228,7 +224,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="StorePredict" class="md-nav__button md-logo" aria-label="StorePredict" data-md-component="logo">
+    <a href="../.." title="StorePredict" class="md-nav__button md-logo" aria-label="StorePredict" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -258,7 +254,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -285,7 +281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/" class="md-nav__link">
+      <a href="../../getting-started/" class="md-nav__link">
         
   
   
@@ -312,7 +308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prd/" class="md-nav__link">
+      <a href="../../prd/" class="md-nav__link">
         
   
   
@@ -339,7 +335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
+      <a href="../../architecture/" class="md-nav__link">
         
   
   
@@ -420,7 +416,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/" class="md-nav__link">
+      <a href="../../user-guide/" class="md-nav__link">
         
   
   
@@ -509,7 +505,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/" class="md-nav__link">
+      <a href="../../research/" class="md-nav__link">
         
   
   
@@ -537,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-01-foundation/" class="md-nav__link">
+      <a href="../../research/phase-01-foundation/" class="md-nav__link">
         
   
   
@@ -565,7 +561,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-02-ingestion/" class="md-nav__link">
+      <a href="../../research/phase-02-ingestion/" class="md-nav__link">
         
   
   
@@ -593,7 +589,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-03-classification/" class="md-nav__link">
+      <a href="../../research/phase-03-classification/" class="md-nav__link">
         
   
   
@@ -621,7 +617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-04-ui/" class="md-nav__link">
+      <a href="../../research/phase-04-ui/" class="md-nav__link">
         
   
   
@@ -649,7 +645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-05-calculation/" class="md-nav__link">
+      <a href="../../research/phase-05-calculation/" class="md-nav__link">
         
   
   
@@ -677,7 +673,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-06-polish/" class="md-nav__link">
+      <a href="../../research/phase-06-polish/" class="md-nav__link">
         
   
   
@@ -705,7 +701,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-07-ui-enhancements/" class="md-nav__link">
+      <a href="../../research/phase-07-ui-enhancements/" class="md-nav__link">
         
   
   
@@ -733,7 +729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-08-i18n/" class="md-nav__link">
+      <a href="../../research/phase-08-i18n/" class="md-nav__link">
         
   
   
@@ -761,7 +757,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-08.1-liveoptics-zip/" class="md-nav__link">
+      <a href="../../research/phase-08.1-liveoptics-zip/" class="md-nav__link">
         
   
   
@@ -789,7 +785,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-09-excel-export/" class="md-nav__link">
+      <a href="../../research/phase-09-excel-export/" class="md-nav__link">
         
   
   
@@ -817,7 +813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-10-pdf-branding/" class="md-nav__link">
+      <a href="../../research/phase-10-pdf-branding/" class="md-nav__link">
         
   
   
@@ -845,7 +841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-11-llm-classification/" class="md-nav__link">
+      <a href="../../research/phase-11-llm-classification/" class="md-nav__link">
         
   
   
@@ -873,7 +869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-12-ux-polish/" class="md-nav__link">
+      <a href="../../research/phase-12-ux-polish/" class="md-nav__link">
         
   
   
@@ -901,7 +897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-13-graphics/" class="md-nav__link">
+      <a href="../../research/phase-13-graphics/" class="md-nav__link">
         
   
   
@@ -929,7 +925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-14-app-level-drr-variants/" class="md-nav__link">
+      <a href="../../research/phase-14-app-level-drr-variants/" class="md-nav__link">
         
   
   
@@ -957,7 +953,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/phase-15-default-iops/" class="md-nav__link">
+      <a href="../../research/phase-15-default-iops/" class="md-nav__link">
         
   
   
@@ -992,7 +988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/" class="md-nav__link">
+      <a href="../../changelog/" class="md-nav__link">
         
   
   
@@ -1016,8 +1012,6 @@
       
   
   
-    
-  
   
   
     
@@ -1030,11 +1024,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
         
           
           <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
@@ -1055,7 +1051,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1070,19 +1066,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1098,7 +1085,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -1111,7 +1097,7 @@
   
   
     <li class="md-nav__item">
-      <a href="001-nicegui-framework/" class="md-nav__link">
+      <a href="../001-nicegui-framework/" class="md-nav__link">
         
   
   
@@ -1139,7 +1125,7 @@
   
   
     <li class="md-nav__item">
-      <a href="002-drr-csv-reference/" class="md-nav__link">
+      <a href="../002-drr-csv-reference/" class="md-nav__link">
         
   
   
@@ -1167,7 +1153,7 @@
   
   
     <li class="md-nav__item">
-      <a href="003-alias-not-fuzzy-matching/" class="md-nav__link">
+      <a href="../003-alias-not-fuzzy-matching/" class="md-nav__link">
         
   
   
@@ -1195,7 +1181,7 @@
   
   
     <li class="md-nav__item">
-      <a href="004-dataframe-not-dataclass/" class="md-nav__link">
+      <a href="../004-dataframe-not-dataclass/" class="md-nav__link">
         
   
   
@@ -1223,7 +1209,7 @@
   
   
     <li class="md-nav__item">
-      <a href="005-conservative-drr/" class="md-nav__link">
+      <a href="../005-conservative-drr/" class="md-nav__link">
         
   
   
@@ -1251,7 +1237,7 @@
   
   
     <li class="md-nav__item">
-      <a href="006-no-mocks-testing/" class="md-nav__link">
+      <a href="../006-no-mocks-testing/" class="md-nav__link">
         
   
   
@@ -1279,7 +1265,7 @@
   
   
     <li class="md-nav__item">
-      <a href="007-aggrid-vm-table/" class="md-nav__link">
+      <a href="../007-aggrid-vm-table/" class="md-nav__link">
         
   
   
@@ -1307,7 +1293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="008-session-storage-split/" class="md-nav__link">
+      <a href="../008-session-storage-split/" class="md-nav__link">
         
   
   
@@ -1335,7 +1321,7 @@
   
   
     <li class="md-nav__item">
-      <a href="009-dialog-multi-workload/" class="md-nav__link">
+      <a href="../009-dialog-multi-workload/" class="md-nav__link">
         
   
   
@@ -1363,7 +1349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="010-nicegui-3x/" class="md-nav__link">
+      <a href="../010-nicegui-3x/" class="md-nav__link">
         
   
   
@@ -1391,7 +1377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="011-substring-matching/" class="md-nav__link">
+      <a href="../011-substring-matching/" class="md-nav__link">
         
   
   
@@ -1419,7 +1405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="012-priority-ordered-rules/" class="md-nav__link">
+      <a href="../012-priority-ordered-rules/" class="md-nav__link">
         
   
   
@@ -1447,7 +1433,7 @@
   
   
     <li class="md-nav__item">
-      <a href="013-weighted-average-drr/" class="md-nav__link">
+      <a href="../013-weighted-average-drr/" class="md-nav__link">
         
   
   
@@ -1475,7 +1461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="014-drr-guard/" class="md-nav__link">
+      <a href="../014-drr-guard/" class="md-nav__link">
         
   
   
@@ -1503,7 +1489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="015-canonical-dataframe-schema/" class="md-nav__link">
+      <a href="../015-canonical-dataframe-schema/" class="md-nav__link">
         
   
   
@@ -1531,7 +1517,7 @@
   
   
     <li class="md-nav__item">
-      <a href="016-template-filter-orchestrator/" class="md-nav__link">
+      <a href="../016-template-filter-orchestrator/" class="md-nav__link">
         
   
   
@@ -1559,7 +1545,7 @@
   
   
     <li class="md-nav__item">
-      <a href="017-rvtools-mb-as-mib/" class="md-nav__link">
+      <a href="../017-rvtools-mb-as-mib/" class="md-nav__link">
         
   
   
@@ -1587,7 +1573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="018-openpyxl-read-only-detection/" class="md-nav__link">
+      <a href="../018-openpyxl-read-only-detection/" class="md-nav__link">
         
   
   
@@ -1615,7 +1601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="019-shared-liveoptics-helper/" class="md-nav__link">
+      <a href="../019-shared-liveoptics-helper/" class="md-nav__link">
         
   
   
@@ -1643,7 +1629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="020-dark-mode-user-storage/" class="md-nav__link">
+      <a href="../020-dark-mode-user-storage/" class="md-nav__link">
         
   
   
@@ -1671,7 +1657,7 @@
   
   
     <li class="md-nav__item">
-      <a href="021-dual-workload-edit/" class="md-nav__link">
+      <a href="../021-dual-workload-edit/" class="md-nav__link">
         
   
   
@@ -1699,7 +1685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="022-stats-clear-rebuild/" class="md-nav__link">
+      <a href="../022-stats-clear-rebuild/" class="md-nav__link">
         
   
   
@@ -1727,7 +1713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="023-page-routes-side-effects/" class="md-nav__link">
+      <a href="../023-page-routes-side-effects/" class="md-nav__link">
         
   
   
@@ -1755,7 +1741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="024-workload-dialog-props/" class="md-nav__link">
+      <a href="../024-workload-dialog-props/" class="md-nav__link">
         
   
   
@@ -1783,7 +1769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="025-reportlab-platypus/" class="md-nav__link">
+      <a href="../025-reportlab-platypus/" class="md-nav__link">
         
   
   
@@ -1811,7 +1797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="026-vera-ttf-fonts/" class="md-nav__link">
+      <a href="../026-vera-ttf-fonts/" class="md-nav__link">
         
   
   
@@ -1839,7 +1825,7 @@
   
   
     <li class="md-nav__item">
-      <a href="027-pdf-in-memory-bytesio/" class="md-nav__link">
+      <a href="../027-pdf-in-memory-bytesio/" class="md-nav__link">
         
   
   
@@ -1867,7 +1853,7 @@
   
   
     <li class="md-nav__item">
-      <a href="028-ui-table-report-page/" class="md-nav__link">
+      <a href="../028-ui-table-report-page/" class="md-nav__link">
         
   
   
@@ -1895,7 +1881,7 @@
   
   
     <li class="md-nav__item">
-      <a href="029-three-layer-architecture/" class="md-nav__link">
+      <a href="../029-three-layer-architecture/" class="md-nav__link">
         
   
   
@@ -1923,7 +1909,7 @@
   
   
     <li class="md-nav__item">
-      <a href="030-docker-single-container/" class="md-nav__link">
+      <a href="../030-docker-single-container/" class="md-nav__link">
         
   
   
@@ -1951,7 +1937,7 @@
   
   
     <li class="md-nav__item">
-      <a href="031-magic-byte-validation/" class="md-nav__link">
+      <a href="../031-magic-byte-validation/" class="md-nav__link">
         
   
   
@@ -1979,7 +1965,7 @@
   
   
     <li class="md-nav__item">
-      <a href="032-log-sanitization/" class="md-nav__link">
+      <a href="../032-log-sanitization/" class="md-nav__link">
         
   
   
@@ -2007,7 +1993,7 @@
   
   
     <li class="md-nav__item">
-      <a href="033-context-manager-layout/" class="md-nav__link">
+      <a href="../033-context-manager-layout/" class="md-nav__link">
         
   
   
@@ -2035,7 +2021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="034-sap-word-boundary/" class="md-nav__link">
+      <a href="../034-sap-word-boundary/" class="md-nav__link">
         
   
   
@@ -2063,7 +2049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="035-postgres-mysql-before-sql/" class="md-nav__link">
+      <a href="../035-postgres-mysql-before-sql/" class="md-nav__link">
         
   
   
@@ -2091,7 +2077,7 @@
   
   
     <li class="md-nav__item">
-      <a href="036-citrix-full-clone-default/" class="md-nav__link">
+      <a href="../036-citrix-full-clone-default/" class="md-nav__link">
         
   
   
@@ -2119,7 +2105,7 @@
   
   
     <li class="md-nav__item">
-      <a href="037-fortinet-os-field-detection/" class="md-nav__link">
+      <a href="../037-fortinet-os-field-detection/" class="md-nav__link">
         
   
   
@@ -2147,7 +2133,7 @@
   
   
     <li class="md-nav__item">
-      <a href="038-mkdocs-material/" class="md-nav__link">
+      <a href="../038-mkdocs-material/" class="md-nav__link">
         
   
   
@@ -2175,7 +2161,7 @@
   
   
     <li class="md-nav__item">
-      <a href="039-uv-package-manager/" class="md-nav__link">
+      <a href="../039-uv-package-manager/" class="md-nav__link">
         
   
   
@@ -2203,7 +2189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="040-pyproject-single-config/" class="md-nav__link">
+      <a href="../040-pyproject-single-config/" class="md-nav__link">
         
   
   
@@ -2231,7 +2217,7 @@
   
   
     <li class="md-nav__item">
-      <a href="041-strict-mypy-type-checking/" class="md-nav__link">
+      <a href="../041-strict-mypy-type-checking/" class="md-nav__link">
         
   
   
@@ -2259,7 +2245,7 @@
   
   
     <li class="md-nav__item">
-      <a href="042-web-server-content-included-default/" class="md-nav__link">
+      <a href="../042-web-server-content-included-default/" class="md-nav__link">
         
   
   
@@ -2287,7 +2273,7 @@
   
   
     <li class="md-nav__item">
-      <a href="043-i18n-architecture-t-wrapper-yaml/" class="md-nav__link">
+      <a href="../043-i18n-architecture-t-wrapper-yaml/" class="md-nav__link">
         
   
   
@@ -2315,7 +2301,7 @@
   
   
     <li class="md-nav__item">
-      <a href="044-language-switch-page-reload/" class="md-nav__link">
+      <a href="../044-language-switch-page-reload/" class="md-nav__link">
         
   
   
@@ -2343,7 +2329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="045-echart-for-web-charts/" class="md-nav__link">
+      <a href="../045-echart-for-web-charts/" class="md-nav__link">
         
   
   
@@ -2371,7 +2357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="046-pdf-charts-page-two/" class="md-nav__link">
+      <a href="../046-pdf-charts-page-two/" class="md-nav__link">
         
   
   
@@ -2399,7 +2385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="047-sankey-reportlab-strategy/" class="md-nav__link">
+      <a href="../047-sankey-reportlab-strategy/" class="md-nav__link">
         
   
   
@@ -2427,7 +2413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="048-aggrid-community-detail-bar/" class="md-nav__link">
+      <a href="../048-aggrid-community-detail-bar/" class="md-nav__link">
         
   
   
@@ -2455,7 +2441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="049-aggrid-event-args-filter/" class="md-nav__link">
+      <a href="../049-aggrid-event-args-filter/" class="md-nav__link">
         
   
   
@@ -2483,7 +2469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="050-click-zoom-vs-reclassify/" class="md-nav__link">
+      <a href="../050-click-zoom-vs-reclassify/" class="md-nav__link">
         
   
   
@@ -2511,7 +2497,7 @@
   
   
     <li class="md-nav__item">
-      <a href="051-llm-rule-suggestion-loop/" class="md-nav__link">
+      <a href="../051-llm-rule-suggestion-loop/" class="md-nav__link">
         
   
   
@@ -2539,7 +2525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="052-storage-model-flat-drr-override/" class="md-nav__link">
+      <a href="../052-storage-model-flat-drr-override/" class="md-nav__link">
         
   
   
@@ -2567,7 +2553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="053-app-level-drr-as-csv-variants/" class="md-nav__link">
+      <a href="../053-app-level-drr-as-csv-variants/" class="md-nav__link">
         
   
   
@@ -2595,7 +2581,7 @@
   
   
     <li class="md-nav__item">
-      <a href="054-llm-toggle-session-scoped/" class="md-nav__link">
+      <a href="../054-llm-toggle-session-scoped/" class="md-nav__link">
         
   
   
@@ -2623,7 +2609,7 @@
   
   
     <li class="md-nav__item">
-      <a href="055-layout-engine-bfd-heuristic/" class="md-nav__link">
+      <a href="../055-layout-engine-bfd-heuristic/" class="md-nav__link">
         
   
   
@@ -2651,7 +2637,7 @@
   
   
     <li class="md-nav__item">
-      <a href="056-three-layout-strategies/" class="md-nav__link">
+      <a href="../056-three-layout-strategies/" class="md-nav__link">
         
   
   
@@ -2679,7 +2665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="057-vmfs-not-vvol-layout/" class="md-nav__link">
+      <a href="../057-vmfs-not-vvol-layout/" class="md-nav__link">
         
   
   
@@ -2707,7 +2693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="058-isolated-vm-dedicated-datastore/" class="md-nav__link">
+      <a href="../058-isolated-vm-dedicated-datastore/" class="md-nav__link">
         
   
   
@@ -2735,7 +2721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="059-default-iops-estimates/" class="md-nav__link">
+      <a href="../059-default-iops-estimates/" class="md-nav__link">
         
   
   
@@ -2783,6 +2769,69 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rationale
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alternatives-considered" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alternatives Considered
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2801,440 +2850,56 @@
   
 
 
-<h1 id="architecture-decision-records">Architecture Decision Records</h1>
-<p>ADRs document key technical decisions made during StorePredict development.</p>
-<table>
-<thead>
-<tr>
-<th>ADR</th>
-<th>Title</th>
-<th>Status</th>
-<th>Date</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="001-nicegui-framework/">001</a></td>
-<td>Use NiceGUI for web framework</td>
-<td>Accepted</td>
-<td>2026-02-18</td>
-</tr>
-<tr>
-<td><a href="002-drr-csv-reference/">002</a></td>
-<td>DRR ratios from CSV, not hardcoded</td>
-<td>Accepted</td>
-<td>2026-02-18</td>
-</tr>
-<tr>
-<td><a href="003-alias-not-fuzzy-matching/">003</a></td>
-<td>Column alias dictionaries, not fuzzy matching</td>
-<td>Accepted</td>
-<td>2026-02-18</td>
-</tr>
-<tr>
-<td><a href="004-dataframe-not-dataclass/">004</a></td>
-<td>DataFrame as pipeline data format, not dataclass</td>
-<td>Accepted</td>
-<td>2026-02-18</td>
-</tr>
-<tr>
-<td><a href="005-conservative-drr/">005</a></td>
-<td>Most conservative DRR for multi-workload VMs</td>
-<td>Accepted</td>
-<td>2026-02-18</td>
-</tr>
-<tr>
-<td><a href="006-no-mocks-testing/">006</a></td>
-<td>Real objects and sample data for tests, no mocks</td>
-<td>Accepted</td>
-<td>2026-02-18</td>
-</tr>
-<tr>
-<td><a href="007-aggrid-vm-table/">007</a></td>
-<td>AG Grid for VM review table</td>
-<td>Accepted</td>
-<td>2026-02-18</td>
-</tr>
-<tr>
-<td><a href="008-session-storage-split/">008</a></td>
-<td>Tab storage for data, user storage for preferences</td>
-<td>Accepted</td>
-<td>2026-02-18</td>
-</tr>
-<tr>
-<td><a href="009-dialog-multi-workload/">009</a></td>
-<td>Dialog for multi-workload assignment</td>
-<td>Accepted</td>
-<td>2026-02-18</td>
-</tr>
-<tr>
-<td><a href="010-nicegui-3x/">010</a></td>
-<td>Target NiceGUI 3.x, not 2.x</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="011-substring-matching/">011</a></td>
-<td>Substring matching for VM classification</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="012-priority-ordered-rules/">012</a></td>
-<td>Priority-ordered rule registry with first-match-wins</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="013-weighted-average-drr/">013</a></td>
-<td>Weighted average DRR, not simple mean</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="014-drr-guard/">014</a></td>
-<td>DRR guard with max(drr, 0.1)</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="015-canonical-dataframe-schema/">015</a></td>
-<td>Canonical DataFrame schema (9 columns)</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="016-template-filter-orchestrator/">016</a></td>
-<td>Template VM filtering at orchestrator level</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="017-rvtools-mb-as-mib/">017</a></td>
-<td>RVTools "MB" values treated as MiB, no conversion</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="018-openpyxl-read-only-detection/">018</a></td>
-<td>openpyxl read_only mode for format detection</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="019-shared-liveoptics-helper/">019</a></td>
-<td>Shared _build_liveoptics_df helper (DRY)</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="020-dark-mode-user-storage/">020</a></td>
-<td>Dark mode in app.storage.user (per-user)</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="021-dual-workload-edit/">021</a></td>
-<td>Dual workload edit mechanism (dropdown + dialog)</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="022-stats-clear-rebuild/">022</a></td>
-<td>Stats container clear-and-rebuild pattern</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="023-page-routes-side-effects/">023</a></td>
-<td>Page routes via module import side-effects</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="024-workload-dialog-props/">024</a></td>
-<td>WorkloadDialog persistent + use-chips props</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="025-reportlab-platypus/">025</a></td>
-<td>PDF with ReportLab Platypus, not WeasyPrint</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="026-vera-ttf-fonts/">026</a></td>
-<td>Vera TTF fonts for French characters</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="027-pdf-in-memory-bytesio/">027</a></td>
-<td>PDF in-memory via BytesIO, no temp files</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="028-ui-table-report-page/">028</a></td>
-<td>ui.table for report page, not AG Grid</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="029-three-layer-architecture/">029</a></td>
-<td>Three-layer architecture (pipeline → services → ui)</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="030-docker-single-container/">030</a></td>
-<td>Docker Compose single-container deployment</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="031-magic-byte-validation/">031</a></td>
-<td>Server-side file validation with magic bytes</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="032-log-sanitization/">032</a></td>
-<td>Log sanitization — never log DataFrame contents</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="033-context-manager-layout/">033</a></td>
-<td>Context manager for shared layout</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="034-sap-word-boundary/">034</a></td>
-<td>SAP word boundary pattern (exception to substring matching)</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="035-postgres-mysql-before-sql/">035</a></td>
-<td>PostgreSQL/MySQL rules before generic SQL</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="036-citrix-full-clone-default/">036</a></td>
-<td>Citrix VMs default to Full Clone (DRR=8)</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="037-fortinet-os-field-detection/">037</a></td>
-<td>FortiNet detection via OS field</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="038-mkdocs-material/">038</a></td>
-<td>MkDocs with Material theme for documentation</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="039-uv-package-manager/">039</a></td>
-<td>uv for Python package management</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="040-pyproject-single-config/">040</a></td>
-<td>pyproject.toml as single configuration file</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="041-strict-mypy-type-checking/">041</a></td>
-<td>Strict mypy with TYPE_CHECKING guards</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="042-web-server-content-included-default/">042</a></td>
-<td>Web servers default to content included (DRR=5)</td>
-<td>Accepted</td>
-<td>2026-02-19</td>
-</tr>
-<tr>
-<td><a href="043-i18n-architecture-t-wrapper-yaml/">043</a></td>
-<td>i18n architecture — per-call locale via t() wrapper with YAML files</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="044-language-switch-page-reload/">044</a></td>
-<td>Language switch via full page reload</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="045-echart-for-web-charts/">045</a></td>
-<td>ECharts (NiceGUI ui.echart) for interactive web charts</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="046-pdf-charts-page-two/">046</a></td>
-<td>PDF charts on a dedicated second page</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="047-sankey-reportlab-strategy/">047</a></td>
-<td>matplotlib for Sankey diagram in PDF</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="048-aggrid-community-detail-bar/">048</a></td>
-<td>AG Grid Community constraint — detail bar instead of master-detail</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="049-aggrid-event-args-filter/">049</a></td>
-<td>AG Grid v34 circular context — event args filter</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="050-click-zoom-vs-reclassify/">050</a></td>
-<td>Row click = inspect (zoom), bulk button = reclassify</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="051-llm-rule-suggestion-loop/">051</a></td>
-<td>LLM → keyword extraction → rule suggestion feedback loop</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="052-storage-model-flat-drr-override/">052</a></td>
-<td>Flat DRR override for non-PowerStore storage models</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="053-app-level-drr-as-csv-variants/">053</a></td>
-<td>Application-level DRR degradation as CSV subcategory variants</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="054-llm-toggle-session-scoped/">054</a></td>
-<td>AI classification toggle is per-session, not a server restart</td>
-<td>Accepted</td>
-<td>2026-02-20</td>
-</tr>
-<tr>
-<td><a href="055-layout-engine-bfd-heuristic/">055</a></td>
-<td>Multi-dimensional BFD heuristic for datastore layout engine</td>
-<td>Accepted</td>
-<td>2026-02-21</td>
-</tr>
-<tr>
-<td><a href="056-three-layout-strategies/">056</a></td>
-<td>Three fixed layout strategies with tunable parameters</td>
-<td>Accepted</td>
-<td>2026-02-21</td>
-</tr>
-<tr>
-<td><a href="057-vmfs-not-vvol-layout/">057</a></td>
-<td>VMFS datastore layout, not vVol</td>
-<td>Accepted</td>
-<td>2026-02-21</td>
-</tr>
-<tr>
-<td><a href="058-isolated-vm-dedicated-datastore/">058</a></td>
-<td>Dedicated datastore for mission-critical VMs</td>
-<td>Accepted</td>
-<td>2026-02-21</td>
-</tr>
-<tr>
-<td><a href="059-default-iops-estimates/">059</a></td>
-<td>Workload-based IOPS defaults for RVTools sizing</td>
-<td>Accepted</td>
-<td>2026-02-21</td>
-</tr>
-<tr>
-<td><a href="060-stable-row-identity-via-row-index/">060</a></td>
-<td>Stable AG Grid row identity via row_index integer</td>
-<td>Accepted</td>
-<td>2026-02-22</td>
-</tr>
-<tr>
-<td><a href="061-health-check-pure-pipeline-module/">061</a></td>
-<td>Health checks as a pure pipeline module, not a blocking pipeline stage</td>
-<td>Accepted</td>
-<td>2026-02-22</td>
-</tr>
-<tr>
-<td><a href="062-compute-presets-csv/">062</a></td>
-<td>Compute presets from CSV, not hardcoded</td>
-<td>Accepted</td>
-<td>2026-02-22</td>
-</tr>
-<tr>
-<td><a href="063-typeddict-session-config/">063</a></td>
-<td>TypedDict for NiceGUI page session config dicts</td>
-<td>Accepted</td>
-<td>2026-02-22</td>
-</tr>
-<tr>
-<td><a href="064-datacenter-cluster-scope-filtering/">064</a></td>
-<td>Datacenter/cluster scope filtering as a dedicated pipeline stage</td>
-<td>Accepted</td>
-<td>2026-02-23</td>
-</tr>
-<tr>
-<td><a href="065-windows-desktop-os-vdi-reclassification/">065</a></td>
-<td>Windows Desktop OS fallback → VDI Linked Clone</td>
-<td>Accepted</td>
-<td>2026-02-23</td>
-</tr>
-<tr>
-<td><a href="066-session-persistence-zip-archive/">066</a></td>
-<td>Session persistence via self-contained zip archive</td>
-<td>Accepted</td>
-<td>2026-02-24</td>
-</tr>
-<tr>
-<td><a href="067-session-zip-sentinel/">067</a></td>
-<td>SESSION_ZIP_SENTINEL to distinguish session archives from LiveOptics zips</td>
-<td>Accepted</td>
-<td>2026-02-24</td>
-</tr>
-<tr>
-<td><a href="068-remediation-hints-hardcoded-english/">068</a></td>
-<td>Remediation hints as hardcoded English strings</td>
-<td>Accepted</td>
-<td>2026-02-24</td>
-</tr>
-<tr>
-<td><a href="069-concerns-export-pure-reportlab/">069</a></td>
-<td>Standalone concerns export as pure ReportLab</td>
-<td>Accepted</td>
-<td>2026-02-24</td>
-</tr>
-<tr>
-<td><a href="070-playwright-browsers-path-docker/">070</a></td>
-<td>PLAYWRIGHT_BROWSERS_PATH for non-root Docker execution</td>
-<td>Accepted</td>
-<td>2026-02-25</td>
-</tr>
-</tbody>
-</table>
+<h1 id="adr-070-playwright_browsers_path-for-non-root-docker-execution">ADR-070: PLAYWRIGHT_BROWSERS_PATH for Non-Root Docker Execution</h1>
+<p><strong>Status:</strong> Accepted
+<strong>Date:</strong> 2026-02-25</p>
+<h2 id="context">Context</h2>
+<p>PDF generation in StorePredict uses Playwright (headless Chromium) to render the
+print-optimised NiceGUI page and export it as a PDF. The Dockerfile installs
+Chromium during the build phase (as root) and then switches to a non-root
+<code>appuser</code> for the runtime process.</p>
+<p>By default, Playwright stores browser binaries under <code>~/.cache/ms-playwright</code>.
+When installed as root this resolves to <code>/root/.cache/ms-playwright</code>. At runtime,
+<code>appuser</code> looks in <code>/home/appuser/.cache/ms-playwright</code>, which does not exist,
+causing every PDF export to fail with a browser-not-found error.</p>
+<h2 id="decision">Decision</h2>
+<p>Set the <code>PLAYWRIGHT_BROWSERS_PATH</code> environment variable to <code>/ms-playwright</code> in the
+Dockerfile before the <code>playwright install</code> step. After installation, grant world
+read+execute on that directory with <code>chmod -R o+rX /ms-playwright</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="k">ENV</span><span class="w"> </span><span class="nv">PLAYWRIGHT_BROWSERS_PATH</span><span class="o">=</span>/ms-playwright
+
+<span class="k">RUN</span><span class="w"> </span>.venv/bin/playwright<span class="w"> </span>install<span class="w"> </span>chromium<span class="w"> </span>--with-deps<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>chmod<span class="w"> </span>-R<span class="w"> </span>o+rX<span class="w"> </span>/ms-playwright
+</code></pre></div>
+<p>The <code>ENV</code> directive persists into the runtime container so the Playwright Python
+API discovers the correct path automatically — no application code change required.</p>
+<h2 id="rationale">Rationale</h2>
+<ul>
+<li>A fixed, non-home-relative path is independent of which user runs the process.</li>
+<li><code>ENV</code> propagates to every subsequent layer and to the final running container.</li>
+<li><code>chmod o+rX</code> is the minimum permission grant: read and directory-traverse for
+  "other", without making binaries writable.</li>
+<li>No alternative (e.g. keeping the <code>root</code> user, or copying the cache into the
+  home directory) is as clean or as secure.</li>
+</ul>
+<h2 id="alternatives-considered">Alternatives Considered</h2>
+<ul>
+<li><strong>Run as root:</strong> Avoids the permission problem but violates container security
+  best-practices and is rejected by hardened Kubernetes/OpenShift environments.</li>
+<li><strong>Copy <code>/root/.cache/ms-playwright</code> to <code>/home/appuser/.cache/</code>:</strong> Works but is
+  fragile (the copy must happen after <code>useradd</code>) and duplicates disk usage.</li>
+<li><strong><code>--with-deps</code> already called — skip chmod:</strong> <code>--with-deps</code> installs system
+  packages but does not change the <code>755</code>/<code>700</code> permissions of the browser cache
+  directory itself, which is still owned by root with mode <code>700</code>.</li>
+</ul>
+<h2 id="consequences">Consequences</h2>
+<ul>
+<li>All PDF exports (DRR report, layout report, concerns report) work correctly in
+  the production container under <code>appuser</code>.</li>
+<li>The <code>/ms-playwright</code> directory adds ~200 MB to the image; this was already
+  present in the layer — the fix merely makes it accessible.</li>
+<li>Rebuilding the image is required to apply this fix to existing deployments.</li>
+</ul>
 
 
 
@@ -3284,10 +2949,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

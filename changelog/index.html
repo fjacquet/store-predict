@@ -1063,6 +1063,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v702-2026-02-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v7.0.2] - 2026-02-25
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v7.0.2] - 2026-02-25">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v701-2026-02-24" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3582,6 +3610,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#v702-2026-02-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [v7.0.2] - 2026-02-25
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[v7.0.2] - 2026-02-25">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v701-2026-02-24" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4337,6 +4393,15 @@
 <h1 id="changelog">Changelog</h1>
 <p>All notable changes to StorePredict are documented here.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h2 id="v702-2026-02-25">[v7.0.2] - 2026-02-25</h2>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li><strong>PDF export broken in production container</strong> — Playwright's Chromium was
+  installed to <code>/root/.cache/ms-playwright</code> (root) but the app runs as <code>appuser</code>,
+  causing all PDF exports to fail with a browser-not-found error. Fixed by setting
+  <code>PLAYWRIGHT_BROWSERS_PATH=/ms-playwright</code> in the Dockerfile and granting
+  world read+execute on that path after install. (ADR-070)</li>
+</ul>
 <h2 id="v701-2026-02-24">[v7.0.1] - 2026-02-24</h2>
 <h3 id="performance">Performance</h3>
 <ul>
