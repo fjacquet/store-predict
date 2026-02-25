@@ -4,6 +4,18 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.0.3] - 2026-02-25
+
+### Dependencies
+
+- **certifi** 2026.1.4 → 2026.2.25
+- **fastapi** 0.132.0 → 0.133.0
+- **hf-xet** 1.2.0 → 1.3.1
+- **litellm** 1.81.14 → 1.81.15
+- **mkdocs-material** 9.7.2 → 9.7.3
+- **nicegui** 3.7.1 → 3.8.0
+- **openai** 2.21.0 → 2.24.0
+
 ## [v7.0.2] - 2026-02-25
 
 ### Fixed
