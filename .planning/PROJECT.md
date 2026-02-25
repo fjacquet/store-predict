@@ -32,7 +32,7 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 - Excel export (.xlsx multi-sheet workbook) — v1.1
 - LLM classification fallback (litellm, disabled by default) — v1.1
 - UX polish: spinners, error toasts, button guards, no-data cards — v1.1
-- Data visualizations: ECharts web charts + ReportLab/matplotlib PDF charts — v1.1
+- Data visualizations: ECharts web charts + ReportLab PDF charts — v1.1
 - Multi-platform storage model selection (PowerStore/PowerFlex/PowerVault) — v2.0
 - Application-level DRR variants (encrypted, compressed, DDVE) — v2.1
 - AI classification UI toggle + LLM progress counter + rule suggestions in logs — v2.2
@@ -58,6 +58,9 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 - Session save/restore: self-contained .zip archive with session.json snapshot — v7.0
 - Concerns remediation hints: actionable hint per health finding in /concerns — v7.0
 - Standalone /concerns export as PDF and CSV — v7.0
+- Playwright + matplotlib removed; Plotly+kaleido for PDF charts; Docker image 0.6 GB (−77%) — v7.0.4
+- Single comprehensive PDF: layout datastore detail merged into main report — v7.0.6
+- Auto dark mode: OS prefers-color-scheme detection on first visit — v7.0.7
 
 ### Active
 
@@ -85,11 +88,11 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 
 ## Context
 
-Shipped v7.0 with 32 files changed (+4,223 LOC / -24) over 25 commits in the v7.0 milestone branch.
-Tech stack: NiceGUI, pandas, openpyxl, ReportLab, AG Grid, XlsxWriter, Pillow, litellm, matplotlib, python-i18n, Playwright.
-Docker Compose deployment, MkDocs on GitHub Pages, GitHub Actions CI with Codecov + CycloneDX SBOM.
+Shipped v7.0 (2026-02-24) + v7.0.4–v7.0.7 polish (2026-02-25). Latest release: v7.0.7.
+Tech stack: NiceGUI, pandas, openpyxl, ReportLab, AG Grid, XlsxWriter, Pillow, litellm, plotly, kaleido, python-i18n.
+Docker Compose deployment (single container, 0.6 GB image), MkDocs on GitHub Pages, GitHub Actions CI with Codecov + CycloneDX SBOM.
 552 tests, 88% backend coverage.
-Tool covers storage sizing, datastore layout, health checks with remediation hints, compute sizing, full findings/concerns export, and session save/restore — a complete pre-sales assessment platform.
+Tool covers storage sizing, datastore layout, health checks with remediation hints, compute sizing, full findings/concerns export, session save/restore, and auto dark mode — a complete pre-sales assessment platform.
 
 ## Constraints
 
@@ -115,13 +118,13 @@ Tool covers storage sizing, datastore layout, health checks with remediation hin
 | litellm for LLM abstraction | Single API for OpenAI/Anthropic/Ollama/OpenRouter | Good |
 | LLM disabled by default (LLM_ENABLED=false) | Safest default; opt-in reduces surprise costs | Good |
 | ECharts for web charts (NiceGUI ui.echart) | Native NiceGUI support, interactive, no JS dependencies | Good |
-| ReportLab + matplotlib for PDF charts | ReportLab for bar/pie, matplotlib for Sankey | Good |
+| ReportLab + Plotly/kaleido for PDF charts | ReportLab for bar/pie/table; Plotly+kaleido for Sankey (ADR-071: replaces matplotlib+Playwright) | Good |
 | Multi-dimensional BFD for VM placement | Best tradeoff: fast, good packing quality, pure Python | Good |
 | Three strategies not one | Different customers have different priorities; choice is the value | Good |
 | VMFS focus (not vVol) | Practical reality for migration projects; vVol adoption is nascent | Good |
 | 4 TB default datastore size | Dell best practice sweet spot; balances density, snapshots, management | Good |
 | 15-25 VMs/datastore default | Dell recommendation; validated by queue depth and VMFS metadata analysis | Good |
-| Playwright for layout PDF | Dedicated /layout/print route, always-expanded VM detail for print | Good |
+| ~~Playwright for layout PDF~~ → ReportLab direct | Playwright+Chromium removed in v7.0.4 (ADR-071); ReportLab wired directly, −430 MB Docker | Superseded |
 | IOPS.csv as package data | Configurable defaults without code changes; CSV lives in src/data/ | Good |
 
 ## Key Decisions (v4.0 additions)
@@ -163,5 +166,14 @@ Tool covers storage sizing, datastore layout, health checks with remediation hin
 | concerns_export.py as pure service module (zero UI imports) | Same pattern as health_checks.py; independently testable | Good |
 | `or`-fallback in _load_constraints / _load_compute_config | Handles restored falsy values (0/"") that bypass dict.get defaults | Good |
 
+## Key Decisions (v7.0.x polish additions)
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Plotly+kaleido replaces matplotlib+Playwright | −430 MB Docker (no Chromium); kaleido renders Plotly to PNG natively for ReportLab | Good |
+| `_build_ds_detail_pages()` merges layout detail into main PDF | Single PDF simpler for pre-sales; no standalone layout print page needed | Good |
+| `ui.dark_mode().auto()` on first visit (ADR-072) | NiceGUI native API; respects OS `prefers-color-scheme`; stored preference still wins | Good |
+| MkDocs nav collapsed to index pages | 82 individual nav entries removed; `adr/index.md` and `research/index.md` already have full tables | Good |
+
 ---
-*Last updated: 2026-02-24 after v7.0 milestone shipped*
+*Last updated: 2026-02-25 after v7.0.x polish (v7.0.4–v7.0.7)*

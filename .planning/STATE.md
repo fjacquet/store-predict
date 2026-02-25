@@ -2,20 +2,20 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-24 after v7.0 milestone shipped)
+See: .planning/PROJECT.md (updated 2026-02-25 after v7.0.x polish complete)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** v7.0 milestone SHIPPED — planning next milestone
+**Current focus:** Between milestones — v7.0.7 shipped, ready for `/gsd:new-milestone`
 
 ## Current Position
 
 Phase: 28 of 28 (v7.0 complete)
 Plan: 4 of 4 (milestone complete)
-Status: v7.0 SHIPPED — milestone archived
+Status: v7.0.7 SHIPPED — milestone archived, v7.0.x polish complete
 
-Last activity: 2026-02-24 — v7.0 milestone complete (session save/restore + concerns enrichment + docs + bug fix)
+Last activity: 2026-02-25 — v7.0.x polish (Playwright removed, Plotly+kaleido, single PDF, auto dark mode, MkDocs nav cleanup, GSD status updated)
 
-Progress: [██████████] 100% (v7.0 milestone — 4 plans done, all archived)
+Progress: [██████████] 100% (v7.0 + v7.0.x polish done)
 
 ## Performance Metrics
 
@@ -33,7 +33,7 @@ Progress: [██████████] 100% (v7.0 milestone — 4 plans done
 - HealthCheckResult recomputed per-visit, not cached in session storage
 - compute_sizing() AP values always computed; ap_enabled only controls UI display
 - AG Grid row grouping is Enterprise-only — cluster grouping uses a separate table
-- Playwright PDF path: serialize in report.py → print_session token → deserialize in report_print.py
+- PDF path: ReportLab direct (no Playwright); generate_report_pdf() includes layout DS detail pages via _build_ds_detail_pages()
 - __no_cluster__ sentinel in compute groupby (not None/NaN); translated to i18n in UI
 - vmsc_site_a_hosts / vmsc_site_b_hosts enable asymmetric site display
 - ap_secondary = max(1, ceil(primary/2)) — cold standby convention
@@ -51,8 +51,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-24
-Stopped at: v7.0 milestone archived — docs updated, bug fixed, ready for release
+Last session: 2026-02-25
+Stopped at: v7.0.x polish complete — Playwright removed, Plotly+kaleido, single PDF, auto dark mode, MkDocs nav cleanup, GSD status updated
 Resume file: None
 
-Next step: `/gsd:new-milestone` to start v8.0 planning.
+Next step: `/gsd:new-milestone` to start next milestone planning.

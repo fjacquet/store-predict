@@ -111,17 +111,28 @@
 **Phases completed:** 4 phases, 8 plans, 5 tasks
 
 **Key accomplishments:**
-- (none recorded)
+
+1. Per-cluster compute breakdown — grand total row on `/compute` page; per-cluster vCPU/RAM/host counts with clear aggregate
+2. Health findings in PDF/Excel — severity summary appendix in PDF report + Findings worksheet with Cluster column in Excel export
+3. Configurable vMSC/A-P DR ratios — 1–99% split slider and 1–100% active %; per-site Site A/B host count rows; asymmetric site display
+4. CycloneDX SBOM + Sigstore attestation — supply chain transparency auto-attached to GitHub releases via anchore/sbom-action
+5. PRD v5.0 — formal product requirements document capturing scope, actors, and acceptance criteria
 
 ---
 
 
-## v7.0 Save & Restore + Concerns (Shipped: 2026-02-24)
+## v7.0 Save & Restore + Concerns (Shipped: 2026-02-24; polished 2026-02-25)
 
-**Phases completed:** 2 phases, 4 plans, 7 tasks
+**Phases completed:** 2 phases, 4 plans, 7 tasks + v7.0.4–v7.0.7 polish
 
 **Key accomplishments:**
-- (none recorded)
+
+1. Session save/restore — self-contained `.zip` archive with `session.json` snapshot; SESSION_ZIP_SENTINEL detects archives vs LiveOptics zips; full round-trip restore (no re-upload required)
+2. Concerns remediation hints — actionable per-finding English hints on `/concerns` page; hardcoded English accepted for technical pre-sales audience
+3. Standalone `/concerns` export — PDF (pure ReportLab) and CSV exports without going through the full sizing report flow
+4. Playwright + matplotlib removed (ADR-071) — Plotly+kaleido for Sankey diagram; ReportLab wired directly to UI; Docker image 2.6 GB → 0.6 GB (−77%)
+5. Single comprehensive PDF — layout datastore detail merged into main report via `_build_ds_detail_pages()`; standalone layout PDF page and button removed
+6. Auto dark mode (ADR-072) — OS `prefers-color-scheme` auto-detection on first visit via `ui.dark_mode().auto()`; stored preference still respected
 
 ---
 
