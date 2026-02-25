@@ -39,7 +39,7 @@ docs = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-store_predict = ["data/*.csv", "data/*.png", "i18n/locales/*.yaml"]
+store_predict = ["data/*.csv", "data/*.png", "data/*.ttf", "i18n/locales/*.yaml"]
 
 [tool.ruff]
 target-version = "py312"

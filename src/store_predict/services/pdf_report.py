@@ -1,7 +1,7 @@
 """PDF report generator for StorePredict sizing reports.
 
-Produces a branded one-page PDF from a CalculationSummary using ReportLab
-Platypus with Vera fonts for full French character support.
+Produces a branded PDF from a CalculationSummary using ReportLab Platypus
+with Open Sans Light/SemiBold (falls back to Vera in test environments).
 """
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ import os
 import re
 from datetime import UTC, datetime
 from io import BytesIO
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import i18n as _i18n
@@ -22,9 +23,18 @@ from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import Flowable, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import (
+    Flowable,
+    HRFlowable,
+    KeepTogether,
+    PageBreak,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 
-from store_predict.config import DELL_LOGO_PATH
 from store_predict.i18n import t
 from store_predict.services.pdf_charts import (
     make_before_after_bar_drawing,
@@ -45,9 +55,24 @@ __all__ = ["_layout_metric_rows", "format_storage", "generate_report_pdf", "sani
 # ---------------------------------------------------------------------------
 # Font registration
 # ---------------------------------------------------------------------------
+_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 _FONT_DIR = os.path.join(os.path.dirname(reportlab.__file__), "fonts")
-pdfmetrics.registerFont(TTFont("Vera", os.path.join(_FONT_DIR, "Vera.ttf")))
-pdfmetrics.registerFont(TTFont("VeraBd", os.path.join(_FONT_DIR, "VeraBd.ttf")))
+
+
+def _register_fonts() -> tuple[str, str]:
+    """Register Open Sans Light/SemiBold; fall back to Vera if not bundled."""
+    light = _DATA_DIR / "OpenSansLight.ttf"
+    bold = _DATA_DIR / "OpenSansSemiBold.ttf"
+    if light.exists() and bold.exists():
+        pdfmetrics.registerFont(TTFont("AppFont", str(light)))
+        pdfmetrics.registerFont(TTFont("AppFontBd", str(bold)))
+        return "AppFont", "AppFontBd"
+    pdfmetrics.registerFont(TTFont("AppFont", os.path.join(_FONT_DIR, "Vera.ttf")))
+    pdfmetrics.registerFont(TTFont("AppFontBd", os.path.join(_FONT_DIR, "VeraBd.ttf")))
+    return "AppFont", "AppFontBd"
+
+
+_FONT_REGULAR, _FONT_BOLD = _register_fonts()
 
 # Brand colour
 _BRAND_BLUE = colors.HexColor("#1e3a5f")
@@ -114,17 +139,6 @@ def validate_logo(content: bytes, filename: str) -> None:
         )
 
 
-def _load_dell_logo() -> bytes | None:
-    """Load Dell partner logo bytes from package data, or return None if missing."""
-    try:
-        return DELL_LOGO_PATH.read_bytes()
-    except FileNotFoundError:
-        return None
-
-
-# Load at module level so Docker paths work without absolute paths at runtime
-_DELL_LOGO_BYTES: bytes | None = _load_dell_logo()
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -136,6 +150,14 @@ def format_storage(mib: float) -> str:
         tib = gib / 1024.0
         return f"{gib:.1f} GiB ({tib:.1f} TiB)"
     return f"{gib:.1f} GiB"
+
+
+def _fmt_kpi_storage(mib: float) -> str:
+    """Compact single-unit storage label for KPI cards (no wrapping)."""
+    gib = mib / 1024.0
+    if gib >= 1024.0:
+        return f"{gib / 1024.0:.1f} TiB"
+    return f"{gib:.0f} GiB"
 
 
 def sanitize_filename(name: str) -> str:
@@ -286,15 +308,28 @@ def _draw_header(
     # White title — shift right if company logo present to avoid overlap
     x_title = 100 if company_logo_bytes else 20 * mm
     canvas.setFillColor(colors.white)
-    canvas.setFont("VeraBd", 18)
+    canvas.setFont(_FONT_BOLD, 18)
     canvas.drawString(x_title, height - 35, report_title)
 
     # Project name + date below bar
     canvas.setFillColor(colors.black)
-    canvas.setFont("Vera", 11)
+    canvas.setFont(_FONT_REGULAR, 11)
     date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
     canvas.drawString(20 * mm, height - bar_height - 18, f"{project_name}  |  {date_str}")
 
+    canvas.restoreState()
+
+
+def _draw_footer(canvas: Canvas, _doc: SimpleDocTemplate) -> None:
+    """Draw a page number footer with a thin rule."""
+    canvas.saveState()
+    width, _ = A4
+    margin = 20 * mm
+    canvas.setStrokeColor(colors.HexColor("#cccccc"))
+    canvas.line(margin, 18, width - margin, 18)
+    canvas.setFont(_FONT_REGULAR, 8)
+    canvas.setFillColor(colors.HexColor("#888888"))
+    canvas.drawCentredString(width / 2, 6, str(canvas.getPageNumber()))
     canvas.restoreState()
 
 
@@ -326,14 +361,12 @@ def _build_ds_detail_pages(
     subheading_style = ParagraphStyle(
         "DSSubHeading",
         parent=styles["Heading3"],
-        fontName="VeraBd",
+        fontName=_FONT_BOLD,
         fontSize=10,
         textColor=_BRAND_BLUE,
         spaceAfter=4,
     )
-    body_style_ds = ParagraphStyle("DSBody", parent=styles["Normal"], fontName="Vera", fontSize=9, leading=13)
-    small_style = ParagraphStyle("DSSmall", parent=styles["Normal"], fontName="Vera", fontSize=8, leading=11)
-
+    body_style_ds = ParagraphStyle("DSBody", parent=styles["Normal"], fontName=_FONT_REGULAR, fontSize=9, leading=13)
     strategy_order = ["consolidation", "performance", "uniform"]
     strategy_keys = {
         "consolidation": "strategy.consolidation",
@@ -390,8 +423,8 @@ def _build_ds_detail_pages(
         ds_style: list[Any] = [
             ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
-            ("FONTNAME", (0, 1), (-1, -1), "Vera"),
+            ("FONTNAME", (0, 0), (-1, 0), _FONT_BOLD),
+            ("FONTNAME", (0, 1), (-1, -1), _FONT_REGULAR),
             ("FONTSIZE", (0, 0), (-1, -1), 8),
             ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
             ("ALIGN", (1, 0), (5, -1), "RIGHT"),
@@ -405,7 +438,7 @@ def _build_ds_detail_pages(
         for r_idx, ds in enumerate(proposal.datastores, start=1):
             if ds.utilization_pct > 80:
                 ds_style.append(("TEXTCOLOR", (3, r_idx), (3, r_idx), colors.HexColor("#c0392b")))
-                ds_style.append(("FONTNAME", (3, r_idx), (3, r_idx), "VeraBd"))
+                ds_style.append(("FONTNAME", (3, r_idx), (3, r_idx), _FONT_BOLD))
             elif ds.utilization_pct > 60:
                 ds_style.append(("TEXTCOLOR", (3, r_idx), (3, r_idx), colors.HexColor("#e67e22")))
             if r_idx % 2 == 0:
@@ -413,42 +446,88 @@ def _build_ds_detail_pages(
         ds_table.setStyle(TableStyle(ds_style))
         story.append(ds_table)
 
-        # Per-datastore VM lists as compact 3-column table
+        # Per-datastore VM lists: DS name as spanning header, VMs in 3-column grid
         story.append(Spacer(1, 10))
+        n_cols = 3
+        col_w = 482 / n_cols
         for ds in proposal.datastores:
             if not ds.assigned_vms:
                 continue
-            story.append(Paragraph(f"<b>{ds.name}</b>", small_style))
             vm_names = [vm.vm_name for vm in ds.assigned_vms]
-            n_cols = 3
-            col_w = 482 / n_cols
-            rows: list[list[str]] = []
+            # Header row: DS name spans all columns
+            ds_rows: list[list[str]] = [[ds.name, "", ""]]
             for i in range(0, len(vm_names), n_cols):
                 chunk = vm_names[i : i + n_cols]
                 while len(chunk) < n_cols:
                     chunk.append("")
-                rows.append(chunk)
-            if rows:
-                vm_table = Table(rows, colWidths=[col_w] * n_cols)
-                vm_table.setStyle(
-                    TableStyle(
-                        [
-                            ("FONTNAME", (0, 0), (-1, -1), "Vera"),
-                            ("FONTSIZE", (0, 0), (-1, -1), 7),
-                            ("TOPPADDING", (0, 0), (-1, -1), 1),
-                            ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
-                            ("LEFTPADDING", (0, 0), (-1, -1), 3),
-                            ("RIGHTPADDING", (0, 0), (-1, -1), 3),
-                        ]
-                    )
-                )
-                story.append(vm_table)
-            story.append(Spacer(1, 6))
+                ds_rows.append(chunk)
+            vm_table = Table(ds_rows, colWidths=[col_w] * n_cols)
+            vm_style: list[Any] = [
+                # DS name header spanning all columns
+                ("SPAN", (0, 0), (-1, 0)),
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#d0e8f4")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), _BRAND_BLUE),
+                ("FONTNAME", (0, 0), (-1, 0), _FONT_BOLD),
+                ("FONTSIZE", (0, 0), (-1, 0), 8),
+                ("TOPPADDING", (0, 0), (-1, 0), 3),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 3),
+                ("LEFTPADDING", (0, 0), (-1, 0), 4),
+                # VM name rows
+                ("FONTNAME", (0, 1), (-1, -1), _FONT_REGULAR),
+                ("FONTSIZE", (0, 1), (-1, -1), 7),
+                ("TOPPADDING", (0, 1), (-1, -1), 1),
+                ("BOTTOMPADDING", (0, 1), (-1, -1), 1),
+                ("LEFTPADDING", (0, 1), (-1, -1), 3),
+                ("RIGHTPADDING", (0, 1), (-1, -1), 3),
+                ("LINEBELOW", (0, 0), (-1, 0), 0.5, colors.HexColor("#7EB8D8")),
+            ]
+            vm_table.setStyle(TableStyle(vm_style))
+            story.append(vm_table)
+            story.append(Spacer(1, 4))
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
+def _make_kpi_cards(kpis: list[tuple[str, str]]) -> Table:
+    """Return a full-width KPI card strip with brand-blue background."""
+    n = len(kpis)
+    col_w = 462.0 / n
+    label_style = ParagraphStyle(
+        "KPILabel",
+        fontName=_FONT_REGULAR,
+        fontSize=8,
+        textColor=colors.HexColor("#7EB8D8"),
+        alignment=1,
+    )
+    value_style = ParagraphStyle(
+        "KPIValue",
+        fontName=_FONT_BOLD,
+        fontSize=17,
+        textColor=colors.white,
+        alignment=1,
+    )
+    labels = [Paragraph(lbl, label_style) for lbl, _ in kpis]
+    values = [Paragraph(val, value_style) for _, val in kpis]
+    tbl = Table([labels, values], colWidths=[col_w] * n)
+    tbl.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, -1), _BRAND_BLUE),
+                ("TOPPADDING", (0, 0), (-1, 0), 8),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 2),
+                ("TOPPADDING", (0, 1), (-1, 1), 2),
+                ("BOTTOMPADDING", (0, 1), (-1, 1), 10),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("LINEAFTER", (0, 0), (-2, -1), 0.5, colors.HexColor("#2a5580")),
+            ]
+        )
+    )
+    return tbl
+
+
 def generate_report_pdf(
     summary: CalculationSummary,
     project_name: str,
@@ -479,8 +558,8 @@ def generate_report_pdf(
     # Safe: generate_report_pdf() is fully synchronous — no coroutine interleaving.
     _i18n.set("locale", locale)
 
-    # Default Dell logo to bundled asset when caller does not override
-    dell_logo_bytes = dell_logo_bytes if dell_logo_bytes is not None else _DELL_LOGO_BYTES
+    # Dell logo only shown when caller explicitly provides bytes
+    # (we do not auto-inject the bundled dell_logo.png)
 
     # Preprocess logos to RGBA PNG for transparent rendering in ReportLab
     dell_logo_preprocessed = _preprocess_logo(dell_logo_bytes) if dell_logo_bytes else None
@@ -501,15 +580,17 @@ def generate_report_pdf(
     styles = getSampleStyleSheet()
     heading_style = ParagraphStyle(
         "SPHeading",
-        parent=styles["Heading2"],
-        fontName="VeraBd",
+        parent=styles["Normal"],
+        fontName=_FONT_BOLD,
         fontSize=13,
-        spaceAfter=6,
+        textColor=_BRAND_BLUE,
+        spaceBefore=10,
+        spaceAfter=3,
     )
     body_style = ParagraphStyle(
         "SPBody",
         parent=styles["Normal"],
-        fontName="Vera",
+        fontName=_FONT_REGULAR,
         fontSize=10,
         leading=14,
     )
@@ -518,20 +599,31 @@ def generate_report_pdf(
 
     # --- Totals section ----------------------------------------------------
     story.append(Paragraph(t("report.totals_heading"), heading_style))
-    totals_lines = [
-        f"<b>{t('pdf.total_vms')}</b> {summary.total_vms}",
-        f"<b>{t('pdf.total_cpus')}</b> {summary.total_cpus:,}",
-        f"<b>{t('pdf.total_memory')}</b> {format_storage(summary.total_memory_mib)}",
-        f"<b>{t('pdf.total_provisioned')}</b> {format_storage(summary.total_provisioned_mib)}",
-        f"<b>{t('pdf.total_in_use')}</b> {format_storage(summary.total_in_use_mib)}",
-        f"<b>{t('pdf.required_capacity')}</b> {format_storage(summary.total_required_mib)}",
-    ]
-    for line in totals_lines:
-        story.append(Paragraph(line, body_style))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=_BRAND_BLUE, spaceAfter=6))
+    story.append(
+        _make_kpi_cards(
+            [
+                (t("pdf.total_vms"), str(summary.total_vms)),
+                (t("pdf.total_cpus"), f"{summary.total_cpus:,}"),
+                (t("pdf.total_memory"), _fmt_kpi_storage(summary.total_memory_mib)),
+            ]
+        )
+    )
+    story.append(Spacer(1, 3))
+    story.append(
+        _make_kpi_cards(
+            [
+                (t("pdf.total_provisioned"), _fmt_kpi_storage(summary.total_provisioned_mib)),
+                (t("pdf.total_in_use"), _fmt_kpi_storage(summary.total_in_use_mib)),
+                (t("pdf.required_capacity"), _fmt_kpi_storage(summary.total_required_mib)),
+            ]
+        )
+    )
     story.append(Spacer(1, 10))
 
     # --- Averages section --------------------------------------------------
     story.append(Paragraph(t("report.averages_heading"), heading_style))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=_BRAND_BLUE, spaceAfter=6))
     avg_lines = [
         f"<b>{t('pdf.avg_cpus')}</b> {summary.avg_vm_cpus:.1f}",
         f"<b>{t('pdf.avg_memory')}</b> {format_storage(summary.avg_vm_memory_mib)}",
@@ -547,6 +639,7 @@ def generate_report_pdf(
     # --- Performance Summary section (only if data available) --------------
     if summary.has_performance_data:
         story.append(Paragraph(t("pdf.performance_heading"), heading_style))
+        story.append(HRFlowable(width="100%", thickness=1.5, color=_BRAND_BLUE, spaceAfter=6))
         perf_lines = [
             f"<b>{t('pdf.total_avg_iops')}</b> {summary.total_avg_iops:,.0f}",
             f"<b>{t('pdf.hottest_vm')}</b> {summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})",
@@ -559,6 +652,7 @@ def generate_report_pdf(
 
     # --- Workload breakdown table ------------------------------------------
     story.append(Paragraph(t("report.breakdown_heading"), heading_style))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=_BRAND_BLUE, spaceAfter=6))
 
     header = [
         t("pdf.table_category"),
@@ -599,13 +693,13 @@ def generate_report_pdf(
         # Header
         ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
         ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
+        ("FONTNAME", (0, 0), (-1, 0), _FONT_BOLD),
         ("FONTSIZE", (0, 0), (-1, 0), 9),
         # Body
-        ("FONTNAME", (0, 1), (-1, -2), "Vera"),
+        ("FONTNAME", (0, 1), (-1, -2), _FONT_REGULAR),
         ("FONTSIZE", (0, 1), (-1, -2), 9),
         # Totals row (last)
-        ("FONTNAME", (0, -1), (-1, -1), "VeraBd"),
+        ("FONTNAME", (0, -1), (-1, -1), _FONT_BOLD),
         ("FONTSIZE", (0, -1), (-1, -1), 9),
         ("LINEABOVE", (0, -1), (-1, -1), 1, colors.black),
         # Grid
@@ -626,11 +720,13 @@ def generate_report_pdf(
 
     # --- Health findings summary table (HEXP-01) -----------------------
     if health_result is not None and health_result.has_data:
-        story.append(Spacer(1, 8))
-        story.append(Paragraph(t("pdf.findings_summary_heading"), heading_style))
-        story.append(Spacer(1, 4))
+        health_block: list[Flowable] = [
+            Spacer(1, 8),
+            Paragraph(t("pdf.findings_summary_heading"), heading_style),
+            HRFlowable(width="100%", thickness=1.5, color=_BRAND_BLUE, spaceAfter=6),
+        ]
         if not health_result.findings:
-            story.append(Paragraph(t("pdf.findings_no_findings"), body_style))
+            health_block.append(Paragraph(t("pdf.findings_no_findings"), body_style))
         else:
             _sev_label = {
                 "critical": t("pdf.findings_severity_critical"),
@@ -652,8 +748,8 @@ def generate_report_pdf(
                 sev_style: list[Any] = [
                     ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
                     ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
-                    ("FONTNAME", (0, 1), (-1, -1), "Vera"),
+                    ("FONTNAME", (0, 0), (-1, 0), _FONT_BOLD),
+                    ("FONTNAME", (0, 1), (-1, -1), _FONT_REGULAR),
                     ("FONTSIZE", (0, 0), (-1, -1), 9),
                     ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
                     ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
@@ -666,14 +762,15 @@ def generate_report_pdf(
                     sev_name = next((k for k, v in _sev_label.items() if v == row_data[0]), None)
                     if sev_name and sev_name in _sev_colors:
                         sev_style.append(("TEXTCOLOR", (0, r_idx), (0, r_idx), _sev_colors[sev_name]))
-                        sev_style.append(("FONTNAME", (0, r_idx), (0, r_idx), "VeraBd"))
+                        sev_style.append(("FONTNAME", (0, r_idx), (0, r_idx), _FONT_BOLD))
                 sev_table.setStyle(TableStyle(sev_style))
-                story.append(sev_table)
+                health_block.append(sev_table)
+        story.append(KeepTogether(health_block))
 
     # --- Page 2: Charts ----------------------------------------------------
     story.append(PageBreak())
     story.append(Paragraph(t("pdf.charts_heading"), heading_style))
-    story.append(Spacer(1, 12))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=_BRAND_BLUE, spaceAfter=6))
 
     # Sankey (full width)
     story.append(make_sankey_image_flowable(summary, width_pt=480, height_pt=180))
@@ -700,7 +797,7 @@ def generate_report_pdf(
         proposals = generate_all_proposals(summary)
         story.append(PageBreak())
         story.append(Paragraph(t("pdf.layout_heading"), heading_style))
-        story.append(Spacer(1, 12))
+        story.append(HRFlowable(width="100%", thickness=1.5, color=_BRAND_BLUE, spaceAfter=6))
 
         layout_header = [
             t("layout_page.metric"),
@@ -719,8 +816,8 @@ def generate_report_pdf(
                 [
                     ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
                     ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
-                    ("FONTNAME", (0, 1), (-1, -1), "Vera"),
+                    ("FONTNAME", (0, 0), (-1, 0), _FONT_BOLD),
+                    ("FONTNAME", (0, 1), (-1, -1), _FONT_REGULAR),
                     ("FONTSIZE", (0, 0), (-1, -1), 9),
                     ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
                     ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
@@ -737,7 +834,7 @@ def generate_report_pdf(
     if health_result is not None and health_result.has_data and health_result.findings:
         story.append(PageBreak())
         story.append(Paragraph(t("pdf.findings_detail_heading"), heading_style))
-        story.append(Spacer(1, 12))
+        story.append(HRFlowable(width="100%", thickness=1.5, color=_BRAND_BLUE, spaceAfter=6))
         detail_header = [
             t("pdf.findings_col_severity"),
             t("pdf.findings_col_category"),
@@ -765,8 +862,8 @@ def generate_report_pdf(
         detail_style: list[Any] = [
             ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
-            ("FONTNAME", (0, 1), (-1, -1), "Vera"),
+            ("FONTNAME", (0, 0), (-1, 0), _FONT_BOLD),
+            ("FONTNAME", (0, 1), (-1, -1), _FONT_REGULAR),
             ("FONTSIZE", (0, 0), (-1, -1), 8),
             ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
             ("ALIGN", (3, 0), (3, -1), "RIGHT"),
@@ -782,7 +879,7 @@ def generate_report_pdf(
             )
             if sev_name:
                 detail_style.append(("TEXTCOLOR", (0, r_idx), (0, r_idx), _sev_colors_detail[sev_name]))
-                detail_style.append(("FONTNAME", (0, r_idx), (0, r_idx), "VeraBd"))
+                detail_style.append(("FONTNAME", (0, r_idx), (0, r_idx), _FONT_BOLD))
             if r_idx % 2 == 0:
                 detail_style.append(("BACKGROUND", (0, r_idx), (-1, r_idx), colors.HexColor("#f0f0f0")))
         detail_table.setStyle(TableStyle(detail_style))
@@ -793,9 +890,11 @@ def generate_report_pdf(
 
     def on_first_page(canvas: Canvas, doc: SimpleDocTemplate) -> None:
         _draw_header(canvas, doc, project_name, report_title, dell_logo_preprocessed, company_logo_preprocessed)
+        _draw_footer(canvas, doc)
 
     def on_later_pages(canvas: Canvas, doc: SimpleDocTemplate) -> None:
         _draw_header(canvas, doc, project_name, report_title, dell_logo_preprocessed, company_logo_preprocessed)
+        _draw_footer(canvas, doc)
 
     doc.build(story, onFirstPage=on_first_page, onLaterPages=on_later_pages)
     return buf.getvalue()
