@@ -702,12 +702,18 @@ def generate_layout_pdf(
     heading_style = ParagraphStyle(
         "Heading", parent=styles["Heading2"], fontName="VeraBd", fontSize=13, textColor=_BRAND_BLUE, spaceAfter=6
     )
+    subheading_style = ParagraphStyle(
+        "SubHeading", parent=styles["Heading3"], fontName="VeraBd", fontSize=10, textColor=_BRAND_BLUE, spaceAfter=4
+    )
     body_style = ParagraphStyle("Body", parent=styles["Normal"], fontName="Vera", fontSize=9, leading=13)
+    small_style = ParagraphStyle("Small", parent=styles["Normal"], fontName="Vera", fontSize=8, leading=11)
 
     real_constraints = constraints if isinstance(constraints, PlacementConstraints) else PlacementConstraints()
     proposals = generate_all_proposals(summary, real_constraints)
 
     story: list[Flowable] = []
+
+    # ── Page 1: Strategy comparison table ──────────────────────────────────
     story.append(Paragraph(t("pdf.layout_heading"), heading_style))
     story.append(Spacer(1, 12))
 
@@ -743,6 +749,94 @@ def generate_layout_pdf(
             )
         )
         story.append(layout_table)
+
+        # ── Per-strategy datastore detail (one section per strategy) ─────────
+        strategy_order = ["consolidation", "performance", "uniform"]
+        strategy_keys = {
+            "consolidation": "strategy.consolidation",
+            "performance": "strategy.performance",
+            "uniform": "strategy.uniform",
+        }
+        by_name = {p.strategy_name: p for p in proposals}
+
+        ds_col_widths = [90, 60, 60, 45, 35, 60, 80]
+        ds_header = [
+            t("ds.name"),
+            t("ds.raw_cap"),
+            t("ds.used"),
+            t("ds.util"),
+            t("ds.vms"),
+            t("ds.iops"),
+            t("ds.workloads"),
+        ]
+
+        for strategy_name in strategy_order:
+            proposal = by_name.get(strategy_name)
+            if proposal is None:
+                continue
+
+            story.append(PageBreak())
+            story.append(Paragraph(t(strategy_keys[strategy_name]), heading_style))
+            desc_key = f"strategy.{strategy_name}_desc"
+            story.append(Paragraph(t(desc_key), body_style))
+            story.append(Spacer(1, 10))
+
+            if not proposal.datastores:
+                story.append(Paragraph(t("layout_page.no_datastores"), body_style))
+                continue
+
+            # Datastore summary table
+            story.append(Paragraph(t("ds.name"), subheading_style))
+            story.append(Spacer(1, 4))
+
+            ds_data: list[list[str]] = [ds_header]
+            for ds in proposal.datastores:
+                ds_data.append([
+                    ds.name,
+                    _fmt_tib(ds.raw_capacity_mib),
+                    _fmt_tib(ds.used_capacity_mib),
+                    f"{ds.utilization_pct:.1f}%",
+                    str(ds.vm_count),
+                    f"{ds.total_iops:,.0f}",
+                    ", ".join(sorted(ds.workload_types))[:30],
+                ])
+
+            ds_table = Table(ds_data, colWidths=ds_col_widths)
+            ds_style: list[Any] = [
+                ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
+                ("FONTNAME", (0, 1), (-1, -1), "Vera"),
+                ("FONTSIZE", (0, 0), (-1, -1), 8),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
+                ("ALIGN", (0, 0), (0, -1), "LEFT"),
+                ("ALIGN", (-1, 0), (-1, -1), "LEFT"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("TOPPADDING", (0, 0), (-1, -1), 3),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+            ]
+            # Highlight high utilisation rows
+            for r_idx, ds in enumerate(proposal.datastores, start=1):
+                if ds.utilization_pct > 80:
+                    ds_style.append(("TEXTCOLOR", (3, r_idx), (3, r_idx), colors.HexColor("#c0392b")))
+                    ds_style.append(("FONTNAME", (3, r_idx), (3, r_idx), "VeraBd"))
+                elif ds.utilization_pct > 60:
+                    ds_style.append(("TEXTCOLOR", (3, r_idx), (3, r_idx), colors.HexColor("#e67e22")))
+                if r_idx % 2 == 0:
+                    ds_style.append(("BACKGROUND", (0, r_idx), (-1, r_idx), colors.HexColor("#f0f0f0")))
+            ds_table.setStyle(TableStyle(ds_style))
+            story.append(ds_table)
+
+            # Per-datastore VM lists
+            story.append(Spacer(1, 10))
+            for ds in proposal.datastores:
+                if not ds.assigned_vms:
+                    continue
+                story.append(Paragraph(f"<b>{ds.name}</b>", small_style))
+                vm_names = ", ".join(vm.vm_name for vm in ds.assigned_vms)
+                story.append(Paragraph(vm_names, small_style))
+                story.append(Spacer(1, 4))
 
     dell_logo_preprocessed = _preprocess_logo(_DELL_LOGO_BYTES) if _DELL_LOGO_BYTES else None
     report_title = t("pdf.layout_heading")

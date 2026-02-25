@@ -114,10 +114,13 @@ def _render_cluster_breakdown_table(
     # Filter out the no-cluster sentinel to determine real cluster count
     real_clusters = [r for r in cluster_rows if r.cluster_name != "__no_cluster__"]
 
-    if len(real_clusters) < 2:
-        # Single cluster or LiveOptics (no cluster data): show note instead
+    if len(real_clusters) == 0:
+        # LiveOptics or RVTools without a Cluster column
         with ui.card().classes("w-full p-4 bg-gray-50 border-l-4 border-gray-300"):
             ui.label(t("compute.no_cluster_data_note")).classes("text-sm text-gray-500")
+        return
+    if len(real_clusters) == 1:
+        # Single cluster — per-cluster breakdown adds no value, stay silent
         return
 
     ui.separator()
