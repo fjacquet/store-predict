@@ -73,3 +73,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [067](067-session-zip-sentinel.md) | SESSION_ZIP_SENTINEL to distinguish session archives from LiveOptics zips | Accepted | 2026-02-24 |
 | [068](068-remediation-hints-hardcoded-english.md) | Remediation hints as hardcoded English strings | Accepted | 2026-02-24 |
 | [069](069-concerns-export-pure-reportlab.md) | Standalone concerns export as pure ReportLab | Accepted | 2026-02-24 |
+| [070](070-playwright-browsers-path-docker.md) | PLAYWRIGHT_BROWSERS_PATH for non-root Docker execution | Accepted | 2026-02-25 |
