@@ -139,7 +139,6 @@ def validate_logo(content: bytes, filename: str) -> None:
         )
 
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -489,6 +488,7 @@ def _build_ds_detail_pages(
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def _make_kpi_cards(kpis: list[tuple[str, str]]) -> Table:
     """Return a full-width KPI card strip with brand-blue background."""

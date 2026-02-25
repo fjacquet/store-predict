@@ -161,16 +161,24 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
         cx = (x0 + x1) / 2.0
         verts = [
             (x0, yb0),
-            (cx, yb0), (cx, yb1), (x1, yb1),        # bottom edge: cubic Bezier
+            (cx, yb0),
+            (cx, yb1),
+            (x1, yb1),  # bottom edge: cubic Bezier
             (x1, yb1 + h1),
-            (cx, yb1 + h1), (cx, yb0 + h0), (x0, yb0 + h0),  # top edge: cubic Bezier
+            (cx, yb1 + h1),
+            (cx, yb0 + h0),
+            (x0, yb0 + h0),  # top edge: cubic Bezier
             (x0, yb0),
         ]
         codes = [
             MplPath.MOVETO,
-            MplPath.CURVE4, MplPath.CURVE4, MplPath.CURVE4,
+            MplPath.CURVE4,
+            MplPath.CURVE4,
+            MplPath.CURVE4,
             MplPath.LINETO,
-            MplPath.CURVE4, MplPath.CURVE4, MplPath.CURVE4,
+            MplPath.CURVE4,
+            MplPath.CURVE4,
+            MplPath.CURVE4,
             MplPath.CLOSEPOLY,
         ]
         ax.add_patch(PathPatch(MplPath(verts, codes), facecolor=_hex_rgba(color, 0.35), edgecolor="none", zorder=2))
@@ -203,9 +211,14 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
         if seg_mid_h >= 0.04:
             txt_color = "white" if i < 2 else "#333333"
             ax.text(
-                mid_x + node_w / 2, seg_mid_y0 + seg_mid_h / 2,
-                grp.category[:12], ha="center", va="center",
-                fontsize=5, color=txt_color, zorder=4,
+                mid_x + node_w / 2,
+                seg_mid_y0 + seg_mid_h / 2,
+                grp.category[:12],
+                ha="center",
+                va="center",
+                fontsize=5,
+                color=txt_color,
+                zorder=4,
             )
 
         _flow_band(left_x + node_w, seg_left_y0, seg_prov_h, mid_x, seg_mid_y0, seg_mid_h, color)
