@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "store-predict"
-version = "7.0.6"
+version = "7.0.7"
 description = "Dell PowerStore DRR sizing tool"
 requires-python = ">=3.12"
 dependencies = [

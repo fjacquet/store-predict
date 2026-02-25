@@ -4,6 +4,15 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.0.7] - 2026-02-25
+
+### Added
+
+- **Automatic dark mode** — the app now follows the browser/OS `prefers-color-scheme`
+  setting on first visit. Users who have never set a preference see dark mode automatically
+  when their system is in dark mode. Explicit toggle preference is still persisted via
+  `app.storage.user` and overrides auto-detection on subsequent visits.
+
 ## [v7.0.6] - 2026-02-25
 
 ### Changed
