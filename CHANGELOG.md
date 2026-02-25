@@ -4,6 +4,16 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.0.2] - 2026-02-25
+
+### Fixed
+
+- **PDF export broken in production container** — Playwright's Chromium was
+  installed to `/root/.cache/ms-playwright` (root) but the app runs as `appuser`,
+  causing all PDF exports to fail with a browser-not-found error. Fixed by setting
+  `PLAYWRIGHT_BROWSERS_PATH=/ms-playwright` in the Dockerfile and granting
+  world read+execute on that path after install. (ADR-070)
+
 ## [v7.0.1] - 2026-02-24
 
 ### Performance
