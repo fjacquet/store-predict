@@ -91,11 +91,7 @@ async def upload_page() -> None:
                     max_files=2,
                     max_file_size=50_000_000,
                 )
-                .props(
-                    f'accept=".xlsx,.csv,.zip"'
-                    f" url=/api/upload/{upload_token}"
-                    f" chunk-size=2097152"
-                )
+                .props(f'accept=".xlsx,.csv,.zip" url=/api/upload/{upload_token} chunk-size=2097152')
                 .classes("w-full")
             )
 
