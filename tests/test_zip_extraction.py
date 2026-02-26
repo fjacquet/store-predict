@@ -46,10 +46,19 @@ def test_pattern_rejects_unrelated_name():
     assert _LIVEOPTICS_PATTERN.search("VMs_export.xlsx") is None
 
 
-def test_no_matching_member_raises():
-    zip_bytes = _make_zip("random_export.xlsx", FAKE_XLSX)
-    with pytest.raises(IngestionError, match="No LiveOptics xlsx file found"):
+def test_no_xlsx_at_all_raises():
+    """ZIP with no xlsx member at all raises IngestionError."""
+    zip_bytes = _make_zip("export.csv", b"vm_name,os\nserver1,Linux\n")
+    with pytest.raises(IngestionError, match="No xlsx file found in ZIP"):
         extract_liveoptics_from_zip(zip_bytes)
+
+
+def test_fallback_to_any_xlsx_when_no_liveoptics_pattern():
+    """Non-LiveOptics xlsx in zip is accepted via fallback."""
+    zip_bytes = _make_zip("RVTools_export.xlsx", FAKE_XLSX)
+    result_bytes, result_name = extract_liveoptics_from_zip(zip_bytes)
+    assert result_bytes == FAKE_XLSX
+    assert result_name == "RVTools_export.xlsx"
 
 
 def test_invalid_zip_bytes_raises():

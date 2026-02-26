@@ -1,10 +1,11 @@
-"""Extract LiveOptics xlsx data from a ZIP archive.
+"""Extract xlsx data from a ZIP archive for the sizing pipeline.
 
-LiveOptics exports a single .zip containing one xlsx file matching the pattern
-``LiveOptics_<id>_VMWARE_<DD>_<MM>_<YYYY>.xlsx``. This module locates that
-file and returns its raw bytes so the rest of the pipeline can treat it as a
-plain xlsx upload.
+Handles LiveOptics exports (canonical ``LiveOptics_<id>_VMWARE_<DD>_<MM>_<YYYY>.xlsx``
+pattern) and any other ZIP wrapping a single xlsx file (e.g. RVTools zips or
+non-standard LiveOptics exports). The canonical pattern is tried first; if no
+match is found, the first xlsx member in the archive is used instead.
 """
+
 
 from __future__ import annotations
 
@@ -47,11 +48,19 @@ def extract_liveoptics_from_zip(content: bytes) -> tuple[bytes, str]:
             f"ZIP archive uncompressed content exceeds the {_MAX_UNCOMPRESSED_BYTES // (1024 * 1024)} MB limit"
         )
 
-    matches = [name for name in zf.namelist() if _LIVEOPTICS_PATTERN.search(name)]
+    names = zf.namelist()
+
+    # Primary: canonical LiveOptics pattern.
+    matches = [name for name in names if _LIVEOPTICS_PATTERN.search(name)]
+
+    # Fallback: any xlsx (handles RVTools-in-zip, non-standard LiveOptics exports, etc.)
+    if not matches:
+        matches = [name for name in names if name.lower().endswith(".xlsx")]
+
     if not matches:
         raise IngestionError(
-            "No LiveOptics xlsx file found in ZIP. "
-            "Expected a file matching LiveOptics_<id>_VMWARE_<DD>_<MM>_<YYYY>.xlsx"
+            "No xlsx file found in ZIP. "
+            "Please upload a ZIP archive containing a LiveOptics or RVTools .xlsx file."
         )
 
     # Take first match if multiple (documented: first-match wins).

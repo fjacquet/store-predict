@@ -16,13 +16,10 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from threading import Lock
-from typing import TYPE_CHECKING
 
 from starlette.datastructures import UploadFile
+from starlette.requests import Request  # noqa: TC002 — must be runtime import for FastAPI param resolution
 from starlette.responses import JSONResponse
-
-if TYPE_CHECKING:
-    from starlette.requests import Request
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +48,13 @@ def _purge_stale() -> None:
 
 
 def _receive_chunk(token: str, filename: str, data: bytes, start: int, total_size: int) -> Path | None:
-    """Store one chunk; return assembled temp-file Path when all bytes received."""
+    """Store one chunk; return assembled temp-file Path when all bytes received.
+
+    Assembly is triggered when *either*:
+    - ``received >= total_size`` (normal case), or
+    - the highest byte position written reaches ``total_size - 1``
+      (guards against an off-by-one in Quasar's Content-Range total).
+    """
     store_key = f"{token}:{filename}"
     with _lock:
         _purge_stale()
@@ -60,7 +63,13 @@ def _receive_chunk(token: str, filename: str, data: bytes, start: int, total_siz
         entry = _store[store_key]
         entry.chunks[start] = data
         received = sum(len(c) for c in entry.chunks.values())
-        if received < total_size:
+        max_end = max(s + len(c) for s, c in entry.chunks.items())
+        # Assemble when all bytes received OR last chunk reaches the declared end.
+        if received < total_size and max_end < total_size:
+            logger.debug(
+                "Chunk stored, waiting: token=%s file=%s received=%d max_end=%d total=%d",
+                token, filename, received, max_end, total_size,
+            )
             return None
         assembled = b"".join(v for _, v in sorted(entry.chunks.items()))
         del _store[store_key]
@@ -97,6 +106,10 @@ async def _handle_chunk(request: Request, token: str) -> JSONResponse:
             start = 0
             total_size = len(data)
 
+        logger.debug(
+            "Chunk received: token=%s file=%s start=%d total=%d data_len=%d range=%r",
+            token, filename, start, total_size, len(data), content_range,
+        )
         assembled = _receive_chunk(token, filename, data, start, total_size)
         if assembled is not None:
             from nicegui import app
@@ -105,6 +118,7 @@ async def _handle_chunk(request: Request, token: str) -> JSONResponse:
             queue: list[dict[str, str]] = app.storage.general.get(queue_key, [])
             queue.append({"path": str(assembled), "filename": filename})
             app.storage.general[queue_key] = queue
+            logger.info("Upload queued: token=%s file=%s path=%s", token, filename, assembled)
 
         return JSONResponse({"status": "ok"})
 

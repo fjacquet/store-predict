@@ -166,8 +166,9 @@ async def upload_page() -> None:
                     await _handle_session_restore(content)
                     return
 
-                # LiveOptics zip: extract inner file, replace tmp_path
+                # Zip: extract inner xlsx, replace tmp_path
                 if filename.lower().endswith(".zip"):
+                    logger.info("ZIP upload detected: %s — extracting inner xlsx", original_filename)
                     content, filename = extract_liveoptics_from_zip(content)
                     tmp_path.unlink(missing_ok=True)
                     with tempfile.NamedTemporaryFile(
@@ -192,11 +193,13 @@ async def upload_page() -> None:
                     _refresh_chips()
 
             except IngestionError as exc:
+                logger.warning("Upload validation failed for %s: %s", original_filename, exc)
                 with upload_widget:
-                    ui.notify(str(exc), type="negative")
+                    ui.notify(str(exc), type="negative", timeout=0)
             except Exception:
+                logger.exception("Unexpected error handling assembled upload: %s", original_filename)
                 with upload_widget:
-                    ui.notify(t("error.unexpected"), type="negative")
+                    ui.notify(t("error.unexpected"), type="negative", timeout=0)
 
         async def _poll_completed_uploads() -> None:
             """Drain assembled-upload queue and process each file."""

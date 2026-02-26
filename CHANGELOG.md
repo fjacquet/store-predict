@@ -4,6 +4,15 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.1.5] - 2026-02-26
+
+### Fixed
+
+- **Upload endpoint 422 error** — `Request` was imported inside `TYPE_CHECKING` but `from __future__ import annotations` made FastAPI unable to resolve the type at runtime, causing every upload to silently return HTTP 422. Moved to a runtime import.
+- **ZIP extraction too strict** — only accepted files matching the canonical `LiveOptics_*_VMWARE_*.xlsx` pattern inside ZIPs. Now falls back to any `.xlsx` in the archive, supporting RVTools-in-zip and non-standard LiveOptics exports.
+- **Silent upload errors** — `IngestionError` during file processing was caught but never logged; added `logger.warning` so validation failures always appear in server logs. Error notifications now persist (`timeout=0`) instead of auto-dismissing.
+- **Chunk assembly off-by-one guard** — added `max_end >= total_size` check alongside byte-count comparison to handle potential Content-Range total mismatches from Quasar.
+
 ## [v7.1.4] - 2026-02-26
 
 ### Fixed
