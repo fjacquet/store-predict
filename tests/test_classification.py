@@ -168,9 +168,10 @@ class TestOSFallback:
         assert result.confidence == "os_fallback"
 
     def test_vmware_fallback(self) -> None:
+        # vCLS is now matched by the explicit "VMware Infrastructure VMs" rule
         result = _registry().classify("vCLS-xxx", "VMware Photon CRX")
         assert result.category == "Virtual Machines"
-        assert result.confidence == "os_fallback"
+        assert result.confidence == "rule_match"
 
 
 # ---------------------------------------------------------------------------
@@ -438,3 +439,60 @@ class TestLiveOpticsImprovements:
         """Kibana → Logging - Analytics."""
         result = _registry().classify("KIBANA-01", "")
         assert result.category == "Logging - Analytics"
+
+
+# ---------------------------------------------------------------------------
+# 8. Citrix PVS / VMware infrastructure patterns (ESB VDI use case)
+# ---------------------------------------------------------------------------
+
+
+class TestCitrixPVSAndVMwareInfra:
+    """Explicit patterns added after analysis of real ESB VDI customer data."""
+
+    def test_cp_replica_is_pvs(self) -> None:
+        """Citrix PVS linked-clone replicas (cp-replica-<UUID>) -> VDI Linked Clone."""
+        result = _registry().classify(
+            "cp-replica-0ac294e6-23f0-4b9a-8931-5e8a496e493f",
+            "Microsoft Windows 10 (64-bit)",
+        )
+        assert result.category == "VDI"
+        assert result.subcategory == "Linked Clone / PVS (Citrix)"
+        assert result.confidence == "rule_match"
+
+    def test_cp_template_is_pvs(self) -> None:
+        """Citrix PVS templates (cp-template-<UUID>) -> VDI Linked Clone."""
+        result = _registry().classify(
+            "cp-template-77c19479-64f5-4e5d-b798-3961504ffc28",
+            "Microsoft Windows 10 (64-bit)",
+        )
+        assert result.category == "VDI"
+        assert result.subcategory == "Linked Clone / PVS (Citrix)"
+        assert result.confidence == "rule_match"
+
+    def test_mst_w10_is_pvs_master(self) -> None:
+        """PVS master target device images (MST-W10-*) -> VDI Linked Clone."""
+        result = _registry().classify(
+            "MST-W10-STD-DAT-20240828",
+            "Microsoft Windows 10 (64-bit)",
+        )
+        assert result.category == "VDI"
+        assert result.subcategory == "Linked Clone / PVS (Citrix)"
+        assert result.confidence == "rule_match"
+
+    def test_vcls_is_vmware_infra(self) -> None:
+        """VMware Cluster Services VMs (vCLS-<UUID>) -> Virtual Machines via rule."""
+        result = _registry().classify(
+            "vCLS-996323af-736c-4d6e-8d16-5d615133f1f3",
+            "VMware Photon OS (64-bit)",
+        )
+        assert result.category == "Virtual Machines"
+        assert result.confidence == "rule_match"
+
+    def test_vxrail_manager_is_vmware_infra(self) -> None:
+        """Dell VxRail Manager appliance -> Virtual Machines via rule."""
+        result = _registry().classify(
+            "VxRail Manager",
+            "SUSE Linux Enterprise 15 (64-bit)",
+        )
+        assert result.category == "Virtual Machines"
+        assert result.confidence == "rule_match"

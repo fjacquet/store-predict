@@ -413,7 +413,11 @@ def build_default_rules() -> list[ClassificationRule]:
             category="VDI",
             subcategory="Linked Clone / PVS (Citrix)",
             priority=221,
-            vm_name_patterns=_patterns("PVS"),
+            # PVS = Citrix Provisioning Services generic label
+            # cp-replica-* / cp-template-* = Citrix PVS linked-clone naming convention
+            #   (UUID-suffixed VMs created by Citrix Provisioning)
+            # MST-W10-* = PVS master target device images (versioned golden images)
+            vm_name_patterns=_patterns("PVS", "CP-REPLICA", "CP-TEMPLATE", "MST-W10"),
         ),
         ClassificationRule(
             name="VDI Instant Clone",
@@ -524,6 +528,15 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory=("Archive / Backup / Compressed / Encrypted / Rich Media / ISO / PACS / CAD"),
             priority=360,
             vm_name_patterns=_patterns("ARCHIVE"),
+        ),
+        ClassificationRule(
+            name="VMware Infrastructure VMs",
+            category="Virtual Machines",
+            subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
+            priority=395,
+            # vCLS = VMware Cluster Services (auto-created by vSphere 7.0+ DRS/HA)
+            # VxRail = Dell VxRail hyperconverged management appliance
+            vm_name_patterns=_patterns("VCLS", "VXRAIL"),
         ),
         # === Tier 4: Logging / Analytics (400-499) ===
         ClassificationRule(
