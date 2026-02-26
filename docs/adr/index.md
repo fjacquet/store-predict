@@ -78,3 +78,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [072](072-dark-mode-auto-detect.md) | Auto-detect OS dark mode on first visit | Accepted | 2026-02-25 |
 | [073](073-open-sans-kpi-pdf-polish.md) | Open Sans fonts, KPI cards, and PDF visual polish | Accepted | 2026-02-25 |
 | [074](074-open-sans-excel-chart-typography.md) | Open Sans typography in Excel export and PDF charts | Accepted | 2026-02-25 |
+| [075](075-runtime-request-import-chunked-upload.md) | Runtime Request import for chunked upload endpoint | Accepted | 2026-02-26 |
