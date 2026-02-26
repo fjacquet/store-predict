@@ -4,6 +4,12 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.1.4] - 2026-02-26
+
+### Fixed
+
+- **Chunked upload for corporate proxies** — files are now uploaded in 2 MB chunks via a dedicated `/api/upload/{token}` endpoint instead of a single large multipart request. This resolves uploads being cut off mid-transfer (~60%) on enterprise networks with proxy timeout limits. A `ui.timer` polls the per-session queue and triggers the pipeline once all chunks are assembled server-side.
+
 ## [v7.1.3] - 2026-02-25
 
 ### Added
