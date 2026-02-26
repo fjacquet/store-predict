@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import tempfile
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +46,8 @@ logger = logging.getLogger(__name__)
 async def upload_page() -> None:
     """Upload page -- accept RVTools/LiveOptics files and run the sizing pipeline."""
     await ui.context.client.connected()
+    # Unique token per page-load routes chunked uploads to this session's queue.
+    upload_token = str(uuid.uuid4())
     with (
         layout("StorePredict - Upload"),
         ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6"),
@@ -75,18 +78,24 @@ async def upload_page() -> None:
 
         _refresh_chips()
 
-        # File upload dropzone — multiple=True, max_files=2, NO auto_upload
+        # File upload dropzone — chunked to survive corporate proxy timeouts.
+        # Files are POSTed in 2 MB pieces to /api/upload/{token}; on_upload is
+        # intentionally absent because the custom url bypasses NiceGUI's internal
+        # upload handler. A ui.timer polls app.storage.general for completion.
         with ui.card().classes("w-full"):
             upload_widget = (
                 ui.upload(
                     label=t("upload.drop_label"),
-                    on_upload=lambda e: background_tasks.create(handle_upload(e)),
                     auto_upload=True,
                     multiple=True,
                     max_files=2,
                     max_file_size=50_000_000,
                 )
-                .props('accept=".xlsx,.csv,.zip"')
+                .props(
+                    f'accept=".xlsx,.csv,.zip"'
+                    f" url=/api/upload/{upload_token}"
+                    f" chunk-size=2097152"
+                )
                 .classes("w-full")
             )
 
@@ -140,9 +149,11 @@ async def upload_page() -> None:
                 ui.notify(t("session.restore_success", count=vm_count), type="positive")
                 ui.navigate.to("/review")
 
-        async def handle_upload(e: object) -> None:
-            """Stage an uploaded file: validate, write to temp, update chips.
+        async def _handle_assembled_file(tmp_path: Path, original_filename: str) -> None:
+            """Stage an assembled file: validate, detect format, update chips.
 
+            Called from the upload-polling timer after all chunks are received.
+            The file is already on disk at tmp_path (written by the chunk endpoint).
             Does NOT run the pipeline — that happens on "Analyser" click.
             NiceGUI background tasks never have slot context (the slot stack is always empty).
             All calls that need client context (app.storage.tab, ui.notify, ui.navigate.to)
@@ -150,27 +161,27 @@ async def upload_page() -> None:
             `with upload_widget:` doesn't add child elements — it only sets the slot context.
             """
             try:
-                content = await e.file.read()  # type: ignore[attr-defined]
-
-                original_filename = e.file.name  # type: ignore[attr-defined]
+                content = tmp_path.read_bytes()
                 filename = original_filename
 
                 # Session restore path: detect StorePredict session .zip before LiveOptics extraction
                 if filename.lower().endswith(".zip") and is_session_zip(content):
+                    tmp_path.unlink(missing_ok=True)
                     await _handle_session_restore(content)
                     return
 
-                # Existing LiveOptics zip path (unchanged)
+                # LiveOptics zip: extract inner file, replace tmp_path
                 if filename.lower().endswith(".zip"):
                     content, filename = extract_liveoptics_from_zip(content)
-                validate_upload(content, filename)
+                    tmp_path.unlink(missing_ok=True)
+                    with tempfile.NamedTemporaryFile(
+                        suffix=Path(filename).suffix,
+                        delete=False,
+                    ) as tmp:
+                        tmp.write(content)
+                        tmp_path = Path(tmp.name)
 
-                with tempfile.NamedTemporaryFile(
-                    suffix=Path(filename).suffix,
-                    delete=False,
-                ) as tmp:
-                    tmp.write(content)
-                    tmp_path = Path(tmp.name)
+                validate_upload(content, filename)
 
                 # Detect format so we can show a badge
                 from store_predict.pipeline.ingestion import detect_format
@@ -190,6 +201,20 @@ async def upload_page() -> None:
             except Exception:
                 with upload_widget:
                     ui.notify(t("error.unexpected"), type="negative")
+
+        async def _poll_completed_uploads() -> None:
+            """Drain assembled-upload queue and process each file."""
+            queue_key = f"upload_queue_{upload_token}"
+            queue: list[dict[str, str]] = app.storage.general.get(queue_key, [])
+            if not queue:
+                return
+            result = queue.pop(0)
+            app.storage.general[queue_key] = queue
+            path = Path(result["path"])
+            filename = result["filename"]
+            background_tasks.create(_handle_assembled_file(path, filename))
+
+        ui.timer(0.5, _poll_completed_uploads)
 
         async def _run_pipeline(
             df: pd.DataFrame,
