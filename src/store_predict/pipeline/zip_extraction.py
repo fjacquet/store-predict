@@ -6,7 +6,6 @@ non-standard LiveOptics exports). The canonical pattern is tried first; if no
 match is found, the first xlsx member in the archive is used instead.
 """
 
-
 from __future__ import annotations
 
 import io
@@ -59,8 +58,7 @@ def extract_liveoptics_from_zip(content: bytes) -> tuple[bytes, str]:
 
     if not matches:
         raise IngestionError(
-            "No xlsx file found in ZIP. "
-            "Please upload a ZIP archive containing a LiveOptics or RVTools .xlsx file."
+            "No xlsx file found in ZIP. Please upload a ZIP archive containing a LiveOptics or RVTools .xlsx file."
         )
 
     # Take first match if multiple (documented: first-match wins).

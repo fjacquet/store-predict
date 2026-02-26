@@ -68,7 +68,11 @@ def _receive_chunk(token: str, filename: str, data: bytes, start: int, total_siz
         if received < total_size and max_end < total_size:
             logger.debug(
                 "Chunk stored, waiting: token=%s file=%s received=%d max_end=%d total=%d",
-                token, filename, received, max_end, total_size,
+                token,
+                filename,
+                received,
+                max_end,
+                total_size,
             )
             return None
         assembled = b"".join(v for _, v in sorted(entry.chunks.items()))
@@ -108,7 +112,12 @@ async def _handle_chunk(request: Request, token: str) -> JSONResponse:
 
         logger.debug(
             "Chunk received: token=%s file=%s start=%d total=%d data_len=%d range=%r",
-            token, filename, start, total_size, len(data), content_range,
+            token,
+            filename,
+            start,
+            total_size,
+            len(data),
+            content_range,
         )
         assembled = _receive_chunk(token, filename, data, start, total_size)
         if assembled is not None:
