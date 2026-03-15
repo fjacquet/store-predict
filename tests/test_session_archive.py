@@ -62,16 +62,6 @@ SAMPLE_SESSION_DATA: dict[str, object] = {
     "layout_iops_budget": 50000.0,
     "layout_snapshot_pct": 10.0,
     "layout_growth_pct": 25.0,
-    # Compute keys
-    "compute_preset": "R760",
-    "compute_overcommit": 4.0,
-    "compute_vmsc": True,
-    "compute_ap": False,
-    "compute_custom_cps": 28,
-    "compute_custom_sockets": 2,
-    "compute_custom_ram": 512,
-    "compute_vmsc_split": 60,
-    "compute_ap_active": 80,
 }
 
 SAMPLE_ORIGINAL_FILE_BYTES = b"FAKE_XLSX_CONTENT_FOR_TESTING"
@@ -135,16 +125,6 @@ def test_restore_round_trip_layout_config() -> None:
     assert restored["layout_max_vms"] == 20
     assert isinstance(restored["layout_max_ds_mib"], float)
     assert isinstance(restored["layout_max_vms"], int)
-
-
-def test_restore_round_trip_compute_config() -> None:
-    """Restored compute keys equal originals with correct types."""
-    archive = _make_archive()
-    restored = restore_session_zip(archive)
-    assert restored["compute_vmsc"] is True
-    assert restored["compute_vmsc_split"] == 60
-    assert isinstance(restored["compute_vmsc"], bool)
-    assert isinstance(restored["compute_vmsc_split"], int)
 
 
 def test_restore_original_file_bytes() -> None:
@@ -231,7 +211,6 @@ def test_restore_raises_ingestion_error_on_wrong_schema_version() -> None:
         "selected_datacenters": [],
         "selected_clusters": [],
         "layout": {},
-        "compute": {},
     }
     with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
         zf.writestr(SESSION_ZIP_SENTINEL, json.dumps(bad_snapshot))

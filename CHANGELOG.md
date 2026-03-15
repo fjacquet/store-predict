@@ -4,6 +4,12 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v7.2.0] - 2026-03-15
+
+### Changed
+
+- **Compute sizing replaced with PreSizion redirect** — the `/compute` page now links to [PreSizion](https://fjacquet.github.io/presizion/), a dedicated tool with advanced compute, storage, and network sizing. All compute sizing pipeline code, presets CSV, and associated tests have been removed. Session archives silently ignore legacy compute keys on restore. See [ADR-076](docs/adr/076-compute-sizing-removed-presizion-redirect.md).
+
 ## [v7.1.5] - 2026-02-26
 
 ### Fixed

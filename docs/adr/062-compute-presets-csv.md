@@ -1,7 +1,7 @@
 # ADR-062: Compute presets from CSV, not hardcoded
 
 **Date:** 2026-02-22
-**Status:** Accepted
+**Status:** Superseded by [ADR-076](076-compute-sizing-removed-presizion-redirect.md)
 
 ## Context
 

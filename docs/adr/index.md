@@ -65,7 +65,7 @@ ADRs document key technical decisions made during StorePredict development.
 | [059](059-default-iops-estimates.md) | Workload-based IOPS defaults for RVTools sizing | Accepted | 2026-02-21 |
 | [060](060-stable-row-identity-via-row-index.md) | Stable AG Grid row identity via row_index integer | Accepted | 2026-02-22 |
 | [061](061-health-check-pure-pipeline-module.md) | Health checks as a pure pipeline module, not a blocking pipeline stage | Accepted | 2026-02-22 |
-| [062](062-compute-presets-csv.md) | Compute presets from CSV, not hardcoded | Accepted | 2026-02-22 |
+| [062](062-compute-presets-csv.md) | Compute presets from CSV, not hardcoded | Superseded by 076 | 2026-02-22 |
 | [063](063-typeddict-session-config.md) | TypedDict for NiceGUI page session config dicts | Accepted | 2026-02-22 |
 | [064](064-datacenter-cluster-scope-filtering.md) | Datacenter/cluster scope filtering as a dedicated pipeline stage | Accepted | 2026-02-23 |
 | [065](065-windows-desktop-os-vdi-reclassification.md) | Windows Desktop OS fallback → VDI Linked Clone | Accepted | 2026-02-23 |
@@ -79,3 +79,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [073](073-open-sans-kpi-pdf-polish.md) | Open Sans fonts, KPI cards, and PDF visual polish | Accepted | 2026-02-25 |
 | [074](074-open-sans-excel-chart-typography.md) | Open Sans typography in Excel export and PDF charts | Accepted | 2026-02-25 |
 | [075](075-runtime-request-import-chunked-upload.md) | Runtime Request import for chunked upload endpoint | Accepted | 2026-02-26 |
+| [076](076-compute-sizing-removed-presizion-redirect.md) | Remove compute sizing, redirect to PreSizion | Accepted | 2026-03-15 |

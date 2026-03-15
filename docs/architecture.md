@@ -192,7 +192,7 @@ flowchart TD
 
 - **Tab-scoped** (`app.storage.tab`): uploaded file, DataFrame, classification results,
   SizingSummary, selected storage model, AI toggle state, scope selection
-  (selected datacenters and clusters), layout constraints, compute config.
+  (selected datacenters and clusters), layout constraints.
   The full tab state can be serialised to a portable `.zip` archive via
   `pipeline/session_archive.py` and restored on a subsequent upload.
 - **User-scoped** (`app.storage.user`): dark mode preference (persists across pages and tabs).

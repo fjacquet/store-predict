@@ -51,17 +51,6 @@ def save_session_zip(
             "snapshot_pct": session_data.get("layout_snapshot_pct", 0.0),
             "growth_pct": session_data.get("layout_growth_pct", 0.0),
         },
-        "compute": {
-            "preset": session_data.get("compute_preset", ""),
-            "overcommit": session_data.get("compute_overcommit", 4.0),
-            "vmsc": session_data.get("compute_vmsc", False),
-            "ap": session_data.get("compute_ap", False),
-            "custom_cps": session_data.get("compute_custom_cps", 0),
-            "custom_sockets": session_data.get("compute_custom_sockets", 0),
-            "custom_ram": session_data.get("compute_custom_ram", 0),
-            "vmsc_split": session_data.get("compute_vmsc_split", 50),
-            "ap_active": session_data.get("compute_ap_active", 100),
-        },
     }
 
     buf = io.BytesIO()
@@ -149,7 +138,6 @@ def restore_session_zip(content: bytes) -> dict[str, object]:
         ) from exc
 
     layout = snapshot.get("layout") or {}
-    compute = snapshot.get("compute") or {}
 
     result: dict[str, object] = {
         "vm_data": snapshot.get("vm_data", []),
@@ -163,16 +151,6 @@ def restore_session_zip(content: bytes) -> dict[str, object]:
         "layout_iops_budget": float(layout.get("iops_budget", 0.0)),
         "layout_snapshot_pct": float(layout.get("snapshot_pct", 0.0)),
         "layout_growth_pct": float(layout.get("growth_pct", 0.0)),
-        # Compute keys
-        "compute_preset": str(compute.get("preset", "")),
-        "compute_overcommit": float(compute.get("overcommit", 4.0)),
-        "compute_vmsc": bool(compute.get("vmsc", False)),
-        "compute_ap": bool(compute.get("ap", False)),
-        "compute_custom_cps": int(compute.get("custom_cps", 0)),
-        "compute_custom_sockets": int(compute.get("custom_sockets", 0)),
-        "compute_custom_ram": int(compute.get("custom_ram", 0)),
-        "compute_vmsc_split": int(compute.get("vmsc_split", 50)),
-        "compute_ap_active": int(compute.get("ap_active", 100)),
         # Restoration metadata
         "_restored_original_filename": original_filename,
         "_restored_original_bytes": original_bytes,

@@ -1,8 +1,0 @@
-name;server_model;cpu_family;cpu_name;cores_per_socket;sockets;ram_gib
-R760;R760;Xeon 5th Gen;Platinum 8558U;28;2;512
-R770;R770;Xeon 6 P-core;Xeon 6 6748P;48;2;1024
-R860;R860;Xeon 5th Gen;Platinum 8558;32;4;2048
-R960;R960;Xeon 5th Gen;Platinum 8558;32;4;3072
-R7725;R7725;EPYC 9005 Turin;EPYC 9555;64;2;1536
-XE7745;XE7745;EPYC 9005 Turin;EPYC 9555;64;2;1152
-Custom;Custom;Custom;Custom;28;2;512
