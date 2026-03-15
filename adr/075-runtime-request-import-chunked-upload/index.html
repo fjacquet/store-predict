@@ -11,28 +11,24 @@
       
       
       
-        <link rel="prev" href="..">
-      
-      
-        <link rel="next" href="../user-guide/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
-        <title>Getting Started - StorePredict</title>
+        <title>ADR-075: Runtime Request Import for Chunked Upload Endpoint - StorePredict</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,7 +47,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#getting-started" class="md-skip">
+        <a href="#adr-075-runtime-request-import-for-chunked-upload-endpoint" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +88,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="StorePredict" class="md-header__button md-logo" aria-label="StorePredict" data-md-component="logo">
+    <a href="../.." title="StorePredict" class="md-header__button md-logo" aria-label="StorePredict" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting Started
+              ADR-075: Runtime Request Import for Chunked Upload Endpoint
             
           </span>
         </div>
@@ -228,7 +224,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="StorePredict" class="md-nav__button md-logo" aria-label="StorePredict" data-md-component="logo">
+    <a href="../.." title="StorePredict" class="md-nav__button md-logo" aria-label="StorePredict" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -258,7 +254,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -282,37 +278,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Getting Started
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
         
   
   
@@ -328,137 +297,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#docker-quickstart" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docker Quickstart
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Docker Quickstart">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Environment Variables
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#local-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local Development
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Local Development">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Setup
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#run-the-application" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run the Application
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Running Tests
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#supported-file-formats" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supported File Formats
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Workflow
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -470,7 +308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../user-guide/" class="md-nav__link">
+      <a href="../../user-guide/" class="md-nav__link">
         
   
   
@@ -497,7 +335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../architecture/" class="md-nav__link">
+      <a href="../../architecture/" class="md-nav__link">
         
   
   
@@ -524,7 +362,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prd/" class="md-nav__link">
+      <a href="../../prd/" class="md-nav__link">
         
   
   
@@ -551,7 +389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../changelog/" class="md-nav__link">
+      <a href="../../changelog/" class="md-nav__link">
         
   
   
@@ -578,7 +416,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../research/" class="md-nav__link">
+      <a href="../../research/" class="md-nav__link">
         
   
   
@@ -605,7 +443,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../adr/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -652,88 +490,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#docker-quickstart" class="md-nav__link">
+  <a href="#status" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Docker Quickstart
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Docker Quickstart">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Environment Variables
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#local-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Local Development
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Local Development">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Setup
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#run-the-application" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Run the Application
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Running Tests
+        Status
       
     </span>
   </a>
@@ -741,10 +501,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#supported-file-formats" class="md-nav__link">
+  <a href="#date" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported File Formats
+        Date
       
     </span>
   </a>
@@ -752,10 +512,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#workflow" class="md-nav__link">
+  <a href="#context" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Workflow
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consequences
       
     </span>
   </a>
@@ -782,84 +564,54 @@
   
 
 
-<h1 id="getting-started">Getting Started</h1>
-<h2 id="docker-quickstart">Docker Quickstart</h2>
-<p>The fastest way to run StorePredict:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>--build
-</code></pre></div>
-<p>Open your browser at <a href="http://localhost:8080">http://localhost:8080</a>.</p>
-<h3 id="environment-variables">Environment Variables</h3>
-<table>
-<thead>
-<tr>
-<th>Variable</th>
-<th>Default</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>STORAGE_SECRET</code></td>
-<td>(auto-generated)</td>
-<td>Secret key for session storage. Set this in production for persistent sessions.</td>
-</tr>
-</tbody>
-</table>
-<h2 id="local-development">Local Development</h2>
-<h3 id="prerequisites">Prerequisites</h3>
-<ul>
-<li>Python 3.11+</li>
-<li><a href="https://docs.astral.sh/uv/">uv</a> package manager</li>
-</ul>
-<h3 id="setup">Setup</h3>
-<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>venv<span class="w"> </span>.venv
-<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
-</code></pre></div>
-<h3 id="run-the-application">Run the Application</h3>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>store_predict.main
-</code></pre></div>
-<p>The app starts at <a href="http://localhost:8080">http://localhost:8080</a>.</p>
-<h2 id="running-tests">Running Tests</h2>
-<div class="highlight"><pre><span></span><code>pytest<span class="w">                  </span><span class="c1"># All tests</span>
-pytest<span class="w"> </span>--cov<span class="o">=</span>store_predict<span class="w">  </span><span class="c1"># With coverage</span>
-ruff<span class="w"> </span>check<span class="w"> </span>.<span class="w">            </span><span class="c1"># Lint</span>
-mypy<span class="w"> </span>src/<span class="w">               </span><span class="c1"># Type check</span>
-</code></pre></div>
-<h2 id="supported-file-formats">Supported File Formats</h2>
-<p>StorePredict accepts VMware workload exports in these formats:</p>
-<table>
-<thead>
-<tr>
-<th>Format</th>
-<th>Extension</th>
-<th>Source Tab/Sheet</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>RVTools</td>
-<td><code>.xlsx</code></td>
-<td>vInfo</td>
-</tr>
-<tr>
-<td>LiveOptics</td>
-<td><code>.xlsx</code></td>
-<td>VMs</td>
-</tr>
-<tr>
-<td>LiveOptics</td>
-<td><code>.csv</code></td>
-<td>VMs export</td>
-</tr>
-</tbody>
-</table>
-<h2 id="workflow">Workflow</h2>
+<h1 id="adr-075-runtime-request-import-for-chunked-upload-endpoint">ADR-075: Runtime Request Import for Chunked Upload Endpoint</h1>
+<h2 id="status">Status</h2>
+<p>Accepted</p>
+<h2 id="date">Date</h2>
+<p>2026-02-26</p>
+<h2 id="context">Context</h2>
+<p>The chunked upload endpoint (<code>/api/upload/{token}</code>) registered via FastAPI's
+<code>@app.post</code> decorator stopped working after the module adopted
+<code>from __future__ import annotations</code> (PEP 563 deferred evaluation).</p>
+<p>The <code>starlette.requests.Request</code> type was imported inside a <code>TYPE_CHECKING</code>
+block, which is the standard pattern recommended by ruff's TC002 rule. However,
+FastAPI resolves parameter annotations <strong>at runtime</strong> to decide how to inject
+dependencies (path params, query params, body, or the raw <code>Request</code> object).
+With deferred annotations, <code>Request</code> became the string <code>'Request'</code> at runtime.
+Because it could not be resolved, FastAPI treated the parameter as a required
+query field and returned <strong>HTTP 422</strong> on every upload request — silently
+breaking all file uploads with zero server-side logging.</p>
+<p>Additionally, <code>IngestionError</code> exceptions raised during post-upload file
+processing were caught but never logged, making the failure completely
+invisible in server logs and UI.</p>
+<h2 id="decision">Decision</h2>
 <ol>
-<li><strong>Upload</strong> -- Drag and drop or select a file on the Upload page.</li>
-<li><strong>Review</strong> -- Inspect auto-classified VMs, adjust workload types if needed.</li>
-<li><strong>Report</strong> -- View sizing summary and download the PDF report.</li>
+<li><strong>Import <code>Request</code> at runtime</strong> with <code># noqa: TC002</code> to suppress the ruff
+   rule. This is required for any type used in a FastAPI route signature when
+   <code>from __future__ import annotations</code> is active.</li>
+<li><strong>Log all <code>IngestionError</code></strong> at WARNING level before attempting the
+   <code>ui.notify</code> call, so server logs always reflect upload failures regardless
+   of whether the client receives the notification.</li>
+<li><strong>Persistent error notifications</strong> (<code>timeout=0</code>) for upload errors, so
+   transient toast messages cannot silently auto-dismiss.</li>
+<li><strong>Broaden ZIP extraction</strong> to fall back to any <code>.xlsx</code> member in the archive
+   when the canonical LiveOptics filename pattern is not matched.</li>
+<li><strong>Off-by-one guard in chunk assembly</strong> — assemble when <code>max_end &gt;= total_size</code>
+   in addition to the byte-count check, in case Quasar's <code>Content-Range</code> total
+   is off by one.</li>
 </ol>
+<h2 id="consequences">Consequences</h2>
+<ul>
+<li>Upload endpoint returns 200 and correctly assembles files.</li>
+<li>ZIP files containing RVTools exports or non-standard LiveOptics names are
+  now accepted.</li>
+<li>Any processing error is visible in both server logs (WARNING) and the UI
+  (persistent red notification).</li>
+<li>Developers must remember that FastAPI route parameters annotated with
+  framework types (<code>Request</code>, <code>Response</code>, <code>WebSocket</code>) must be runtime imports,
+  not <code>TYPE_CHECKING</code>-only imports, when <code>from __future__ import annotations</code>
+  is used.</li>
+</ul>
 
 
 
@@ -909,10 +661,10 @@ mypy<span class="w"> </span>src/<span class="w">               </span><span clas
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.indexes", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.indexes", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
