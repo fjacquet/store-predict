@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
-from nicegui import ui
+from nicegui import app, ui
 from starlette.formparsers import MultiPartParser
 
 import store_predict.ui.pages.compute
@@ -37,17 +38,24 @@ def index_page() -> None:
         ).classes("bg-blue-700 text-white")
 
 
+_PUBLIC_DIR = Path(__file__).resolve().parents[2] / "public"
+
+
 def main() -> None:
     """Start the NiceGUI application."""
     setup_logging()
     # Increase spool size so 2 MB chunks stay in RAM during multipart parsing.
     MultiPartParser.spool_max_size = 4 * 1024 * 1024  # 4 MB
     register_routes()
+    if _PUBLIC_DIR.is_dir():
+        app.add_static_files("/public", str(_PUBLIC_DIR))
     storage_secret = os.environ.get("STORAGE_SECRET", "dev-only-not-for-production")
+    favicon = str(_PUBLIC_DIR / "favicon.svg") if (_PUBLIC_DIR / "favicon.svg").exists() else None
     ui.run(
         title=APP_TITLE,
         port=APP_PORT,
         storage_secret=storage_secret,
+        favicon=favicon,
         reload=True,
     )
 
