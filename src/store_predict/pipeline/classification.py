@@ -21,6 +21,14 @@ from store_predict.config import COMPANY_PREFIX_PATTERNS
 # Helpers
 # ---------------------------------------------------------------------------
 
+# Generic role prefixes commonly prepended to VM names in enterprise environments.
+# Stripped before pattern matching so that "SrvSAP02" exposes "SAP02" to rules.
+# Order matters: longer prefixes first to avoid partial stripping.
+_ROLE_PREFIX_RE = re.compile(
+    r"^(?:SRV|PC)[-_.]?",
+    re.IGNORECASE,
+)
+
 
 def strip_company_prefix(vm_name: str, patterns: list[str]) -> str:
     """Strip a company prefix from *vm_name* using the first matching pattern.
@@ -33,6 +41,15 @@ def strip_company_prefix(vm_name: str, patterns: list[str]) -> str:
         if stripped != vm_name:
             return stripped
     return vm_name
+
+
+def _strip_role_prefix(vm_name: str) -> str:
+    """Strip generic role prefixes (Srv, PC) from *vm_name*.
+
+    These prefixes indicate server/workstation role but obscure the application
+    keyword that classification rules need to match (e.g. "SrvSAP02" → "SAP02").
+    """
+    return _ROLE_PREFIX_RE.sub("", vm_name)
 
 
 def _patterns(*keywords: str) -> tuple[re.Pattern[str], ...]:
@@ -128,6 +145,7 @@ class RuleRegistry:
         2. Second pass: match with description as fallback signal.
         """
         vm_name = strip_company_prefix(vm_name, COMPANY_PREFIX_PATTERNS)
+        vm_name = _strip_role_prefix(vm_name)
 
         # Pass 1: direct matches (no description fallback)
         # When description is available, skip OS-fallback and default rules (priority ≥ 900)
@@ -335,7 +353,9 @@ def build_default_rules() -> list[ClassificationRule]:
             priority=108,
             # Word boundary required: "GISAPP" contains "SAP" but is NOT SAP.
             # Also match "SAP-xxx" and "SAP_xxx" naming conventions.
-            vm_name_patterns=(*_patterns("SAP-", "SAP_"), *_regex_patterns(r"\bSAP\b")),
+            # ^SAP(?![a-z]) covers post-prefix-strip names like "SAP02" (from "SrvSAP02")
+            # while rejecting "SAPLING" etc. (IGNORECASE makes [a-z] match uppercase too).
+            vm_name_patterns=(*_patterns("SAP-", "SAP_"), *_regex_patterns(r"\bSAP\b", r"^SAP(?![a-z])")),
         ),
         # === Tier 2: Application-specific (200-299) ===
         ClassificationRule(
@@ -396,9 +416,10 @@ def build_default_rules() -> list[ClassificationRule]:
             # MSG = Exchange mail-store abbreviation (e.g. swigva01-msg-*)
             # [-_]EX\d = short Exchange hostname suffix (e.g. CIGES-EX1, CIGES-EX2)
             #   digit required to avoid matching EXTRANET, EXCEPT, etc.
+            # EXC + digit = Exchange abbreviation (e.g. SRVEXC02 → EXC02 after prefix strip)
             vm_name_patterns=(
                 *_patterns("EXCHANGE", "DOMINO", "ZIMBRA", "SENDMAIL", "MSG", "EXCHG"),
-                *_regex_patterns(r"[-_]EX\d"),
+                *_regex_patterns(r"[-_]EX\d", r"EXC\d"),
             ),
         ),
         ClassificationRule(
@@ -496,14 +517,18 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Web Servers",
             subcategory="Content included",
             priority=320,
-            vm_name_patterns=_patterns("WEB", "WWW", "APACHE", "NGINX", "IIS", "TOMCAT", "FORTIWEB"),
+            vm_name_patterns=_patterns("WEB", "WWW", "APACHE", "NGINX", "IIS", "TOMCAT", "FORTIWEB", "INTRANET"),
         ),
         ClassificationRule(
             name="File General Purpose",
             category="File",
             subcategory="General Purpose",
             priority=330,
-            vm_name_patterns=_patterns("FILE"),
+            vm_name_patterns=(
+                *_patterns("FILE"),
+                # FS + digit/separator = File Server (e.g. SrvFS01 → FS01 after prefix strip)
+                *_regex_patterns(r"^FS\d", r"^FS[-_]"),
+            ),
         ),
         ClassificationRule(
             name="File Content Servers",
@@ -511,7 +536,7 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory="Content Servers (Git, Sharepoint)",
             priority=340,
             vm_name_patterns=(
-                *_patterns("GIT", "GITLAB", "SHAREPOINT", "ALFRESCO"),
+                *_patterns("GIT", "GITLAB", "BITBUCKET", "SHAREPOINT", "ALFRESCO"),
                 *_patterns("SPBE", "SPFE", "SPOWA", "SPOFFICE"),
             ),
         ),
@@ -520,7 +545,7 @@ def build_default_rules() -> list[ClassificationRule]:
             category="File",
             subcategory="Developer Workspaces (DevOps)",
             priority=350,
-            vm_name_patterns=_patterns("DEVOPS", "JENKINS", "ANSIBLE"),
+            vm_name_patterns=_patterns("DEVOPS", "JENKINS", "ANSIBLE", "DEPLOY"),
         ),
         ClassificationRule(
             name="File Archive",
@@ -544,24 +569,31 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Logging - Analytics",
             subcategory="FortiNet, Elastic Search, Splunk, ELK, etc",
             priority=400,
-            vm_name_patterns=_patterns(
-                "ELASTIC",
-                "ELK",
-                "SPLUNK",
-                "FORTIANALYZER",
-                "FORTIMANAGER",
-                "FAZ",  # FortiAnalyzer short hostname (e.g. CIGES-FAZ)
-                "FMG",  # FortiManager short hostname (e.g. CIGES-FMG)
-                "ZABBIX",
-                "CENTREON",
-                "OBSERVIUM",
-                "GRAFANA",
-                "RSYSLOG",  # syslog collection servers
-                "SYSLOG",
-                "POLLER",  # monitoring pollers (Centreon/Nagios)
-                "PRTG",  # PRTG Network Monitor (Paessler)
-                "LOGSTASH",  # Logstash log pipeline
-                "KIBANA",  # Kibana visualization (ELK stack)
+            vm_name_patterns=(
+                *_patterns(
+                    "ELASTIC",
+                    "ELK",
+                    "SPLUNK",
+                    "FORTIANALYZER",
+                    "FORTIMANAGER",
+                    "FAZ",  # FortiAnalyzer short hostname (e.g. CIGES-FAZ)
+                    "FMG",  # FortiManager short hostname (e.g. CIGES-FMG)
+                    "ZABBIX",
+                    "CENTREON",
+                    "OBSERVIUM",
+                    "GRAFANA",
+                    "RSYSLOG",  # syslog collection servers
+                    "SYSLOG",
+                    "POLLER",  # monitoring pollers (Centreon/Nagios)
+                    "PRTG",  # PRTG Network Monitor (Paessler)
+                    "LOGSTASH",  # Logstash log pipeline
+                    "KIBANA",  # Kibana visualization (ELK stack)
+                    "LOGINSIGHT",  # VMware Log Insight / Aria Operations for Logs
+                ),
+                # LOG followed by digit, separator, or end — avoids LOGIN, LOGIC, LOGO
+                # LOGDMZ covers log servers in DMZ segments (e.g. SrvLogDMZ01)
+                *_regex_patterns(r"LOG(?:\d|[-_.]|$)"),
+                *_patterns("LOGDMZ"),
             ),
             os_patterns=_patterns("FORTI"),
         ),
