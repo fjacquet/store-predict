@@ -49,7 +49,7 @@ Archive: `.planning/milestones/v7.0-ROADMAP.md`
 **Execution waves (parallel):**
 - Wave A: DRR-01/02/03 — Fix groupby logic in calculation pipeline, propagate to PDF and Excel
 - Wave B: CLASSIF-01/02/03 — Add backup, monitoring, and database classification patterns
-- Wave C: REPORT-01/02 — Improve Plotly/kaleido rendering resolution and label legibility
+- Wave C: REPORT-01/02 — Improve matplotlib Sankey rendering resolution and label legibility
 
 **Success Criteria** (what must be TRUE):
   1. User uploads a file where the same workload category has VMs with different DRR values — separate rows appear in the web UI workload summary table, one per DRR value
@@ -63,7 +63,12 @@ Archive: `.planning/milestones/v7.0-ROADMAP.md`
   9. Sankey diagram in PDF shows no visible pixelation at 100% zoom in a PDF reader
   10. Every Sankey node and edge label is legible at standard print resolution (300 DPI equivalent)
   11. Sankey colors in PDF match the web UI color scheme
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 029-01-PLAN.md — DRR category split: fix groupby key and ECharts Sankey collision
+- [ ] 029-02-PLAN.md — Classification expansion: backup, monitoring, and Redis patterns
+- [ ] 029-03-PLAN.md — PDF chart quality: 300 DPI, font sizes, palette alignment
 
 ## Progress
 
@@ -71,4 +76,4 @@ Archive: `.planning/milestones/v7.0-ROADMAP.md`
 |-------|-----------|----------------|--------|-----------|
 | 27. Session Save & Restore | v7.0 | 2/2 | Complete | 2026-02-24 |
 | 28. Concerns Enrichment | v7.0 | 2/2 | Complete | 2026-02-24 |
-| 29. Reporting Fidelity | v8.0 | 0/? | Not started | - |
+| 29. Reporting Fidelity | v8.0 | 0/3 | Planning complete | - |
