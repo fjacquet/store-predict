@@ -46,11 +46,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DRR-01 | Phase 29 | Pending |
 | DRR-02 | Phase 29 | Pending |
 | DRR-03 | Phase 29 | Pending |
-| CLASSIF-01 | Phase 30 | Pending |
-| CLASSIF-02 | Phase 30 | Pending |
-| CLASSIF-03 | Phase 30 | Pending |
-| REPORT-01 | Phase 31 | Pending |
-| REPORT-02 | Phase 31 | Pending |
+| CLASSIF-01 | Phase 29 | Pending |
+| CLASSIF-02 | Phase 29 | Pending |
+| CLASSIF-03 | Phase 29 | Pending |
+| REPORT-01 | Phase 29 | Pending |
+| REPORT-02 | Phase 29 | Pending |
 
 **Coverage:**
 - v8.0 requirements: 8 total
@@ -59,4 +59,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-26*
-*Last updated: 2026-03-26 after initial definition*
+*Last updated: 2026-03-26 — traceability confirmed after roadmap creation*

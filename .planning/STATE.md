@@ -2,40 +2,47 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-25 after v7.0.x polish complete)
+See: .planning/PROJECT.md (updated 2026-03-26 after v8.0 milestone started)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** Between milestones — v7.0.7 shipped, ready for `/gsd:new-milestone`
+**Current focus:** Phase 29 — Reporting Fidelity (v8.0)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-26 — Milestone v8.0 started
+Phase: 29 of 29 (Reporting Fidelity)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-03-26 — v8.0 roadmap created, phases 29–31 defined
+
+Progress: [░░░░░░░░░░] 0% (v8.0 milestone)
 
 ## Performance Metrics
 
-| Phase | Plans | Duration | Files |
-|-------|-------|----------|-------|
-| Phase 27 P01 | 1 | ~3 min | 4 |
-| Phase 27 P02 | 1 | ~5 min | 2 |
-| Phase 28 P01 | 1 | ~10 min | 5 |
-| Phase 28 P02 | 1 | ~8 min | 3 |
+**Velocity:**
+- Total plans completed (v7.0): 4
+- Average duration: ~6.5 min
+- Total execution time: ~26 min
+
+**By Phase:**
+
+| Phase | Plans | Avg/Plan |
+|-------|-------|----------|
+| Phase 27 | 2 | ~4 min |
+| Phase 28 | 2 | ~9 min |
+
+**Recent Trend:**
+- Last 4 plans: 3, 5, 10, 8 min
+- Trend: Stable
 
 ## Accumulated Context
 
 ### Key Architecture Decisions (carry forward)
 
+- PDF path: ReportLab direct + Plotly/kaleido for Sankey (ADR-071; no Playwright)
+- DRR groupby logic lives in calculation pipeline — fix must propagate to PDF/Excel export paths too
+- Classification rules are priority-ordered list in `classifier.py` — new patterns append to existing rule set
+- SESSION_ZIP_SENTINEL = "session.json" — session zip detection before LiveOptics extraction
 - HealthCheckResult recomputed per-visit, not cached in session storage
-- compute_sizing() AP values always computed; ap_enabled only controls UI display
-- AG Grid row grouping is Enterprise-only — cluster grouping uses a separate table
-- PDF path: ReportLab direct (no Playwright); generate_report_pdf() includes layout DS detail pages via _build_ds_detail_pages()
-- __no_cluster__ sentinel in compute groupby (not None/NaN); translated to i18n in UI
-- vmsc_site_a_hosts / vmsc_site_b_hosts enable asymmetric site display
-- ap_secondary = max(1, ceil(primary/2)) — cold standby convention
-- SESSION_ZIP_SENTINEL = "session.json" — presence in zip root identifies StorePredict archives
-- session zip detection runs BEFORE LiveOptics zip extraction in handle_upload
 - `or`-fallback in _load_constraints() and _load_compute_config() handles restored falsy values
 
 ### Pending Todos
@@ -48,8 +55,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-25
-Stopped at: v7.0.x polish complete — Playwright removed, Plotly+kaleido, single PDF, auto dark mode, MkDocs nav cleanup, GSD status updated
+Last session: 2026-03-26
+Stopped at: Roadmap created for v8.0 — 1 phase (29 Reporting Fidelity, all 8 requirements in parallel waves)
 Resume file: None
 
-Next step: `/gsd:new-milestone` to start next milestone planning.
+Next step: `/gsd:plan-phase 29` to plan DRR Category Split.
