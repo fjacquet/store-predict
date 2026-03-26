@@ -4,6 +4,23 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v8.0.0] - 2026-03-26
+
+### Fixed
+
+- **DRR category split** (Issue #5) — `calculate()` now groups by `(category, drr)` tuple instead of `workload_category` alone. VMs with the same workload category but different DRR values (e.g., SQL uncompressed vs SQL encrypted) now produce separate rows in the web UI, PDF, and Excel breakdown table. See [ADR-077](docs/adr/077-drr-category-split-groupby-key.md).
+
+### Added
+
+- **Classification expanded** — New rules reduce Unknown Reducible VM rate:
+  - Veritas / NetBackup agents (`VERITAS`, `NETBACKUP`, `NBU`) → VM Replication (priority 298)
+  - Generic backup servers (`BACKUP`) → File Archive (priority 360)
+  - Network monitoring infrastructure (`NAGIOS`, `ICINGA`, `SOLARWINDS`, `LIBRENMS`, `OPENNMS`) → Logging - Analytics (priority 400)
+  - Redis cache VMs (`REDIS`) → Database / MySQL / NoSQL (priority 101)
+- **PDF Sankey at 300 DPI** — matplotlib Agg renders at 2083×833 px (500×200 pt canvas), eliminating pixelation at 100% zoom in PDF readers
+- **PDF Sankey palette aligned** — 6th color corrected from `#5B8DB8` to `#DEE2E6`, matching the ECharts DELL_PALETTE used in the web UI
+- **PDF Sankey legibility** — mid-node category label fontsize 5→6, axis label default 6.5→7
+
 ## [v7.2.0] - 2026-03-15
 
 ### Changed
