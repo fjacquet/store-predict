@@ -90,26 +90,18 @@ class TestSankeyImageFlowable:
         assert not isinstance(result, Spacer)
 
     def test_sankey_dpi_300(self) -> None:
-        """Sankey PNG renders at 300 DPI — pixel width >= 2000 for 500pt default width."""
-        from io import BytesIO
+        """Sankey PNG renders at 300 DPI — pixel width >= 2000 for 500pt default width.
 
-        from PIL import Image as PILImage
-
+        ReportLab Image exposes imageWidth / imageHeight (the native pixel dimensions
+        of the PNG that was passed in).  At 300 DPI with the default 500pt width:
+          500 / 72 * 300 = 2083 px
+        """
         summary = _make_summary()
         flowable = make_sankey_image_flowable(summary)
         assert isinstance(flowable, Image)
 
-        # Access the underlying file-like object stored in ReportLab Image
-        buf = flowable._file  # type: ignore[attr-defined]
-        if not isinstance(buf, BytesIO):
-            # If it's already been read, wrap it
-            buf.seek(0)
-        else:
-            buf.seek(0)
-
-        pil_img = PILImage.open(buf)
-        width_px, height_px = pil_img.size
-        # At 300 DPI with 500pt width: 500/72 * 300 = 2083 px
+        # imageWidth is set by ReportLab from the PNG pixel dimensions
+        width_px = flowable.imageWidth  # type: ignore[attr-defined]
         assert width_px >= 2000, (
             f"PNG width {width_px}px is below 2000px — DPI is not 300 (expected >= 2000)"
         )
