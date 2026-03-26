@@ -80,7 +80,7 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 | Browser auto-save (localStorage) | File-based save is more explicit and portable; no server-side state |
 | Named project library / server-side persistence | File-based approach is simpler; users manage files in their filesystem |
 | Custom concern thresholds | Adds complexity; default thresholds cover standard VMware best practices |
-| Severity filtering on /concerns | Current page is already scannable; filtering deferred to v8+ |
+| Severity filtering on /concerns | Current page is already scannable; filtering deferred to v9+ |
 | LLM as primary classifier | Rules remain primary, LLM is fallback only |
 | Babel/gettext for i18n | Overkill for 2 languages; python-i18n with YAML is simpler |
 | LangChain | Massive dependency, overkill for single classification call |
@@ -91,11 +91,11 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 
 ## Context
 
-Shipped v7.0 (2026-02-24) + v7.0.4–v7.0.7 polish (2026-02-25). Latest release: v7.0.7.
-Tech stack: NiceGUI, pandas, openpyxl, ReportLab, AG Grid, XlsxWriter, Pillow, litellm, plotly, kaleido, python-i18n.
+Shipped v8.0 (2026-03-26). Latest release: v8.0.
+Tech stack: NiceGUI, pandas, openpyxl, ReportLab, AG Grid, XlsxWriter, Pillow, litellm, plotly, kaleido, python-i18n, matplotlib.
 Docker Compose deployment (single container, 0.6 GB image), MkDocs on GitHub Pages, GitHub Actions CI with Codecov + CycloneDX SBOM.
 552 tests, 88% backend coverage.
-Tool covers storage sizing, datastore layout, health checks with remediation hints, compute sizing, full findings/concerns export, session save/restore, and auto dark mode — a complete pre-sales assessment platform.
+Tool covers storage sizing, datastore layout, health checks with remediation hints, compute sizing, full findings/concerns export, session save/restore, auto dark mode, and print-quality PDF charts — a complete pre-sales assessment platform.
 
 ## Constraints
 
@@ -105,6 +105,7 @@ Tool covers storage sizing, datastore layout, health checks with remediation hin
 - **Deployment:** Docker Compose, single container, port 8080
 - **Documentation:** MkDocs with Material theme + Mermaid diagrams
 - **Code quality:** ruff + mypy strict + pytest (552 tests, 88% coverage)
+- **PDF charts:** matplotlib Agg (Sankey, 300 DPI) + ReportLab Platypus (bar, pie, tables)
 - **CI/CD:** GitHub Actions (lint, test, docs deploy, Codecov)
 - **Layout engine:** Pure Python heuristics (no external optimization libraries)
 
@@ -178,14 +179,15 @@ Tool covers storage sizing, datastore layout, health checks with remediation hin
 | `ui.dark_mode().auto()` on first visit (ADR-072) | NiceGUI native API; respects OS `prefers-color-scheme`; stored preference still wins | Good |
 | MkDocs nav collapsed to index pages | 82 individual nav entries removed; `adr/index.md` and `research/index.md` already have full tables | Good |
 
-## Current Milestone: v8.0 Reporting Fidelity
+## Key Decisions (v8.0 additions)
 
-**Goal:** Fix DRR category display, improve PDF chart quality, and reduce Unknown Reducible VMs through expanded classification patterns.
-
-**Target features:**
-- DRR category split in reports (no merging when DRR differs) — Issue #5
-- Expanded classification patterns to reduce Unknown Reducible rate
-- Print-quality PDF charts (Sankey/bar resolution, colors, labels)
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| `calculate()` groups by `(category, drr)` tuple | Same-category different-DRR VMs must produce separate WorkloadGroupResult rows; was silently merged before (Issue #5) | Good |
+| `WorkloadGroupResult.drr: float = 0.0` default | Backward compat — 30+ existing test call sites unchanged; drr field added without breaking any fixture | Good |
+| Counter-based Sankey collision guard in `charts.py` | ECharts requires unique node names; DRR suffix appended only when collision detected, not always | Good |
+| matplotlib Agg for PDF Sankey at 300 DPI | kaleido/Plotly Sankey removed (ADR-075); matplotlib Agg renders headless, dpi=300 doubles resolution to ~2000px | Good |
+| `inspect.getsource()` for palette assertions | Faster and deterministic — no rendering+PIL dep in tests; asserts source string not rendered pixels | Good |
 
 ---
-*Last updated: 2026-03-26 after v8.0 Reporting Fidelity complete*
+*Last updated: 2026-03-26 after v8.0 Reporting Fidelity archived*

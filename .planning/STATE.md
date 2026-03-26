@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v8.0
 milestone_name: Reporting Fidelity
-status: complete
+status: completed
 stopped_at: Completed 029-reporting-fidelity-03-PLAN.md
-last_updated: "2026-03-26T00:15:00.000Z"
-last_activity: 2026-03-26 — Phase 29 Plan 03 complete (Sankey 300 DPI + palette alignment)
+last_updated: "2026-03-26T14:33:50.773Z"
+last_activity: 2026-03-26 — Phase 29 Plan 03 complete
 progress:
   total_phases: 1
   completed_phases: 1
@@ -18,10 +18,10 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-26 after v8.0 milestone started)
+See: .planning/PROJECT.md (updated 2026-03-26 after v8.0 archived)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** v8.0 complete — ready for `/gsd:new-milestone`
+**Current focus:** v8.0 archived — start `/gsd:new-milestone` for v9.0
 
 ## Current Position
 
