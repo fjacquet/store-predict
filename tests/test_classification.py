@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pandas as pd
+import pytest
 
 from store_predict.pipeline.classification import (
     RuleRegistry,
@@ -496,3 +497,30 @@ class TestCitrixPVSAndVMwareInfra:
         )
         assert result.category == "Virtual Machines"
         assert result.confidence == "rule_match"
+
+
+# ---------------------------------------------------------------------------
+# 9. Backup/Replication tool classification (Task 1: Veritas/NetBackup + BACKUP)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "vm_name, expected_category",
+    [
+        ("Veritas-Media-01", "VM Replication"),
+        ("NetBackup-Master", "VM Replication"),
+        ("NBU-Client-03", "VM Replication"),
+        ("Backup-Server-01", "File"),
+        ("veeam-backup-01", "VM Replication"),  # priority 300 wins over 360
+    ],
+)
+def test_backup_classification(vm_name: str, expected_category: str) -> None:
+    """Veritas/NetBackup VMs -> VM Replication; generic BACKUP VMs -> File.
+
+    veeam-backup-01 must stay as VM Replication (priority 300 beats 360).
+    """
+    result = _registry().classify(vm_name, "")
+    assert result.category == expected_category, (
+        f"Expected {vm_name!r} -> {expected_category!r}, got {result.category!r} "
+        f"(rule={result.rule_name!r})"
+    )

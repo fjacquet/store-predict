@@ -496,6 +496,13 @@ def build_default_rules() -> list[ClassificationRule]:
             vm_name_patterns=_patterns("COMMVAULT", "CVD"),
         ),
         ClassificationRule(
+            name="Veritas / NetBackup",
+            category="VM Replication",
+            subcategory="Veeam, Zerto, RP4VM",
+            priority=298,
+            vm_name_patterns=_patterns("VERITAS", "NETBACKUP", "NBU"),
+        ),
+        ClassificationRule(
             name="VM Replication",
             category="VM Replication",
             subcategory="Veeam, Zerto, RP4VM",
@@ -552,7 +559,7 @@ def build_default_rules() -> list[ClassificationRule]:
             category="File",
             subcategory=("Archive / Backup / Compressed / Encrypted / Rich Media / ISO / PACS / CAD"),
             priority=360,
-            vm_name_patterns=_patterns("ARCHIVE"),
+            vm_name_patterns=_patterns("ARCHIVE", "BACKUP"),
         ),
         ClassificationRule(
             name="VMware Infrastructure VMs",
