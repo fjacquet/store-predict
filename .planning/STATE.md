@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-26 after v8.0 milestone started)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** Phase 29 — Reporting Fidelity (v8.0)
+**Current focus:** v8.0 complete — ready for `/gsd:new-milestone`
 
 ## Current Position
 

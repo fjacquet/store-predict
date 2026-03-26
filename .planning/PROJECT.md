@@ -61,12 +61,13 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 - Playwright + matplotlib removed; Plotly+kaleido for PDF charts; Docker image 0.6 GB (−77%) — v7.0.4
 - Single comprehensive PDF: layout datastore detail merged into main report — v7.0.6
 - Auto dark mode: OS prefers-color-scheme detection on first visit — v7.0.7
+- DRR category split: separate rows per (category, drr) pair in web UI, PDF, Excel — v8.0
+- Classification expanded: Veritas/NetBackup, Nagios/SolarWinds, Redis patterns added — v8.0
+- PDF Sankey at 300 DPI with palette aligned to ECharts web UI — v8.0
 
 ### Active
 
-- [ ] DRR category display: separate rows per workload+DRR combination (no merging when DRR differs) — Issue #5
-- [ ] Expand VM classification patterns to reduce Unknown Reducible rate on real customer files
-- [ ] Improve PDF chart quality (Sankey/bar): resolution, colors, labels for print-quality output
+(None — v8.0 complete, start fresh with `/gsd:new-milestone`)
 
 ### Out of Scope
 
@@ -187,4 +188,4 @@ Tool covers storage sizing, datastore layout, health checks with remediation hin
 - Print-quality PDF charts (Sankey/bar resolution, colors, labels)
 
 ---
-*Last updated: 2026-03-26 after v8.0 milestone started*
+*Last updated: 2026-03-26 after v8.0 Reporting Fidelity complete*

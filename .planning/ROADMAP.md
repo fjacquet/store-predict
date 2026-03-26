@@ -33,11 +33,11 @@ Archive: `.planning/milestones/v7.0-ROADMAP.md`
 
 </details>
 
-### 🚧 v8.0 Reporting Fidelity (In Progress)
+### ✅ v8.0 Reporting Fidelity (Complete — 2026-03-26)
 
 **Milestone Goal:** Fix DRR category display, expand VM classification coverage, and deliver print-quality PDF charts — so pre-sales reports are accurate and presentation-ready.
 
-- [ ] **Phase 29: Reporting Fidelity** — All 8 requirements executed in parallel waves (DRR fix, classification expansion, PDF chart quality)
+- [x] **Phase 29: Reporting Fidelity** — All 8 requirements executed in parallel waves (DRR fix, classification expansion, PDF chart quality) — completed 2026-03-26
 
 ## Phase Details
 
@@ -66,9 +66,9 @@ Archive: `.planning/milestones/v7.0-ROADMAP.md`
 **Plans**: 3 plans
 
 Plans:
-- [ ] 029-01-PLAN.md — DRR category split: fix groupby key and ECharts Sankey collision
-- [ ] 029-02-PLAN.md — Classification expansion: backup, monitoring, and Redis patterns
-- [ ] 029-03-PLAN.md — PDF chart quality: 300 DPI, font sizes, palette alignment
+- [x] 029-01-PLAN.md — DRR category split: fix groupby key and ECharts Sankey collision
+- [x] 029-02-PLAN.md — Classification expansion: backup, monitoring, and Redis patterns
+- [x] 029-03-PLAN.md — PDF chart quality: 300 DPI, font sizes, palette alignment
 
 ## Progress
 
@@ -76,4 +76,4 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 27. Session Save & Restore | v7.0 | 2/2 | Complete | 2026-02-24 |
 | 28. Concerns Enrichment | v7.0 | 2/2 | Complete | 2026-02-24 |
-| 29. Reporting Fidelity | v8.0 | 0/3 | Planning complete | - |
+| 29. Reporting Fidelity | v8.0 | 3/3 | Complete | 2026-03-26 |
