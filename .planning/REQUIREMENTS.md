@@ -15,14 +15,14 @@ Requirements for v8.0 Reporting Fidelity milestone. Closes Issue #5 and improves
 
 ### Classification
 
-- [ ] **CLASSIF-01**: Backup/archive infrastructure VMs (Veeam, Commvault, Veritas, NetBackup agents) are classified instead of showing as Unknown Reducible
-- [ ] **CLASSIF-02**: Monitoring/infrastructure VMs (Zabbix, Nagios, PRTG, SolarWinds, management hosts) are classified instead of Unknown Reducible
-- [ ] **CLASSIF-03**: Common database VMs (MySQL, PostgreSQL, MongoDB, Redis, MariaDB) are classified instead of Unknown Reducible
+- [x] **CLASSIF-01**: Backup/archive infrastructure VMs (Veeam, Commvault, Veritas, NetBackup agents) are classified instead of showing as Unknown Reducible
+- [x] **CLASSIF-02**: Monitoring/infrastructure VMs (Zabbix, Nagios, PRTG, SolarWinds, management hosts) are classified instead of Unknown Reducible
+- [x] **CLASSIF-03**: Common database VMs (MySQL, PostgreSQL, MongoDB, Redis, MariaDB) are classified instead of Unknown Reducible
 
 ### Report Quality
 
-- [ ] **REPORT-01**: Sankey diagram in PDF renders at print quality (no pixelation at standard print resolution)
-- [ ] **REPORT-02**: Sankey diagram nodes and edges have legible labels and correct colors
+- [x] **REPORT-01**: Sankey diagram in PDF renders at print quality (no pixelation at standard print resolution)
+- [x] **REPORT-02**: Sankey diagram nodes and edges have legible labels and correct colors
 
 ## Future Requirements
 
@@ -46,11 +46,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DRR-01 | Phase 29 | Complete |
 | DRR-02 | Phase 29 | Complete |
 | DRR-03 | Phase 29 | Complete |
-| CLASSIF-01 | Phase 29 | Pending |
-| CLASSIF-02 | Phase 29 | Pending |
-| CLASSIF-03 | Phase 29 | Pending |
-| REPORT-01 | Phase 29 | Pending |
-| REPORT-02 | Phase 29 | Pending |
+| CLASSIF-01 | Phase 29 | Complete |
+| CLASSIF-02 | Phase 29 | Complete |
+| CLASSIF-03 | Phase 29 | Complete |
+| REPORT-01 | Phase 29 | Complete |
+| REPORT-02 | Phase 29 | Complete |
 
 **Coverage:**
 - v8.0 requirements: 8 total
