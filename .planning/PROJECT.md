@@ -64,7 +64,9 @@ Accurately predict real-world PowerStore DRR per workload, recommend optimal dat
 
 ### Active
 
-(None — start fresh with `/gsd:new-milestone`)
+- [ ] DRR category display: separate rows per workload+DRR combination (no merging when DRR differs) — Issue #5
+- [ ] Expand VM classification patterns to reduce Unknown Reducible rate on real customer files
+- [ ] Improve PDF chart quality (Sankey/bar): resolution, colors, labels for print-quality output
 
 ### Out of Scope
 
@@ -175,5 +177,14 @@ Tool covers storage sizing, datastore layout, health checks with remediation hin
 | `ui.dark_mode().auto()` on first visit (ADR-072) | NiceGUI native API; respects OS `prefers-color-scheme`; stored preference still wins | Good |
 | MkDocs nav collapsed to index pages | 82 individual nav entries removed; `adr/index.md` and `research/index.md` already have full tables | Good |
 
+## Current Milestone: v8.0 Reporting Fidelity
+
+**Goal:** Fix DRR category display, improve PDF chart quality, and reduce Unknown Reducible VMs through expanded classification patterns.
+
+**Target features:**
+- DRR category split in reports (no merging when DRR differs) — Issue #5
+- Expanded classification patterns to reduce Unknown Reducible rate
+- Print-quality PDF charts (Sankey/bar resolution, colors, labels)
+
 ---
-*Last updated: 2026-02-25 after v7.0.x polish (v7.0.4–v7.0.7)*
+*Last updated: 2026-03-26 after v8.0 milestone started*

@@ -9,13 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-25 after v7.0.x polish complete)
 
 ## Current Position
 
-Phase: 28 of 28 (v7.0 complete)
-Plan: 4 of 4 (milestone complete)
-Status: v7.0.7 SHIPPED — milestone archived, v7.0.x polish complete
-
-Last activity: 2026-02-25 — v7.0.x polish (Playwright removed, Plotly+kaleido, single PDF, auto dark mode, MkDocs nav cleanup, GSD status updated)
-
-Progress: [██████████] 100% (v7.0 + v7.0.x polish done)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-26 — Milestone v8.0 started
 
 ## Performance Metrics
 
