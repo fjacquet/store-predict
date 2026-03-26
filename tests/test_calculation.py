@@ -163,3 +163,56 @@ class TestDataclasses:
         result = calculate([])
         with pytest.raises(AttributeError):
             result.total_vms = 999  # type: ignore[misc]
+
+
+class TestDRRSplit:
+    """Tests proving DRR split produces separate groups."""
+
+    def test_same_category_different_drr_produces_two_groups(self) -> None:
+        """Two VMs with same category but different DRR produce two WorkloadGroupResult entries."""
+        rows = [
+            _row(vm_name="DB-1", workload_category="Database", provisioned_mib=10000, in_use_mib=5000, drr=5.0),
+            _row(vm_name="DB-2", workload_category="Database", provisioned_mib=8000, in_use_mib=4000, drr=1.5),
+        ]
+        result = calculate(rows)
+        assert len(result.workload_groups) == 2
+        # Sorted by (category, drr): drr=1.5 comes before drr=5.0
+        assert result.workload_groups[0].category == "Database"
+        assert result.workload_groups[0].drr == pytest.approx(1.5)
+        assert result.workload_groups[1].category == "Database"
+        assert result.workload_groups[1].drr == pytest.approx(5.0)
+
+    def test_same_category_same_drr_produces_one_group(self) -> None:
+        """Two VMs with same category and same DRR produce one WorkloadGroupResult entry."""
+        rows = [
+            _row(vm_name="DB-1", workload_category="Database", provisioned_mib=10000, in_use_mib=5000, drr=5.0),
+            _row(vm_name="DB-2", workload_category="Database", provisioned_mib=8000, in_use_mib=4000, drr=5.0),
+        ]
+        result = calculate(rows)
+        assert len(result.workload_groups) == 1
+        assert result.workload_groups[0].category == "Database"
+        assert result.workload_groups[0].drr == pytest.approx(5.0)
+
+    def test_avg_drr_equals_drr_in_group(self) -> None:
+        """Each group's avg_drr equals its drr value (uniform within group by construction)."""
+        rows = [
+            _row(vm_name="DB-1", workload_category="Database", provisioned_mib=10000, in_use_mib=5000, drr=5.0),
+            _row(vm_name="DB-2", workload_category="Database", provisioned_mib=8000, in_use_mib=4000, drr=1.5),
+        ]
+        result = calculate(rows)
+        for grp in result.workload_groups:
+            assert grp.avg_drr == pytest.approx(grp.drr)
+
+    def test_backward_compat_default_drr(self) -> None:
+        """WorkloadGroupResult constructed without drr kwarg defaults to 0.0."""
+        from store_predict.pipeline.calculation import WorkloadGroupResult
+
+        grp = WorkloadGroupResult(
+            category="X",
+            vm_count=1,
+            total_provisioned_mib=1.0,
+            total_in_use_mib=1.0,
+            avg_drr=5.0,
+            total_required_mib=0.2,
+        )
+        assert grp.drr == pytest.approx(0.0)

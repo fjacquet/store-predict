@@ -44,6 +44,7 @@ class WorkloadGroupResult:
     total_in_use_mib: float
     avg_drr: float
     total_required_mib: float
+    drr: float = 0.0  # DRR value for this specific group (default=0.0 for backward compat)
 
 
 @dataclass(frozen=True)
@@ -133,18 +134,21 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
             )
         )
 
-    # Group by workload category
-    groups: dict[str, list[VMCalculation]] = defaultdict(list)
+    # Group by (workload_category, drr) so same category with different DRR values
+    # produce separate rows — pre-sales needs each DRR variant displayed separately.
+    groups: dict[tuple[str, float], list[VMCalculation]] = defaultdict(list)
     for vm in vm_calcs:
-        groups[vm.workload_category].append(vm)
+        groups[(vm.workload_category, vm.drr)].append(vm)
 
     workload_groups: list[WorkloadGroupResult] = []
-    for category in sorted(groups):
-        vms = groups[category]
+    for key in sorted(groups):
+        category, drr_val = key
+        vms = groups[key]
         grp_provisioned = sum(v.provisioned_mib for v in vms)
         grp_in_use = sum(v.in_use_mib for v in vms)
         grp_required = sum(v.required_mib for v in vms)
-        grp_avg_drr = grp_provisioned / grp_required if grp_required > 0 else 0.0
+        # Within a group all VMs share the same drr_val, so avg equals drr_val
+        grp_avg_drr = drr_val
 
         workload_groups.append(
             WorkloadGroupResult(
@@ -154,6 +158,7 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
                 total_in_use_mib=grp_in_use,
                 avg_drr=grp_avg_drr,
                 total_required_mib=grp_required,
+                drr=drr_val,
             )
         )
 

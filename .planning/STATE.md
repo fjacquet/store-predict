@@ -1,24 +1,41 @@
+---
+gsd_state_version: 1.0
+milestone: v8.0
+milestone_name: Reporting Fidelity
+status: completed
+stopped_at: Completed 029-reporting-fidelity-03-PLAN.md
+last_updated: "2026-03-26T14:33:50.773Z"
+last_activity: 2026-03-26 — Phase 29 Plan 03 complete
+progress:
+  total_phases: 1
+  completed_phases: 1
+  total_plans: 3
+  completed_plans: 3
+  percent: 100
+---
+
 # Project State — StorePredict
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-26 after v8.0 milestone started)
+See: .planning/PROJECT.md (updated 2026-03-26 after v8.0 archived)
 
 **Core value:** Accurate DRR sizing + optimal datastore layout + compute sizing + environment health checks — all from a static export file with no live vCenter required
-**Current focus:** Phase 29 — Reporting Fidelity (v8.0)
+**Current focus:** v8.0 archived — start `/gsd:new-milestone` for v9.0
 
 ## Current Position
 
 Phase: 29 of 29 (Reporting Fidelity)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-03-26 — v8.0 roadmap created, phases 29–31 defined
+Plan: 3 of 3
+Status: Complete
+Last activity: 2026-03-26 — Phase 29 Plan 03 complete
 
-Progress: [░░░░░░░░░░] 0% (v8.0 milestone)
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed (v7.0): 4
 - Average duration: ~6.5 min
 - Total execution time: ~26 min
@@ -31,8 +48,13 @@ Progress: [░░░░░░░░░░] 0% (v8.0 milestone)
 | Phase 28 | 2 | ~9 min |
 
 **Recent Trend:**
+
 - Last 4 plans: 3, 5, 10, 8 min
 - Trend: Stable
+
+| Phase 029-reporting-fidelity P01 | 5 | 2 tasks | 3 files |
+| Phase 029-reporting-fidelity P02 | 7 | 2 tasks | 2 files |
+| Phase 029-reporting-fidelity P03 | 8 | 1 task (TDD) | 2 files |
 
 ## Accumulated Context
 
@@ -44,6 +66,12 @@ Progress: [░░░░░░░░░░] 0% (v8.0 milestone)
 - SESSION_ZIP_SENTINEL = "session.json" — session zip detection before LiveOptics extraction
 - HealthCheckResult recomputed per-visit, not cached in session storage
 - `or`-fallback in _load_constraints() and _load_compute_config() handles restored falsy values
+- [029-01] calculate() groups by (category, drr) tuple — same-category different-DRR VMs produce separate WorkloadGroupResult rows
+- [029-01] WorkloadGroupResult.drr field with default=0.0 preserves backward compat with all existing test call sites
+- [029-01] Sankey node names append DRR suffix only on collision (Counter-based detection)
+- [029-02] Classification rules for backup tools (Veritas/NetBackup at priority 298), monitoring (Nagios/SolarWinds/Icinga/LibreNMS/OpenNMS in Logging Analytics rule), and Redis (in MySQL/NoSQL rule) — closes CLASSIF-01/02/03
+- [029-03] matplotlib Sankey: dpi=300, palette 6th color #DEE2E6 matches ECharts DELL_PALETTE, fontsize bumped to 6/7
+- [029-03] Use img.imageWidth (ReportLab native) to verify DPI in tests — no PIL dependency needed
 
 ### Pending Todos
 
@@ -56,7 +84,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-26
-Stopped at: Roadmap created for v8.0 — 1 phase (29 Reporting Fidelity, all 8 requirements in parallel waves)
+Stopped at: Completed 029-reporting-fidelity-03-PLAN.md
 Resume file: None
 
-Next step: `/gsd:plan-phase 29` to plan DRR Category Split.
+Next step: Phase 29 (Reporting Fidelity) complete — all 3 plans done.

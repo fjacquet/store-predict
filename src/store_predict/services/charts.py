@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 from store_predict.i18n import t
 
 if TYPE_CHECKING:
-    from store_predict.pipeline.calculation import CalculationSummary
+    from store_predict.pipeline.calculation import CalculationSummary, WorkloadGroupResult
 
 __all__ = [
     "echart_before_after_options",
@@ -30,6 +30,10 @@ def echart_sankey_options(summary: CalculationSummary) -> dict[str, Any]:
 
     Falls back to a before/after bar chart when fewer than 2 workload groups
     are present (Sankey requires at least 2 intermediate nodes to be meaningful).
+
+    When the same workload category appears with different DRR values (due to
+    the (category, drr) groupby key), node names get a DRR suffix to avoid
+    ECharts Sankey node name collisions (e.g. "Database (5.0x)").
     """
     if len(summary.workload_groups) < 2:
         return echart_before_after_options(summary)
@@ -37,9 +41,20 @@ def echart_sankey_options(summary: CalculationSummary) -> dict[str, Any]:
     provisioned_label = t("chart.provisioned")
     required_label = t("chart.required")
 
+    # Detect categories that appear more than once (different DRR values)
+    from collections import Counter
+
+    cat_counts = Counter(grp.category for grp in summary.workload_groups)
+
+    def _node_name(grp: WorkloadGroupResult) -> str:
+        """Return unique node name, adding DRR suffix only on collision."""
+        if cat_counts[grp.category] > 1:
+            return f"{grp.category} ({grp.drr:.1f}x)"
+        return grp.category
+
     nodes = [{"name": provisioned_label, "itemStyle": {"color": DELL_BLUE}}]
     for grp in summary.workload_groups:
-        nodes.append({"name": grp.category, "itemStyle": {"color": LIGHT_GREY}})
+        nodes.append({"name": _node_name(grp), "itemStyle": {"color": LIGHT_GREY}})
     nodes.append({"name": required_label, "itemStyle": {"color": LIGHT_BLUE}})
 
     links = []
@@ -47,13 +62,13 @@ def echart_sankey_options(summary: CalculationSummary) -> dict[str, Any]:
         links.append(
             {
                 "source": provisioned_label,
-                "target": grp.category,
+                "target": _node_name(grp),
                 "value": round(grp.total_provisioned_mib / 1024, 1),
             }
         )
         links.append(
             {
-                "source": grp.category,
+                "source": _node_name(grp),
                 "target": required_label,
                 "value": round(grp.total_required_mib / 1024, 1),
             }

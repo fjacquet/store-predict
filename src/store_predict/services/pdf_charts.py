@@ -137,10 +137,10 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
     total_prov = summary.total_provisioned_mib
     total_req = summary.total_required_mib
 
-    palette = ["#007DB8", "#40A8D8", "#6C757D", "#ADB5BD", "#CED4DA", "#5B8DB8"]
+    palette = ["#007DB8", "#40A8D8", "#6C757D", "#ADB5BD", "#CED4DA", "#DEE2E6"]
 
     # Build figure with Agg canvas (headless — no display needed)
-    dpi = 150
+    dpi = 300
     fig = Figure(figsize=(width_pt / 72, height_pt / 72), dpi=dpi, facecolor="white")
     FigureCanvasAgg(fig)
     ax = fig.add_axes((0.0, 0.0, 1.0, 1.0))
@@ -165,7 +165,7 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
     def _node(x: float, y0: float, h: float, color: str) -> None:
         ax.add_patch(Rectangle((x, y0), node_w, h, facecolor=color, edgecolor="none", zorder=3))
 
-    def _label(x: float, y: float, text: str, size: float = 6.5, va: str = "bottom") -> None:
+    def _label(x: float, y: float, text: str, size: float = 7, va: str = "bottom") -> None:
         ax.text(x, y, text, ha="center", va=va, fontsize=size, color="#333333", zorder=5, fontproperties=_fp)
 
     def _hex_rgba(hx: str, alpha: float) -> tuple[float, float, float, float]:
@@ -231,7 +231,7 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
                 grp.category[:12],
                 ha="center",
                 va="center",
-                fontsize=5,
+                fontsize=6,
                 color=txt_color,
                 zorder=4,
                 fontproperties=_fp,

@@ -1,5 +1,26 @@
 # Milestones — StorePredict
 
+## v8.0 Reporting Fidelity (Shipped: 2026-03-26)
+
+**Phases completed:** 1 phase, 3 plans, 5 tasks
+**Files changed:** 21 | **Timeline:** 2026-03-26
+
+**Key accomplishments:**
+
+1. DRR category split — Issue #5 closed; `calculate()` groups by `(category, drr)` tuple so same-workload different-DRR VMs produce separate rows in web UI, PDF, and Excel
+2. ECharts Sankey collision guard — Counter-based `_node_name()` appends DRR suffix only when the same category appears with multiple DRR values
+3. Classification expanded — Veritas/NetBackup (priority 298), Nagios/SolarWinds/Icinga/LibreNMS/OpenNMS (Logging Analytics), and Redis (Database) added; fewer Unknown Reducible VMs
+4. PDF Sankey at 300 DPI — matplotlib Agg renders at 2083×833px for 500×200pt canvas; no pixelation at 100% zoom
+5. Palette aligned — `#DEE2E6` (6th color) matches ECharts DELL_PALETTE exactly; `#5B8DB8` removed
+
+**Archives:**
+
+- [v8.0-ROADMAP.md](milestones/v8.0-ROADMAP.md)
+- [v8.0-REQUIREMENTS.md](milestones/v8.0-REQUIREMENTS.md)
+- [v8.0-MILESTONE-AUDIT.md](milestones/v8.0-MILESTONE-AUDIT.md)
+
+---
+
 ## v1.0 — MVP Sizing Tool
 
 **Shipped:** 2026-02-19
@@ -120,7 +141,6 @@
 
 ---
 
-
 ## v7.0 Save & Restore + Concerns (Shipped: 2026-02-24; polished 2026-02-25)
 
 **Phases completed:** 2 phases, 4 plans, 7 tasks + v7.0.4–v7.0.7 polish
@@ -135,4 +155,3 @@
 6. Auto dark mode (ADR-072) — OS `prefers-color-scheme` auto-detection on first visit via `ui.dark_mode().auto()`; stored preference still respected
 
 ---
-

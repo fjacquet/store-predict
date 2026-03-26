@@ -10,7 +10,7 @@
 - ✅ **v5.0 Multi-Cluster & Export Completeness** — Phases 23–26 (shipped 2026-02-23)
 - ✅ **v6.0/v6.1 Scope Filtering & Dual-Source Merge** — shipped outside GSD planning (2026-02-24)
 - ✅ **v7.0 Save & Restore + Concerns** — Phases 27–28 (shipped 2026-02-24)
-- 🚧 **v8.0 Reporting Fidelity** — Phase 29 (in progress)
+- ✅ **v8.0 Reporting Fidelity** — Phase 29 (shipped 2026-03-26)
 
 ## Phases
 
@@ -33,42 +33,14 @@ Archive: `.planning/milestones/v7.0-ROADMAP.md`
 
 </details>
 
-### 🚧 v8.0 Reporting Fidelity (In Progress)
+<details>
+<summary>✅ v8.0 Reporting Fidelity (Phase 29) — SHIPPED 2026-03-26</summary>
 
-**Milestone Goal:** Fix DRR category display, expand VM classification coverage, and deliver print-quality PDF charts — so pre-sales reports are accurate and presentation-ready.
+- [x] **Phase 29: Reporting Fidelity** — DRR category split (Issue #5), classification expansion (Veritas/NetBackup/Nagios/SolarWinds/Redis), PDF Sankey at 300 DPI — completed 2026-03-26
 
-- [ ] **Phase 29: Reporting Fidelity** — All 8 requirements executed in parallel waves (DRR fix, classification expansion, PDF chart quality)
+Archive: `.planning/milestones/v8.0-ROADMAP.md`
 
-## Phase Details
-
-### Phase 29: Reporting Fidelity
-**Goal**: Deliver all v8.0 improvements in a single phase with parallel execution waves — DRR category split across all report surfaces, expanded classification patterns for common infrastructure VMs, and print-quality Sankey diagram in PDF
-**Depends on**: Nothing (Phase 28 complete)
-**Requirements**: DRR-01, DRR-02, DRR-03, CLASSIF-01, CLASSIF-02, CLASSIF-03, REPORT-01, REPORT-02
-
-**Execution waves (parallel):**
-- Wave A: DRR-01/02/03 — Fix groupby logic in calculation pipeline, propagate to PDF and Excel
-- Wave B: CLASSIF-01/02/03 — Add backup, monitoring, and database classification patterns
-- Wave C: REPORT-01/02 — Improve matplotlib Sankey rendering resolution and label legibility
-
-**Success Criteria** (what must be TRUE):
-  1. User uploads a file where the same workload category has VMs with different DRR values — separate rows appear in the web UI workload summary table, one per DRR value
-  2. PDF workload breakdown shows separate rows — no merging of rows that differ in DRR
-  3. Excel workload sheet shows separate rows — no merging of rows that differ in DRR
-  4. A workload category with a single uniform DRR still appears as one row (no spurious splits)
-  5. A VM named "Veeam-Backup-01" or "CommvaultProxy" is classified to a backup/archive category rather than Unknown Reducible
-  6. A VM named "Zabbix-Server" or "PRTG-Monitor" or "SolarWinds-NPM" is classified to a monitoring/infrastructure category rather than Unknown Reducible
-  7. A VM named "MySQL-Prod" or "PostgreSQL-DB" or "MongoDB-Primary" is classified to an appropriate database category rather than Unknown Reducible
-  8. Previously-classified VMs (SQL Server, Oracle, VDI, etc.) retain their existing classification — no regressions
-  9. Sankey diagram in PDF shows no visible pixelation at 100% zoom in a PDF reader
-  10. Every Sankey node and edge label is legible at standard print resolution (300 DPI equivalent)
-  11. Sankey colors in PDF match the web UI color scheme
-**Plans**: 3 plans
-
-Plans:
-- [ ] 029-01-PLAN.md — DRR category split: fix groupby key and ECharts Sankey collision
-- [ ] 029-02-PLAN.md — Classification expansion: backup, monitoring, and Redis patterns
-- [ ] 029-03-PLAN.md — PDF chart quality: 300 DPI, font sizes, palette alignment
+</details>
 
 ## Progress
 
@@ -76,4 +48,4 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 27. Session Save & Restore | v7.0 | 2/2 | Complete | 2026-02-24 |
 | 28. Concerns Enrichment | v7.0 | 2/2 | Complete | 2026-02-24 |
-| 29. Reporting Fidelity | v8.0 | 0/3 | Planning complete | - |
+| 29. Reporting Fidelity | v8.0 | 3/3 | Complete | 2026-03-26 |
