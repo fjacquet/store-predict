@@ -13,7 +13,6 @@ from store_predict.pipeline.calculation import (
 )
 from store_predict.services.pdf_charts import make_sankey_image_flowable
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -102,16 +101,10 @@ class TestSankeyImageFlowable:
 
         # imageWidth is set by ReportLab from the PNG pixel dimensions
         width_px = flowable.imageWidth  # type: ignore[attr-defined]
-        assert width_px >= 2000, (
-            f"PNG width {width_px}px is below 2000px — DPI is not 300 (expected >= 2000)"
-        )
+        assert width_px >= 2000, f"PNG width {width_px}px is below 2000px — DPI is not 300 (expected >= 2000)"
 
     def test_sankey_palette_matches_echart(self) -> None:
         """Palette 6th color must be #DEE2E6 (matching ECharts DELL_PALETTE)."""
         src = inspect.getsource(make_sankey_image_flowable)
-        assert '"#DEE2E6"' in src, (
-            "make_sankey_image_flowable palette must contain '#DEE2E6' (ECharts match)"
-        )
-        assert '"#5B8DB8"' not in src, (
-            "make_sankey_image_flowable must NOT contain old mismatched color '#5B8DB8'"
-        )
+        assert '"#DEE2E6"' in src, "make_sankey_image_flowable palette must contain '#DEE2E6' (ECharts match)"
+        assert '"#5B8DB8"' not in src, "make_sankey_image_flowable must NOT contain old mismatched color '#5B8DB8'"
