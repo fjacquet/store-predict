@@ -299,7 +299,7 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Database",
             subcategory="My SQL / NoSQL",
             priority=101,
-            vm_name_patterns=_patterns("MYSQL", "NOSQL", "MARIADB", "FILEMAKER", "CLARIS", "SQLITE"),
+            vm_name_patterns=_patterns("MYSQL", "NOSQL", "MARIADB", "FILEMAKER", "CLARIS", "SQLITE", "REDIS"),
         ),
         ClassificationRule(
             name="PostgreSQL",
@@ -596,6 +596,11 @@ def build_default_rules() -> list[ClassificationRule]:
                     "LOGSTASH",  # Logstash log pipeline
                     "KIBANA",  # Kibana visualization (ELK stack)
                     "LOGINSIGHT",  # VMware Log Insight / Aria Operations for Logs
+                    "NAGIOS",  # Nagios monitoring platform
+                    "ICINGA",  # Icinga monitoring (Nagios fork)
+                    "SOLARWINDS",  # SolarWinds network monitoring (NPM, etc.)
+                    "LIBRENMS",  # LibreNMS open-source network monitoring
+                    "OPENNMS",  # OpenNMS open-source network management
                 ),
                 # LOG followed by digit, separator, or end — avoids LOGIN, LOGIC, LOGO
                 # LOGDMZ covers log servers in DMZ segments (e.g. SrvLogDMZ01)
