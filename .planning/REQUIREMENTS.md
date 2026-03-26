@@ -9,9 +9,9 @@ Requirements for v8.0 Reporting Fidelity milestone. Closes Issue #5 and improves
 
 ### DRR Fix
 
-- [ ] **DRR-01**: User sees separate rows in the web UI workload summary table when same-named workloads have different DRR values
-- [ ] **DRR-02**: User sees separate rows in the PDF workload breakdown section when same-named workloads have different DRR values
-- [ ] **DRR-03**: User sees separate rows in the Excel workload breakdown sheet when same-named workloads have different DRR values
+- [x] **DRR-01**: User sees separate rows in the web UI workload summary table when same-named workloads have different DRR values
+- [x] **DRR-02**: User sees separate rows in the PDF workload breakdown section when same-named workloads have different DRR values
+- [x] **DRR-03**: User sees separate rows in the Excel workload breakdown sheet when same-named workloads have different DRR values
 
 ### Classification
 
@@ -43,9 +43,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DRR-01 | Phase 29 | Pending |
-| DRR-02 | Phase 29 | Pending |
-| DRR-03 | Phase 29 | Pending |
+| DRR-01 | Phase 29 | Complete |
+| DRR-02 | Phase 29 | Complete |
+| DRR-03 | Phase 29 | Complete |
 | CLASSIF-01 | Phase 29 | Pending |
 | CLASSIF-02 | Phase 29 | Pending |
 | CLASSIF-03 | Phase 29 | Pending |
