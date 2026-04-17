@@ -90,7 +90,7 @@ jobs:
             dist/*
             sbom/sbom.cyclonedx.json
       - name: Attest Python package SBOM
-        uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0 (composite, Node 24 compatible)
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0 (attest-sbom successor)
         with:
           subject-path: dist/
           sbom-path: sbom/sbom.cyclonedx.json
