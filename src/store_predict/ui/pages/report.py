@@ -74,11 +74,30 @@ async def report_page() -> None:
             if isinstance(val, float) and val != val:  # NaN check
                 row[key] = None
 
+    # Exclude VMs the user marked as ignored on the review page (issue #11)
+    vm_data = [r for r in vm_data if not r.get("is_ignored", False)]
+
+    if not vm_data:
+        with (
+            layout("StorePredict - Report"),
+            ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
+            ui.card().classes("p-8 gap-4 items-center text-center"),
+        ):
+            ui.icon("visibility_off", size="3rem").classes("text-gray-400")
+            ui.label(t("report.all_ignored")).classes("text-xl text-gray-500")
+            ui.button(
+                t("report.back_to_review"),
+                on_click=lambda: ui.navigate.to("/review"),
+                icon="arrow_back",
+            ).classes("bg-blue-700 text-white")
+        return
+
     # Run calculation
     summary = calculate(vm_data)
 
-    # Run health checks on filtered data
-    health_result: HealthCheckResult | None = run_health_checks(df)
+    # Run health checks on filtered data (exclude ignored rows to match calculation scope)
+    active_df = df[~df["is_ignored"].fillna(False).astype(bool)] if "is_ignored" in df.columns else df
+    health_result: HealthCheckResult | None = run_health_checks(active_df)
 
     with (
         layout("StorePredict - Report"),

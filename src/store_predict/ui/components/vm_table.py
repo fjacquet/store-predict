@@ -118,6 +118,17 @@ def create_vm_table(
             "filter": "agTextColumnFilter",
         },
         {
+            "field": "is_ignored",
+            "headerName": t("columns.is_ignored"),
+            "editable": True,
+            "singleClickEdit": True,
+            "cellEditor": "agCheckboxCellEditor",
+            "cellRenderer": "agCheckboxCellRenderer",
+            "sortable": True,
+            "filter": "agTextColumnFilter",
+            "maxWidth": 110,
+        },
+        {
             "field": "datacenter",
             "headerName": t("columns.datacenter"),
             "sortable": True,
@@ -177,6 +188,7 @@ def create_vm_table(
             "enableClickSelection": False,
         },
         ":getRowId": "params => String(params.data.row_index)",
+        ":getRowStyle": "params => params.data && params.data.is_ignored ? {opacity:'0.45', fontStyle:'italic'} : null",
         "stopEditingWhenCellsLoseFocus": True,
         # Empty context prevents AG Grid v34 from injecting its internal
         # GridContext (circular refs) into event.context, which would break

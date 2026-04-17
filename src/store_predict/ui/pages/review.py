@@ -37,6 +37,7 @@ _GRID_COLS: frozenset[str] = frozenset(
         "drr",
         "provisioned_mib",
         "classification_confidence",
+        "is_ignored",
         "num_cpus",
         "memory_mib",
         "avg_iops",
@@ -95,6 +96,8 @@ async def review_page() -> None:
         for key, val in row.items():
             if isinstance(val, float) and val != val:  # NaN check (NaN != NaN)
                 row[key] = None
+        # Default is_ignored to False for pre-existing sessions that predate this column
+        row.setdefault("is_ignored", False)
 
     # Apply stored storage model (re-apply in case user navigated back from report)
     apply_storage_model(row_data, get_storage_model(), drr_table)
@@ -237,6 +240,16 @@ async def review_page() -> None:
                 ),
                 icon="edit",
             ).classes("bg-orange-700 text-white").tooltip(t("tooltip.bulk_update"))
+            ui.button(
+                t("review.mark_ignored"),
+                on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, ignored=True),
+                icon="visibility_off",
+            ).classes("bg-gray-700 text-white").tooltip(t("tooltip.mark_ignored"))
+            ui.button(
+                t("review.mark_active"),
+                on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, ignored=False),
+                icon="visibility",
+            ).classes("bg-teal-700 text-white").tooltip(t("tooltip.mark_active"))
             ui.button(
                 t("review.generate_report"),
                 on_click=lambda: ui.navigate.to("/report"),
@@ -382,6 +395,42 @@ async def _handle_bulk_update(
     )
 
 
+async def _handle_mark_ignored(
+    row_data: list[dict[str, Any]],
+    grid: ui.aggrid,
+    stats_container: ui.column,
+    *,
+    ignored: bool,
+) -> None:
+    """Flip the ``is_ignored`` flag on all selected rows and persist."""
+    selected = await grid.get_selected_rows()
+    if not selected:
+        ui.notify(t("review.no_rows_selected"), type="warning")
+        return
+
+    selected_ids = {int(r["row_index"]) for r in selected}
+    for row in row_data:
+        if int(row.get("row_index", -1)) in selected_ids:
+            row["is_ignored"] = ignored
+
+    filter_model = await grid.run_grid_method("getFilterModel")
+    current_page = await grid.run_grid_method("paginationGetCurrentPage")
+
+    trimmed = _to_grid_rows(row_data)
+    grid.options["rowData"] = trimmed
+    grid.run_grid_method("setGridOption", "rowData", trimmed)
+    _rebuild_stats(stats_container, row_data)
+
+    if filter_model:
+        await grid.run_grid_method("setFilterModel", filter_model)
+    if current_page is not None and current_page > 0:
+        await grid.run_grid_method("paginationGoToPage", current_page)
+
+    save_filtered_rows(row_data, get_project_name())
+    notify_key = "review.ignored_notify" if ignored else "review.activated_notify"
+    ui.notify(t(notify_key, count=len(selected_ids)), type="positive")
+
+
 async def _handle_cell_change(
     e: object,
     row_data: list[dict[str, Any]],
@@ -400,7 +449,13 @@ async def _handle_cell_change(
     row_idx = int(changed_data.get("row_index", -1))
     new_value = args.get("newValue", "")
 
-    if col_id == "drr":
+    if col_id == "is_ignored":
+        new_flag = bool(new_value)
+        for row in row_data:
+            if int(row.get("row_index", -2)) == row_idx:
+                row["is_ignored"] = new_flag
+                break
+    elif col_id == "drr":
         # Direct DRR edit — user overrides the ratio manually
         try:
             custom_drr = max(float(new_value), 0.1)

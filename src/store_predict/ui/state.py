@@ -111,7 +111,7 @@ def save_filtered_rows(row_data: list[dict[str, Any]], project_name: str) -> Non
         idx = int(raw_idx) if isinstance(raw_idx, (int, float, str)) else -1
         if idx in edited_by_idx:
             edited = edited_by_idx[idx]
-            for key in ("workload_category", "workload_subcategory", "drr"):
+            for key in ("workload_category", "workload_subcategory", "drr", "is_ignored"):
                 if key in edited:
                     full_row[key] = edited[key]
 

@@ -25,13 +25,15 @@ def build_summary_stats(row_data: list[dict[str, Any]]) -> ui.row:
     Returns:
         A ``ui.row`` element containing the four stat cards.
     """
-    total_vms = len(row_data)
+    active_rows = [r for r in row_data if not r.get("is_ignored", False)]
+    ignored_count = len(row_data) - len(active_rows)
+    total_vms = len(active_rows)
 
-    total_provisioned = sum(r.get("provisioned_mib", 0) for r in row_data)
+    total_provisioned = sum(r.get("provisioned_mib", 0) for r in active_rows)
 
-    avg_drr = sum(r.get("drr", 5.0) for r in row_data) / total_vms if total_vms > 0 else 0.0
+    avg_drr = sum(r.get("drr", 5.0) for r in active_rows) / total_vms if total_vms > 0 else 0.0
 
-    total_effective = sum(r.get("provisioned_mib", 0) / r.get("drr", 5.0) for r in row_data)
+    total_effective = sum(r.get("provisioned_mib", 0) / r.get("drr", 5.0) for r in active_rows)
 
     stats = [
         (t("stats.total_vms"), str(total_vms)),
@@ -39,6 +41,8 @@ def build_summary_stats(row_data: list[dict[str, Any]]) -> ui.row:
         (t("stats.avg_drr"), f"{avg_drr:.1f}x"),
         (t("stats.effective_capacity"), f"{total_effective / 1024:.1f} GiB"),
     ]
+    if ignored_count > 0:
+        stats.append((t("stats.ignored_count"), str(ignored_count)))
 
     row = ui.row().classes("w-full gap-4")
     with row:

@@ -31,6 +31,10 @@ review:
   no_data: No data uploaded yet.
   new_analysis: New Analysis
   bulk_update: Bulk Update Workload
+  mark_ignored: Mark Ignored
+  mark_active: Mark Active
+  ignored_notify: "%{count} VM(s) marked as ignored"
+  activated_notify: "%{count} VM(s) marked as active"
   generate_report: Generate Report
   no_rows_selected: "No rows selected. Use checkboxes to select VMs first."
   updated_notify: "Updated %{count} VM(s) to %{category} / %{subcategory}"
@@ -42,6 +46,7 @@ report:
   title: Sizing Report
   project_label: "Project: %{name}"
   no_data: No data available. Please upload a file first.
+  all_ignored: "All VMs are marked as ignored — nothing to report. Return to review and reinclude at least one VM."
   totals_heading: Totals
   averages_heading: Averages
   performance_heading: Performance Summary
@@ -81,6 +86,7 @@ columns:
   provisioned_mib: "Provisioned (MiB)"
   in_use_mib: "In Use (MiB)"
   confidence: Confidence
+  is_ignored: Ignored
   peak_iops: Peak IOPS
   iops_8k: "8K Eq. IOPS"
   peak_mbs: "Peak MB/s"
@@ -95,6 +101,7 @@ stats:
   total_provisioned: Total Provisioned
   avg_drr: Avg DRR
   effective_capacity: Effective Capacity
+  ignored_count: Ignored VMs
   total_cpus: Total vCPUs
   total_memory: Total Memory
   total_in_use: Total In Use
@@ -298,6 +305,8 @@ tooltip:
   llm_toggle: "Enable AI (LLM) classification for unknown VMs"
   new_analysis: "Clear session data and start a new analysis from the upload page"
   bulk_update: "Apply a workload category to all selected rows"
+  mark_ignored: "Exclude selected VMs from DRR calculation and reports"
+  mark_active: "Reinclude selected VMs in DRR calculation and reports"
   storage_model: "Select the target Dell storage platform — affects DRR coefficients"
   download_pdf: "Download a one-page sizing report as PDF"
   download_excel: "Download full data as Excel workbook (4 sheets)"

@@ -196,6 +196,7 @@ This process is error-prone, time-consuming, and produces inconsistent results a
 | Quick-filter search | Text filter across VM name/OS in the grid | v4.0 |
 | Column visibility toggle | vCPU/RAM/IOPS columns hidden by default; user-toggleable | v4.0 |
 | Bulk workload update | Update multiple selected VMs in one action | v1.0 |
+| Per-VM ignore flag | Checkbox column + bulk Mark Ignored / Mark Active buttons exclude selected VMs from stats, calculation, and PDF/Excel reports while keeping them visible on the review page | Unreleased |
 | AI classification progress | Live "42 / 496 VMs" counter during LLM pass | v2.2 |
 
 ### 4.4 Calculation

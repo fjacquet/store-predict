@@ -4,6 +4,17 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v8.1.0] - 2026-04-17
+
+### Added
+
+- **Per-VM ignore flag** (Issue #11) — users can now mark individual VMs as "ignored" on the review page via a new checkbox column or the **Mark Ignored** / **Mark Active** bulk buttons. Ignored VMs stay visible (greyed out) on the review page but are excluded from the summary stats, the DRR calculation, and the PDF/Excel report. The flag persists in session storage, survives scope filtering, and follows the established filter-at-the-edge pattern used for datacenter/cluster scope. See [ADR-078](docs/adr/078-per-vm-ignore-flag.md).
+
+### Changed
+
+- **GitHub Actions migrated to Node 24** — all 22 action references in `ci.yml`, `docs.yml`, and `release.yml` repinned to Node 24-compatible versions (checkout v6, setup-python v6, upload-artifact v7, download-artifact v8, docker/* v4–v7, anchore/sbom-action v0.24, softprops/action-gh-release v3, etc.) to resolve the deprecation of Node 20 runtimes on GitHub-hosted runners.
+- **Lockfile refreshed** — `uv lock --upgrade` run; dependency graph is now as current as upstream `litellm==1.83.9` allows. litellm's exact pins on aiohttp/click/jsonschema/openai/pydantic/python-dotenv/importlib-metadata transitively block further minor/patch bumps (notably nicegui 3.10.0 which requires aiohttp ≥ 3.13.4).
+
 ## [v8.0.0] - 2026-03-26
 
 ### Fixed

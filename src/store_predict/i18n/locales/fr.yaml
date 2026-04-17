@@ -31,6 +31,10 @@ review:
   no_data: "Aucune donnée chargée."
   new_analysis: "Nouvelle analyse"
   bulk_update: "Mise à jour groupée"
+  mark_ignored: "Marquer comme ignorée"
+  mark_active: "Réinclure"
+  ignored_notify: "%{count} VM marquée(s) comme ignorée(s)"
+  activated_notify: "%{count} VM réincluse(s)"
   generate_report: "Générer le rapport"
   no_rows_selected: "Aucune ligne sélectionnée. Utilisez les cases à cocher pour sélectionner des VMs."
   updated_notify: "%{count} VM(s) mises à jour vers %{category} / %{subcategory}"
@@ -42,6 +46,7 @@ report:
   title: "Rapport de dimensionnement"
   project_label: "Projet : %{name}"
   no_data: "Aucune donnée disponible. Veuillez d'abord télécharger un fichier."
+  all_ignored: "Toutes les VMs sont marquées comme ignorées — aucun rapport à générer. Retournez à la révision pour en réinclure au moins une."
   totals_heading: Totaux
   averages_heading: Moyennes
   performance_heading: "Résumé des performances"
@@ -81,6 +86,7 @@ columns:
   provisioned_mib: "Provisionné (Mio)"
   in_use_mib: "Utilisé (Mio)"
   confidence: Confiance
+  is_ignored: Ignorée
   peak_iops: IOPS de pointe
   iops_8k: "IOPS éq. 8K"
   peak_mbs: "Débit de pointe (Mo/s)"
@@ -95,6 +101,7 @@ stats:
   total_provisioned: Total provisionné
   avg_drr: DRR moyen
   effective_capacity: "Capacité effective"
+  ignored_count: "VMs ignorées"
   total_cpus: Total vCPUs
   total_memory: "Mémoire totale"
   total_in_use: Total utilisé
@@ -298,6 +305,8 @@ tooltip:
   llm_toggle: "Activer la classification par IA (LLM) pour les VMs inconnues"
   new_analysis: "Effacer la session et démarrer une nouvelle analyse depuis la page de téléchargement"
   bulk_update: "Appliquer une catégorie de charge à toutes les lignes sélectionnées"
+  mark_ignored: "Exclure les VMs sélectionnées du calcul DRR et des rapports"
+  mark_active: "Réinclure les VMs sélectionnées dans le calcul DRR et les rapports"
   storage_model: "Sélectionner la plateforme de stockage Dell cible — affecte les coefficients DRR"
   download_pdf: "Télécharger un rapport de dimensionnement d'une page en PDF"
   download_excel: "Télécharger toutes les données en classeur Excel (4 feuilles)"
