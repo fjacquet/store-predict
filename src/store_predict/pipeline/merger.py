@@ -31,9 +31,10 @@ def merge_dual_sources(rvtools_df: pd.DataFrame, liveoptics_df: pd.DataFrame) ->
     lo = liveoptics_df.copy()
 
     # Normalise join key: strip whitespace and lowercase for case-insensitive matching.
-    # Keep original casing in a separate column so we can restore it after the merge.
-    rv["vm_name"] = rv["vm_name"].str.strip()
-    lo["vm_name"] = lo["vm_name"].str.strip()
+    # astype(str) guards against numeric-only VM names (lab environments): without it,
+    # .str.strip() on a float column returns NaN and every row becomes a distinct key.
+    rv["vm_name"] = rv["vm_name"].astype(str).str.strip()
+    lo["vm_name"] = lo["vm_name"].astype(str).str.strip()
     rv["_join_key"] = rv["vm_name"].str.lower()
     lo["_join_key"] = lo["vm_name"].str.lower()
 
