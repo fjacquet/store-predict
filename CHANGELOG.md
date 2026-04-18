@@ -4,6 +4,10 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v8.2.1] - 2026-04-18
+
+Re-release of v8.2.0 with correct artifacts. The `v8.2.0` tag was pushed before the version-bump commit landed on `maincd`, so its GitHub Release shipped wheels/sdists labelled `8.1.0` under a `v8.2.0` tag. No source code changes vs `v8.2.0` — this release simply builds and publishes the same `maincd` tree with the correct `8.2.1` package metadata.
+
 ## [v8.2.0] - 2026-04-18
 
 Security and stability release driven by a full code review (semgrep + 5 parallel audits). Closes 7 HIGH findings and 11 Dependabot CVE alerts in `aiohttp` and `nicegui`.
