@@ -4,6 +4,37 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v8.2.0] - 2026-04-18
+
+Security and stability release driven by a full code review (semgrep + 5 parallel audits). Closes 7 HIGH findings and 11 Dependabot CVE alerts in `aiohttp` and `nicegui`.
+
+### Security
+
+- **Fail-closed `STORAGE_SECRET`** — `src/store_predict/main.py` now raises `RuntimeError` at startup when `STORAGE_SECRET` is missing outside dev mode. `reload=True` is also gated on `STORE_PREDICT_ENV == "dev"`. The secret itself is never logged.
+- **Excel/CSV formula injection (CWE-1236)** — `services/excel_report.py` pipes every string cell through a new `safe_excel_cell` sanitiser that prepends a `'` to values starting with `=`, `+`, `-`, `@`, `\t`, or `\r`. Numeric cells pass through unchanged.
+- **ReportLab Paragraph XML injection** — VM-name fields interpolated into PDF `Paragraph(...)` strings (`services/pdf_report.py`) are now escaped via `xml.sax.saxutils.escape`. Prevents malformed-tag crashes and tag-injection from user-controlled VM names.
+- **Session archive zip-bomb + path traversal** — `pipeline/session_archive.py` now imports a shared `pipeline/_zip_safety.py` helper enforcing a 100 MB uncompressed cap (`MAX_UNCOMPRESSED_BYTES`) and rejecting traversal components via `safe_member_name`. Same guard applied to `pipeline/zip_extraction.py`.
+- **Stricter `.xlsx` magic-byte validation** — `pipeline/validation.py` now requires a `[Content_Types].xml` entry inside the ZIP after the `PK\x03\x04` magic check; plain ZIPs renamed `.xlsx` are rejected.
+- **Log hygiene (CWE-532)** — `chunk_upload.py` and `ui/pages/upload.py` no longer log raw filenames. A new `hash_name()` helper in `logging_config.py` logs a 12-char SHA-256 prefix instead.
+- **CVE dependency bumps** — `aiohttp 3.13.3 → 3.13.5` (closes trailer-header DoS, UNC SSRF on Windows, multipart-size bypass, duplicate Host headers, DNS-cache DoS, CRLF injection, response splitting, header-injection via null bytes, late multipart size enforcement, cross-origin Cookie/Proxy-Auth leak) and `nicegui 3.9.0 → 3.10.0` (closes filename-sanitisation bypass on Windows). A `[tool.uv] override-dependencies` entry relaxes litellm's frozen-dep `aiohttp>=3.13.3,<3.13.3+` pin — patch releases in the 3.13.x line are ABI-compatible.
+
+### Fixed
+
+- **`merger.vm_name` dtype** — cast to `str` before `.str.strip()` so dual-source merges whose VM names are numeric no longer produce NaN join keys (`pipeline/merger.py`).
+- **Hottest-VM only when data exists** — `CalculationSummary.max_vm_peak_iops_name` is now only assigned when `has_performance_data` is true; otherwise empty (`pipeline/calculation.py`).
+- **DRR and numeric guards** — `drr <= 0` now logs a warning and falls back to `DEFAULT_DRR` instead of silently using `max(drr, 0.1)` (a 10× capacity over-sizing). Provisioned/in-use MiB coercion via the existing `_safe_float` avoids NaN poisoning the totals.
+- **LiveOptics CSV BOM** — parser tries `utf-8-sig` before `utf-8` so Excel-exported CSVs no longer leak a `\ufeff` into the first header (`pipeline/parsers/liveoptics.py`).
+- **DB2 false-positive** — the DB2 classification rule is now word-bounded so storage-array hostnames like `DB2500`/`DB2700` no longer misclassify as DB2 databases.
+
+### Changed
+
+- **Thread-safe `CircuitBreaker`** — `pipeline/llm_classifier.py` extracts the module-level breaker globals into a `CircuitBreaker` class with an internal `threading.Lock` and a shared `_call_llm` helper. No public API change.
+- **New internal helpers** — `src/store_predict/_sanitizers.py` (escape_xml, safe_excel_cell) and `src/store_predict/pipeline/_zip_safety.py` (MAX_UNCOMPRESSED_BYTES, assert_zip_within_limits, safe_member_name) centralise escape and archive-safety logic.
+
+### Tests
+
+- 571 tests pass (up from 551). New coverage on: startup secret enforcement, merger numeric VM names, calculation guards, Excel formula injection, PDF XML escape, zip-bomb + path-traversal rejection, CSV BOM, DB2 word boundaries, stricter xlsx validation, and `CircuitBreaker` thread-safety + breaker-open code paths for `_call_llm` / `classify_batch_vms` / `classify_single_vm` / `classify_unknown_vms_async`.
+
 ## [v8.1.0] - 2026-04-17
 
 ### Added
