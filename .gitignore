@@ -60,3 +60,5 @@ samples/
 # Jupyter
 .ipynb_checkpoints/
 .nicegui/
+# Added by code-review-graph
+.code-review-graph/
