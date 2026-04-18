@@ -6,6 +6,7 @@ import io
 import json
 import zipfile
 
+from store_predict.pipeline._zip_safety import assert_zip_within_limits, safe_member_name
 from store_predict.pipeline.errors import IngestionError
 
 SESSION_ZIP_SENTINEL = "session.json"
@@ -53,10 +54,14 @@ def save_session_zip(
         },
     }
 
+    safe_name = safe_member_name(original_filename) if original_filename else ""
+    snapshot["original_filename"] = safe_name
+
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
         zf.writestr(SESSION_ZIP_SENTINEL, json.dumps(snapshot, ensure_ascii=False))
-        zf.writestr(original_filename, original_file_bytes)
+        if safe_name:
+            zf.writestr(safe_name, original_file_bytes)
 
     return buf.getvalue()
 
@@ -100,6 +105,7 @@ def restore_session_zip(content: bytes) -> dict[str, object]:
     try:
         zf_buf = io.BytesIO(content)
         with zipfile.ZipFile(zf_buf) as zf:
+            assert_zip_within_limits(zf)
             names = zf.namelist()
             if SESSION_ZIP_SENTINEL not in names:
                 raise IngestionError(
@@ -116,8 +122,11 @@ def restore_session_zip(content: bytes) -> dict[str, object]:
                 )
             original_filename: str = snapshot.get("original_filename", "")
             original_bytes = b""
-            if original_filename and original_filename in names:
-                original_bytes = zf.read(original_filename)
+            if original_filename:
+                safe_name = safe_member_name(original_filename)
+                if safe_name in names:
+                    original_bytes = zf.read(safe_name)
+                original_filename = safe_name
 
     except IngestionError:
         raise
