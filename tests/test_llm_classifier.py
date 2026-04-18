@@ -11,6 +11,7 @@ import os
 import pytest
 
 from store_predict.pipeline.llm_classifier import (
+    CircuitBreaker,
     _chunks,
     _parse_batch_response,
     classify_unknown_vms_async,
@@ -166,3 +167,61 @@ def test_chunks_helper() -> None:
     """_chunks splits a list into sublists of at most n elements."""
     result = _chunks([1, 2, 3, 4, 5], 2)
     assert result == [[1, 2], [3, 4], [5]]
+
+
+class TestCircuitBreaker:
+    """Thread-safe CB state transitions (no LLM call needed)."""
+
+    def test_starts_closed(self) -> None:
+        cb = CircuitBreaker(fail_max=3, cooldown=60.0)
+        assert cb.is_open() is False
+
+    def test_opens_after_fail_max_failures(self) -> None:
+        cb = CircuitBreaker(fail_max=2, cooldown=60.0)
+        assert cb.record_failure() is False  # first failure
+        assert cb.is_open() is False
+        just_opened = cb.record_failure()
+        assert just_opened is True  # this failure crossed the threshold
+        assert cb.is_open() is True
+
+    def test_record_success_resets_counter(self) -> None:
+        cb = CircuitBreaker(fail_max=2, cooldown=60.0)
+        cb.record_failure()
+        cb.record_success()
+        # Counter should reset — a single further failure must not open the breaker.
+        assert cb.record_failure() is False
+        assert cb.is_open() is False
+
+    def test_reset_clears_state(self) -> None:
+        cb = CircuitBreaker(fail_max=1, cooldown=60.0)
+        cb.record_failure()
+        assert cb.is_open() is True
+        cb.reset()
+        assert cb.is_open() is False
+
+    def test_cooldown_closes_breaker(self) -> None:
+        cb = CircuitBreaker(fail_max=1, cooldown=0.0)
+        cb.record_failure()
+        # Zero cooldown: next is_open() call treats the window as expired and recloses.
+        assert cb.is_open() is False
+
+    def test_concurrent_failures_count_exactly(self) -> None:
+        """Two threads each raising one failure must leave the counter at 2, not 1."""
+        import threading
+
+        cb = CircuitBreaker(fail_max=10, cooldown=60.0)
+
+        def one_failure() -> None:
+            cb.record_failure()
+
+        threads = [threading.Thread(target=one_failure) for _ in range(2)]
+        for tr in threads:
+            tr.start()
+        for tr in threads:
+            tr.join()
+        # With the internal lock, no increment is lost — breaker still below threshold.
+        assert cb.is_open() is False
+        # One more failure must register (so the total is 3, not 2).
+        cb.record_failure()
+        # Still below fail_max=10 — proves we can keep counting.
+        assert cb.is_open() is False

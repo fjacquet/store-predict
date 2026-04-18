@@ -308,3 +308,54 @@ class TestFindingsSheet:
         zf = zipfile.ZipFile(io.BytesIO(xlsx_bytes))
         sheet_names = [n for n in zf.namelist() if n.startswith("xl/worksheets/")]
         assert len(sheet_names) == 4
+
+
+# ---------------------------------------------------------------------------
+# Formula-injection regression (CWE-1236)
+# ---------------------------------------------------------------------------
+
+
+class TestExcelFormulaInjection:
+    """A VM whose name starts with '=' must be written as a literal cell, not a formula."""
+
+    def test_malicious_vm_name_is_neutralized(self) -> None:
+        from openpyxl import load_workbook
+
+        malicious = "=cmd|'/c calc'!A1"
+        vm = VMCalculation(
+            vm_name=malicious,
+            workload_category="Database/Microsoft SQL",
+            provisioned_mib=1024.0,
+            in_use_mib=512.0,
+            drr=5.0,
+            required_mib=204.8,
+        )
+        summary = CalculationSummary(
+            vm_calculations=[vm],
+            workload_groups=[
+                WorkloadGroupResult(
+                    category="Database/Microsoft SQL",
+                    vm_count=1,
+                    total_provisioned_mib=1024.0,
+                    total_in_use_mib=512.0,
+                    avg_drr=5.0,
+                    total_required_mib=204.8,
+                )
+            ],
+            total_vms=1,
+            total_provisioned_mib=1024.0,
+            total_in_use_mib=512.0,
+            total_required_mib=204.8,
+            weighted_avg_drr=5.0,
+            largest_vm_name=malicious,
+            largest_vm_provisioned_mib=1024.0,
+        )
+        xlsx_bytes = generate_report_xlsx(summary, "Injection Test")
+        wb = load_workbook(io.BytesIO(xlsx_bytes), data_only=False)
+        vm_sheet = wb[wb.sheetnames[2]]  # VM Detail is the 3rd sheet
+        cell = vm_sheet.cell(row=2, column=1).value
+        # Formula-injection payload must be stored as text, prefixed with a quote
+        # so Excel treats it as a literal string and refuses to evaluate it.
+        assert isinstance(cell, str)
+        assert cell.startswith("'="), f"Expected quote-escaped cell, got {cell!r}"
+        assert "=cmd" in cell

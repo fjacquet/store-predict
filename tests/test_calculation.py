@@ -134,6 +134,26 @@ class TestEdgeCases:
         assert result.vm_calculations == []
         assert result.workload_groups == []
 
+    def test_nan_provisioned_does_not_poison_totals(self) -> None:
+        """A single NaN cell must not turn group and grand totals into NaN."""
+        rows = [
+            _row(vm_name="A", provisioned_mib=10000, in_use_mib=5000, drr=5.0),
+            _row(vm_name="B", provisioned_mib=float("nan"), in_use_mib=float("nan"), drr=5.0),
+        ]
+        result = calculate(rows)
+        # The NaN row contributes 0 to totals; the good row is preserved intact.
+        assert result.total_provisioned_mib == pytest.approx(10000.0)
+        assert result.total_in_use_mib == pytest.approx(5000.0)
+        assert result.total_required_mib == pytest.approx(2000.0)
+
+    def test_hottest_vm_empty_without_performance_data(self) -> None:
+        """Without any peak IOPS we must not report an arbitrary zero-IOPS VM as hottest."""
+        rows = [_row(vm_name="A"), _row(vm_name="B")]
+        result = calculate(rows)
+        assert result.has_performance_data is False
+        assert result.max_vm_peak_iops == pytest.approx(0.0)
+        assert result.max_vm_peak_iops_name == ""
+
     def test_missing_fields_defaults(self) -> None:
         # Row dict missing all optional keys
         rows = [{"vm_name": "Bare"}]

@@ -156,6 +156,21 @@ class TestParseLiveopticsCsv:
         lo = parse_liveoptics_csv(liveoptics_csv_path)
         assert list(rv.columns) == list(lo.columns)
 
+    def test_liveoptics_csv_handles_utf8_bom(self, liveoptics_csv_path: Path, tmp_path: Path) -> None:
+        """BOM-prefixed CSV (Excel export) must parse without \\ufeff in headers."""
+        src_bytes = liveoptics_csv_path.read_bytes()
+        # Strip an existing BOM (if any) and re-prepend to guarantee the fixture
+        # starts with EF BB BF regardless of how the sample was saved.
+        if src_bytes.startswith(b"\xef\xbb\xbf"):
+            src_bytes = src_bytes[3:]
+        bom_path = tmp_path / "bom-liveoptics.csv"
+        bom_path.write_bytes(b"\xef\xbb\xbf" + src_bytes)
+        df = parse_liveoptics_csv(bom_path)
+        assert len(df) > 0
+        # Parser must canonicalize columns — the BOM must not leak into the first header.
+        assert all(not col.startswith("\ufeff") for col in df.columns)
+        assert list(df.columns) == CANONICAL_COLUMNS
+
 
 # ---------------------------------------------------------------------------
 # Orchestrator (ingest_file)
