@@ -10,10 +10,10 @@ import zipfile
 
 import pytest
 
+from store_predict.pipeline._zip_safety import MAX_UNCOMPRESSED_BYTES
 from store_predict.pipeline.errors import IngestionError
 from store_predict.pipeline.zip_extraction import (
     _LIVEOPTICS_PATTERN,
-    _MAX_UNCOMPRESSED_BYTES,
     extract_liveoptics_from_zip,
 )
 
@@ -82,7 +82,7 @@ def test_zip_bomb_guard_raises():
     """ZIP whose total uncompressed size exceeds limit is rejected."""
     # Build a zip where the central directory reports a huge file_size.
     # We create a real large-ish payload to trigger the guard.
-    big_payload = b"A" * (_MAX_UNCOMPRESSED_BYTES + 1)
+    big_payload = b"A" * (MAX_UNCOMPRESSED_BYTES + 1)
     zip_bytes = _make_zip(VALID_NAME, big_payload)
     with pytest.raises(IngestionError, match="exceeds the"):
         extract_liveoptics_from_zip(zip_bytes)
