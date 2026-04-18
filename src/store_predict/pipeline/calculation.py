@@ -5,10 +5,15 @@ Pure pipeline module with zero UI imports.
 
 from __future__ import annotations
 
+import logging
 import math
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
+
+from store_predict.config import DEFAULT_DRR
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "CalculationSummary",
@@ -109,9 +114,19 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
     for row in row_data:
         vm_name = str(row.get("vm_name", ""))
         workload_category = str(row.get("workload_category", "Unknown (Reducible)"))
-        provisioned_mib = float(row.get("provisioned_mib", 0))
-        in_use_mib = float(row.get("in_use_mib", 0))
-        drr = max(float(row.get("drr", 5.0)), 0.1)
+        provisioned_mib = _safe_float(row.get("provisioned_mib", 0))
+        in_use_mib = _safe_float(row.get("in_use_mib", 0))
+        raw_drr = _safe_float(row.get("drr", DEFAULT_DRR))
+        # Non-positive DRR silently 10x-inflates capacity; warn and fall back to default.
+        if raw_drr <= 0.0:
+            logger.warning(
+                "Non-positive DRR for workload_category=%r; using DEFAULT_DRR=%s",
+                workload_category,
+                DEFAULT_DRR,
+            )
+            drr = DEFAULT_DRR
+        else:
+            drr = raw_drr
         required_mib = provisioned_mib / drr
 
         peak_iops = _safe_float(row.get("peak_iops"))
@@ -183,12 +198,17 @@ def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
     largest_vm_name = largest_vm.vm_name
     largest_vm_provisioned_mib = largest_vm.provisioned_mib
 
-    # Performance totals
+    # Performance totals — only report a "hottest VM" when we actually have data.
+    # Without this guard, max(..., key=peak_iops) returns an arbitrary VM with 0 IOPS.
     has_performance_data = any(v.peak_iops > 0 for v in vm_calcs)
     total_avg_iops = sum(v.avg_iops for v in vm_calcs)
-    hottest_vm = max(vm_calcs, key=lambda v: v.peak_iops)
-    max_vm_peak_iops = hottest_vm.peak_iops
-    max_vm_peak_iops_name = hottest_vm.vm_name
+    if has_performance_data:
+        hottest_vm = max(vm_calcs, key=lambda v: v.peak_iops)
+        max_vm_peak_iops = hottest_vm.peak_iops
+        max_vm_peak_iops_name = hottest_vm.vm_name
+    else:
+        max_vm_peak_iops = 0.0
+        max_vm_peak_iops_name = ""
     peak_throughput_mbs = max((v.peak_throughput_mbs for v in vm_calcs), default=0.0)
     total_iops_8k_equivalent = sum(v.iops_8k_equivalent for v in vm_calcs)
 
