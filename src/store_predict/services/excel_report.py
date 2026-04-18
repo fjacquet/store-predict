@@ -13,6 +13,7 @@ import i18n as _i18n
 import xlsxwriter
 
 import store_predict.i18n  # noqa: F401 — ensures YAML load_path and config are initialised
+from store_predict._sanitizers import safe_excel_cell
 
 if TYPE_CHECKING:
     from xlsxwriter.format import Format
@@ -123,13 +124,13 @@ def _write_summary_sheet(
     write_metric(_i18n.t("pdf.avg_memory"), summary.avg_vm_memory_mib / 1024.0, number_fmt)
     write_metric(_i18n.t("pdf.avg_storage"), summary.avg_vm_size_mib / 1024.0, number_fmt)
     write_metric(_i18n.t("pdf.weighted_drr"), summary.weighted_avg_drr, number_fmt)
-    write_metric(_i18n.t("pdf.largest_vm"), summary.largest_vm_name)
+    write_metric(_i18n.t("pdf.largest_vm"), safe_excel_cell(summary.largest_vm_name))
 
     if summary.has_performance_data:
         write_metric(_i18n.t("pdf.total_avg_iops"), summary.total_avg_iops, number_fmt)
         write_metric(
             _i18n.t("pdf.hottest_vm"),
-            f"{summary.max_vm_peak_iops_name} ({summary.max_vm_peak_iops:,.0f})",
+            safe_excel_cell(f"{summary.max_vm_peak_iops_name} ({summary.max_vm_peak_iops:,.0f})"),
         )
         write_metric(_i18n.t("pdf.peak_throughput"), summary.peak_throughput_mbs, number_fmt)
         write_metric(_i18n.t("pdf.iops_8k"), summary.total_iops_8k_equivalent, number_fmt)
@@ -166,7 +167,7 @@ def _write_breakdown_sheet(
         num_fmt = alt_right_fmt if is_even else number_fmt
         i_fmt = alt_right_fmt if is_even else int_fmt
 
-        ws.write(row, 0, grp.category, str_fmt)
+        ws.write(row, 0, safe_excel_cell(grp.category), str_fmt)
         ws.write(row, 1, grp.vm_count, i_fmt)
         ws.write(row, 2, grp.total_provisioned_mib / 1024.0, num_fmt)
         ws.write(row, 3, grp.avg_drr, num_fmt)
@@ -223,8 +224,8 @@ def _write_vm_detail_sheet(
         str_fmt = alt_fmt if is_even else None
         num_fmt = alt_right_fmt if is_even else number_fmt
 
-        ws.write(row, 0, vm.vm_name, str_fmt)
-        ws.write(row, 1, vm.workload_category, str_fmt)
+        ws.write(row, 0, safe_excel_cell(vm.vm_name), str_fmt)
+        ws.write(row, 1, safe_excel_cell(vm.workload_category), str_fmt)
         ws.write(row, 2, vm.drr, num_fmt)
         ws.write(row, 3, vm.provisioned_mib / 1024.0, num_fmt)
         ws.write(row, 4, vm.in_use_mib / 1024.0, num_fmt)
@@ -296,24 +297,24 @@ def _write_layout_sheet(
         row += 1
 
         for ds in proposal.datastores:
-            ws.write(row, 0, ds.name)
+            ws.write(row, 0, safe_excel_cell(ds.name))
             ws.write(row, 1, ds.raw_capacity_mib / (1024 * 1024), number_fmt)  # TiB
             ws.write(row, 2, ds.used_capacity_mib / (1024 * 1024), number_fmt)  # TiB
             ws.write(row, 3, ds.utilization_pct, number_fmt)
             ws.write(row, 4, ds.vm_count)
             ws.write(row, 5, ds.total_iops, number_fmt)
-            ws.write(row, 6, ", ".join(sorted(ds.workload_types)))
+            ws.write(row, 6, safe_excel_cell(", ".join(sorted(ds.workload_types))))
             row += 1
 
             # VM detail rows (indented)
             for vm in ds.assigned_vms:
-                ws.write(row, 0, vm.vm_name, indent_fmt)
+                ws.write(row, 0, safe_excel_cell(vm.vm_name), indent_fmt)
                 ws.write(row, 1, vm.provisioned_mib / (1024 * 1024), indent_num_fmt)  # TiB
                 ws.write(row, 2, vm.required_mib / (1024 * 1024), indent_num_fmt)  # TiB
                 ws.write(row, 3, None)
                 ws.write(row, 4, None)
                 ws.write(row, 5, None)
-                ws.write(row, 6, vm.workload_category, indent_fmt)
+                ws.write(row, 6, safe_excel_cell(vm.workload_category), indent_fmt)
                 row += 1
 
         row += 1  # blank separator between strategies
@@ -390,12 +391,12 @@ def _write_findings_sheet(
             pct=round(finding.affected_count * 100 / max(health_result.total_vms_checked, 1), 1),
         )
 
-        ws.write(row, 0, title_str, str_fmt)
+        ws.write(row, 0, safe_excel_cell(title_str), str_fmt)
         ws.write(row, 1, sev_str, str_fmt)
         ws.write(row, 2, cat_str, str_fmt)
         ws.write(row, 3, finding.affected_count, str_fmt)
-        ws.write(row, 4, detail_str, str_fmt)
-        ws.write(row, 5, finding.cluster or "", str_fmt)
+        ws.write(row, 4, safe_excel_cell(detail_str), str_fmt)
+        ws.write(row, 5, safe_excel_cell(finding.cluster or ""), str_fmt)
 
     ws.freeze_panes(1, 0)
     ws.autofit()

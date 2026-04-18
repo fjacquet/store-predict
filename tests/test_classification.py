@@ -123,6 +123,18 @@ class TestRuleMatching:
         assert result.category == "Database"
         assert result.subcategory == "PostgreSQL"
 
+    def test_db2_word_bounded_match(self) -> None:
+        """Real DB2 VMs (DB2 at word boundary) still classify as DB2."""
+        result = _registry().classify("DB2-PROD-01", "")
+        assert result.category == "Database"
+        assert result.subcategory == "DB2"
+
+    def test_db2_rejects_storage_array_hostname(self) -> None:
+        """DB2500 / DB2700 storage-array hostnames must NOT classify as DB2."""
+        for name in ("DB2500-CTL", "prod-DB2700"):
+            result = _registry().classify(name, "")
+            assert result.subcategory != "DB2", f"{name} wrongly matched DB2"
+
 
 # ---------------------------------------------------------------------------
 # 2. Priority ordering tests

@@ -216,3 +216,46 @@ def test_restore_raises_ingestion_error_on_wrong_schema_version() -> None:
         zf.writestr(SESSION_ZIP_SENTINEL, json.dumps(bad_snapshot))
     with pytest.raises(IngestionError):
         restore_session_zip(buf.getvalue())
+
+
+def test_restore_rejects_path_traversal_in_original_filename() -> None:
+    """A session whose original_filename escapes via ../ must be rejected."""
+    snapshot = {
+        "schema_version": 1,
+        "original_filename": "../etc/passwd",
+        "vm_data": [],
+        "project_name": "",
+        "storage_model": "powerstore",
+        "selected_datacenters": [],
+        "selected_clusters": [],
+        "layout": {},
+    }
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr(SESSION_ZIP_SENTINEL, json.dumps(snapshot))
+        zf.writestr("../etc/passwd", b"root:x:0:0:/root:/bin/bash")
+    with pytest.raises(IngestionError, match="Invalid archive member name"):
+        restore_session_zip(buf.getvalue())
+
+
+def test_restore_rejects_zip_bomb() -> None:
+    """A session zip whose uncompressed size exceeds the shared limit must be rejected."""
+    from store_predict.pipeline._zip_safety import MAX_UNCOMPRESSED_BYTES
+
+    snapshot = {
+        "schema_version": 1,
+        "original_filename": "test.xlsx",
+        "vm_data": [],
+        "project_name": "",
+        "storage_model": "powerstore",
+        "selected_datacenters": [],
+        "selected_clusters": [],
+        "layout": {},
+    }
+    big_payload = b"A" * (MAX_UNCOMPRESSED_BYTES + 1)
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr(SESSION_ZIP_SENTINEL, json.dumps(snapshot))
+        zf.writestr("test.xlsx", big_payload)
+    with pytest.raises(IngestionError, match="exceeds the"):
+        restore_session_zip(buf.getvalue())

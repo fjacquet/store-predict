@@ -60,6 +60,17 @@ def _patterns(*keywords: str) -> tuple[re.Pattern[str], ...]:
     return tuple(re.compile(re.escape(kw), re.IGNORECASE) for kw in keywords)
 
 
+def _word_patterns(*keywords: str) -> tuple[re.Pattern[str], ...]:
+    """Compile case-insensitive word-boundary patterns.
+
+    Use for ambiguous short tokens (``SQL``, ``DB2``, ``CIT``) that would
+    otherwise false-match inside unrelated names (``NotASQL``, ``DB2500``,
+    ``CITIZEN``). Boundaries treat digits and letters as word chars, so
+    ``\\bSQL\\b`` still matches ``SQL-SRV01`` but not ``MSSQL``.
+    """
+    return tuple(re.compile(rf"\b{re.escape(kw)}\b", re.IGNORECASE) for kw in keywords)
+
+
 def _regex_patterns(*expressions: str) -> tuple[re.Pattern[str], ...]:
     """Compile case-insensitive regex patterns (alternation, word boundaries, etc.)."""
     return tuple(re.compile(expr, re.IGNORECASE) for expr in expressions)
@@ -320,7 +331,8 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Database",
             subcategory="DB2",
             priority=104,
-            vm_name_patterns=_patterns("DB2"),
+            # Word-bounded: avoid matching "DB2500" storage-array hostnames.
+            vm_name_patterns=_word_patterns("DB2"),
         ),
         ClassificationRule(
             name="MongoDB",

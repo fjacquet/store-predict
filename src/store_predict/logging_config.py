@@ -7,7 +7,18 @@ and error messages. This prevents accidental data leakage in production logs.
 
 from __future__ import annotations
 
+import hashlib
 import logging
+
+
+def hash_name(name: str) -> str:
+    """Return a short deterministic hash of a filename for safe logging.
+
+    Filenames often encode project/customer identifiers; logging them raw leaks
+    PII into aggregated log stores. A truncated SHA-256 is still useful for
+    correlating events without disclosing the source name.
+    """
+    return hashlib.sha256(name.encode("utf-8", "replace")).hexdigest()[:12]
 
 
 def setup_logging(level: int = logging.INFO) -> logging.Logger:

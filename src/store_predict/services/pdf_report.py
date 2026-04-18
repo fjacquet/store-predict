@@ -30,6 +30,7 @@ from reportlab.platypus import (
     TableStyle,
 )
 
+from store_predict._sanitizers import escape_xml
 from store_predict.i18n import t
 from store_predict.services._fonts import FONT_BOLD as _FONT_BOLD
 from store_predict.services._fonts import FONT_REGULAR as _FONT_REGULAR
@@ -604,7 +605,7 @@ def generate_report_pdf(
         f"<b>{t('pdf.avg_memory')}</b> {format_storage(summary.avg_vm_memory_mib)}",
         f"<b>{t('pdf.avg_storage')}</b> {format_storage(summary.avg_vm_size_mib)}",
         f"<b>{t('pdf.weighted_drr')}</b> {summary.weighted_avg_drr:.2f}",
-        f"<b>{t('pdf.largest_vm')}</b> {summary.largest_vm_name}"
+        f"<b>{t('pdf.largest_vm')}</b> {escape_xml(summary.largest_vm_name)}"
         f" ({format_storage(summary.largest_vm_provisioned_mib)})",
     ]
     for line in avg_lines:
@@ -615,9 +616,10 @@ def generate_report_pdf(
     if summary.has_performance_data:
         story.append(Paragraph(t("pdf.performance_heading"), heading_style))
         story.append(HRFlowable(width="100%", thickness=1.5, color=_BRAND_BLUE, spaceAfter=6))
+        hottest_name = escape_xml(summary.max_vm_peak_iops_name)
         perf_lines = [
             f"<b>{t('pdf.total_avg_iops')}</b> {summary.total_avg_iops:,.0f}",
-            f"<b>{t('pdf.hottest_vm')}</b> {summary.max_vm_peak_iops:,.0f} ({summary.max_vm_peak_iops_name})",
+            f"<b>{t('pdf.hottest_vm')}</b> {summary.max_vm_peak_iops:,.0f} ({hottest_name})",
             f"<b>{t('pdf.peak_throughput')}</b> {summary.peak_throughput_mbs:,.1f} MB/s",
             f"<b>{t('pdf.iops_8k')}</b> {summary.total_iops_8k_equivalent:,.0f}",
         ]

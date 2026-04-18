@@ -2,24 +2,43 @@
 
 from __future__ import annotations
 
+import io
+import zipfile
+
 import pytest
 
 from store_predict.pipeline.errors import IngestionError
 from store_predict.pipeline.validation import validate_upload
 
+
+def _ooxml_bytes() -> bytes:
+    """Minimal OOXML archive carrying the `[Content_Types].xml` marker."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("[Content_Types].xml", b"<?xml version='1.0'?><Types/>")
+    return buf.getvalue()
+
+
 # --- Valid files pass ---
 
 
 def test_valid_xlsx_passes() -> None:
-    """Valid xlsx content (ZIP magic bytes) should pass validation."""
-    content = b"PK\x03\x04" + b"\x00" * 100
-    validate_upload(content, "workload.xlsx")
+    """Valid xlsx content (ZIP with `[Content_Types].xml`) should pass validation."""
+    validate_upload(_ooxml_bytes(), "workload.xlsx")
 
 
 def test_valid_xlsx_uppercase_extension() -> None:
     """Extension check should be case-insensitive."""
-    content = b"PK\x03\x04" + b"\x00" * 100
-    validate_upload(content, "workload.XLSX")
+    validate_upload(_ooxml_bytes(), "workload.XLSX")
+
+
+def test_plain_zip_renamed_xlsx_rejected() -> None:
+    """A plain zip without `[Content_Types].xml` must be rejected even with .xlsx name."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zf.writestr("payload.bin", b"not a real xlsx")
+    with pytest.raises(IngestionError, match=r"valid \.xlsx file"):
+        validate_upload(buf.getvalue(), "fake.xlsx")
 
 
 def test_valid_csv_passes() -> None:

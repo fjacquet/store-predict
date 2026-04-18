@@ -107,6 +107,51 @@ class TestPdfGeneratesBytes:
         assert isinstance(result, bytes)
         assert len(result) > 0
 
+    def test_pdf_escapes_xml_metachars_in_vm_names(self) -> None:
+        """VM names with <, >, & must not break ReportLab's Paragraph XML parser."""
+        vm = VMCalculation(
+            vm_name="<b>evil</b> & co",
+            workload_category="Database/Microsoft SQL",
+            provisioned_mib=20480.0,
+            in_use_mib=10240.0,
+            drr=5.0,
+            required_mib=4096.0,
+            peak_iops=5000.0,
+            avg_iops=2500.0,
+            peak_throughput_mbs=200.0,
+            iops_8k_equivalent=2812.5,
+        )
+        summary = CalculationSummary(
+            vm_calculations=[vm],
+            workload_groups=[
+                WorkloadGroupResult(
+                    category="Database/Microsoft SQL",
+                    vm_count=1,
+                    total_provisioned_mib=20480.0,
+                    total_in_use_mib=10240.0,
+                    avg_drr=5.0,
+                    total_required_mib=4096.0,
+                )
+            ],
+            total_vms=1,
+            total_provisioned_mib=20480.0,
+            total_in_use_mib=10240.0,
+            total_required_mib=4096.0,
+            weighted_avg_drr=5.0,
+            largest_vm_name="<b>evil</b> & co",
+            largest_vm_provisioned_mib=20480.0,
+            max_vm_peak_iops=5000.0,
+            max_vm_peak_iops_name="<b>evil</b> & co",
+            peak_throughput_mbs=200.0,
+            total_avg_iops=2500.0,
+            total_iops_8k_equivalent=2812.5,
+            has_performance_data=True,
+        )
+        # Without escaping, ReportLab raises ValueError on unbalanced XML tags.
+        result = generate_report_pdf(summary, "Escape Test")
+        assert isinstance(result, bytes)
+        assert result[:5] == b"%PDF-"
+
 
 # ---------------------------------------------------------------------------
 # Helper function tests

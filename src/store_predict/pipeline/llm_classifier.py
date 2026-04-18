@@ -20,6 +20,7 @@ import asyncio
 import json
 import logging
 import re
+import threading
 import time
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
@@ -52,12 +53,99 @@ class RuleSuggestion:
 
 
 # ---------------------------------------------------------------------------
-# Circuit breaker state (module-level, in-process)
+# Circuit breaker (module-level, in-process, thread-safe)
 # ---------------------------------------------------------------------------
-_cb_fail_count: int = 0
-_cb_open_until: float = 0.0
-_CB_FAIL_MAX: int = 3
-_CB_COOLDOWN: float = 60.0
+class CircuitBreaker:
+    """Simple thread-safe circuit breaker for LLM calls.
+
+    After ``fail_max`` consecutive failures, the breaker opens for ``cooldown``
+    seconds and every ``is_open()`` check returns True until cooldown expires.
+    One successful call resets the fail counter.
+    """
+
+    def __init__(self, fail_max: int = 3, cooldown: float = 60.0) -> None:
+        self._fail_count = 0
+        self._open_until = 0.0
+        self._fail_max = fail_max
+        self._cooldown = cooldown
+        self._lock = threading.Lock()
+
+    def is_open(self) -> bool:
+        with self._lock:
+            return time.monotonic() < self._open_until
+
+    def record_success(self) -> None:
+        with self._lock:
+            self._fail_count = 0
+
+    def record_failure(self) -> bool:
+        """Increment failure count. Return True when this call just opened the breaker.
+
+        If the breaker is already open (another caller tripped it), the failure is
+        ignored — no double-increment, no duplicate log.
+        """
+        with self._lock:
+            if time.monotonic() < self._open_until:
+                return False
+            self._fail_count += 1
+            if self._fail_count >= self._fail_max:
+                self._open_until = time.monotonic() + self._cooldown
+                return True
+        return False
+
+    def reset(self) -> None:
+        """Reset breaker state — used by tests."""
+        with self._lock:
+            self._fail_count = 0
+            self._open_until = 0.0
+
+    @property
+    def cooldown(self) -> float:
+        return self._cooldown
+
+    @property
+    def fail_max(self) -> int:
+        return self._fail_max
+
+
+_breaker = CircuitBreaker()
+
+
+async def _call_llm(
+    messages: list[dict[str, str]],
+    max_tokens: int,
+    config: LLMConfig,
+) -> str | None:
+    """Dispatch one LLM completion request and return the raw text content.
+
+    Applies the shared circuit breaker and timeout guard. Returns ``None`` when
+    the breaker is open, a timeout occurs, or the provider raises.
+    """
+    if _breaker.is_open():
+        return None
+    try:
+        response = await asyncio.wait_for(
+            litellm.acompletion(
+                model=config.model,
+                messages=messages,
+                api_key=config.get_api_key() or None,
+                api_base=config.api_base,
+                max_tokens=max_tokens,
+            ),
+            timeout=config.timeout,
+        )
+        _breaker.record_success()
+        model_response: Any = response
+        return str((model_response.choices[0].message.content or "").strip())
+    except (TimeoutError, Exception):
+        if _breaker.record_failure():
+            logger.warning(
+                "LLM circuit breaker opened after %d consecutive failures — skipping calls for %.0f seconds",
+                _breaker.fail_max,
+                _breaker.cooldown,
+            )
+        return None
+
 
 _SYSTEM_PROMPT = (
     "You are a VM workload classifier for Dell PowerStore sizing. "
@@ -141,10 +229,7 @@ async def classify_batch_vms(
         A list parallel to *batch*: each element is ``(category, keyword)`` or
         ``None`` when the LLM could not classify that VM.
     """
-    global _cb_fail_count, _cb_open_until
-
-    # Circuit breaker check
-    if time.monotonic() < _cb_open_until:
+    if _breaker.is_open():
         return [None] * len(batch)
 
     # Sanitise inputs
@@ -166,47 +251,20 @@ async def classify_batch_vms(
         {"role": "user", "content": user_prompt},
     ]
 
-    api_key_value = config.get_api_key() or None
-
-    try:
-        response = await asyncio.wait_for(
-            litellm.acompletion(
-                model=config.model,
-                messages=messages,
-                api_key=api_key_value,
-                api_base=config.api_base,
-                max_tokens=config.batch_size * 60,
-            ),
-            timeout=config.timeout,
-        )
-        # Success — reset circuit breaker
-        _cb_fail_count = 0
-        model_response: Any = response
-        raw_text: str = (model_response.choices[0].message.content or "").strip()
-
-        parsed = _parse_batch_response(raw_text, valid_categories)
-
-        # Map parsed results back to input positions by id
-        result_map: dict[int, tuple[str, str | None]] = {}
-        for item in parsed:
-            idx = item["id"]
-            if isinstance(idx, int) and 0 <= idx < len(batch):
-                result_map[idx] = (item["category"], item["keyword"])
-
-        return [result_map.get(i) for i in range(len(batch))]
-    except (TimeoutError, Exception):
-        # Guard: if breaker is already open (concurrent failures), don't re-log
-        if time.monotonic() < _cb_open_until:
-            return [None] * len(batch)
-        _cb_fail_count += 1
-        if _cb_fail_count >= _CB_FAIL_MAX:
-            _cb_open_until = time.monotonic() + _CB_COOLDOWN
-            logger.warning(
-                "LLM circuit breaker opened after %d consecutive failures — skipping calls for %.0f seconds",
-                _cb_fail_count,
-                _CB_COOLDOWN,
-            )
+    raw_text = await _call_llm(messages, max_tokens=config.batch_size * 60, config=config)
+    if raw_text is None:
         return [None] * len(batch)
+
+    parsed = _parse_batch_response(raw_text, valid_categories)
+
+    # Map parsed results back to input positions by id
+    result_map: dict[int, tuple[str, str | None]] = {}
+    for item in parsed:
+        idx = item["id"]
+        if isinstance(idx, int) and 0 <= idx < len(batch):
+            result_map[idx] = (item["category"], item["keyword"])
+
+    return [result_map.get(i) for i in range(len(batch))]
 
 
 async def classify_single_vm(
@@ -232,10 +290,7 @@ async def classify_single_vm(
         LLM could not suggest one).  Returns ``None`` if the circuit breaker is
         open, the category is invalid, or a timeout/error occurs.
     """
-    global _cb_fail_count, _cb_open_until
-
-    # Circuit breaker check
-    if time.monotonic() < _cb_open_until:
+    if _breaker.is_open():
         return None
 
     # Sanitise inputs — truncate and strip control characters
@@ -257,51 +312,22 @@ async def classify_single_vm(
         {"role": "user", "content": user_prompt},
     ]
 
-    api_key_value = config.get_api_key() or None
-
-    try:
-        response = await asyncio.wait_for(
-            litellm.acompletion(
-                model=config.model,
-                messages=messages,
-                api_key=api_key_value,
-                api_base=config.api_base,
-                max_tokens=30,
-            ),
-            timeout=config.timeout,
-        )
-        # Success — reset circuit breaker
-        _cb_fail_count = 0
-        model_response: Any = response
-        raw: str = (model_response.choices[0].message.content or "").strip()
-
-        # Parse "Category|KEYWORD" response format
-        if "|" in raw:
-            category_part, keyword_part = raw.split("|", 1)
-            category = category_part.strip()
-            raw_keyword = keyword_part.strip().upper()
-            # Reject placeholder / garbage keywords
-            keyword: str | None = (
-                raw_keyword if raw_keyword and raw_keyword != "NONE" and len(raw_keyword) >= 2 else None
-            )
-        else:
-            category = raw.strip()
-            keyword = None
-
-        return (category, keyword) if category in valid_categories else None
-    except (TimeoutError, Exception):
-        # Guard: if breaker is already open (concurrent failures), don't re-log
-        if time.monotonic() < _cb_open_until:
-            return None
-        _cb_fail_count += 1
-        if _cb_fail_count >= _CB_FAIL_MAX:
-            _cb_open_until = time.monotonic() + _CB_COOLDOWN
-            logger.warning(
-                "LLM circuit breaker opened after %d consecutive failures — skipping calls for %.0f seconds",
-                _cb_fail_count,
-                _CB_COOLDOWN,
-            )
+    raw = await _call_llm(messages, max_tokens=30, config=config)
+    if raw is None:
         return None
+
+    # Parse "Category|KEYWORD" response format
+    if "|" in raw:
+        category_part, keyword_part = raw.split("|", 1)
+        category = category_part.strip()
+        raw_keyword = keyword_part.strip().upper()
+        # Reject placeholder / garbage keywords
+        keyword: str | None = raw_keyword if raw_keyword and raw_keyword != "NONE" and len(raw_keyword) >= 2 else None
+    else:
+        category = raw.strip()
+        keyword = None
+
+    return (category, keyword) if category in valid_categories else None
 
 
 async def classify_unknown_vms_async(

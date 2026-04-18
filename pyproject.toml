@@ -35,6 +35,18 @@ docs = [
     "mkdocs-material",
 ]
 
+[tool.uv]
+# litellm 1.83.9 pins `aiohttp>=3.13.3, <3.13.3+` (frozen-dep style), which blocks
+# Dependabot-flagged aiohttp CVE fixes (GHSA-trailer-headers, UNC SSRF on Windows,
+# multipart-size bypass, duplicate Host headers, etc.). Patch releases in the 3.13.x
+# line are ABI-compatible; relax the pin so we can pick up security patches.
+# The same frozen-dep pattern from litellm also blocks nicegui 3.10 (which needs
+# aiohttp>=3.13.4) — so this override also unblocks the nicegui upgrade-filename
+# CVE fix.
+override-dependencies = [
+    "aiohttp>=3.13.5,<4.0",
+]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

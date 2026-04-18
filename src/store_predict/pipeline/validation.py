@@ -6,10 +6,30 @@ Rejects files that are not genuine .xlsx or .csv to prevent malicious uploads.
 
 from __future__ import annotations
 
+import io
+import zipfile
+
 from store_predict.pipeline.errors import IngestionError
 
 # ZIP (and hence .xlsx) magic bytes
 _XLSX_MAGIC = b"PK\x03\x04"
+_OOXML_MARKER = "[Content_Types].xml"
+
+
+def _is_valid_xlsx(content: bytes) -> bool:
+    """Confirm content is a real OOXML package, not just any ZIP.
+
+    A raw .zip renamed to .xlsx passes the PK magic check but is not a
+    spreadsheet. Every .xlsx package contains ``[Content_Types].xml`` at
+    the root — check for it explicitly.
+    """
+    if len(content) < 4 or content[:4] != _XLSX_MAGIC:
+        return False
+    try:
+        with zipfile.ZipFile(io.BytesIO(content)) as zf:
+            return _OOXML_MARKER in zf.namelist()
+    except zipfile.BadZipFile:
+        return False
 
 
 def validate_upload(content: bytes, filename: str) -> None:
@@ -28,7 +48,7 @@ def validate_upload(content: bytes, filename: str) -> None:
     if ext not in ("xlsx", "csv", "zip"):
         raise IngestionError(f"Unsupported file type: .{ext}. Only .xlsx, .csv, and .zip files are accepted.")
 
-    if ext == "xlsx" and (len(content) < 4 or content[:4] != _XLSX_MAGIC):
+    if ext == "xlsx" and not _is_valid_xlsx(content):
         raise IngestionError("File does not appear to be a valid .xlsx file")
 
     if ext == "zip" and (len(content) < 4 or content[:4] != _XLSX_MAGIC):

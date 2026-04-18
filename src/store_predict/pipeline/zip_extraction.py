@@ -12,11 +12,8 @@ import io
 import re
 import zipfile
 
+from store_predict.pipeline._zip_safety import assert_zip_within_limits
 from store_predict.pipeline.errors import IngestionError
-
-# Maximum total uncompressed size across all ZIP members (100 MB).
-# Checked against the central directory only — no extraction needed.
-_MAX_UNCOMPRESSED_BYTES = 100 * 1024 * 1024
 
 _LIVEOPTICS_PATTERN = re.compile(r"LiveOptics_\d+_VMWARE_\d{2}_\d{2}_\d{4}\.xlsx", re.IGNORECASE)
 
@@ -41,11 +38,7 @@ def extract_liveoptics_from_zip(content: bytes) -> tuple[bytes, str]:
         raise IngestionError("Uploaded .zip file is not a valid ZIP archive") from exc
 
     # Zip bomb guard — reads central directory only, no extraction yet.
-    total_uncompressed = sum(info.file_size for info in zf.infolist())
-    if total_uncompressed > _MAX_UNCOMPRESSED_BYTES:
-        raise IngestionError(
-            f"ZIP archive uncompressed content exceeds the {_MAX_UNCOMPRESSED_BYTES // (1024 * 1024)} MB limit"
-        )
+    assert_zip_within_limits(zf)
 
     names = zf.namelist()
 

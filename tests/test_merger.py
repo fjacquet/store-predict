@@ -231,3 +231,14 @@ def test_is_template_dtype_is_bool() -> None:
     # This must not raise even for mixed-origin rows
     mask = ~result["is_template"].fillna(False).astype(bool)
     assert mask.dtype == bool
+
+
+def test_numeric_vm_name_joins_without_nan_key() -> None:
+    """Numeric VM identifiers must not collapse to NaN after .str.strip()."""
+    rv = _rvtools_df(vm_name=12345)
+    lo = _liveoptics_df(vm_name=12345)
+    result = merge_dual_sources(rv, lo)
+    # Numeric vm_name flows through astype(str) + strip and the dual-source row
+    # is matched instead of splitting into two partial rows.
+    assert len(result) == 1
+    assert result.iloc[0]["vm_name"] == "12345"

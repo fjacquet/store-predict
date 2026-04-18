@@ -241,7 +241,10 @@ def parse_liveoptics_xlsx(path: Path) -> pd.DataFrame:
 def parse_liveoptics_csv(path: Path) -> pd.DataFrame:
     """Parse a LiveOptics csv export into a canonical DataFrame.
 
-    Tries UTF-8 encoding first, then falls back to Latin-1.
+    Tries UTF-8 (with BOM stripping) first, then plain UTF-8, then falls back to Latin-1.
+    ``utf-8-sig`` silently strips any ``\\ufeff`` prefix that Excel adds when
+    saving as CSV — without it, the first column header becomes ``\\ufeffVM Name``
+    and the canonical-column mapping silently loses data.
 
     Args:
         path: Path to the LiveOptics .csv file.
@@ -253,7 +256,7 @@ def parse_liveoptics_csv(path: Path) -> pd.DataFrame:
         IngestionError: If the file cannot be decoded or required columns are missing.
     """
     df: pd.DataFrame | None = None
-    encodings = ["utf-8", "latin-1"]
+    encodings = ["utf-8-sig", "utf-8", "latin-1"]
 
     for encoding in encodings:
         try:
@@ -268,7 +271,7 @@ def parse_liveoptics_csv(path: Path) -> pd.DataFrame:
             ) from exc
 
     if df is None:
-        raise IngestionError("Cannot decode CSV file. Tried UTF-8 and Latin-1 encodings.")
+        raise IngestionError("Cannot decode CSV file. Tried UTF-8 (with/without BOM) and Latin-1 encodings.")
 
     df.columns = df.columns.str.strip()
     return _build_liveoptics_df(df, FileFormat.LIVEOPTICS_CSV.value)

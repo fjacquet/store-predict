@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from store_predict.config import DEFAULT_DRR
 from store_predict.pipeline.calculation import (
     calculate,
 )
@@ -104,21 +105,24 @@ class TestWorkloadGrouping:
 class TestEdgeCases:
     """Edge cases: zero DRR, negative DRR, empty data, missing fields."""
 
-    def test_drr_zero_guard(self) -> None:
+    def test_drr_zero_guard(self, caplog: pytest.LogCaptureFixture) -> None:
+        """Non-positive DRR falls back to DEFAULT_DRR with a warning (no silent 10x inflation)."""
         rows = [_row(drr=0)]
-        result = calculate(rows)
+        with caplog.at_level("WARNING", logger="store_predict.pipeline.calculation"):
+            result = calculate(rows)
         vm = result.vm_calculations[0]
-        # max(0, 0.1) = 0.1  ->  10000 / 0.1 = 100000
-        assert vm.required_mib == pytest.approx(100000.0)
-        assert vm.drr == pytest.approx(0.1)
+        assert vm.drr == pytest.approx(DEFAULT_DRR)
+        assert vm.required_mib == pytest.approx(10000.0 / DEFAULT_DRR)
+        assert any("Non-positive DRR" in rec.message for rec in caplog.records)
 
-    def test_drr_negative_guard(self) -> None:
+    def test_drr_negative_guard(self, caplog: pytest.LogCaptureFixture) -> None:
         rows = [_row(drr=-1)]
-        result = calculate(rows)
+        with caplog.at_level("WARNING", logger="store_predict.pipeline.calculation"):
+            result = calculate(rows)
         vm = result.vm_calculations[0]
-        # max(-1, 0.1) = 0.1  ->  10000 / 0.1 = 100000
-        assert vm.required_mib == pytest.approx(100000.0)
-        assert vm.drr == pytest.approx(0.1)
+        assert vm.drr == pytest.approx(DEFAULT_DRR)
+        assert vm.required_mib == pytest.approx(10000.0 / DEFAULT_DRR)
+        assert any("Non-positive DRR" in rec.message for rec in caplog.records)
 
     def test_empty_dataset(self) -> None:
         result = calculate([])
@@ -129,6 +133,26 @@ class TestEdgeCases:
         assert result.weighted_avg_drr == pytest.approx(0.0)
         assert result.vm_calculations == []
         assert result.workload_groups == []
+
+    def test_nan_provisioned_does_not_poison_totals(self) -> None:
+        """A single NaN cell must not turn group and grand totals into NaN."""
+        rows = [
+            _row(vm_name="A", provisioned_mib=10000, in_use_mib=5000, drr=5.0),
+            _row(vm_name="B", provisioned_mib=float("nan"), in_use_mib=float("nan"), drr=5.0),
+        ]
+        result = calculate(rows)
+        # The NaN row contributes 0 to totals; the good row is preserved intact.
+        assert result.total_provisioned_mib == pytest.approx(10000.0)
+        assert result.total_in_use_mib == pytest.approx(5000.0)
+        assert result.total_required_mib == pytest.approx(2000.0)
+
+    def test_hottest_vm_empty_without_performance_data(self) -> None:
+        """Without any peak IOPS we must not report an arbitrary zero-IOPS VM as hottest."""
+        rows = [_row(vm_name="A"), _row(vm_name="B")]
+        result = calculate(rows)
+        assert result.has_performance_data is False
+        assert result.max_vm_peak_iops == pytest.approx(0.0)
+        assert result.max_vm_peak_iops_name == ""
 
     def test_missing_fields_defaults(self) -> None:
         # Row dict missing all optional keys
