@@ -14,6 +14,7 @@ from nicegui import app, background_tasks, run, ui
 
 from store_predict.config import DRR_CSV_PATH
 from store_predict.i18n import t
+from store_predict.logging_config import hash_name
 from store_predict.pipeline.classification import (
     RuleRegistry,
     build_default_rules,
@@ -168,7 +169,7 @@ async def upload_page() -> None:
 
                 # Zip: extract inner xlsx, replace tmp_path
                 if filename.lower().endswith(".zip"):
-                    logger.info("ZIP upload detected: %s — extracting inner xlsx", original_filename)
+                    logger.info("ZIP upload detected: file=%s — extracting inner xlsx", hash_name(original_filename))
                     content, filename = extract_liveoptics_from_zip(content)
                     tmp_path.unlink(missing_ok=True)
                     with tempfile.NamedTemporaryFile(
@@ -193,11 +194,11 @@ async def upload_page() -> None:
                     _refresh_chips()
 
             except IngestionError as exc:
-                logger.warning("Upload validation failed for %s: %s", original_filename, exc)
+                logger.warning("Upload validation failed for file=%s: %s", hash_name(original_filename), exc)
                 with upload_widget:
                     ui.notify(str(exc), type="negative", timeout=0)
             except Exception:
-                logger.exception("Unexpected error handling assembled upload: %s", original_filename)
+                logger.exception("Unexpected error handling assembled upload: file=%s", hash_name(original_filename))
                 with upload_widget:
                     ui.notify(t("error.unexpected"), type="negative", timeout=0)
 

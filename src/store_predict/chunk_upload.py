@@ -21,6 +21,8 @@ from starlette.datastructures import UploadFile
 from starlette.requests import Request  # noqa: TC002 — must be runtime import for FastAPI param resolution
 from starlette.responses import JSONResponse
 
+from store_predict.logging_config import hash_name
+
 logger = logging.getLogger(__name__)
 
 _STALE_SECONDS = 300  # purge incomplete uploads after 5 minutes
@@ -67,9 +69,9 @@ def _receive_chunk(token: str, filename: str, data: bytes, start: int, total_siz
         # Assemble when all bytes received OR last chunk reaches the declared end.
         if received < total_size and max_end < total_size:
             logger.debug(
-                "Chunk stored, waiting: token=%s file=%s received=%d max_end=%d total=%d",
+                "Chunk stored, waiting: tid=%s file=%s received=%d max_end=%d total=%d",
                 token,
-                filename,
+                hash_name(filename),
                 received,
                 max_end,
                 total_size,
@@ -81,7 +83,7 @@ def _receive_chunk(token: str, filename: str, data: bytes, start: int, total_siz
     suffix = Path(filename).suffix
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
         f.write(assembled)
-        logger.info("Upload assembled: token=%s file=%s size=%d", token, filename, total_size)
+        logger.info("Upload assembled: tid=%s file=%s size=%d", token, hash_name(filename), total_size)
         return Path(f.name)
 
 
@@ -111,9 +113,9 @@ async def _handle_chunk(request: Request, token: str) -> JSONResponse:
             total_size = len(data)
 
         logger.debug(
-            "Chunk received: token=%s file=%s start=%d total=%d data_len=%d range=%r",
+            "Chunk received: tid=%s file=%s start=%d total=%d data_len=%d range=%r",
             token,
-            filename,
+            hash_name(filename),
             start,
             total_size,
             len(data),
@@ -127,12 +129,12 @@ async def _handle_chunk(request: Request, token: str) -> JSONResponse:
             queue: list[dict[str, str]] = app.storage.general.get(queue_key, [])
             queue.append({"path": str(assembled), "filename": filename})
             app.storage.general[queue_key] = queue
-            logger.info("Upload queued: token=%s file=%s path=%s", token, filename, assembled)
+            logger.info("Upload queued: tid=%s file=%s", token, hash_name(filename))
 
         return JSONResponse({"status": "ok"})
 
     except Exception:
-        logger.exception("Error handling upload chunk for token %s", token)
+        logger.exception("Error handling upload chunk for tid=%s", token)
         return JSONResponse({"error": "upload failed"}, status_code=500)
 
 
