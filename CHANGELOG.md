@@ -4,9 +4,17 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v8.2.2] - 2026-04-20
+
+Bug-fix release correcting a long-standing under-reporting in LiveOptics xlsx ingestion that affected any VM with more than one virtual disk.
+
 ### Fixed
 
-- **LiveOptics multi-disk VMs** — `parse_liveoptics_xlsx` now sums per-disk capacities from the `VM Disks` sheet and overrides `provisioned_mib` / `in_use_mib` per VM. Previously only the primary virtual disk from the `VMs` sheet's `Virtual Disk Size (MiB)` was counted, causing severe under-reporting for storage-heavy clusters (e.g. a container cluster with ~11 disks/VM showed ~4 TiB instead of ~40 TiB). Falls back to VMs-sheet values when the `VM Disks` sheet is absent (older exports, CSV). `pipeline/parsers/liveoptics.py`, `pipeline/parsers/columns.py`.
+- **LiveOptics multi-disk VMs** — `parse_liveoptics_xlsx` now sums per-disk capacities from the `VM Disks` sheet and overrides `provisioned_mib` / `in_use_mib` per VM. Previously only the primary virtual disk from the `VMs` sheet's `Virtual Disk Size (MiB)` was counted, causing severe under-reporting for storage-heavy clusters (e.g. a container cluster with ~11 disks/VM showed ~4 TiB instead of ~40 TiB). Join uses MOB ID with a VM Name fallback. Falls back to VMs-sheet values when the `VM Disks` sheet is absent (older exports, CSV). `pipeline/parsers/liveoptics.py`, `pipeline/parsers/columns.py`.
+
+### Tests
+
+- 9 new tests in `tests/test_liveoptics_vm_disks.py` covering per-VM aggregation, multi-disk regression, metadata preservation, and the VMs-sheet-only fallback path. Full suite: 589 passed, 1 skipped.
 
 ## [v8.2.1] - 2026-04-18
 
