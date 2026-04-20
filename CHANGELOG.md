@@ -4,6 +4,10 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- **LiveOptics multi-disk VMs** — `parse_liveoptics_xlsx` now sums per-disk capacities from the `VM Disks` sheet and overrides `provisioned_mib` / `in_use_mib` per VM. Previously only the primary virtual disk from the `VMs` sheet's `Virtual Disk Size (MiB)` was counted, causing severe under-reporting for storage-heavy clusters (e.g. a container cluster with ~11 disks/VM showed ~4 TiB instead of ~40 TiB). Falls back to VMs-sheet values when the `VM Disks` sheet is absent (older exports, CSV). `pipeline/parsers/liveoptics.py`, `pipeline/parsers/columns.py`.
+
 ## [v8.2.1] - 2026-04-18
 
 Re-release of v8.2.0 with correct artifacts. The `v8.2.0` tag was pushed before the version-bump commit landed on `maincd`, so its GitHub Release shipped wheels/sdists labelled `8.1.0` under a `v8.2.0` tag. No source code changes vs `v8.2.0` — this release simply builds and publishes the same `maincd` tree with the correct `8.2.1` package metadata.

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -12,13 +13,17 @@ from store_predict.pipeline.parsers.columns import (
     CANONICAL_COLUMNS,
     LIVEOPTICS_ALIASES,
     LIVEOPTICS_PERFORMANCE_ALIASES,
+    LIVEOPTICS_VM_DISKS_ALIASES,
     REQUIRED_LIVEOPTICS_COLUMNS,
     REQUIRED_LIVEOPTICS_PERFORMANCE_COLUMNS,
+    REQUIRED_LIVEOPTICS_VM_DISKS_COLUMNS,
     resolve_columns,
 )
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def _build_liveoptics_df(
@@ -148,6 +153,128 @@ def parse_liveoptics_performance(path: Path) -> pd.DataFrame:
     return result
 
 
+def _apply_vm_disks_override(
+    result: pd.DataFrame,
+    raw_vms_df: pd.DataFrame,
+    vm_disks_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """Override ``provisioned_mib`` / ``in_use_mib`` on ``result`` with summed
+    per-disk totals from ``vm_disks_df``.
+
+    Joins on MOB ID (vCenter-unique) when present in both frames; falls back
+    to VM Name. VMs with no matching disk data keep their VMs-sheet values.
+    """
+    use_mob_id = (
+        "MOB ID" in raw_vms_df.columns
+        and "mob_id" in vm_disks_df.columns
+        and vm_disks_df["mob_id"].astype(str).str.strip().ne("").all()
+    )
+
+    if use_mob_id:
+        result = result.copy()
+        result["_join_key"] = raw_vms_df["MOB ID"].astype(str).str.strip().values
+        vm_disks_df = vm_disks_df.copy()
+        vm_disks_df["_join_key"] = vm_disks_df["mob_id"].astype(str).str.strip()
+    else:
+        result = result.copy()
+        result["_join_key"] = result["vm_name"].astype(str).str.strip()
+        vm_disks_df = vm_disks_df.copy()
+        vm_disks_df["_join_key"] = vm_disks_df["vm_name"].astype(str).str.strip()
+
+    merged = result.merge(
+        vm_disks_df[["_join_key", "disks_provisioned_mib", "disks_in_use_mib"]],
+        on="_join_key",
+        how="left",
+    )
+
+    prov = pd.to_numeric(merged["disks_provisioned_mib"], errors="coerce")
+    used = pd.to_numeric(merged["disks_in_use_mib"], errors="coerce")
+    result["provisioned_mib"] = prov.where(prov.notna(), result["provisioned_mib"]).astype(float)
+    result["in_use_mib"] = used.where(used.notna(), result["in_use_mib"]).astype(float)
+    result = result.drop(columns=["_join_key"])
+    return result
+
+
+def parse_liveoptics_vm_disks(path: Path) -> pd.DataFrame:
+    """Aggregate the 'VM Disks' sheet of a LiveOptics xlsx export per VM.
+
+    LiveOptics' 'VMs' sheet column 'Virtual Disk Size (MiB)' reports only the
+    primary virtual disk, not the sum across all disks. Multi-disk VMs are
+    therefore under-reported. This helper sums per-disk capacities and used
+    bytes so the caller can override the VMs-sheet values.
+
+    Args:
+        path: Path to the LiveOptics .xlsx file.
+
+    Returns:
+        DataFrame with columns ``[mob_id, vm_name, disks_provisioned_mib,
+        disks_in_use_mib]``, one row per VM. Empty DataFrame if the sheet is
+        absent or unreadable — caller should then fall back to VMs-sheet values.
+    """
+    empty_cols = ["mob_id", "vm_name", "disks_provisioned_mib", "disks_in_use_mib"]
+    try:
+        df = pd.read_excel(path, sheet_name="VM Disks", engine="openpyxl")
+    except (KeyError, ValueError):
+        return pd.DataFrame(columns=empty_cols)
+    except Exception:
+        return pd.DataFrame(columns=empty_cols)
+
+    df.columns = df.columns.str.strip()
+
+    try:
+        col_map = resolve_columns(
+            df,
+            LIVEOPTICS_VM_DISKS_ALIASES,
+            REQUIRED_LIVEOPTICS_VM_DISKS_COLUMNS,
+        )
+    except Exception:
+        return pd.DataFrame(columns=empty_cols)
+
+    capacity = pd.to_numeric(df[col_map["capacity_mib"]], errors="coerce").fillna(0.0)
+    used = (
+        pd.to_numeric(df[col_map["used_mib"]], errors="coerce").fillna(0.0)
+        if col_map.get("used_mib")
+        else pd.Series([0.0] * len(df))
+    )
+
+    mob_col = col_map.get("mob_id")
+    name_col = col_map.get("vm_name")
+
+    # Choose join key: prefer MOB ID (vCenter-unique), fall back to VM Name.
+    if mob_col and df[mob_col].notna().all():
+        key_col = mob_col
+        key_canonical = "mob_id"
+    elif name_col:
+        key_col = name_col
+        key_canonical = "vm_name"
+    else:
+        return pd.DataFrame(columns=empty_cols)
+
+    working = pd.DataFrame({
+        "_key": df[key_col].astype(str).str.strip(),
+        "_mob_id": df[mob_col].astype(str).str.strip() if mob_col else "",
+        "_vm_name": df[name_col].astype(str).str.strip() if name_col else "",
+        "_capacity": capacity,
+        "_used": used,
+    })
+
+    grouped = working.groupby("_key", dropna=False).agg(
+        mob_id=("_mob_id", "first"),
+        vm_name=("_vm_name", "first"),
+        disks_provisioned_mib=("_capacity", "sum"),
+        disks_in_use_mib=("_used", "sum"),
+    ).reset_index(drop=True)
+
+    logger.info(
+        "LiveOptics VM Disks: %d disk rows aggregated into %d VMs (join=%s)",
+        len(df),
+        len(grouped),
+        key_canonical,
+    )
+
+    return grouped[["mob_id", "vm_name", "disks_provisioned_mib", "disks_in_use_mib"]]
+
+
 def parse_liveoptics_xlsx(path: Path) -> pd.DataFrame:
     """Parse a LiveOptics xlsx export into a canonical DataFrame.
 
@@ -177,6 +304,15 @@ def parse_liveoptics_xlsx(path: Path) -> pd.DataFrame:
 
     df.columns = df.columns.str.strip()
     result = _build_liveoptics_df(df, FileFormat.LIVEOPTICS_XLSX.value)
+
+    # Override provisioned_mib / in_use_mib with per-VM SUM from the 'VM Disks'
+    # sheet when present. The 'VMs' sheet's 'Virtual Disk Size (MiB)' reports
+    # only the primary disk, causing severe under-reporting for multi-disk VMs
+    # (e.g. a container cluster with avg 11 disks/VM showed ~4 TiB instead of
+    # ~40 TiB). Fall back to VMs-sheet values if VM Disks sheet is missing.
+    vm_disks_df = parse_liveoptics_vm_disks(path)
+    if not vm_disks_df.empty:
+        result = _apply_vm_disks_override(result, df, vm_disks_df)
 
     # Join performance data from VM Performance sheet
     perf_df = parse_liveoptics_performance(path)

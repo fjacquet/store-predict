@@ -95,6 +95,16 @@ LIVEOPTICS_PERFORMANCE_ALIASES: dict[str, list[str]] = {
 
 REQUIRED_LIVEOPTICS_PERFORMANCE_COLUMNS: set[str] = {"vm_name", "peak_iops"}
 
+LIVEOPTICS_VM_DISKS_ALIASES: dict[str, list[str]] = {
+    "mob_id": ["MOB ID"],
+    "vm_name": ["VM Name"],
+    "instance_uuid": ["InstanceUUID"],
+    "capacity_mib": ["Capacity (MiB)"],
+    "used_mib": ["Used (MiB)"],
+}
+
+REQUIRED_LIVEOPTICS_VM_DISKS_COLUMNS: set[str] = {"capacity_mib"}
+
 
 def resolve_columns(
     df: pd.DataFrame,

@@ -9,7 +9,7 @@ from .columns import (
     RVTOOLS_ALIASES,
     resolve_columns,
 )
-from .liveoptics import parse_liveoptics_csv, parse_liveoptics_xlsx
+from .liveoptics import parse_liveoptics_csv, parse_liveoptics_vm_disks, parse_liveoptics_xlsx
 from .rvtools import parse_rvtools
 
 __all__ = [
@@ -17,6 +17,7 @@ __all__ = [
     "LIVEOPTICS_ALIASES",
     "RVTOOLS_ALIASES",
     "parse_liveoptics_csv",
+    "parse_liveoptics_vm_disks",
     "parse_liveoptics_xlsx",
     "parse_rvtools",
     "resolve_columns",
