@@ -63,7 +63,7 @@ class TestParseLiveopticsXlsxOverride:
 
     def test_total_provisioned_matches_disk_sum_plus_fallback(self, liveoptics_xlsx_path: Path) -> None:
         """Parser total = sum(disk capacities for VMs with disk rows)
-                        + sum(VMs-sheet value for VMs without disk rows)."""
+        + sum(VMs-sheet value for VMs without disk rows)."""
         raw_vms = pd.read_excel(liveoptics_xlsx_path, sheet_name="VMs", engine="openpyxl")
         raw_disks = pd.read_excel(liveoptics_xlsx_path, sheet_name="VM Disks", engine="openpyxl")
         raw_vms.columns = raw_vms.columns.str.strip()
@@ -71,14 +71,22 @@ class TestParseLiveopticsXlsxOverride:
 
         disk_vm_ids = set(raw_disks["MOB ID"].astype(str))
         vms_ids = raw_vms["MOB ID"].astype(str)
-        matched_disk_cap = pd.to_numeric(
-            raw_disks[raw_disks["MOB ID"].astype(str).isin(set(vms_ids))]["Capacity (MiB)"],
-            errors="coerce",
-        ).fillna(0).sum()
-        unmatched_vms_value = pd.to_numeric(
-            raw_vms[~vms_ids.isin(disk_vm_ids)]["Virtual Disk Size (MiB)"],
-            errors="coerce",
-        ).fillna(0).sum()
+        matched_disk_cap = (
+            pd.to_numeric(
+                raw_disks[raw_disks["MOB ID"].astype(str).isin(set(vms_ids))]["Capacity (MiB)"],
+                errors="coerce",
+            )
+            .fillna(0)
+            .sum()
+        )
+        unmatched_vms_value = (
+            pd.to_numeric(
+                raw_vms[~vms_ids.isin(disk_vm_ids)]["Virtual Disk Size (MiB)"],
+                errors="coerce",
+            )
+            .fillna(0)
+            .sum()
+        )
         expected = matched_disk_cap + unmatched_vms_value
 
         parsed = parse_liveoptics_xlsx(liveoptics_xlsx_path)
@@ -104,7 +112,9 @@ class TestParseLiveopticsXlsxOverride:
             pd.to_numeric(
                 raw_disks[raw_disks["MOB ID"] == target_mob_id]["Capacity (MiB)"],
                 errors="coerce",
-            ).fillna(0).sum()
+            )
+            .fillna(0)
+            .sum()
         )
 
         parsed = parse_liveoptics_xlsx(liveoptics_xlsx_path)
@@ -133,17 +143,19 @@ class TestParseLiveopticsXlsxFallback:
 
     def _build_xlsx_without_disks(self, tmp_path: Path) -> Path:
         path = tmp_path / "lo_no_disks.xlsx"
-        vms = pd.DataFrame({
-            "VM Name": ["vm-a", "vm-b"],
-            "VM OS": ["Ubuntu Linux", "Windows Server"],
-            "Virtual Disk Size (MiB)": [1024.0, 2048.0],
-            "Guest VM Disk Used (MiB)": [512.0, 1024.0],
-            "Power State": ["poweredOn", "poweredOn"],
-            "Virtual CPU": [2, 4],
-            "Provisioned Memory (MiB)": [4096, 8192],
-            "Datacenter": ["DC1", "DC1"],
-            "Cluster": ["C1", "C1"],
-        })
+        vms = pd.DataFrame(
+            {
+                "VM Name": ["vm-a", "vm-b"],
+                "VM OS": ["Ubuntu Linux", "Windows Server"],
+                "Virtual Disk Size (MiB)": [1024.0, 2048.0],
+                "Guest VM Disk Used (MiB)": [512.0, 1024.0],
+                "Power State": ["poweredOn", "poweredOn"],
+                "Virtual CPU": [2, 4],
+                "Provisioned Memory (MiB)": [4096, 8192],
+                "Datacenter": ["DC1", "DC1"],
+                "Cluster": ["C1", "C1"],
+            }
+        )
         with pd.ExcelWriter(path, engine="openpyxl") as writer:
             vms.to_excel(writer, sheet_name="VMs", index=False)
         return path

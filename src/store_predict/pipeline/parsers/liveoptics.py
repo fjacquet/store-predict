@@ -250,20 +250,26 @@ def parse_liveoptics_vm_disks(path: Path) -> pd.DataFrame:
     else:
         return pd.DataFrame(columns=empty_cols)
 
-    working = pd.DataFrame({
-        "_key": df[key_col].astype(str).str.strip(),
-        "_mob_id": df[mob_col].astype(str).str.strip() if mob_col else "",
-        "_vm_name": df[name_col].astype(str).str.strip() if name_col else "",
-        "_capacity": capacity,
-        "_used": used,
-    })
+    working = pd.DataFrame(
+        {
+            "_key": df[key_col].astype(str).str.strip(),
+            "_mob_id": df[mob_col].astype(str).str.strip() if mob_col else "",
+            "_vm_name": df[name_col].astype(str).str.strip() if name_col else "",
+            "_capacity": capacity,
+            "_used": used,
+        }
+    )
 
-    grouped = working.groupby("_key", dropna=False).agg(
-        mob_id=("_mob_id", "first"),
-        vm_name=("_vm_name", "first"),
-        disks_provisioned_mib=("_capacity", "sum"),
-        disks_in_use_mib=("_used", "sum"),
-    ).reset_index(drop=True)
+    grouped = (
+        working.groupby("_key", dropna=False)
+        .agg(
+            mob_id=("_mob_id", "first"),
+            vm_name=("_vm_name", "first"),
+            disks_provisioned_mib=("_capacity", "sum"),
+            disks_in_use_mib=("_used", "sum"),
+        )
+        .reset_index(drop=True)
+    )
 
     logger.info(
         "LiveOptics VM Disks: %d disk rows aggregated into %d VMs (join=%s)",
