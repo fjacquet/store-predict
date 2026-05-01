@@ -49,6 +49,7 @@ _GRID_COLS: frozenset[str] = frozenset(
         "peak_throughput_mbs",
         "datacenter",
         "cluster",
+        "vm_folder",
         "row_index",
     }
 )

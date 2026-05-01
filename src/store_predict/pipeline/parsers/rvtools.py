@@ -95,6 +95,12 @@ def parse_rvtools(path: Path) -> pd.DataFrame:
     else:
         result["vm_description"] = ""
 
+    # vCenter folder path (optional, used as classifier signal)
+    if col_map.get("vm_folder"):
+        result["vm_folder"] = df[col_map["vm_folder"]].fillna("").astype(str)
+    else:
+        result["vm_folder"] = ""
+
     # hw_version: integer vmx level, 0 if column absent or unreadable
     if col_map.get("hw_version"):
         result["hw_version"] = pd.to_numeric(df[col_map["hw_version"]], errors="coerce").fillna(0).astype(int)

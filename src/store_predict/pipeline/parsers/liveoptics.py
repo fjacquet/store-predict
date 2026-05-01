@@ -82,6 +82,12 @@ def _build_liveoptics_df(
     else:
         result["vm_description"] = ""
 
+    # vCenter folder path (optional; permissive — empty if LiveOptics doesn't expose it)
+    if col_map.get("vm_folder"):
+        result["vm_folder"] = df[col_map["vm_folder"]].fillna("").astype(str)
+    else:
+        result["vm_folder"] = ""
+
     # hw_version and tools_status: not available in LiveOptics exports — use sentinel values
     # health_checks.py guards all HW checks with hw_version > 0
     result["hw_version"] = 0

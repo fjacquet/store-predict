@@ -143,6 +143,16 @@ def create_vm_table(
             "floatingFilter": True,
         },
         {
+            "field": "vm_folder",
+            "headerName": t("columns.vm_folder"),
+            "hide": True,
+            "sortable": True,
+            "filter": "agTextColumnFilter",
+            "floatingFilter": True,
+            "tooltipField": "vm_folder",
+            "minWidth": 240,
+        },
+        {
             "field": "num_cpus",
             "headerName": t("columns.num_cpus"),
             "hide": True,

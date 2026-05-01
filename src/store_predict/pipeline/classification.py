@@ -91,35 +91,50 @@ class ClassificationRule:
     priority: int
     vm_name_patterns: tuple[re.Pattern[str], ...] = ()
     os_patterns: tuple[re.Pattern[str], ...] = ()
-    match_mode: str = "any"  # "any" = OR, "all" = AND
+    folder_patterns: tuple[re.Pattern[str], ...] = ()
+    match_mode: str = "any"  # "any" = OR among defined sets, "all" = AND
 
-    def matches(self, vm_name: str, os_name: str, description: str = "") -> bool:
-        """Return *True* if this rule matches the given VM name / OS.
+    def matches(
+        self,
+        vm_name: str,
+        os_name: str,
+        description: str = "",
+        folder: str = "",
+    ) -> bool:
+        """Return *True* if this rule matches the given VM signals.
 
         When *description* is non-empty and no ``vm_name_patterns`` match
         against *vm_name*, the patterns are also checked against *description*
         as a fallback signal.  ``os_patterns`` are never tested against
         description (it is not an OS field).
+
+        Default ``match_mode="any"``: at least one defined pattern set must
+        match. ``match_mode="all"``: every defined pattern set must match
+        (use this when you need a folder-qualifier AND a name token, e.g.
+        Nutanix CVM where bare ``CVM`` would over-match).
         """
         vm_match = any(p.search(vm_name) for p in self.vm_name_patterns)
         os_match = any(p.search(os_name) for p in self.os_patterns)
+        folder_match = any(p.search(folder) for p in self.folder_patterns)
 
         # If vm_name didn't match but description is available, try description
         # as a fallback for vm_name_patterns only.
         if not vm_match and description and self.vm_name_patterns:
             vm_match = any(p.search(description) for p in self.vm_name_patterns)
 
-        if self.match_mode == "all":
-            return vm_match and os_match
-
-        # "any" mode -- at least one defined pattern type must match.
-        if self.vm_name_patterns and self.os_patterns:
-            return vm_match or os_match
+        defined: list[bool] = []
         if self.vm_name_patterns:
-            return vm_match
+            defined.append(vm_match)
         if self.os_patterns:
-            return os_match
-        return False
+            defined.append(os_match)
+        if self.folder_patterns:
+            defined.append(folder_match)
+        if not defined:
+            return False
+
+        if self.match_mode == "all":
+            return all(defined)
+        return any(defined)
 
 
 @dataclass(frozen=True)
@@ -143,14 +158,20 @@ class RuleRegistry:
     def __init__(self, rules: list[ClassificationRule]) -> None:
         self._rules = sorted(rules, key=lambda r: r.priority)
 
-    def classify(self, vm_name: str, os_name: str, description: str = "") -> ClassificationResult:
+    def classify(
+        self,
+        vm_name: str,
+        os_name: str,
+        description: str = "",
+        folder: str = "",
+    ) -> ClassificationResult:
         """Classify a VM by evaluating rules in priority order.
 
         Company prefixes are stripped from *vm_name* before matching
         (configured via :data:`~store_predict.config.COMPANY_PREFIX_PATTERNS`).
 
-        A two-pass approach ensures direct vm_name/os_name matches always
-        take priority over description-based fallback matches:
+        A two-pass approach ensures direct vm_name/os_name/folder matches
+        always take priority over description-based fallback matches:
 
         1. First pass: match without description (direct matches only).
         2. Second pass: match with description as fallback signal.
@@ -164,7 +185,7 @@ class RuleRegistry:
         for rule in self._rules:
             if description and rule.priority >= 900:
                 continue
-            if rule.matches(vm_name, os_name):
+            if rule.matches(vm_name, os_name, folder=folder):
                 if rule.priority < 900:
                     confidence = "rule_match"
                 elif rule.priority <= 998:
@@ -181,7 +202,7 @@ class RuleRegistry:
         # Pass 2: try again with description as fallback signal
         if description:
             for rule in self._rules:
-                if rule.matches(vm_name, os_name, description):
+                if rule.matches(vm_name, os_name, description, folder):
                     if rule.priority < 900:
                         confidence = "rule_match"
                     elif rule.priority <= 998:
@@ -369,6 +390,26 @@ def build_default_rules() -> list[ClassificationRule]:
             # while rejecting "SAPLING" etc. (IGNORECASE makes [a-z] match uppercase too).
             vm_name_patterns=(*_patterns("SAP-", "SAP_"), *_regex_patterns(r"\bSAP\b", r"^SAP(?![a-z])")),
         ),
+        ClassificationRule(
+            name="SAP HANA HDB",
+            category="Database",
+            subcategory="SAP HANA(S4)",
+            priority=109,
+            # Substring "saphdb" catches embedded forms like "sdsaphdb01" where
+            # no word boundary exists. "HDB<digits>" stays word-bounded to avoid
+            # false matches on unrelated tokens.
+            vm_name_patterns=(*_patterns("SAPHDB"), *_regex_patterns(r"\bHDB\d+\b")),
+            folder_patterns=_regex_patterns(r"HanaDB|HANA[-_ ]?DB"),
+        ),
+        ClassificationRule(
+            name="SAP general (folder)",
+            category="Database",
+            subcategory="SAP Traditional (R/3 / ECC)",
+            priority=175,
+            # Folder-only fallback: any VM under a /SAP_*/ folder that didn't match
+            # a more specific HANA rule above.
+            folder_patterns=_regex_patterns(r"/SAP[_ -]|/SAP$"),
+        ),
         # === Tier 2: Application-specific (200-299) ===
         ClassificationRule(
             name="HealthCare EMR/EHR",
@@ -419,6 +460,30 @@ def build_default_rules() -> list[ClassificationRule]:
                 # Operating room management (BlocOp = bloc opératoire in French)
                 *_regex_patterns(r"Bloc-?Op|BLOCOP"),
             ),
+        ),
+        ClassificationRule(
+            name="Microsoft Exchange (folder)",
+            category="Email",
+            subcategory="Domino/Notes, Exchange, Sendmail, Zimbra, etc",
+            priority=215,
+            folder_patterns=_regex_patterns(r"/EXCH(?:ANGE)?(?:/|$)"),
+        ),
+        ClassificationRule(
+            name="Cisco Unified Communications",
+            category="Web Servers",
+            subcategory="Content included",
+            priority=250,
+            # Cisco UC stack: CUCM (Call Manager), UCCX/CCX (Contact Center Express),
+            # CUIC (Intelligence Center), Finesse (agent desktop), IPCC, CUC (Unity
+            # Connection voicemail), CER (Emergency Responder), PCD (Prime Collab
+            # Deployment). "Cisco Unity Connection" appears in OVA annotations.
+            vm_name_patterns=(
+                *_regex_patterns(
+                    r"\b(?:CUCM|UCCX|CUIC|FINESSE|IPCC|CCX|CUIM|CUC|CER|PCD)\b",
+                ),
+                *_patterns("Cisco Unity Connection"),
+            ),
+            folder_patterns=_regex_patterns(r"/UC(?:M)?(?:/|$)"),
         ),
         ClassificationRule(
             name="Email",
@@ -479,6 +544,26 @@ def build_default_rules() -> list[ClassificationRule]:
         # === Tier 3: Infrastructure (300-399) ===
         # Compressed/dedup backup variants (lower DRR) come before plain rules.
         ClassificationRule(
+            name="Nutanix CVM",
+            category="VM Replication",
+            subcategory="Data Domain Virtual Edition (DDVE)",
+            priority=294,
+            # Nutanix Controller VMs are storage controllers — they handle the
+            # cluster's data services. Their disks contain dedupe metadata + OS,
+            # not customer-reducible content. Routed to DDVE (DRR=1.0) because
+            # DDVE's "already-deduped, no further reducibility" semantics fit.
+            # Tight name patterns required to avoid matching unrelated tokens
+            # (bare "CVM" is too generic). Folder match alone also fires.
+            vm_name_patterns=(
+                # NTNX prefix is Nutanix-specific (e.g. NTNX-19SM5A510097-A-CVM)
+                *_patterns("NTNX-", "NTNX_"),
+                # CVM as discrete token with separator (avoids matching e.g. "scvm")
+                *_regex_patterns(r"[-_]CVM(?:[-_]|$)"),
+                *_patterns("Nutanix Controller VM"),
+            ),
+            folder_patterns=_regex_patterns(r"/NTNX[ _-]?CVMs?(?:/|$)"),
+        ),
+        ClassificationRule(
             name="DDVE",
             category="VM Replication",
             subcategory="Data Domain Virtual Edition (DDVE)",
@@ -515,11 +600,63 @@ def build_default_rules() -> list[ClassificationRule]:
             vm_name_patterns=_patterns("VERITAS", "NETBACKUP", "NBU"),
         ),
         ClassificationRule(
+            name="Dell PowerProtect (description)",
+            category="VM Replication",
+            subcategory="Veeam, Zerto, RP4VM",
+            priority=299,
+            # Description-fallback signature: PowerProtect Data Manager appliances
+            # carry "PowerProtect" in vCenter Annotation. Pass-2 of classify()
+            # tries vm_name_patterns against description when name didn't match.
+            vm_name_patterns=_patterns("PowerProtect"),
+        ),
+        ClassificationRule(
             name="VM Replication",
             category="VM Replication",
             subcategory="Veeam, Zerto, RP4VM",
             priority=300,
             vm_name_patterns=_patterns("VEEAM", "VBR", "ZERTO", "RP4VM"),
+        ),
+        ClassificationRule(
+            name="Dell PowerFlex SDS",
+            category="Containers",
+            subcategory="Kubernetes, OpenShift, Docker, Tanzu, etc",
+            priority=311,
+            # PowerFlex management is Kubernetes-based on recent releases.
+            vm_name_patterns=_regex_patterns(r"\bpflex\w*"),
+            folder_patterns=_regex_patterns(r"/PowerFlex(?:/|$)"),
+        ),
+        ClassificationRule(
+            name="Domain Controller / AAD",
+            category="Virtual Machines",
+            subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
+            priority=320,
+            # Active Directory DCs and Azure AD Connect: small NTDS.dit + OS data,
+            # routed to generic VM (DRR=5) per pre-sales guidance.
+            vm_name_patterns=_regex_patterns(
+                r"\bDC\d+\b",
+                r"\bAADC?\d*\b",
+                r"\bADDS\b",
+            ),
+            folder_patterns=_regex_patterns(r"/AD$|/AADC|/Domain Controllers"),
+        ),
+        ClassificationRule(
+            name="IPAM",
+            category="Web Servers",
+            subcategory="Content included",
+            priority=325,
+            # IPAM appliances (small DB, web UI) — phpipam, BlueCat, Infoblox-style.
+            vm_name_patterns=_regex_patterns(r"\bIPAM\b", r"\bphpipam\b"),
+            folder_patterns=_regex_patterns(r"/IPAM(?:/|$)"),
+        ),
+        ClassificationRule(
+            name="Identity / Auth (Nevis)",
+            category="Web Servers",
+            subcategory="Content included",
+            priority=330,
+            # Nevis (Adnovum) identity & access proxy / auth server. EID/IAM
+            # folders cover broader identity stacks (e.g. eID services).
+            vm_name_patterns=_regex_patterns(r"\bnevis\b"),
+            folder_patterns=_regex_patterns(r"/IAM|/EID|/NEVIS"),
         ),
         ClassificationRule(
             name="Containers",
@@ -582,7 +719,60 @@ def build_default_rules() -> list[ClassificationRule]:
             # VxRail = Dell VxRail hyperconverged management appliance
             vm_name_patterns=_patterns("VCLS", "VXRAIL"),
         ),
+        ClassificationRule(
+            name="vCenter / vSAN Witness (description)",
+            category="Virtual Machines",
+            subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
+            priority=396,
+            # Annotation signatures from VCSA / vSAN Witness OVAs.
+            vm_name_patterns=_patterns("vCenter Server Appliance", "vSAN Witness"),
+        ),
         # === Tier 4: Logging / Analytics (400-499) ===
+        ClassificationRule(
+            name="FortiDeceptor (description)",
+            category="Logging - Analytics",
+            subcategory="FortiNet, Elastic Search, Splunk, ELK, etc",
+            priority=401,
+            vm_name_patterns=_patterns("FortiDeceptor"),
+        ),
+        ClassificationRule(
+            name="BeyondTrust / Bomgar (description)",
+            category="Web Servers",
+            subcategory="Content included",
+            priority=430,
+            # Privileged remote-access appliances (BeyondTrust = Bomgar's modern
+            # name). Annotation signatures: "BeyondTrust Secure Remote Access",
+            # "Bomgar Virtual Appliance".
+            vm_name_patterns=_patterns("BeyondTrust", "Bomgar"),
+        ),
+        ClassificationRule(
+            name="Tenable Nessus (description)",
+            category="Web Servers",
+            subcategory="Content included",
+            priority=435,
+            vm_name_patterns=_patterns("Tenable", "Nessus"),
+        ),
+        ClassificationRule(
+            name="NetApp OnCommand UM (description)",
+            category="Web Servers",
+            subcategory="Content included",
+            priority=450,
+            vm_name_patterns=_patterns("OnCommand Unified Manager"),
+        ),
+        ClassificationRule(
+            name="Horizon3.ai NodeZero (description)",
+            category="Web Servers",
+            subcategory="Content included",
+            priority=460,
+            vm_name_patterns=_patterns("Horizon3.ai", "Nodezero"),
+        ),
+        ClassificationRule(
+            name="exotrack (description)",
+            category="Web Servers",
+            subcategory="Content included",
+            priority=465,
+            vm_name_patterns=_patterns("exotrack"),
+        ),
         ClassificationRule(
             name="Logging Analytics",
             category="Logging - Analytics",
@@ -691,13 +881,15 @@ def classify_dataframe(
     result = df.copy()
 
     has_description = "vm_description" in df.columns
+    has_folder = "vm_folder" in df.columns
 
     classifications = []
     for _, row in df.iterrows():
         vm_name = str(row["vm_name"]) if pd.notna(row["vm_name"]) else ""
         os_name = str(row["os_name"]) if pd.notna(row["os_name"]) else ""
         description = str(row["vm_description"]) if has_description and pd.notna(row.get("vm_description")) else ""
-        classifications.append(registry.classify(vm_name, os_name, description))
+        folder = str(row["vm_folder"]) if has_folder and pd.notna(row.get("vm_folder")) else ""
+        classifications.append(registry.classify(vm_name, os_name, description, folder))
 
     result["workload_category"] = [c.category for c in classifications]
     result["workload_subcategory"] = [c.subcategory for c in classifications]

@@ -22,6 +22,7 @@ CANONICAL_COLUMNS: list[str] = [
     "is_powered_on",
     "source_format",
     "vm_description",
+    "vm_folder",
     "peak_iops",
     "avg_iops",
     "peak_throughput_mbs",
@@ -64,6 +65,7 @@ RVTOOLS_ALIASES: dict[str, list[str]] = {
     "datacenter": ["Datacenter"],
     "cluster": ["Cluster"],
     "vm_description": ["Annotation", "Notes"],
+    "vm_folder": ["Folder", "VM Folder", "Path"],
     "hw_version": ["HW version", "Hardware version", "HW Version"],
     "tools_status": ["Tools Status", "VMware Tools Status"],
 }
@@ -80,6 +82,7 @@ LIVEOPTICS_ALIASES: dict[str, list[str]] = {
     "datacenter": ["Datacenter"],
     "cluster": ["Cluster"],
     "vm_description": ["Description", "Notes", "Annotation"],
+    "vm_folder": ["Folder", "Path", "VM Folder"],
 }
 
 LIVEOPTICS_PERFORMANCE_ALIASES: dict[str, list[str]] = {

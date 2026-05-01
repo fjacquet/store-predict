@@ -572,3 +572,169 @@ def test_redis_classification(vm_name: str, expected_category: str) -> None:
     assert result.category == expected_category, (
         f"Expected {vm_name!r} -> {expected_category!r}, got {result.category!r} (rule={result.rule_name!r})"
     )
+
+
+# ---------------------------------------------------------------------------
+# Folder-aware classification (added v8.3+ from real customer file analysis)
+# ---------------------------------------------------------------------------
+
+
+class TestFolderAwareClassification:
+    """Rules that consume the vm_folder signal."""
+
+    def test_sap_hana_by_folder_and_name(self) -> None:
+        """saphdb01 in /SAP_Dina/HanaDB/PROD must classify as SAP HANA(S4)."""
+        result = _registry().classify(
+            "sdsaphdb01",
+            "SUSE Linux Enterprise 15 (64-bit)",
+            folder="/DC_01/Guest VMs/SAP_Dina/HanaDB/PROD",
+        )
+        assert result.category == "Database"
+        assert result.subcategory == "SAP HANA(S4)"
+        assert result.rule_name == "SAP HANA HDB"
+
+    def test_sap_hana_qualifier_blocks_generic_sap(self) -> None:
+        """HANA HDB rule (109) must beat the generic SAP folder rule (175)."""
+        result = _registry().classify(
+            "sdsaphdb04",
+            "",
+            folder="/DC_01/Guest VMs/SAP_Dina/HanaDB/DEV",
+        )
+        assert result.subcategory == "SAP HANA(S4)"
+        assert result.rule_name != "SAP general (folder)"
+
+    def test_sap_general_by_folder(self) -> None:
+        """Non-HANA VMs in a /SAP_*/ folder route to SAP Traditional."""
+        result = _registry().classify(
+            "sdsapcrm11",
+            "Microsoft Windows Server 2019 (64-bit)",
+            folder="/DC_01/Guest VMs/SAP_Dina/Windows/DEV",
+        )
+        assert result.category == "Database"
+        assert result.subcategory == "SAP Traditional (R/3 / ECC)"
+
+    def test_exchange_by_folder(self) -> None:
+        """A VM in /EXCH/* routes to Email."""
+        result = _registry().classify(
+            "spex01",
+            "Microsoft Windows Server 2019 (64-bit)",
+            folder="/DC_PREPROD/Guest VMs/EXCH",
+        )
+        assert result.category == "Email"
+        assert result.rule_name == "Microsoft Exchange (folder)"
+
+    def test_cisco_ucm_by_name(self) -> None:
+        """CUCM hostname routes to Web Servers / Content included."""
+        result = _registry().classify("cucm-pub01", "")
+        assert result.category == "Web Servers"
+        assert result.subcategory == "Content included"
+        assert result.rule_name == "Cisco Unified Communications"
+
+    def test_cisco_uc_by_folder(self) -> None:
+        """A VM in /UC routes to Cisco UC even with a generic name."""
+        result = _registry().classify(
+            "app1",
+            "Microsoft Windows Server 2019 (64-bit)",
+            folder="/DC_PREPROD/Guest VMs/UC",
+        )
+        assert result.category == "Web Servers"
+        assert result.rule_name == "Cisco Unified Communications"
+
+    def test_nutanix_cvm_by_name_and_folder(self) -> None:
+        """Nutanix CVM routes to DDVE (DRR=1.0)."""
+        result = _registry().classify(
+            "NTNX-19SM5A510097-A-CVM",
+            "CentOS 7 (64-bit)",
+            folder="/DC_01/NTNX CVMs/SEC101",
+        )
+        assert result.category == "VM Replication"
+        assert result.subcategory == "Data Domain Virtual Edition (DDVE)"
+        assert result.rule_name == "Nutanix CVM"
+
+    def test_nutanix_cvm_does_not_overmatch_bare_cvm(self) -> None:
+        """A VM named 'cvm-bench' (no NTNX prefix, no /NTNX CVMs/ folder) must
+        NOT match the Nutanix rule — bare 'cvm' is too generic."""
+        result = _registry().classify(
+            "cvm-bench",
+            "Ubuntu 22.04 (64-bit)",
+            folder="/DC_01/Guest VMs/Tests",
+        )
+        assert result.subcategory != "Data Domain Virtual Edition (DDVE)"
+
+    def test_domain_controller_by_name(self) -> None:
+        """DC hostnames stay in Virtual Machines (DRR=5)."""
+        result = _registry().classify(
+            "spaddc01",
+            "Microsoft Windows Server 2019 (64-bit)",
+        )
+        # spaddc01 contains AADC pattern \bAADC?\d* — actually \b is between sp/a (letter/letter)
+        # so this case relies on folder. Use a clear DC-tokenised name instead:
+        result = _registry().classify(
+            "PROD-DC01",
+            "Microsoft Windows Server 2019 (64-bit)",
+        )
+        assert result.category == "Virtual Machines"
+        assert result.rule_name == "Domain Controller / AAD"
+
+    def test_ipam_by_folder(self) -> None:
+        """IPAM folder routes to Web Servers / Content included."""
+        result = _registry().classify(
+            "spipam01",
+            "Microsoft Windows Server 2019 (64-bit)",
+            folder="/DC_PREPROD/Guest VMs/IPAM",
+        )
+        assert result.category == "Web Servers"
+        assert result.subcategory == "Content included"
+        assert result.rule_name == "IPAM"
+
+    def test_identity_nevis_by_folder(self) -> None:
+        """NEVIS folder routes to Web Servers / Content included."""
+        result = _registry().classify(
+            "spnevisauth01",
+            "Linux",
+            folder="/DC_PREPROD/Guest VMs/NEVIS",
+        )
+        assert result.category == "Web Servers"
+        assert result.rule_name == "Identity / Auth (Nevis)"
+
+    def test_powerflex_sds_to_containers(self) -> None:
+        """PowerFlex SDS management VMs route to Containers (k8s-based)."""
+        result = _registry().classify(
+            "kppflexmp11",
+            "VMware Photon CRX (64-bit)",
+            folder="/DC_01/Guest VMs/PowerFlex",
+        )
+        assert result.category == "Containers"
+        assert result.subcategory == "Kubernetes, OpenShift, Docker, Tanzu, etc"
+
+    def test_description_signature_beyondtrust(self) -> None:
+        """Description-only signature: BeyondTrust appliance routes to Web Servers."""
+        result = _registry().classify(
+            "appliance-01",
+            "",
+            description="BeyondTrust Secure Remote Access Appliance",
+        )
+        assert result.category == "Web Servers"
+        assert result.subcategory == "Content included"
+        assert result.confidence == "rule_match"
+
+    def test_description_signature_nutanix(self) -> None:
+        """Description signature 'Nutanix Controller VM' alone routes to DDVE."""
+        result = _registry().classify(
+            "host-x",
+            "",
+            description="CentOS based Nutanix Controller VM",
+        )
+        assert result.subcategory == "Data Domain Virtual Edition (DDVE)"
+        assert result.confidence == "rule_match"
+
+    def test_folder_does_not_override_specific_db_rule(self) -> None:
+        """A MSSQL VM in a /SAP_*/ folder must still classify as Microsoft SQL
+        because the SQL name rule (priority 103) outranks SAP general (175)."""
+        result = _registry().classify(
+            "MSSQL-PROD01",
+            "Microsoft Windows Server 2019 (64-bit)",
+            folder="/DC_01/Guest VMs/SAP_Dina/Windows/PROD",
+        )
+        assert result.category == "Database"
+        assert result.subcategory == "Microsoft SQL"

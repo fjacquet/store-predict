@@ -4,6 +4,56 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v8.3.0] - 2026-05-01
+
+Smart-matching feature release: the workload classifier now consumes the vCenter folder path as a first-class signal alongside VM name and OS, and ships 17 new rules that close real-world gaps observed on a multi-vCenter customer export (1373 powered-on VMs).
+
+### Added
+
+- **`vm_folder` classification signal** — RVTools `Folder` (and any LiveOptics `Folder`/`Path` column) is now extracted into the canonical schema and passed through `classify_dataframe()`. `pipeline/parsers/columns.py`, `pipeline/parsers/rvtools.py`, `pipeline/parsers/liveoptics.py`.
+- **`ClassificationRule.folder_patterns`** — rules can now match on folder regex. `match_mode="all"` enables AND-qualifier semantics (e.g. Nutanix CVM requires both a tight name pattern and `/NTNX CVMs/` folder). Default OR semantics fire on any defined set match. `pipeline/classification.py`.
+- **17 new classifier rules** routed to existing DRR.csv categories (zero taxonomy churn):
+  - SAP HANA HDB token (priority 109) — catches `*saphdb*` and `\bHDB\d+\b` plus `/HanaDB/` folder → `Database / SAP HANA(S4)` (DRR=2).
+  - SAP general folder (175) — `/SAP_*/` non-HANA → `Database / SAP Traditional` (DRR=5).
+  - Microsoft Exchange folder (215) — `/EXCH(?:ANGE)?/` → `Email` (DRR=2).
+  - Cisco Unified Communications (250) — CUCM, UCCX, CUIC, Finesse, IPCC, CCX, CUC, CER, PCD names + `/UC` folder + "Cisco Unity Connection" annotation → `Web Servers / Content included` (DRR=1.5).
+  - Nutanix CVM (294) — `NTNX-` / `_CVM_` / "Nutanix Controller VM" → `VM Replication / Data Domain Virtual Edition (DDVE)` (DRR=1.0). Storage controllers cannot be 5:1 reducible.
+  - Dell PowerProtect description (299) → `VM Replication / Veeam, Zerto, RP4VM` (DRR=1.5).
+  - Dell PowerFlex SDS k8s (311) — `/PowerFlex` folder + `*pflex*` → `Containers / Kubernetes` (DRR=2).
+  - Domain Controller / AAD (320) — `\bDC\d+\b`, `\bAADC?\d*\b`, `\bADDS\b`, `/AD$|/AADC` → `Virtual Machines` (DRR=5).
+  - IPAM (325) — `\bIPAM\b` + `/IPAM` → `Web Servers / Content included` (DRR=1.5).
+  - Identity / Auth Nevis (330) — `/IAM|/EID|/NEVIS` + `\bnevis\b` → `Web Servers / Content included` (DRR=1.5).
+  - vCenter / vSAN Witness annotation (396) → `Virtual Machines`.
+  - FortiDeceptor (401) → `Logging - Analytics / FortiNet…`.
+  - BeyondTrust / Bomgar annotation (430) → `Web Servers / Content included`.
+  - Tenable / Nessus annotation (435) → `Web Servers / Content included`.
+  - NetApp OnCommand UM annotation (450) → `Web Servers / Content included`.
+  - Horizon3.ai NodeZero annotation (460) → `Web Servers / Content included`.
+  - exotrack annotation (465) → `Web Servers / Content included`.
+- **Folder column in review grid** — `vm_folder` exposed as a hidden, toggleable AG Grid column. `ui/pages/review.py`, `ui/components/vm_table.py`, locale files (`columns.vm_folder`).
+- **Customer-baseline regression test** — `tests/test_real_customer_baseline.py` runs the classifier against a real multi-vCenter dump and asserts SAP HANA, Email, DDVE bucket sizes plus an `os_fallback ≤ 940` ceiling (baseline 1021). Gated by file presence so CI passes when the dump is absent.
+- **`scripts/classify_customer_dump.py`** — read-only ad-hoc tool that prints subcategory + confidence distributions for any RVTools/LiveOptics export.
+
+### Changed
+
+- Folder is shown hidden by default in the review grid to avoid widening the layout; users can enable it from the column chooser when investigating misclassifications.
+
+### Tests
+
+- 15 new folder-aware classification tests (qualifier semantics, priority ordering, description-only signatures) and 2 RVTools parser tests for `vm_folder` extraction. Full suite: 603 passed, 1 skipped (LLM fallback test gated on API key).
+
+### Real-file impact (1373 powered-on VMs)
+
+| Bucket | Before | After |
+|---|---:|---:|
+| `rule_match` confidence | 339 | 542 |
+| `os_fallback` | 1021 | 857 |
+| SAP HANA(S4) | 0 | 12 |
+| Email | 0 | 7 |
+| DDVE (Nutanix CVMs at DRR=1.0) | 0 | 6 |
+| Containers (PowerFlex k8s) | 0 | 11 |
+| SAP Traditional | 0 | 48 |
+
 ## [v8.2.2] - 2026-04-20
 
 Bug-fix release correcting a long-standing under-reporting in LiveOptics xlsx ingestion that affected any VM with more than one virtual disk.

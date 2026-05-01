@@ -95,6 +95,7 @@ columns:
   avg_iops: "IOPS moy."
   datacenter: "Datacenter"
   cluster: "Cluster"
+  vm_folder: "Dossier"
 
 stats:
   total_vms: Total VMs

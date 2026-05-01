@@ -104,6 +104,79 @@ class TestParseRvtools:
         df = parse_rvtools(rvtools_path)
         assert df["vm_name"].isna().sum() == 0
 
+    def test_rvtools_extracts_vm_folder(self, tmp_path: Path) -> None:
+        """parse_rvtools must populate vm_folder when 'Folder' column is present."""
+        xlsx = tmp_path / "rvt-folder.xlsx"
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        assert ws is not None
+        ws.title = "vInfo"
+        ws.append(
+            [
+                "VM",
+                "Powerstate",
+                "Template",
+                "OS according to the VMware Tools",
+                "Provisioned MiB",
+                "In Use MiB",
+                "Folder",
+            ]
+        )
+        ws.append(
+            [
+                "vm-1",
+                "poweredOn",
+                False,
+                "Microsoft Windows Server 2019 (64-bit)",
+                10240,
+                5120,
+                "/DC_01/Guest VMs/SAP_Dina/HanaDB/PROD",
+            ]
+        )
+        ws.append(
+            [
+                "vm-2",
+                "poweredOn",
+                False,
+                "SUSE Linux Enterprise 15 (64-bit)",
+                20480,
+                10240,
+                "",
+            ]
+        )
+        wb.save(xlsx)
+        wb.close()
+
+        df = parse_rvtools(xlsx)
+        assert "vm_folder" in df.columns
+        assert df.loc[df["vm_name"] == "vm-1", "vm_folder"].iloc[0] == "/DC_01/Guest VMs/SAP_Dina/HanaDB/PROD"
+        assert df.loc[df["vm_name"] == "vm-2", "vm_folder"].iloc[0] == ""
+
+    def test_rvtools_vm_folder_empty_when_column_absent(self, tmp_path: Path) -> None:
+        """When the 'Folder' column is absent, vm_folder defaults to empty string."""
+        xlsx = tmp_path / "rvt-no-folder.xlsx"
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        assert ws is not None
+        ws.title = "vInfo"
+        ws.append(
+            [
+                "VM",
+                "Powerstate",
+                "Template",
+                "OS according to the VMware Tools",
+                "Provisioned MiB",
+                "In Use MiB",
+            ]
+        )
+        ws.append(["vm-1", "poweredOn", False, "Linux", 10240, 5120])
+        wb.save(xlsx)
+        wb.close()
+
+        df = parse_rvtools(xlsx)
+        assert "vm_folder" in df.columns
+        assert (df["vm_folder"] == "").all()
+
 
 # ---------------------------------------------------------------------------
 # LiveOptics xlsx parser
