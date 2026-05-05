@@ -4,6 +4,33 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v8.3.2] - 2026-05-01
+
+Manual rule extensions identified by re-auditing the Jan 2026 customer file (570 powered-on VMs) after the v8.3.1 hotfix landed. Closes 7 specific naming patterns that pre-sales clearly recognises as products but the deterministic ruleset was missing.
+
+### Added
+
+- **Healthcare specialty apps** in the EMR/EHR rule (priority 200): `CARDIO`, `ORAMED`, `EMEDISTA`, `EASYDOSE`, `CODMED`, `DCIMED`, `HEMA`. Routes 17 cardiology / pharma / hematology VMs to `HealthCare / EMR/EHR (Epic, McKesson)` (DRR=3) instead of generic Virtual Machines.
+- **SharePoint role tokens** `SPAPP`, `SPWFE` in the File Content Servers rule (priority 340). Routes 8 SharePoint App / Web Front End VMs to `File / Content Servers` (DRR=2). Extends the existing `SPBE`, `SPFE`, `SPOWA`, `SPOFFICE` patterns.
+- **Microsoft DFS** (Distributed File System) — new `DFS\d` and `DFS[-_]` regex patterns in the File General Purpose rule (priority 330). Routes 2 file-server VMs to `File / General Purpose` (DRR=2). Pattern requires DFS followed by a digit or separator to avoid matching `PDFs`, `MDFS`, etc.
+- **WSUS rule** (priority 315) — routes Microsoft Windows Server Update Services VMs to `Web Servers / Content included` (DRR=1.5). WSUS stores already-compressed `.cab` / `.msu` / `.msi` patches; DRR=1.5 reflects the limited reduction headroom on PowerStore.
+- **DWH token** in the Microsoft SQL Page Compressed rule (priority 92) — Data Warehouse VMs route to `Database / Microsoft SQL - Page Compressed` (DRR=2.5) on the convention that DWH workloads typically use SQL columnstore / page compression at the application layer.
+
+### Tests
+
+- 11 new parametrised regression tests in `tests/test_classification.py::TestV832Extensions` covering the 5 new rule extensions, plus a negative-match assertion for the DFS pattern (`PDFSERVER01` must NOT match File). Full suite: 619 passed, 1 skipped.
+
+### Real-file impact (570 powered-on VMs, vs v8.3.1)
+
+| Bucket | v8.3.1 | v8.3.2 |
+|---|---:|---:|
+| Generic `Virtual Machines` (DRR=5) | 420 | 373 (–47) |
+| `HealthCare / EMR/EHR` | 0 | 17 |
+| `File / Content Servers` | 4 | 10 |
+| `File / General Purpose` | 1 | 3 |
+| `Web Servers / Content included` | 17 | 20 |
+| `Database / Microsoft SQL - Page Compressed` | 0 | 17 |
+
 ## [v8.3.1] - 2026-05-01
 
 Hotfix on top of v8.3.0 that eliminates a critical false-positive in the workload classifier. On a real customer RVTools export (570 powered-on VMs) **375 VMs (66%)** were wrongly tagged `VM Replication / Veeam, Zerto, RP4VM` because the vCenter Annotation field was auto-populated by Veeam with backup metadata like `"Last backup: …; Veeam server: [bkp01]; Job: […]; Repository: […]"`. The classifier's pass-2 description fallback re-tested every rule's `vm_name_patterns` against the description, so the literal word "Veeam" fired the Veeam rule on every backed-up VM — including pure Exchange servers, domain controllers, and 369 others. Same systemic risk applied to any rule whose product token might appear in descriptions.

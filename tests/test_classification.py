@@ -809,3 +809,70 @@ class TestDescriptionFallbackOptIn:
         )
         assert result.subcategory == "Data Domain Virtual Edition (DDVE)"
         assert result.confidence == "rule_match"
+
+
+# ---------------------------------------------------------------------------
+# v8.3.2 manual coverage extensions
+# ---------------------------------------------------------------------------
+
+
+class TestV832Extensions:
+    """Manual rule additions identified on the Jan 2026 customer file."""
+
+    @pytest.mark.parametrize(
+        "vm_name",
+        ["SPHFRCARDIO21", "SDRFSMORAMED01", "SPHFREMEDISTA01", "SPHFREASYDOSE01", "SPHFRCODMED01", "SPHFRHEMA04"],
+    )
+    def test_healthcare_specialty_apps(self, vm_name: str) -> None:
+        """Cardiology / pharma / clinical apps route to HealthCare EMR/EHR."""
+        result = _registry().classify(vm_name, "Microsoft Windows Server 2022 (64-bit)")
+        assert result.category == "HealthCare"
+        assert result.subcategory == "EMR/EHR (Epic, McKesson)"
+
+    def test_sharepoint_app_role(self) -> None:
+        """SharePoint App role server (SPAPP) routes to File / Content Servers."""
+        result = _registry().classify("SPHFRSPAPP11", "Microsoft Windows Server 2019 (64-bit)")
+        assert result.category == "File"
+        assert result.subcategory == "Content Servers (Git, Sharepoint)"
+
+    def test_sharepoint_wfe(self) -> None:
+        """SharePoint Web Front End (SPWFE) routes to File / Content Servers."""
+        result = _registry().classify("SPHFRSPWFE12", "Microsoft Windows Server 2019 (64-bit)")
+        assert result.category == "File"
+        assert result.subcategory == "Content Servers (Git, Sharepoint)"
+
+    @pytest.mark.parametrize("vm_name", ["SPHFRDFS01", "SPRFSMDFS01"])
+    def test_dfs_distributed_file_system(self, vm_name: str) -> None:
+        """Microsoft DFS namespace/replication servers route to File."""
+        result = _registry().classify(vm_name, "Microsoft Windows Server 2019 (64-bit)")
+        assert result.category == "File"
+        assert result.subcategory == "General Purpose"
+
+    def test_dfs_does_not_match_pdfs(self) -> None:
+        """The DFS pattern requires DFS<digit/separator> — must not catch PDF
+        servers or other false positives."""
+        result = _registry().classify(
+            "PDFSERVER01",
+            "Microsoft Windows Server 2019 (64-bit)",
+        )
+        assert result.subcategory != "General Purpose"
+
+    def test_wsus_routes_to_web_servers(self) -> None:
+        """WSUS (already-compressed Microsoft patches) routes to Web Servers /
+        Content included (DRR=1.5)."""
+        result = _registry().classify("SPHFRWSUS01", "Microsoft Windows Server 2022 (64-bit)")
+        assert result.category == "Web Servers"
+        assert result.subcategory == "Content included"
+        assert result.rule_name == "WSUS"
+
+    @pytest.mark.parametrize(
+        "vm_name",
+        ["SDHFRDWHPYT01", "SPHFRDWHTAB02", "SPRFSMDWHCUBE11", "SPHFRPDMSDWH10"],
+    )
+    def test_dwh_routes_to_sql_page_compressed(self, vm_name: str) -> None:
+        """Data Warehouse VMs (DWH token) route to SQL Page Compressed
+        (DRR=2.5) — DWH workloads typically use SQL columnstore/page
+        compression."""
+        result = _registry().classify(vm_name, "Microsoft Windows Server 2022 (64-bit)")
+        assert result.category == "Database"
+        assert result.subcategory == "Microsoft SQL - Page Compressed"

@@ -282,7 +282,17 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Database",
             subcategory="Microsoft SQL - Page Compressed",
             priority=92,
-            vm_name_patterns=_patterns("SQL-COMPRESS", "SQL-COMP", "SQL-PAGE", "MSSQL-COMPRESS", "MSSQL-PAGE"),
+            vm_name_patterns=_patterns(
+                "SQL-COMPRESS",
+                "SQL-COMP",
+                "SQL-PAGE",
+                "MSSQL-COMPRESS",
+                "MSSQL-PAGE",
+                # DWH = Data Warehouse: typically backed by SQL with page
+                # compression enabled (column-store / clustered indexes).
+                # Pre-sales convention: route to SQL Page Compressed DRR=2.5.
+                "DWH",
+            ),
         ),
         ClassificationRule(
             name="SQL TDE",
@@ -453,6 +463,14 @@ def build_default_rules() -> list[ClassificationRule]:
                     "SCENARA",  # Scenara perioperative / operating room management
                     "MIRTH",  # Mirth Connect HL7/FHIR integration engine
                     "KODIP",  # 3M Kodip DRG coding software
+                    # Specialty / departmental clinical apps
+                    "CARDIO",  # Cardiology IS (e.g. Philips Xcelera, GE Centricity)
+                    "ORAMED",  # Ora Medical / Oracle medical apps
+                    "EMEDISTA",  # Medista pharma supply chain (Stryker)
+                    "EASYDOSE",  # EasyDose medication preparation
+                    "CODMED",  # Code Medical / coding clinique
+                    "DCIMED",  # DCIMed clinical documentation
+                    "HEMA",  # Hematology lab IS
                 ),
                 # Radiology Information System (word-boundary anchored)
                 *_regex_patterns(r"\bRIS\b"),
@@ -678,6 +696,17 @@ def build_default_rules() -> list[ClassificationRule]:
             ),
         ),
         ClassificationRule(
+            name="WSUS",
+            category="Web Servers",
+            subcategory="Content included",
+            priority=315,
+            # Microsoft Windows Server Update Services: stores already-compressed
+            # patch content (.cab/.msu/.msi). Pre-sales convention: DRR=1.5
+            # (Web Servers / Content included is the closest existing 1.5 bucket
+            # — WSUS has an IIS web admin UI and serves binary content).
+            vm_name_patterns=_patterns("WSUS"),
+        ),
+        ClassificationRule(
             name="Web Servers",
             category="Web Servers",
             subcategory="Content included",
@@ -693,6 +722,11 @@ def build_default_rules() -> list[ClassificationRule]:
                 *_patterns("FILE"),
                 # FS + digit/separator = File Server (e.g. SrvFS01 → FS01 after prefix strip)
                 *_regex_patterns(r"^FS\d", r"^FS[-_]"),
+                # DFS = Microsoft Distributed File System namespace/replication.
+                # Plain regex "DFS\d" (case-insensitive) — the \b version doesn't
+                # match SPHFRDFS01 because R→D is letter→letter. Requiring a
+                # digit right after DFS prevents PDFs / MDFS false positives.
+                *_regex_patterns(r"DFS\d", r"DFS[-_]"),
             ),
         ),
         ClassificationRule(
@@ -702,7 +736,10 @@ def build_default_rules() -> list[ClassificationRule]:
             priority=340,
             vm_name_patterns=(
                 *_patterns("GIT", "GITLAB", "BITBUCKET", "SHAREPOINT", "ALFRESCO"),
-                *_patterns("SPBE", "SPFE", "SPOWA", "SPOFFICE"),
+                # SharePoint role-based naming: BE=Back-End, FE=Front-End,
+                # OWA=Office Web Apps, OFFICE=generic, APP=App role,
+                # WFE=Web Front End. SPAPP/SPWFE catch e.g. SPHFRSPAPP11.
+                *_patterns("SPBE", "SPFE", "SPOWA", "SPOFFICE", "SPAPP", "SPWFE"),
             ),
         ),
         ClassificationRule(
