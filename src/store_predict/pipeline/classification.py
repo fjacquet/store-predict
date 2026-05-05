@@ -93,6 +93,7 @@ class ClassificationRule:
     os_patterns: tuple[re.Pattern[str], ...] = ()
     folder_patterns: tuple[re.Pattern[str], ...] = ()
     match_mode: str = "any"  # "any" = OR among defined sets, "all" = AND
+    match_description: bool = False  # opt-in to pass-2 description fallback
 
     def matches(
         self,
@@ -103,10 +104,13 @@ class ClassificationRule:
     ) -> bool:
         """Return *True* if this rule matches the given VM signals.
 
-        When *description* is non-empty and no ``vm_name_patterns`` match
-        against *vm_name*, the patterns are also checked against *description*
-        as a fallback signal.  ``os_patterns`` are never tested against
-        description (it is not an OS field).
+        Description fallback is **opt-in** per rule via ``match_description``.
+        When ``match_description=True`` and no ``vm_name_patterns`` match
+        against *vm_name*, the patterns are also checked against *description*.
+        Default is OFF so that a backup-tool annotation like
+        ``"Last backup: ...; Veeam server: ..."`` does not falsely fire the
+        Veeam rule on every backed-up VM. ``os_patterns`` are never tested
+        against description (it is not an OS field).
 
         Default ``match_mode="any"``: at least one defined pattern set must
         match. ``match_mode="all"``: every defined pattern set must match
@@ -117,9 +121,8 @@ class ClassificationRule:
         os_match = any(p.search(os_name) for p in self.os_patterns)
         folder_match = any(p.search(folder) for p in self.folder_patterns)
 
-        # If vm_name didn't match but description is available, try description
-        # as a fallback for vm_name_patterns only.
-        if not vm_match and description and self.vm_name_patterns:
+        # If vm_name didn't match and rule opted in, try description fallback.
+        if not vm_match and description and self.vm_name_patterns and self.match_description:
             vm_match = any(p.search(description) for p in self.vm_name_patterns)
 
         defined: list[bool] = []
@@ -476,7 +479,8 @@ def build_default_rules() -> list[ClassificationRule]:
             # Cisco UC stack: CUCM (Call Manager), UCCX/CCX (Contact Center Express),
             # CUIC (Intelligence Center), Finesse (agent desktop), IPCC, CUC (Unity
             # Connection voicemail), CER (Emergency Responder), PCD (Prime Collab
-            # Deployment). "Cisco Unity Connection" appears in OVA annotations.
+            # Deployment). "Cisco Unity Connection" appears in OVA annotations
+            # (description-fallback signal, hence match_description=True).
             vm_name_patterns=(
                 *_regex_patterns(
                     r"\b(?:CUCM|UCCX|CUIC|FINESSE|IPCC|CCX|CUIM|CUC|CER|PCD)\b",
@@ -484,6 +488,7 @@ def build_default_rules() -> list[ClassificationRule]:
                 *_patterns("Cisco Unity Connection"),
             ),
             folder_patterns=_regex_patterns(r"/UC(?:M)?(?:/|$)"),
+            match_description=True,
         ),
         ClassificationRule(
             name="Email",
@@ -491,11 +496,13 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory="Domino/Notes, Exchange, Sendmail, Zimbra, etc",
             priority=210,
             # MSG = Exchange mail-store abbreviation (e.g. swigva01-msg-*)
+            # EXCH = short Exchange substring (e.g. SPHFREXCH01-04). Specific
+            #   enough to avoid APEX/EXT/EXOS/NEXT false positives.
             # [-_]EX\d = short Exchange hostname suffix (e.g. CIGES-EX1, CIGES-EX2)
             #   digit required to avoid matching EXTRANET, EXCEPT, etc.
             # EXC + digit = Exchange abbreviation (e.g. SRVEXC02 → EXC02 after prefix strip)
             vm_name_patterns=(
-                *_patterns("EXCHANGE", "DOMINO", "ZIMBRA", "SENDMAIL", "MSG", "EXCHG"),
+                *_patterns("EXCHANGE", "DOMINO", "ZIMBRA", "SENDMAIL", "MSG", "EXCHG", "EXCH"),
                 *_regex_patterns(r"[-_]EX\d", r"EXC\d"),
             ),
         ),
@@ -562,6 +569,8 @@ def build_default_rules() -> list[ClassificationRule]:
                 *_patterns("Nutanix Controller VM"),
             ),
             folder_patterns=_regex_patterns(r"/NTNX[ _-]?CVMs?(?:/|$)"),
+            # "Nutanix Controller VM" is an OVA annotation signature.
+            match_description=True,
         ),
         ClassificationRule(
             name="DDVE",
@@ -605,9 +614,9 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory="Veeam, Zerto, RP4VM",
             priority=299,
             # Description-fallback signature: PowerProtect Data Manager appliances
-            # carry "PowerProtect" in vCenter Annotation. Pass-2 of classify()
-            # tries vm_name_patterns against description when name didn't match.
+            # carry "PowerProtect" in vCenter Annotation.
             vm_name_patterns=_patterns("PowerProtect"),
+            match_description=True,
         ),
         ClassificationRule(
             name="VM Replication",
@@ -726,6 +735,7 @@ def build_default_rules() -> list[ClassificationRule]:
             priority=396,
             # Annotation signatures from VCSA / vSAN Witness OVAs.
             vm_name_patterns=_patterns("vCenter Server Appliance", "vSAN Witness"),
+            match_description=True,
         ),
         # === Tier 4: Logging / Analytics (400-499) ===
         ClassificationRule(
@@ -734,6 +744,7 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory="FortiNet, Elastic Search, Splunk, ELK, etc",
             priority=401,
             vm_name_patterns=_patterns("FortiDeceptor"),
+            match_description=True,
         ),
         ClassificationRule(
             name="BeyondTrust / Bomgar (description)",
@@ -744,6 +755,7 @@ def build_default_rules() -> list[ClassificationRule]:
             # name). Annotation signatures: "BeyondTrust Secure Remote Access",
             # "Bomgar Virtual Appliance".
             vm_name_patterns=_patterns("BeyondTrust", "Bomgar"),
+            match_description=True,
         ),
         ClassificationRule(
             name="Tenable Nessus (description)",
@@ -751,6 +763,7 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory="Content included",
             priority=435,
             vm_name_patterns=_patterns("Tenable", "Nessus"),
+            match_description=True,
         ),
         ClassificationRule(
             name="NetApp OnCommand UM (description)",
@@ -758,6 +771,7 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory="Content included",
             priority=450,
             vm_name_patterns=_patterns("OnCommand Unified Manager"),
+            match_description=True,
         ),
         ClassificationRule(
             name="Horizon3.ai NodeZero (description)",
@@ -765,6 +779,7 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory="Content included",
             priority=460,
             vm_name_patterns=_patterns("Horizon3.ai", "Nodezero"),
+            match_description=True,
         ),
         ClassificationRule(
             name="exotrack (description)",
@@ -772,6 +787,7 @@ def build_default_rules() -> list[ClassificationRule]:
             subcategory="Content included",
             priority=465,
             vm_name_patterns=_patterns("exotrack"),
+            match_description=True,
         ),
         ClassificationRule(
             name="Logging Analytics",

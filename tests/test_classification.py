@@ -738,3 +738,74 @@ class TestFolderAwareClassification:
         )
         assert result.category == "Database"
         assert result.subcategory == "Microsoft SQL"
+
+
+# ---------------------------------------------------------------------------
+# v8.3.1 hotfix: description-fallback over-classification
+# ---------------------------------------------------------------------------
+
+
+class TestDescriptionFallbackOptIn:
+    """Regression tests for the v8.3.1 hotfix where Veeam backup metadata in
+    vCenter Annotation falsely fired the Veeam rule on every backed-up VM."""
+
+    VEEAM_BACKUP_DESC = (
+        "Last backup: [06.01.2026 21:20:13]; "
+        "Veeam server: [sphfrbkp01]; "
+        "Job: [HFR - Gold - Standard - DC1]; "
+        "Repository: [sobr-hfr-immutable-dc1]"
+    )
+
+    def test_veeam_description_does_not_overmatch_generic_app(self) -> None:
+        """A generic Windows app VM whose Annotation contains 'Veeam' (because
+        Veeam writes its backup log there) must NOT classify as VM Replication."""
+        result = _registry().classify(
+            "SPHFRAPP01",
+            "Microsoft Windows Server 2022 (64-bit)",
+            description=self.VEEAM_BACKUP_DESC,
+        )
+        assert result.category != "VM Replication", (
+            f"Veeam description over-matched: {result.rule_name!r} → {result.subcategory!r}"
+        )
+        assert result.confidence == "os_fallback"
+
+    def test_veeam_description_does_not_overmatch_exchange(self) -> None:
+        """SPHFREXCH01 with a Veeam backup annotation must classify as Email,
+        not VM Replication."""
+        result = _registry().classify(
+            "SPHFREXCH01",
+            "Microsoft Windows Server 2022 (64-bit)",
+            description=self.VEEAM_BACKUP_DESC,
+        )
+        assert result.category == "Email"
+        assert result.rule_name == "Email"
+
+    def test_exchange_exch_short_token(self) -> None:
+        """The customer's EXCH naming convention (no full EXCHANGE) must
+        match Email — covers SPHFREXCH01-04 / SPRFSMEXCH01-02."""
+        for name in ("SPHFREXCH01", "SPRFSMEXCH02"):
+            result = _registry().classify(name, "")
+            assert result.category == "Email", f"{name!r} not classified as Email: {result.subcategory!r}"
+
+    def test_description_signature_beyondtrust_still_works(self) -> None:
+        """Opt-in regression: BeyondTrust rule must still fire via description
+        because we set match_description=True on it."""
+        result = _registry().classify(
+            "appliance-01",
+            "",
+            description="BeyondTrust Secure Remote Access Appliance",
+        )
+        assert result.category == "Web Servers"
+        assert result.subcategory == "Content included"
+        assert result.confidence == "rule_match"
+
+    def test_description_signature_nutanix_still_works(self) -> None:
+        """Opt-in regression: Nutanix CVM rule still matches via description
+        signature 'Nutanix Controller VM'."""
+        result = _registry().classify(
+            "host-x",
+            "",
+            description="CentOS based Nutanix Controller VM",
+        )
+        assert result.subcategory == "Data Domain Virtual Edition (DDVE)"
+        assert result.confidence == "rule_match"

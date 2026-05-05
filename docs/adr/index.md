@@ -82,3 +82,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [076](076-compute-sizing-removed-presizion-redirect.md) | Remove compute sizing, redirect to PreSizion | Accepted | 2026-03-15 |
 | [077](077-drr-category-split-groupby-key.md) | Composite (category, drr) groupby key for WorkloadGroupResult | Accepted | 2026-03-26 |
 | [078](078-per-vm-ignore-flag.md) | Per-VM ignore flag — filter-at-the-edge pattern | Accepted | 2026-04-17 |
+| [079](079-description-fallback-opt-in.md) | Classifier description fallback is opt-in per rule | Accepted | 2026-05-01 |

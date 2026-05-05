@@ -60,12 +60,15 @@ def test_strip_company_prefix_delimiter_anchored() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_classification_with_description() -> None:
-    """Description field acts as fallback for vm_name_patterns."""
+def test_description_does_not_match_non_optin_rule() -> None:
+    """v8.3.1: description fallback is opt-in. The Oracle rule does NOT
+    fire on a description containing 'Oracle' because it isn't an OVA
+    annotation signature — protects against backup-tool metadata noise
+    (e.g. Veeam annotations) wrongly firing app rules."""
     registry = RuleRegistry(build_default_rules())
     result = registry.classify("SRV001", "", description="Oracle Database Server")
-    assert result.category == "Database"
-    assert result.subcategory == "Oracle"
+    # No OS, no name match, no opt-in description match -> Unknown.
+    assert result.subcategory != "Oracle"
 
 
 def test_classification_description_does_not_override() -> None:
@@ -78,21 +81,27 @@ def test_classification_description_does_not_override() -> None:
 
 
 def test_classify_dataframe_with_description_column() -> None:
-    """classify_dataframe reads vm_description column and uses it for matching."""
+    """classify_dataframe reads vm_description column and passes it to
+    classify(). v8.3.1: only opt-in rules consume description; generic
+    text in description does NOT fire app rules."""
     df = pd.DataFrame(
         {
-            "vm_name": ["SRV001", "DBPROD01"],
-            "os_name": ["", ""],
-            "vm_description": ["Oracle Database", "General purpose"],
+            "vm_name": ["SRV001", "DBPROD01", "appliance-01"],
+            "os_name": ["", "", ""],
+            "vm_description": [
+                "Oracle Database",  # generic text — must NOT match Oracle rule
+                "General purpose",
+                "BeyondTrust Secure Remote Access Appliance",  # opt-in signature
+            ],
         }
     )
     registry = RuleRegistry(build_default_rules())
     result = classify_dataframe(df, registry)
 
-    # SRV001 with description "Oracle Database" should match Oracle
-    assert result.iloc[0]["workload_category"] == "Database"
-    assert result.iloc[0]["workload_subcategory"] == "Oracle"
-
-    # DBPROD01 with generic description falls to default
-    # (DB2 won't match since "DB" alone isn't a pattern)
+    # SRV001 with generic "Oracle Database" description must NOT fire Oracle rule
+    assert result.iloc[0]["workload_subcategory"] != "Oracle"
+    # DBPROD01 unchanged — generic description, no match
     assert isinstance(result.iloc[1]["workload_category"], str)
+    # appliance-01 hits the BeyondTrust opt-in description rule
+    assert result.iloc[2]["workload_category"] == "Web Servers"
+    assert result.iloc[2]["workload_subcategory"] == "Content included"

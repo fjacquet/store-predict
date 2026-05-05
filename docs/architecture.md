@@ -80,10 +80,13 @@ The canonical columns after ingestion are:
 
 ### Classification
 
-- **`pipeline/classification.py`** -- Rule-based classification engine with 50 priority-ordered rules.
-  Each rule matches patterns in VM name and OS fields to assign workload categories
-  (e.g., SQL, Oracle, VDI, SAP). Windows Desktop OS VMs (Win 10/11/7) fall back to
-  VDI Linked Clone rather than the generic Virtual Machines bucket (ADR-065).
+- **`pipeline/classification.py`** -- Rule-based classification engine with 60+ priority-ordered rules.
+  Each rule matches patterns against VM name, OS, vCenter Folder path (v8.3.0), and optionally
+  vCenter Annotation (description) when explicitly opted in via `match_description=True` (ADR-079, v8.3.1).
+  Windows Desktop OS VMs (Win 10/11/7) fall back to VDI Linked Clone rather than the generic
+  Virtual Machines bucket (ADR-065). Description fallback is OFF by default to prevent
+  backup-tool annotations (e.g. Veeam writes `"Last backup: ...; Veeam server: ..."` into
+  Annotation) from firing app rules on every backed-up VM.
 
 ### DRR Table
 

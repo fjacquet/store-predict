@@ -4,6 +4,36 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v8.3.1] - 2026-05-01
+
+Hotfix on top of v8.3.0 that eliminates a critical false-positive in the workload classifier. On a real customer RVTools export (570 powered-on VMs) **375 VMs (66%)** were wrongly tagged `VM Replication / Veeam, Zerto, RP4VM` because the vCenter Annotation field was auto-populated by Veeam with backup metadata like `"Last backup: …; Veeam server: [bkp01]; Job: […]; Repository: […]"`. The classifier's pass-2 description fallback re-tested every rule's `vm_name_patterns` against the description, so the literal word "Veeam" fired the Veeam rule on every backed-up VM — including pure Exchange servers, domain controllers, and 369 others. Same systemic risk applied to any rule whose product token might appear in descriptions.
+
+### Fixed
+
+- **Description fallback is now opt-in per rule** via a new `match_description: bool = False` flag on `ClassificationRule`. Default is OFF, so backup-tool annotations no longer trigger app rules. `pipeline/classification.py`.
+- **11 OVA-annotation signature rules opted in** with `match_description=True`: Cisco UC (250), Nutanix CVM (294), Dell PowerProtect (299), vCenter / vSAN Witness (396), FortiDeceptor (401), BeyondTrust / Bomgar (430), Tenable / Nessus (435), NetApp OnCommand UM (450), Horizon3.ai NodeZero (460), exotrack (465). Every other rule (VM Replication, Email, Database, VDI, Web Servers, …) defaults to OFF.
+
+### Added
+
+- **`EXCH` short-token in Email rule (priority 210)** — covers the customer's `SPHFREXCH01-04` / `SPRFSMEXCH01-02` naming convention. Specific enough to not false-match `APEX`, `EXT`, `EXOS`, `NEXT`.
+- **5 regression tests** covering the bug, the EXCH short-token, and that the opt-in description signatures (BeyondTrust, Nutanix CVM annotation) still fire correctly.
+
+### Changed
+
+- `tests/test_classification_prefix.py::test_classification_with_description` was renamed to `test_description_does_not_match_non_optin_rule` to match the new semantics.
+- `test_classify_dataframe_with_description_column` now also asserts that the BeyondTrust opt-in signature still works alongside generic-description rejection.
+
+### Real-file impact (570 powered-on VMs)
+
+| Bucket | Before (v8.3.0) | After |
+|---|---:|---:|
+| `VM Replication / Veeam, Zerto, RP4VM` | 375 | 0 |
+| `Email` | 2 | 8 (4 EXCH + 2 EXC1/EXC2 + 2 WITEXC) |
+| `os_fallback` confidence | 41 | 418 (correct Windows/Linux fallback) |
+| `rule_match` confidence | 529 | 146 (only legit matches) |
+
+Full test suite: 608 passed, 1 skipped.
+
 ## [v8.3.0] - 2026-05-01
 
 Smart-matching feature release: the workload classifier now consumes the vCenter folder path as a first-class signal alongside VM name and OS, and ships 17 new rules that close real-world gaps observed on a multi-vCenter customer export (1373 powered-on VMs).
