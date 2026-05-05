@@ -64,6 +64,9 @@ class TestDRRTableConsistency:
         # "Content not included" is a user override -- cannot detect from
         # VM name/OS alone; default is "Content included" (DRR 1.5, safe for pre-sales)
         uncovered.discard(("Web Servers", "Content not included"))
+        # v9.0.0 size-aware reroute target — assigned by classify_dataframe()
+        # post-processing for unknown VMs ≥100 GiB, not by a rule. See ADR-080.
+        uncovered.discard(("Virtual Machines", "Large data-bearing (>100 GiB unknown)"))
         assert uncovered == set(), f"DRR categories without matching rules: {sorted(uncovered)}"
 
 

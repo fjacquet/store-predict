@@ -86,7 +86,11 @@ The canonical columns after ingestion are:
   Windows Desktop OS VMs (Win 10/11/7) fall back to VDI Linked Clone rather than the generic
   Virtual Machines bucket (ADR-065). Description fallback is OFF by default to prevent
   backup-tool annotations (e.g. Veeam writes `"Last backup: ...; Veeam server: ..."` into
-  Annotation) from firing app rules on every backed-up VM.
+  Annotation) from firing app rules on every backed-up VM. v9.0.0 adds size-aware
+  reroute (ADR-080): unknown VMs (`os_fallback`/`default` confidence) with
+  ≥100 GiB provisioned move to a new "Virtual Machines / Large data-bearing
+  (>100 GiB unknown)" subcategory at DRR=2.5 — defensible against blind 5:1
+  on inventory we couldn't classify by signature.
 
 ### DRR Table
 

@@ -4,6 +4,43 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v9.0.0] - 2026-05-01
+
+Major version bump — addresses the **single biggest sizing risk** in StorePredict: unclassified VMs landing in the generic `Virtual Machines / VMware-Hyper-V-KVM…` bucket at DRR=5 by default. Audit of two real customer RVTools exports showed 64–67% of inventory in this bucket, holding 330+ TiB of provisioned data. A blind 5:1 default predicts ~66 TiB of PowerStore need; a defensible 2.5:1 floor on unknown data-bearing inventory predicts ~132 TiB. The pre-existing default systematically undersized arrays by tens of TiB on real customer projects.
+
+### Behaviour change (re-run sizings to see new numbers)
+
+- **Size-aware reroute (ADR-080):** unknown VMs (`os_fallback` or `default` confidence) with `provisioned_mib >= 100 GiB` now reroute to a new DRR subcategory `Virtual Machines / Large data-bearing (>100 GiB unknown)` at **DRR=2.5**. Specific app rules (`rule_match`) are never rerouted — Dell-validated DRRs on Oracle / SQL / SAP / etc. stay intact at any size.
+- The reroute is implemented as post-processing in `classify_dataframe()`. The `RuleRegistry` itself stays a pure pattern engine.
+- `LARGE_VM_THRESHOLD_MIB = 100 * 1024` is a single constant in `pipeline/classification.py` — easy to tune.
+
+### Added
+
+- New DRR subcategory `Virtual Machines / Large data-bearing (>100 GiB unknown)` at 2.5 in `samples/DRR.csv`.
+- **3 missed pattern fixes** identified during the same audit:
+  - `INSIGHTIQ` → Database / PostgreSQL (Dell PowerScale InsightIQ ships embedded Postgres).
+  - `SECDB` → Database / Microsoft SQL (customer convention for Security Database).
+  - `FORTIADC` substring + `FORTIA\d` regex → Logging - Analytics / FortiNet… (catches FortiADC short-host names like `SPHFRFORTIA01`).
+- ADR-080 documents the size-based reroute design (post-processing vs in-rule vs DRR-multiplier).
+- 10 new tests in `tests/test_classification.py::TestV900PatternsAndSizeAware` covering the threshold boundary, no-reroute on small VMs, no-override on rule_match, missing-column safety, and the 3 new patterns.
+- New baseline regression `test_v900_large_databearing_takes_unknown_volume` in `tests/test_real_customer_baseline.py`.
+
+### Real-file impact (Jan 2026 customer, 570 powered-on VMs)
+
+| Bucket | v8.3.2 | **v9.0.0** |
+|---|---:|---:|
+| Generic `Virtual Machines / VMware-Hyper-V-KVM…` (DRR=5) | 365 | **18** (only true OS-only <100 GiB) |
+| **`Virtual Machines / Large data-bearing (>100 GiB unknown)` (DRR=2.5)** | 0 | **351** |
+| `Database / PostgreSQL` | 6 | 7 (+1 INSIGHTIQ) |
+| `Database / Microsoft SQL` | 16 | 21 (+5 SECDB and downstream) |
+| `Logging - Analytics / FortiNet…` | 4 | 5 (+1 FORTIA01) |
+
+Sizing prediction on the 351 large-unknown VMs: **66 TiB → 132 TiB** of PowerStore need. Defensible 2.5:1 floor instead of indefensible 5:1.
+
+### Tests
+
+Full suite: 635 passed, 1 skipped (LLM API key). Includes the 10 v9.0.0 tests and the customer-file regression on the May 2026 file (gated by file presence).
+
 ## [v8.3.2] - 2026-05-01
 
 Manual rule extensions identified by re-auditing the Jan 2026 customer file (570 powered-on VMs) after the v8.3.1 hotfix landed. Closes 7 specific naming patterns that pre-sales clearly recognises as products but the deterministic ruleset was missing.

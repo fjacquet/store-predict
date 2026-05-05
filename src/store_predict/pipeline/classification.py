@@ -351,14 +351,18 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Database",
             subcategory="PostgreSQL",
             priority=102,
-            vm_name_patterns=_patterns("PGSQL", "POSTGRES", "POSTGRESQL"),
+            # INSIGHTIQ = Dell PowerScale InsightIQ — analytics platform that
+            # ships with embedded PostgreSQL.
+            vm_name_patterns=_patterns("PGSQL", "POSTGRES", "POSTGRESQL", "INSIGHTIQ"),
         ),
         ClassificationRule(
             name="Microsoft SQL",
             category="Database",
             subcategory="Microsoft SQL",
             priority=103,
-            vm_name_patterns=_patterns("SQL", "MSSQL"),
+            # SECDB = Security Database (customer convention for security-related
+            # SQL Server instances, e.g. SPHFRSECDB01).
+            vm_name_patterns=_patterns("SQL", "MSSQL", "SECDB"),
         ),
         ClassificationRule(
             name="DB2",
@@ -838,6 +842,7 @@ def build_default_rules() -> list[ClassificationRule]:
                     "SPLUNK",
                     "FORTIANALYZER",
                     "FORTIMANAGER",
+                    "FORTIADC",  # FortiADC application delivery controller
                     "FAZ",  # FortiAnalyzer short hostname (e.g. CIGES-FAZ)
                     "FMG",  # FortiManager short hostname (e.g. CIGES-FMG)
                     "ZABBIX",
@@ -861,6 +866,9 @@ def build_default_rules() -> list[ClassificationRule]:
                 # LOGDMZ covers log servers in DMZ segments (e.g. SrvLogDMZ01)
                 *_regex_patterns(r"LOG(?:\d|[-_.]|$)"),
                 *_patterns("LOGDMZ"),
+                # FortiADC short hostname convention: FORTIA + digit
+                # (e.g. SPHFRFORTIA01). Digit required to avoid false positives.
+                *_regex_patterns(r"FORTIA\d"),
             ),
             os_patterns=_patterns("FORTI"),
         ),
@@ -918,6 +926,22 @@ def build_default_rules() -> list[ClassificationRule]:
 # DataFrame-level classification
 # ---------------------------------------------------------------------------
 
+# Size-aware post-classification: VMs that fall to "we don't know what this is"
+# (os_fallback / default confidence) AND have ≥100 GiB of provisioned storage
+# are clearly data-bearing, not OS-only. The default DRR=5 routing is
+# indefensible at scale on real customer files (one customer had 330 TiB
+# parked in this bucket — undersizing the array by ~66 TiB at 5:1 vs 2.5:1).
+# Reroute them to "Virtual Machines / Large data-bearing (>100 GiB unknown)"
+# at DRR=2.5 (DRR.csv) — see ADR-080 for rationale.
+LARGE_VM_THRESHOLD_MIB: int = 100 * 1024  # 100 GiB
+
+_UNKNOWN_SUBCATEGORIES: frozenset[str] = frozenset(
+    {
+        "VMware / Hyper-V / KVM - No Database, File nor Email",
+        "Unknown (Reducible)",
+    }
+)
+
 
 def classify_dataframe(
     df: pd.DataFrame,
@@ -930,11 +954,18 @@ def classify_dataframe(
 
     NaN ``os_name`` values are converted to empty string before matching
     so that ``"nan"`` does not accidentally trigger patterns.
+
+    Size-aware reroute: VMs with ``confidence in {"os_fallback","default"}``
+    AND ``provisioned_mib >= LARGE_VM_THRESHOLD_MIB`` AND original subcategory
+    in ``_UNKNOWN_SUBCATEGORIES`` are rerouted to the "Large data-bearing
+    (>100 GiB unknown)" bucket at DRR=2.5. Specific app rules (rule_match)
+    are never rerouted.
     """
     result = df.copy()
 
     has_description = "vm_description" in df.columns
     has_folder = "vm_folder" in df.columns
+    has_provisioned = "provisioned_mib" in df.columns
 
     classifications = []
     for _, row in df.iterrows():
@@ -942,7 +973,23 @@ def classify_dataframe(
         os_name = str(row["os_name"]) if pd.notna(row["os_name"]) else ""
         description = str(row["vm_description"]) if has_description and pd.notna(row.get("vm_description")) else ""
         folder = str(row["vm_folder"]) if has_folder and pd.notna(row.get("vm_folder")) else ""
-        classifications.append(registry.classify(vm_name, os_name, description, folder))
+        verdict = registry.classify(vm_name, os_name, description, folder)
+
+        if (
+            has_provisioned
+            and verdict.confidence in ("os_fallback", "default")
+            and verdict.subcategory in _UNKNOWN_SUBCATEGORIES
+        ):
+            prov = row.get("provisioned_mib")
+            if pd.notna(prov) and float(prov) >= LARGE_VM_THRESHOLD_MIB:
+                verdict = ClassificationResult(
+                    category="Virtual Machines",
+                    subcategory="Large data-bearing (>100 GiB unknown)",
+                    rule_name="Large generic (>=100 GiB)",
+                    confidence=verdict.confidence,
+                )
+
+        classifications.append(verdict)
 
     result["workload_category"] = [c.category for c in classifications]
     result["workload_subcategory"] = [c.subcategory for c in classifications]

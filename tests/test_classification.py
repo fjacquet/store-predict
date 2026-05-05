@@ -876,3 +876,123 @@ class TestV832Extensions:
         result = _registry().classify(vm_name, "Microsoft Windows Server 2022 (64-bit)")
         assert result.category == "Database"
         assert result.subcategory == "Microsoft SQL - Page Compressed"
+
+
+# ---------------------------------------------------------------------------
+# v9.0.0: 3 missed patterns + size-aware reroute for unknown VMs
+# ---------------------------------------------------------------------------
+
+
+class TestV900PatternsAndSizeAware:
+    """v9.0.0 closes the biggest sizing risk in the tool: 64% of a real
+    customer file fell to the generic Virtual Machines bucket (DRR=5) but
+    held 330 TiB of provisioned data. Size-aware reroute moves unknown VMs
+    ≥100 GiB to a new 'Large data-bearing' subcategory at DRR=2.5.
+
+    Plus 3 patterns identified during the same audit: INSIGHTIQ → PostgreSQL,
+    SECDB → Microsoft SQL, FORTIA<digit> → Logging/FortiNet.
+    """
+
+    def test_insightiq_routes_postgresql(self) -> None:
+        """Dell PowerScale InsightIQ ships with embedded PostgreSQL."""
+        result = _registry().classify("SPHFRINSIGHTIQ01", "")
+        assert result.category == "Database"
+        assert result.subcategory == "PostgreSQL"
+
+    def test_secdb_routes_microsoft_sql(self) -> None:
+        """SECDB customer convention for Security Database (Microsoft SQL)."""
+        result = _registry().classify("SPHFRSECDB01", "")
+        assert result.category == "Database"
+        assert result.subcategory == "Microsoft SQL"
+
+    def test_fortiadc_short_form(self) -> None:
+        """FORTIA<digit> short-host convention catches FortiADC appliances."""
+        result = _registry().classify("SPHFRFORTIA01", "")
+        assert result.category == "Logging - Analytics"
+        assert result.subcategory == "FortiNet, Elastic Search, Splunk, ELK, etc"
+
+    def test_fortiadc_long_form(self) -> None:
+        """Full 'FORTIADC' substring also matches the rule."""
+        result = _registry().classify("prod-fortiadc-01", "")
+        assert result.category == "Logging - Analytics"
+
+    def test_small_unknown_vm_stays_generic(self) -> None:
+        """50 GiB Windows Server with no name match stays in generic VM bucket."""
+        df = pd.DataFrame(
+            {
+                "vm_name": ["GENERIC-APP-50G"],
+                "os_name": ["Microsoft Windows Server 2022 (64-bit)"],
+                "provisioned_mib": [50 * 1024],
+            }
+        )
+        out = classify_dataframe(df, _registry())
+        assert out.iloc[0]["workload_subcategory"] == "VMware / Hyper-V / KVM - No Database, File nor Email"
+        assert out.iloc[0]["classification_confidence"] == "os_fallback"
+
+    def test_large_unknown_vm_reroutes_to_large_databearing(self) -> None:
+        """200 GiB Windows Server unknown VM reroutes to Large data-bearing."""
+        df = pd.DataFrame(
+            {
+                "vm_name": ["GENERIC-APP-200G"],
+                "os_name": ["Microsoft Windows Server 2022 (64-bit)"],
+                "provisioned_mib": [200 * 1024],
+            }
+        )
+        out = classify_dataframe(df, _registry())
+        assert out.iloc[0]["workload_category"] == "Virtual Machines"
+        assert out.iloc[0]["workload_subcategory"] == "Large data-bearing (>100 GiB unknown)"
+        assert out.iloc[0]["classification_rule"] == "Large generic (>=100 GiB)"
+        # Confidence preserves provenance (still os_fallback, not rule_match).
+        assert out.iloc[0]["classification_confidence"] == "os_fallback"
+
+    def test_large_default_unknown_vm_reroutes(self) -> None:
+        """500 GiB VM with no name match AND no OS match (confidence=default)
+        also reroutes to Large data-bearing."""
+        df = pd.DataFrame(
+            {
+                "vm_name": ["UNCLASSIFIABLE"],
+                "os_name": [""],
+                "provisioned_mib": [500 * 1024],
+            }
+        )
+        out = classify_dataframe(df, _registry())
+        assert out.iloc[0]["workload_subcategory"] == "Large data-bearing (>100 GiB unknown)"
+        assert out.iloc[0]["classification_confidence"] == "default"
+
+    def test_large_specific_app_not_rerouted(self) -> None:
+        """A 1 TiB Oracle VM keeps its Database/Oracle classification —
+        rule_match is never overridden by size-based reroute."""
+        df = pd.DataFrame(
+            {
+                "vm_name": ["oracle-prod-01"],
+                "os_name": ["Oracle Linux 9 (64-bit)"],
+                "provisioned_mib": [1024 * 1024],  # 1 TiB
+            }
+        )
+        out = classify_dataframe(df, _registry())
+        assert out.iloc[0]["workload_category"] == "Database"
+        assert out.iloc[0]["workload_subcategory"] == "Oracle"
+        assert out.iloc[0]["classification_confidence"] == "rule_match"
+
+    def test_threshold_boundary_exact_100gib(self) -> None:
+        """100 GiB exactly is the threshold — must reroute (≥, inclusive)."""
+        df = pd.DataFrame(
+            {
+                "vm_name": ["GENERIC-APP-100G"],
+                "os_name": ["Microsoft Windows Server 2019 (64-bit)"],
+                "provisioned_mib": [100 * 1024],
+            }
+        )
+        out = classify_dataframe(df, _registry())
+        assert out.iloc[0]["workload_subcategory"] == "Large data-bearing (>100 GiB unknown)"
+
+    def test_classify_dataframe_without_provisioned_column(self) -> None:
+        """When provisioned_mib column is absent, no reroute happens (no crash)."""
+        df = pd.DataFrame(
+            {
+                "vm_name": ["GENERIC-APP-LARGE"],
+                "os_name": ["Microsoft Windows Server 2019 (64-bit)"],
+            }
+        )
+        out = classify_dataframe(df, _registry())
+        assert out.iloc[0]["workload_subcategory"] == "VMware / Hyper-V / KVM - No Database, File nor Email"

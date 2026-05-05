@@ -41,3 +41,4 @@ VM Replication;Commvault;1.5
 VM Replication;Veeam - Compressed + Dedup;1.2
 VM Replication;Commvault - Compressed + Dedup;1.2
 VM Replication;Data Domain Virtual Edition (DDVE);1.0
+Virtual Machines;Large data-bearing (>100 GiB unknown);2.5

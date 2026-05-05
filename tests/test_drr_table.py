@@ -5,8 +5,14 @@ from store_predict.services.drr_table import DRRTable, apply_storage_model
 
 
 def test_drr_table_loads_30_entries(drr_table: DRRTable) -> None:
-    """DRR.csv should produce exactly 42 valid workload entries (28 base + 14 variants)."""
-    assert len(drr_table) == 42
+    """DRR.csv should produce exactly 43 valid workload entries
+    (28 base + 14 variants + 1 Large data-bearing v9.0.0)."""
+    assert len(drr_table) == 43
+
+
+def test_large_data_bearing_drr(drr_table: DRRTable) -> None:
+    """v9.0.0 size-aware reroute target: DRR=2.5 for unknown ≥100 GiB VMs."""
+    assert drr_table.get_ratio("Virtual Machines", "Large data-bearing (>100 GiB unknown)") == 2.5
 
 
 def test_postgresql_entry_parsed_correctly(drr_table: DRRTable) -> None:
