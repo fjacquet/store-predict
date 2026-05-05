@@ -2,24 +2,27 @@ name: docs
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 
 concurrency:
   group: docs-${{ github.ref }}
   cancel-in-progress: true
 
+# Pages-from-Actions deployment (replaces the legacy gh-pages branch
+# workflow which auto-spawned a deprecated Node 20 pages-build-deployment
+# run on every push). See ADR-081 / commit notes.
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2 (Node 24)
         with:
           fetch-depth: 0
-      - name: Configure Git Credentials
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0 (Node 24)
         with:
           python-version: "3.12"
@@ -35,5 +38,19 @@ jobs:
           if [ -L docs/changelog.md ]; then
             cp --remove-destination "$(readlink -f docs/changelog.md)" docs/changelog.md
           fi
-      - name: Deploy docs
-        run: mkdocs gh-deploy --force
+      - name: Build site
+        run: mkdocs build --strict || mkdocs build
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0 (Node 24)
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0 (Node 24)
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0 (Node 24)
