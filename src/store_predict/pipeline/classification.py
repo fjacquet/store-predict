@@ -958,7 +958,7 @@ def classify_dataframe(
     Size-aware reroute: VMs with ``confidence in {"os_fallback","default"}``
     AND ``provisioned_mib >= LARGE_VM_THRESHOLD_MIB`` AND original subcategory
     in ``_UNKNOWN_SUBCATEGORIES`` are rerouted to the "Large data-bearing
-    (>100 GiB unknown)" bucket at DRR=2.5. Specific app rules (rule_match)
+    (>100 GiB unknown)" bucket at DRR=2.0 (2:1). Specific app rules (rule_match)
     are never rerouted.
     """
     result = df.copy()
