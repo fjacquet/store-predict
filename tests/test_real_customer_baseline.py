@@ -66,8 +66,9 @@ def test_ddve_bucket_nutanix(classified_customer_df) -> None:  # type: ignore[no
 
 def test_os_fallback_reduced(classified_customer_df) -> None:  # type: ignore[no-untyped-def]
     """v8.2 baseline was 1021 VMs in os_fallback; v8.3 must be at most 940.
-    Note v9.0.0 reroutes large unknown VMs to "Large data-bearing" but
-    preserves the os_fallback confidence label, so this assertion still holds."""
+    Note the size-aware reroute (ADR-080) moves large unknown VMs to
+    File / General Purpose but preserves the os_fallback confidence label,
+    so this assertion still holds."""
     n_fallback = (classified_customer_df["classification_confidence"] == "os_fallback").sum()
     assert n_fallback <= 940, (
         f"os_fallback regression: got {n_fallback} (baseline 1021, target ≤940)\n{_summary(classified_customer_df)}"
@@ -75,17 +76,19 @@ def test_os_fallback_reduced(classified_customer_df) -> None:  # type: ignore[no
 
 
 def test_v900_large_databearing_takes_unknown_volume(classified_customer_df) -> None:  # type: ignore[no-untyped-def]
-    """v9.0.0: the size-aware reroute must significantly reduce the generic
-    'VMware / Hyper-V / KVM' bucket and shift those VMs to 'Large data-bearing
-    (>100 GiB unknown)'. On the May 2026 file (1373 VMs) we expect at least
-    600 VMs in the new bucket; the generic VM bucket should drop accordingly."""
-    n_large = (classified_customer_df["workload_subcategory"] == "Large data-bearing (>100 GiB unknown)").sum()
+    """The size-aware reroute must significantly reduce the generic
+    'VMware / Hyper-V / KVM' bucket and shift those VMs to File / General Purpose
+    (tagged rule_name 'Large generic (>=100 GiB)'). On the May 2026 file
+    (1373 VMs) we expect at least 600 rerouted VMs; the generic VM bucket should
+    drop accordingly. Counted by classification_rule so genuinely-classified
+    File/General Purpose servers are not conflated (v9.0.2)."""
+    n_large = (classified_customer_df["classification_rule"] == "Large generic (>=100 GiB)").sum()
     n_generic = (
         classified_customer_df["workload_subcategory"] == "VMware / Hyper-V / KVM - No Database, File nor Email"
     ).sum()
-    assert n_large >= 600, f"Expected ≥600 VMs in Large data-bearing, got {n_large}\n{_summary(classified_customer_df)}"
+    assert n_large >= 600, f"Expected ≥600 size-rerouted VMs, got {n_large}\n{_summary(classified_customer_df)}"
     assert n_generic <= 350, (
-        f"Generic VMware/Hyper-V bucket should shrink after v9.0.0 reroute, got {n_generic}\n"
+        f"Generic VMware/Hyper-V bucket should shrink after the size-aware reroute, got {n_generic}\n"
         f"{_summary(classified_customer_df)}"
     )
 

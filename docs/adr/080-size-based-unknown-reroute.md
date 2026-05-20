@@ -81,6 +81,24 @@ Consequences, and impact tables above are preserved as history; their figures
 (e.g. "66 TiB → 132 TiB") were computed at 2.5:1. At 2:1 the predicted PowerStore need on
 the same inventory is correspondingly higher.
 
+## Amendment — v9.0.2 (2026-05-20)
+
+The reroute target changes from the synthetic subcategory
+`Virtual Machines / Large data-bearing (>100 GiB unknown)` to the existing canonical
+category **`File / General Purpose`** (also DRR 2.0), and the synthetic row is removed
+from `DRR.csv`. Rationale: the classifier should emit only categories that exist in the
+reference DRR table — the invented bucket was the only non-canonical category it produced.
+
+This is a labelling change with **no sizing impact** (both entries are DRR 2.0). Provenance
+is preserved: the reroute still stamps `rule_name = "Large generic (>=100 GiB)"` and keeps
+the original `os_fallback`/`default` confidence, so size-rerouted unknowns remain
+distinguishable in the data from genuinely-classified `File / General Purpose` servers.
+The threshold, the `_UNKNOWN_SUBCATEGORIES` gate, and the trigger conditions are unchanged.
+
+Accepted trade-off: the review grid / PDF now shows `File / General Purpose` for these
+unknowns rather than an explicit "unknown ≥100 GiB" label; `rule_name` is the escape hatch
+if surfacing "size-rerouted" in the UI is ever wanted.
+
 ## Related
 
 - ADR-079: Description fallback opt-in per rule (v8.3.1).

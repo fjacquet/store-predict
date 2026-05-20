@@ -4,6 +4,36 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v9.0.2] - 2026-05-20
+
+Retires the synthetic `Virtual Machines / Large data-bearing (>100 GiB unknown)` category.
+Large-unknown VMs (≥100 GiB, `os_fallback`/`default`) now route to the existing canonical
+`File / General Purpose` entry. The classifier emits only categories that exist in the
+reference DRR table.
+
+### Behaviour change (labels only — sizing unchanged)
+
+- Size-aware reroute target changed from `Virtual Machines / Large data-bearing (>100 GiB
+  unknown)` to `File / General Purpose`. Both are DRR 2.0, so required-capacity output is
+  identical — only the displayed category/subcategory changes.
+- The synthetic `Large data-bearing` row is removed from `src/store_predict/data/DRR.csv`
+  (43 → 42 entries).
+- Provenance preserved: rerouted VMs keep `rule_name = "Large generic (>=100 GiB)"` and
+  their original `os_fallback`/`default` confidence, so they stay distinguishable from
+  genuinely-classified File/General Purpose servers.
+
+### Docs
+
+- ADR-080 gains a second amendment recording the target change.
+- `docs/architecture.md` and `docs/adr/index.md` updated.
+
+### Tests
+
+- `test_drr_table.py`: entry count 43 → 42; `test_large_data_bearing_drr` replaced by
+  `test_file_general_purpose_drr`.
+- Reroute tests in `test_classification.py` assert `File / General Purpose`.
+- `test_real_customer_baseline.py` counts rerouted VMs by `classification_rule`.
+
 ## [v9.0.1] - 2026-05-20
 
 Calibration of the v9.0.0 size-aware reroute. The `Virtual Machines / Large data-bearing

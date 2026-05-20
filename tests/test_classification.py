@@ -887,7 +887,8 @@ class TestV900PatternsAndSizeAware:
     """v9.0.0 closes the biggest sizing risk in the tool: 64% of a real
     customer file fell to the generic Virtual Machines bucket (DRR=5) but
     held 330 TiB of provisioned data. Size-aware reroute moves unknown VMs
-    ≥100 GiB to a new 'Large data-bearing' subcategory at DRR=2.0 (v9.0.1).
+    ≥100 GiB to the existing File / General Purpose category at DRR=2.0, tagged
+    rule_name "Large generic (>=100 GiB)" for provenance (v9.0.2).
 
     Plus 3 patterns identified during the same audit: INSIGHTIQ → PostgreSQL,
     SECDB → Microsoft SQL, FORTIA<digit> → Logging/FortiNet.
@@ -929,8 +930,8 @@ class TestV900PatternsAndSizeAware:
         assert out.iloc[0]["workload_subcategory"] == "VMware / Hyper-V / KVM - No Database, File nor Email"
         assert out.iloc[0]["classification_confidence"] == "os_fallback"
 
-    def test_large_unknown_vm_reroutes_to_large_databearing(self) -> None:
-        """200 GiB Windows Server unknown VM reroutes to Large data-bearing."""
+    def test_large_unknown_vm_reroutes_to_file_general(self) -> None:
+        """200 GiB Windows Server unknown VM reroutes to File / General Purpose."""
         df = pd.DataFrame(
             {
                 "vm_name": ["GENERIC-APP-200G"],
@@ -939,15 +940,16 @@ class TestV900PatternsAndSizeAware:
             }
         )
         out = classify_dataframe(df, _registry())
-        assert out.iloc[0]["workload_category"] == "Virtual Machines"
-        assert out.iloc[0]["workload_subcategory"] == "Large data-bearing (>100 GiB unknown)"
+        assert out.iloc[0]["workload_category"] == "File"
+        assert out.iloc[0]["workload_subcategory"] == "General Purpose"
+        # rule_name marks this as a size-based reroute, not a real File rule match.
         assert out.iloc[0]["classification_rule"] == "Large generic (>=100 GiB)"
         # Confidence preserves provenance (still os_fallback, not rule_match).
         assert out.iloc[0]["classification_confidence"] == "os_fallback"
 
     def test_large_default_unknown_vm_reroutes(self) -> None:
         """500 GiB VM with no name match AND no OS match (confidence=default)
-        also reroutes to Large data-bearing."""
+        also reroutes to File / General Purpose."""
         df = pd.DataFrame(
             {
                 "vm_name": ["UNCLASSIFIABLE"],
@@ -956,7 +958,8 @@ class TestV900PatternsAndSizeAware:
             }
         )
         out = classify_dataframe(df, _registry())
-        assert out.iloc[0]["workload_subcategory"] == "Large data-bearing (>100 GiB unknown)"
+        assert out.iloc[0]["workload_category"] == "File"
+        assert out.iloc[0]["workload_subcategory"] == "General Purpose"
         assert out.iloc[0]["classification_confidence"] == "default"
 
     def test_large_specific_app_not_rerouted(self) -> None:
@@ -984,7 +987,7 @@ class TestV900PatternsAndSizeAware:
             }
         )
         out = classify_dataframe(df, _registry())
-        assert out.iloc[0]["workload_subcategory"] == "Large data-bearing (>100 GiB unknown)"
+        assert out.iloc[0]["workload_subcategory"] == "General Purpose"
 
     def test_classify_dataframe_without_provisioned_column(self) -> None:
         """When provisioned_mib column is absent, no reroute happens (no crash)."""

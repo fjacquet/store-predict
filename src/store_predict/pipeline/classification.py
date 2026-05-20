@@ -930,9 +930,10 @@ def build_default_rules() -> list[ClassificationRule]:
 # (os_fallback / default confidence) AND have ≥100 GiB of provisioned storage
 # are clearly data-bearing, not OS-only. The default DRR=5 routing is
 # indefensible at scale on real customer files (one customer had 330 TiB
-# parked in this bucket — undersizing the array by ~66 TiB at 5:1 vs 2.5:1).
-# Reroute them to "Virtual Machines / Large data-bearing (>100 GiB unknown)"
-# at DRR=2.5 (DRR.csv) — see ADR-080 for rationale.
+# parked in this bucket — undersizing the array by tens of TiB at 5:1 vs 2:1).
+# Reroute them to the existing "File / General Purpose" category at DRR=2.0
+# (DRR.csv), keeping rule_name="Large generic (>=100 GiB)" so the size-reroute
+# provenance stays queryable — see ADR-080 for rationale.
 LARGE_VM_THRESHOLD_MIB: int = 100 * 1024  # 100 GiB
 
 _UNKNOWN_SUBCATEGORIES: frozenset[str] = frozenset(
@@ -957,9 +958,10 @@ def classify_dataframe(
 
     Size-aware reroute: VMs with ``confidence in {"os_fallback","default"}``
     AND ``provisioned_mib >= LARGE_VM_THRESHOLD_MIB`` AND original subcategory
-    in ``_UNKNOWN_SUBCATEGORIES`` are rerouted to the "Large data-bearing
-    (>100 GiB unknown)" bucket at DRR=2.0 (2:1). Specific app rules (rule_match)
-    are never rerouted.
+    in ``_UNKNOWN_SUBCATEGORIES`` are rerouted to the existing "File / General
+    Purpose" category at DRR=2.0 (2:1), tagged ``rule_name="Large generic
+    (>=100 GiB)"`` for provenance. Specific app rules (rule_match) are never
+    rerouted.
     """
     result = df.copy()
 
@@ -983,8 +985,8 @@ def classify_dataframe(
             prov = row.get("provisioned_mib")
             if pd.notna(prov) and float(prov) >= LARGE_VM_THRESHOLD_MIB:
                 verdict = ClassificationResult(
-                    category="Virtual Machines",
-                    subcategory="Large data-bearing (>100 GiB unknown)",
+                    category="File",
+                    subcategory="General Purpose",
                     rule_name="Large generic (>=100 GiB)",
                     confidence=verdict.confidence,
                 )
