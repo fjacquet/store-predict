@@ -88,10 +88,12 @@ The canonical columns after ingestion are:
   backup-tool annotations (e.g. Veeam writes `"Last backup: ...; Veeam server: ..."` into
   Annotation) from firing app rules on every backed-up VM. v9.0.0 adds size-aware
   reroute (ADR-080): unknown VMs (`os_fallback`/`default` confidence) with
-  ≥100 GiB provisioned move to a new "Virtual Machines / Large data-bearing
-  (>100 GiB unknown)" subcategory at DRR=2.0 (2:1, lowered from 2.5 in v9.0.1) —
-  a defensible, conservative floor against a blind 5:1 on inventory we couldn't
-  classify by signature.
+  ≥100 GiB provisioned move to the existing "File / General Purpose" category at
+  DRR=2.0 (2:1) — a defensible, conservative floor against a blind 5:1 on
+  inventory we couldn't classify by signature. They keep
+  `rule_name="Large generic (>=100 GiB)"` so the size-reroute provenance stays
+  queryable (v9.0.2; earlier versions used a dedicated "Large data-bearing"
+  subcategory).
 
 ### DRR Table
 
