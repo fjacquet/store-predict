@@ -4,6 +4,30 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [v9.0.1] - 2026-05-20
+
+Calibration of the v9.0.0 size-aware reroute. The `Virtual Machines / Large data-bearing
+(>100 GiB unknown)` floor is lowered from **2.5:1 to 2:1 (DRR=2.0)** — a more conservative,
+defensible ratio for inventory we couldn't classify by signature. ADR-080 already flagged
+this as a known tuning lever ("some customers may want 2:1 or 3:1").
+
+### Behaviour change (re-run sizings to see new numbers)
+
+- `Virtual Machines / Large data-bearing (>100 GiB unknown)` DRR: **2.5 → 2.0** in
+  `samples/DRR.csv` and `src/store_predict/data/DRR.csv`. Required capacity for affected
+  large-unknown VMs rises ~25% (`provisioned / 2.0` vs `provisioned / 2.5`). The reroute
+  logic, the 100 GiB threshold, and the subcategory name are unchanged.
+
+### Docs
+
+- ADR-080 gains a dated amendment recording the 2.5 → 2.0 change (the original v9.0.0
+  decision text and impact figures, computed at 2.5, are preserved as history).
+- `docs/architecture.md` updated to state DRR=2.0.
+
+### Tests
+
+- `tests/test_drr_table.py::test_large_data_bearing_drr` now asserts 2.0.
+
 ## [v9.0.0] - 2026-05-01
 
 Major version bump — addresses the **single biggest sizing risk** in StorePredict: unclassified VMs landing in the generic `Virtual Machines / VMware-Hyper-V-KVM…` bucket at DRR=5 by default. Audit of two real customer RVTools exports showed 64–67% of inventory in this bucket, holding 330+ TiB of provisioned data. A blind 5:1 default predicts ~66 TiB of PowerStore need; a defensible 2.5:1 floor on unknown data-bearing inventory predicts ~132 TiB. The pre-existing default systematically undersized arrays by tens of TiB on real customer projects.

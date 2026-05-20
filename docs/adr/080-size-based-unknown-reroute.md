@@ -67,6 +67,20 @@ _UNKNOWN_SUBCATEGORIES: frozenset[str] = frozenset({
 - `tests/test_real_customer_baseline.py` adds `test_v900_large_databearing_takes_unknown_volume` to assert the bucket sizes on the real file.
 - The size-aware reroute is post-processing only — the rule registry remains a pure data structure usable elsewhere (e.g. the LLM rule-suggestion loop in `pipeline/llm_classifier.py`).
 
+## Amendment — v9.0.1 (2026-05-20)
+
+The DRR for `Virtual Machines / Large data-bearing (>100 GiB unknown)` is lowered from
+**2.5 to 2.0 (2:1)**. The 2.5:1 floor was judged too optimistic for inventory we could
+not classify by signature; 2:1 is a more conservative, defensible floor for truly-unknown
+large data-bearing VMs. This realises the tuning lever already noted in this ADR
+(see "Negative": *"some customers may want 2:1 or 3:1"*, and "Related": *">1 TiB → DRR=2.0"*).
+
+Only the ratio changes — the reroute logic, the `LARGE_VM_THRESHOLD_MIB` threshold, the
+`_UNKNOWN_SUBCATEGORIES` set, and the subcategory name are unchanged. The v9.0.0 Decision,
+Consequences, and impact tables above are preserved as history; their figures
+(e.g. "66 TiB → 132 TiB") were computed at 2.5:1. At 2:1 the predicted PowerStore need on
+the same inventory is correspondingly higher.
+
 ## Related
 
 - ADR-079: Description fallback opt-in per rule (v8.3.1).

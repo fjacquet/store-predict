@@ -887,7 +887,7 @@ class TestV900PatternsAndSizeAware:
     """v9.0.0 closes the biggest sizing risk in the tool: 64% of a real
     customer file fell to the generic Virtual Machines bucket (DRR=5) but
     held 330 TiB of provisioned data. Size-aware reroute moves unknown VMs
-    ≥100 GiB to a new 'Large data-bearing' subcategory at DRR=2.5.
+    ≥100 GiB to a new 'Large data-bearing' subcategory at DRR=2.0 (v9.0.1).
 
     Plus 3 patterns identified during the same audit: INSIGHTIQ → PostgreSQL,
     SECDB → Microsoft SQL, FORTIA<digit> → Logging/FortiNet.
