@@ -6,6 +6,7 @@ LLM API calls are made.
 """
 
 import asyncio
+import logging
 import os
 from collections.abc import Iterator
 
@@ -443,3 +444,123 @@ class TestReasoningModelHandling:
     def test_parse_batch_pure_thinking_returns_empty(self) -> None:
         """Pure reasoning with no JSON array yields an empty list (no crash)."""
         assert _parse_batch_response("<think> thinking with no json output", {"Database"}) == []
+
+
+# ---------------------------------------------------------------------------
+# Call-path coverage with a STUBBED _call_llm / litellm — deterministic canned
+# responses injected via monkeypatch (the repo's established pattern, see
+# test_i18n.py). No live model is called and no LLM *answer* is asserted; we
+# only verify how our code handles a given response or error.
+# ---------------------------------------------------------------------------
+
+
+class TestLLMCallPathsStubbed:
+    """Exercise the parse + log call sites without contacting a real LLM."""
+
+    def test_log_unparseable_reasoning_hint(self, caplog: pytest.LogCaptureFixture) -> None:
+        with caplog.at_level(logging.WARNING):
+            llm_classifier._log_unparseable("<think> still pondering, no answer")
+        assert "instruct model" in caplog.text
+
+    def test_log_unparseable_plain(self, caplog: pytest.LogCaptureFixture) -> None:
+        with caplog.at_level(logging.WARNING):
+            llm_classifier._log_unparseable("totally unparseable response")
+        assert "could not be parsed" in caplog.text
+
+    def test_single_success_via_stub(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """A canned 'Category|KEYWORD' is parsed and returned."""
+        llm_classifier._breaker.reset()
+
+        async def _fake(messages: list, max_tokens: int, config: object) -> str:
+            return "Database|REDIS"
+
+        monkeypatch.setattr(llm_classifier, "_call_llm", _fake)
+        result = asyncio.run(classify_single_vm("redis-01", "Linux", {"Database"}, LLMConfig(enabled=True)))
+        assert result == ("Database", "REDIS")
+
+    def test_single_unparseable_logs_hint(
+        self, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """A canned pure-reasoning response yields None and logs the instruct-model hint."""
+        llm_classifier._breaker.reset()
+
+        async def _fake(messages: list, max_tokens: int, config: object) -> str:
+            return "<think> ran out of tokens before answering"
+
+        monkeypatch.setattr(llm_classifier, "_call_llm", _fake)
+        with caplog.at_level(logging.WARNING):
+            result = asyncio.run(classify_single_vm("x-01", "Linux", {"Database"}, LLMConfig(enabled=True)))
+        assert result is None
+        assert "instruct model" in caplog.text
+
+    def test_batch_success_via_stub(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """A canned JSON array is parsed and mapped back to input positions."""
+        llm_classifier._breaker.reset()
+
+        async def _fake(messages: list, max_tokens: int, config: object) -> str:
+            return '[{"id":0,"category":"Email","keyword":"MAIL"},{"id":1,"category":"Containers","keyword":null}]'
+
+        monkeypatch.setattr(llm_classifier, "_call_llm", _fake)
+        batch = [("mail-p01", "Windows", ""), ("worker1", "RHEL", "")]
+        res = asyncio.run(classify_batch_vms(batch, {"Email", "Containers"}, LLMConfig(enabled=True)))
+        assert res == [("Email", "MAIL"), ("Containers", None)]
+
+    def test_batch_unparseable_logs_hint(
+        self, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """A canned pure-reasoning batch response yields all-None and logs the hint."""
+        llm_classifier._breaker.reset()
+
+        async def _fake(messages: list, max_tokens: int, config: object) -> str:
+            return "<think> no json array here"
+
+        monkeypatch.setattr(llm_classifier, "_call_llm", _fake)
+        batch = [("a", "Linux", ""), ("b", "Linux", "")]
+        with caplog.at_level(logging.WARNING):
+            res = asyncio.run(classify_batch_vms(batch, {"Database"}, LLMConfig(enabled=True)))
+        assert res == [None, None]
+        assert "instruct model" in caplog.text
+
+    def test_call_llm_logs_exception_type(
+        self, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        """When litellm raises (e.g. connection refused), _call_llm logs the type and returns None."""
+        llm_classifier._breaker.reset()
+
+        async def _boom(*args: object, **kwargs: object) -> object:
+            raise RuntimeError("connection refused")
+
+        monkeypatch.setattr("litellm.acompletion", _boom)
+        with caplog.at_level(logging.WARNING):
+            out = asyncio.run(
+                _call_llm([{"role": "user", "content": "ping"}], max_tokens=10, config=LLMConfig(enabled=True))
+            )
+        assert out is None
+        assert "LLM call failed" in caplog.text
+        llm_classifier._breaker.reset()
+
+    def test_single_returns_none_when_call_llm_none(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """classify_single_vm returns None when _call_llm yields None (no parse attempt)."""
+        llm_classifier._breaker.reset()
+
+        async def _fake(messages: list, max_tokens: int, config: object) -> None:
+            return None
+
+        monkeypatch.setattr(llm_classifier, "_call_llm", _fake)
+        assert asyncio.run(classify_single_vm("x-01", "Linux", {"Database"}, LLMConfig(enabled=True))) is None
+
+    def test_batch_returns_none_list_when_call_llm_none(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """classify_batch_vms returns a parallel None list when _call_llm yields None."""
+        llm_classifier._breaker.reset()
+
+        async def _fake(messages: list, max_tokens: int, config: object) -> None:
+            return None
+
+        monkeypatch.setattr(llm_classifier, "_call_llm", _fake)
+        batch = [("a", "Linux", ""), ("b", "Linux", "")]
+        assert asyncio.run(classify_batch_vms(batch, {"Database"}, LLMConfig(enabled=True))) == [None, None]
+
+
+def test_parse_batch_response_object_without_list_returns_empty() -> None:
+    """A JSON object with no list value (nothing to unwrap) yields an empty list."""
+    assert _parse_batch_response('{"foo": "bar"}', {"Database"}) == []
