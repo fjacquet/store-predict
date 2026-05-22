@@ -84,3 +84,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [078](078-per-vm-ignore-flag.md) | Per-VM ignore flag — filter-at-the-edge pattern | Accepted | 2026-04-17 |
 | [079](079-description-fallback-opt-in.md) | Classifier description fallback is opt-in per rule | Accepted | 2026-05-01 |
 | [080](080-size-based-unknown-reroute.md) | Size-based reroute for unknown VMs ≥100 GiB to File / General Purpose at DRR=2.0 (2:1) | Accepted | 2026-05-01 |
+| [081](081-customer-app-classification-rules.md) | Application-aware classification rules for app-named VM estates | Accepted | 2026-05-22 |

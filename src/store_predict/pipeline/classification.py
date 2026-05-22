@@ -405,7 +405,20 @@ def build_default_rules() -> list[ClassificationRule]:
             # Also match "SAP-xxx" and "SAP_xxx" naming conventions.
             # ^SAP(?![a-z]) covers post-prefix-strip names like "SAP02" (from "SrvSAP02")
             # while rejecting "SAPLING" etc. (IGNORECASE makes [a-z] match uppercase too).
-            vm_name_patterns=(*_patterns("SAP-", "SAP_"), *_regex_patterns(r"\bSAP\b", r"^SAP(?![a-z])")),
+            vm_name_patterns=(
+                *_patterns("SAP-", "SAP_"),
+                *_regex_patterns(r"\bSAP\b", r"^SAP(?![a-z])"),
+                # SAP application/NetWeaver components named "SAP<comp>" with no
+                # separator (customer convention: saperp, sapnwg, sapbobi, sapbods,
+                # sapbpc, sapads, sapccm, sapsom, sapcua, sapbcom, sapenow,
+                # sapcockpit, saplicenses, sapfront). These are NetWeaver/app tiers;
+                # the HANA databases carry HDB/HANA in their names and are matched by
+                # the higher-priority SAP HANA rules above (so sapbpc -> Traditional
+                # 5:1 while saphdb-bpc -> HANA 2:1).
+                *_regex_patterns(
+                    r"^SAP(?:ERP|NWG|BOBI|BODS|BPC|ADS|CCM|SOM|CUA|BCOM|ENOW|COCKPIT|LICENSE|FRONT)",
+                ),
+            ),
         ),
         ClassificationRule(
             name="SAP HANA HDB",
@@ -525,7 +538,10 @@ def build_default_rules() -> list[ClassificationRule]:
             # EXC + digit = Exchange abbreviation (e.g. SRVEXC02 → EXC02 after prefix strip)
             vm_name_patterns=(
                 *_patterns("EXCHANGE", "DOMINO", "ZIMBRA", "SENDMAIL", "MSG", "EXCHG", "EXCH"),
-                *_regex_patterns(r"[-_]EX\d", r"EXC\d"),
+                # \bMAIL\b matches live mail-server hostnames like "mail-p01".
+                # Word-bounded so it does NOT catch "mailarch" (no boundary after
+                # MAIL) — mail archives are handled by the File Archive rule (1:1).
+                *_regex_patterns(r"[-_]EX\d", r"EXC\d", r"\bMAIL\b"),
             ),
         ),
         ClassificationRule(
@@ -667,6 +683,10 @@ def build_default_rules() -> list[ClassificationRule]:
                 r"\bDC\d+\b",
                 r"\bAADC?\d*\b",
                 r"\bADDS\b",
+                # Cantonal AD domain controllers named <zone>DC (infradc, jusdc,
+                # infrapoldc, exploitdc). Prefix-qualified so we do NOT match the
+                # Citrix Delivery Controller "DDC" (ctxddcpol, ddc-*).
+                r"\b(?:INFRA|JUS|INFRAPOL|EXPLOIT)DC\b",
             ),
             folder_patterns=_regex_patterns(r"/AD$|/AADC|/Domain Controllers"),
         ),
@@ -696,7 +716,16 @@ def build_default_rules() -> list[ClassificationRule]:
             priority=310,
             vm_name_patterns=(
                 *_patterns("DOCKER", "KUBERNETES", "K8S", "OPENSHIFT", "TANZU", "TKG", "HARBOR"),
-                *_regex_patterns(r"photon-.*-kube"),
+                *_regex_patterns(
+                    r"photon-.*-kube",
+                    # OpenShift/Kubernetes cluster nodes named workerN / masterN /
+                    # bootstrap (start-anchored so we do NOT match e.g.
+                    # "opsmaster-p03" or a SQL "master" appearing mid-name).
+                    # Seen as worker1.oc.vs.ch, master1.oc.vs.ch, bootstrap.oc.vs.ch.
+                    r"^worker\d",
+                    r"^master\d",
+                    r"^bootstrap\b",
+                ),
             ),
         ),
         ClassificationRule(
@@ -744,6 +773,13 @@ def build_default_rules() -> list[ClassificationRule]:
                 # OWA=Office Web Apps, OFFICE=generic, APP=App role,
                 # WFE=Web Front End. SPAPP/SPWFE catch e.g. SPHFRSPAPP11.
                 *_patterns("SPBE", "SPFE", "SPOWA", "SPOFFICE", "SPAPP", "SPWFE"),
+                # Document management / ECM / capture content stores: Kendox
+                # InfoShare DMS, Kofax/Tungsten AutoStore capture, YouDoc DMS,
+                # OpenText (OTRECM), generic DOCPRO document processing. ^ECM is
+                # start-anchored so it does not match embedded "ecm" (e.g.
+                # "secmaster").
+                *_patterns("KENDOX", "AUTOSTORE", "AUSTORE", "YOUDOC", "OTRECM", "DOCPRO"),
+                *_regex_patterns(r"^ECM"),
             ),
         ),
         ClassificationRule(
@@ -751,14 +787,21 @@ def build_default_rules() -> list[ClassificationRule]:
             category="File",
             subcategory="Developer Workspaces (DevOps)",
             priority=350,
-            vm_name_patterns=_patterns("DEVOPS", "JENKINS", "ANSIBLE", "DEPLOY"),
+            # ARTIFACT(ory) binary repositories and CICD build servers are
+            # developer-workspace / DevOps infrastructure.
+            vm_name_patterns=_patterns("DEVOPS", "JENKINS", "ANSIBLE", "DEPLOY", "ARTIFACT", "CICD"),
         ),
         ClassificationRule(
             name="File Archive",
             category="File",
             subcategory=("Archive / Backup / Compressed / Encrypted / Rich Media / ISO / PACS / CAD"),
             priority=360,
-            vm_name_patterns=_patterns("ARCHIVE", "BACKUP"),
+            vm_name_patterns=_patterns(
+                "ARCHIVE",
+                "BACKUP",
+                "MAILARCH",  # mail archive store (e.g. mailarch-p01) — largely incompressible
+                "VIDEOMGMT",  # video management / surveillance store — incompressible media
+            ),
         ),
         ClassificationRule(
             name="VMware Infrastructure VMs",
@@ -777,6 +820,30 @@ def build_default_rules() -> list[ClassificationRule]:
             # Annotation signatures from VCSA / vSAN Witness OVAs.
             vm_name_patterns=_patterns("vCenter Server Appliance", "vSAN Witness"),
             match_description=True,
+        ),
+        ClassificationRule(
+            name="Application servers (identified)",
+            category="Virtual Machines",
+            subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
+            priority=397,
+            # Named commercial/application servers whose persistent data lives
+            # elsewhere (database on a separate host) or which are management
+            # appliances — they reduce like a normal OS/app workload (DRR 5),
+            # not the conservative File floor:
+            #   ABACUS    Swiss ERP application tier (database on a separate host)
+            #   MIDPOINT  Evolveum midPoint IGA app server (PostgreSQL repo separate)
+            #   METADIR   identity metadirectory / synchronisation server
+            #   MESSERLI  Messerli Informatik business software (app tier)
+            #   TALEND    Talend data-integration job/admin server (transient staging)
+            #   EYEGLASS  Superna Eyeglass PowerScale DR management appliance
+            vm_name_patterns=_patterns(
+                "ABACUS",
+                "MIDPOINT",
+                "METADIR",
+                "MESSERLI",
+                "TALEND",
+                "EYEGLASS",
+            ),
         ),
         # === Tier 4: Logging / Analytics (400-499) ===
         ClassificationRule(
@@ -869,6 +936,9 @@ def build_default_rules() -> list[ClassificationRule]:
                 # FortiADC short hostname convention: FORTIA + digit
                 # (e.g. SPHFRFORTIA01). Digit required to avoid false positives.
                 *_regex_patterns(r"FORTIA\d"),
+                # MONITOR* = generic monitoring / metrics collectors (start-anchored
+                # to avoid matching the token mid-name).
+                *_regex_patterns(r"^MONITOR"),
             ),
             os_patterns=_patterns("FORTI"),
         ),
