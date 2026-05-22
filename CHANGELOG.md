@@ -21,6 +21,12 @@ All notable changes to StorePredict are documented here.
   - Recommended config: use an instruct model (e.g. `ollama/gemma4:e4b`), not a
     `*-thinking` variant.
 
+- **LLM classification failing in Docker against a host-local Ollama.** Inside the
+  container `localhost:11434` is the container, not the host, so every call failed
+  (connection refused) and the circuit breaker opened — 0 VMs classified. Reach the
+  host's Ollama via `LLM_API_BASE=http://host.docker.internal:11434`; `docker-compose.yml`
+  now maps `host.docker.internal:host-gateway` so it resolves on Linux too.
+
 ## [v9.0.2] - 2026-05-20
 
 Retires the synthetic `Virtual Machines / Large data-bearing (>100 GiB unknown)` category.

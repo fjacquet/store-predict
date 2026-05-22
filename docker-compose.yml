@@ -13,4 +13,9 @@ services:
       - LLM_MODEL=${LLM_MODEL:-mistralai/mistral-small-3.1-24b-instruct}
       - LLM_API_KEY=${LLM_API_KEY:-}
       - LLM_API_BASE=${LLM_API_BASE:-https://openrouter.ai/api/v1}
+    # Reach a host-local Ollama from inside the container. Docker Desktop
+    # (Mac/Windows) provides host.docker.internal automatically; this mapping
+    # makes it resolve on Linux too. Set LLM_API_BASE=http://host.docker.internal:11434.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
