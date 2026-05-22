@@ -137,7 +137,12 @@ async def _call_llm(
         _breaker.record_success()
         model_response: Any = response
         return str((model_response.choices[0].message.content or "").strip())
-    except (TimeoutError, Exception):
+    except (TimeoutError, Exception) as exc:
+        # Surface the failure: the exception TYPE is safe to log (it carries no VM
+        # data); the full message goes to DEBUG only, since provider errors can echo
+        # the prompt. Without this the LLM path fails completely silently.
+        logger.warning("LLM call failed: %s", type(exc).__name__)
+        logger.debug("LLM call failure detail: %s", exc)
         if _breaker.record_failure():
             logger.warning(
                 "LLM circuit breaker opened after %d consecutive failures — skipping calls for %.0f seconds",
@@ -172,15 +177,79 @@ _BATCH_SYSTEM_PROMPT = (
 )
 
 
+# Reasoning ("thinking") models (e.g. *-thinking variants) wrap their
+# scratch-work in <think>...</think> before — sometimes — emitting an answer.
+# The classifier expects a terse answer, so strip the reasoning (including an
+# unterminated trailing block from a truncated response) before parsing.
+# Without this, a thinking model spends its token budget reasoning and the
+# parser sees no answer → every VM comes back unclassified.
+_THINK_BLOCK_RE = re.compile(r"<think>.*?</think>", re.DOTALL | re.IGNORECASE)
+_THINK_DANGLING_RE = re.compile(r"<think>.*\Z", re.DOTALL | re.IGNORECASE)
+
+
+def _strip_reasoning(text: str) -> str:
+    """Remove ``<think>...</think>`` chain-of-thought blocks from an LLM response."""
+    text = _THINK_BLOCK_RE.sub("", text)
+    text = _THINK_DANGLING_RE.sub("", text)
+    return text.strip()
+
+
+def _is_reasoning_output(raw: str) -> bool:
+    """True when the response looks like a reasoning model's chain-of-thought."""
+    return "<think>" in raw.lower()
+
+
+def _log_unparseable(raw: str) -> None:
+    """Log (without any VM data) that a non-empty LLM response could not be parsed.
+
+    Only the response length and a reasoning-model hint are logged — never the
+    content, which may echo VM names/OS strings.
+    """
+    if _is_reasoning_output(raw):
+        logger.warning(
+            "LLM returned reasoning-model output (<think>...) with no parseable answer — "
+            "set LLM_MODEL to a non-thinking instruct model (e.g. an *-instruct variant)."
+        )
+    else:
+        logger.warning(
+            "LLM response could not be parsed into the expected format (length=%d chars).",
+            len(raw),
+        )
+
+
+def _parse_single_response(raw: str, valid_categories: set[str]) -> tuple[str, str | None] | None:
+    """Parse a single-VM ``Category|KEYWORD`` response into a validated tuple.
+
+    Strips ``<think>`` reasoning first. Returns ``None`` when the (cleaned)
+    response does not yield a category in *valid_categories*.
+    """
+    cleaned = _strip_reasoning(raw)
+    if "|" in cleaned:
+        category_part, keyword_part = cleaned.split("|", 1)
+        category = category_part.strip()
+        raw_keyword = keyword_part.strip().upper()
+        keyword: str | None = raw_keyword if raw_keyword and raw_keyword != "NONE" and len(raw_keyword) >= 2 else None
+    else:
+        category = cleaned.strip()
+        keyword = None
+    return (category, keyword) if category in valid_categories else None
+
+
 def _parse_batch_response(raw: str, valid_categories: set[str]) -> list[dict[str, Any]]:
     """Parse a batch LLM JSON response into validated result dicts.
 
-    Strips markdown code fences, validates categories, and normalizes keywords.
-    Returns an empty list on any parse error.
+    Strips ``<think>`` reasoning and markdown code fences, validates categories,
+    and normalizes keywords. Returns an empty list on any parse error.
     """
     try:
-        cleaned = re.sub(r"```(?:json)?\s*|\s*```", "", raw).strip()
+        cleaned = _strip_reasoning(raw)
+        cleaned = re.sub(r"```(?:json)?\s*|\s*```", "", cleaned).strip()
         items = json.loads(cleaned)
+        # Some models (especially in JSON mode) wrap the array in an object,
+        # e.g. {"classifications": [...]} or {"results": [...]}. Unwrap the
+        # first list value so these responses parse instead of being dropped.
+        if isinstance(items, dict):
+            items = next((v for v in items.values() if isinstance(v, list)), None)
         if not isinstance(items, list):
             return []
         results: list[dict[str, Any]] = []
@@ -251,11 +320,16 @@ async def classify_batch_vms(
         {"role": "user", "content": user_prompt},
     ]
 
-    raw_text = await _call_llm(messages, max_tokens=config.batch_size * 60, config=config)
+    # Token budget: each JSON item is ~30-50 tokens; 60/VM proved too tight (small
+    # models emitted empty or truncated output). Use ~120/VM with a 512 floor.
+    max_tokens = max(512, len(batch) * 120)
+    raw_text = await _call_llm(messages, max_tokens=max_tokens, config=config)
     if raw_text is None:
         return [None] * len(batch)
 
     parsed = _parse_batch_response(raw_text, valid_categories)
+    if not parsed and raw_text.strip():
+        _log_unparseable(raw_text)
 
     # Map parsed results back to input positions by id
     result_map: dict[int, tuple[str, str | None]] = {}
@@ -312,22 +386,16 @@ async def classify_single_vm(
         {"role": "user", "content": user_prompt},
     ]
 
-    raw = await _call_llm(messages, max_tokens=30, config=config)
+    # 64 tokens: the answer "Category|KEYWORD" is short, but give headroom so a
+    # model that prepends a word or two still emits the full answer.
+    raw = await _call_llm(messages, max_tokens=64, config=config)
     if raw is None:
         return None
 
-    # Parse "Category|KEYWORD" response format
-    if "|" in raw:
-        category_part, keyword_part = raw.split("|", 1)
-        category = category_part.strip()
-        raw_keyword = keyword_part.strip().upper()
-        # Reject placeholder / garbage keywords
-        keyword: str | None = raw_keyword if raw_keyword and raw_keyword != "NONE" and len(raw_keyword) >= 2 else None
-    else:
-        category = raw.strip()
-        keyword = None
-
-    return (category, keyword) if category in valid_categories else None
+    result = _parse_single_response(raw, valid_categories)
+    if result is None and raw.strip():
+        _log_unparseable(raw)
+    return result
 
 
 async def classify_unknown_vms_async(

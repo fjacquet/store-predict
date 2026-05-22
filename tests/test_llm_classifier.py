@@ -16,7 +16,10 @@ from store_predict.pipeline.llm_classifier import (
     CircuitBreaker,
     _call_llm,
     _chunks,
+    _is_reasoning_output,
     _parse_batch_response,
+    _parse_single_response,
+    _strip_reasoning,
     classify_batch_vms,
     classify_single_vm,
     classify_unknown_vms_async,
@@ -154,6 +157,19 @@ def test_parse_batch_response_keyword_normalization() -> None:
     result = _parse_batch_response(raw, valid)
     assert len(result) == 1
     assert result[0]["keyword"] == "REDIS"
+
+
+def test_parse_batch_response_unwraps_object() -> None:
+    """JSON-mode responses wrapping the array in an object still parse.
+
+    Small models in JSON mode often return {"classifications": [...]} instead of
+    a bare array; the parser unwraps the first list value.
+    """
+    raw = '{"classifications": [{"id": 0, "category": "Email", "keyword": "MAIL"}]}'
+    result = _parse_batch_response(raw, {"Email"})
+    assert len(result) == 1
+    assert result[0]["category"] == "Email"
+    assert result[0]["keyword"] == "MAIL"
 
 
 def test_classifier_batch_skips_when_disabled(drr_table: DRRTable) -> None:
@@ -369,3 +385,61 @@ def test_classify_single_sanitises_long_and_control_chars(
         )
     )
     assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Reasoning ("thinking") model handling — parse-layer robustness.
+#
+# A reasoning model (e.g. ollama/*-thinking) emits <think>...</think>
+# chain-of-thought instead of the terse answer the classifier expects, which
+# previously made every VM come back unclassified with no visible error.
+# ---------------------------------------------------------------------------
+
+
+class TestReasoningModelHandling:
+    """The parsers strip <think> reasoning and degrade gracefully."""
+
+    def test_strip_reasoning_removes_closed_block(self) -> None:
+        assert _strip_reasoning("<think> ponder ponder </think>Database|SAP") == "Database|SAP"
+
+    def test_strip_reasoning_removes_dangling_block(self) -> None:
+        """A truncated (unterminated) <think> block leaves no answer."""
+        assert _strip_reasoning("<think> still thinking, ran out of tokens") == ""
+
+    def test_strip_reasoning_passthrough(self) -> None:
+        assert _strip_reasoning("Database|REDIS") == "Database|REDIS"
+
+    def test_is_reasoning_output(self) -> None:
+        assert _is_reasoning_output("<think>hmm") is True
+        assert _is_reasoning_output("Database|SQL") is False
+
+    def test_parse_single_thinking_then_answer(self) -> None:
+        """Thinking model that DOES reach an answer is parsed correctly."""
+        raw = "<think> RHEL host, app server, pick a category </think>Database|SAPERP"
+        assert _parse_single_response(raw, {"Database"}) == ("Database", "SAPERP")
+
+    def test_parse_single_pure_thinking_returns_none(self) -> None:
+        """Pure chain-of-thought with no answer yields None (not a crash)."""
+        raw = "<think> Okay, let's tackle this problem step by step. The user wants"
+        assert _parse_single_response(raw, {"Database"}) is None
+
+    def test_parse_single_plain_answer(self) -> None:
+        assert _parse_single_response("Database|REDIS", {"Database"}) == ("Database", "REDIS")
+
+    def test_parse_single_none_keyword(self) -> None:
+        assert _parse_single_response("Virtual Machines|NONE", {"Virtual Machines"}) == ("Virtual Machines", None)
+
+    def test_parse_single_invalid_category_returns_none(self) -> None:
+        assert _parse_single_response("Bogus|X", {"Database"}) is None
+
+    def test_parse_batch_strips_thinking_block(self) -> None:
+        """Batch JSON preceded by a <think> block still parses."""
+        raw = '<think> classify all three </think>[{"id":0,"category":"Database","keyword":"SQL"}]'
+        result = _parse_batch_response(raw, {"Database"})
+        assert len(result) == 1
+        assert result[0]["category"] == "Database"
+        assert result[0]["keyword"] == "SQL"
+
+    def test_parse_batch_pure_thinking_returns_empty(self) -> None:
+        """Pure reasoning with no JSON array yields an empty list (no crash)."""
+        assert _parse_batch_response("<think> thinking with no json output", {"Database"}) == []

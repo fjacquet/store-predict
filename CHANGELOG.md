@@ -4,6 +4,23 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- **LLM classification silently failing with reasoning ("thinking") Ollama models.**
+  A model like `ollama/lfm2.5-thinking` emits `<think>...</think>` chain-of-thought
+  instead of the terse `Category|KEYWORD` (or batch JSON) the classifier parses, so
+  every VM came back unclassified. litellm returned 200 (no exception), so the
+  circuit breaker never tripped and `_call_llm`'s broad `except` had nothing to log —
+  the failure was invisible. Fixes:
+  - Parsers now strip `<think>...</think>` blocks (including a truncated trailing
+    block) before parsing, so a thinking model that *does* reach an answer works.
+  - `_call_llm` now logs the failing exception type (WARNING) and detail (DEBUG);
+    a non-empty-but-unparseable response logs a hint to switch to an instruct model.
+  - Single-VM `max_tokens` raised 30 → 64.
+  - `.env.example` documents that `LLM_MODEL` must be a non-thinking instruct model.
+  - Recommended config: use an instruct model (e.g. `ollama/gemma4:e4b`), not a
+    `*-thinking` variant.
+
 ## [v9.0.2] - 2026-05-20
 
 Retires the synthetic `Virtual Machines / Large data-bearing (>100 GiB unknown)` category.
