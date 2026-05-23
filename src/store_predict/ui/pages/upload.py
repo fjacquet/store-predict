@@ -113,7 +113,7 @@ async def upload_page() -> None:
             progress.visible = False
 
         # Format hints
-        ui.label(t("upload.supported_formats")).classes("text-sm text-gray-400")
+        ui.label(t("upload.supported_formats")).classes("text-sm").style("color:var(--sp-muted)")
 
         # AI classification toggle — only interactive when LLM is configured via env
         llm_cfg = LLMConfig()
@@ -125,7 +125,7 @@ async def upload_page() -> None:
             ).tooltip(t("tooltip.llm_toggle"))
             if not llm_cfg.enabled:
                 llm_switch.disable()
-                ui.label(t("upload.llm_disabled_hint")).classes("text-xs text-gray-400 italic")
+                ui.label(t("upload.llm_disabled_hint")).classes("text-xs italic").style("color:var(--sp-muted)")
 
         async def _handle_session_restore(zip_bytes: bytes) -> None:
             """Restore a StorePredict session archive into app.storage.tab and navigate to /review."""

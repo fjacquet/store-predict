@@ -14,22 +14,28 @@ from store_predict.ui.state import load_filtered_session_data
 # Severity styling helpers
 # ---------------------------------------------------------------------------
 
-_SEVERITY_CARD_CLASSES: dict[Severity, str] = {
-    Severity.CRITICAL: "border-l-4 border-red-500 bg-red-50 p-4 gap-2",
-    Severity.WARNING: "border-l-4 border-yellow-500 bg-yellow-50 p-4 gap-2",
-    Severity.INFO: "border-l-4 border-blue-500 bg-blue-50 p-4 gap-2",
+_SEVERITY_CARD_STYLE: dict[Severity, str] = {
+    Severity.CRITICAL: (
+        "border-left:4px solid var(--q-negative);background:color-mix(in srgb,var(--q-negative) 8%,var(--sp-surface));"
+    ),
+    Severity.WARNING: (
+        "border-left:4px solid var(--q-warning);background:color-mix(in srgb,var(--q-warning) 8%,var(--sp-surface));"
+    ),
+    Severity.INFO: (
+        "border-left:4px solid var(--q-info);background:color-mix(in srgb,var(--q-info) 8%,var(--sp-surface));"
+    ),
 }
 
-_SEVERITY_BADGE_CLASSES: dict[Severity, str] = {
-    Severity.CRITICAL: "bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded",
-    Severity.WARNING: "bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded",
-    Severity.INFO: "bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded",
+_SEVERITY_BADGE_COLOR: dict[Severity, str] = {
+    Severity.CRITICAL: "negative",
+    Severity.WARNING: "warning",
+    Severity.INFO: "info",
 }
 
-_SEVERITY_TITLE_CLASSES: dict[Severity, str] = {
-    Severity.CRITICAL: "font-semibold text-red-800",
-    Severity.WARNING: "font-semibold text-yellow-800",
-    Severity.INFO: "font-semibold text-blue-800",
+_SEVERITY_TITLE_STYLE: dict[Severity, str] = {
+    Severity.CRITICAL: "color:var(--q-negative);font-weight:600;",
+    Severity.WARNING: "color:var(--q-warning);font-weight:600;",
+    Severity.INFO: "color:var(--q-info);font-weight:600;",
 }
 
 
@@ -42,38 +48,50 @@ def _render_summary_badges(result: HealthCheckResult) -> None:
     """Render critical/warning/info count badges in a horizontal row."""
     with ui.row().classes("gap-3 items-center flex-wrap"):
         if result.critical_count > 0:
-            ui.label(t("concerns.summary_critical", count=result.critical_count)).classes(
-                "bg-red-600 text-white text-sm font-bold px-3 py-1 rounded-full"
-            )
+            ui.badge(
+                t("concerns.summary_critical", count=result.critical_count),
+                color="negative",
+            ).classes("text-sm font-bold px-3 py-1 rounded-full")
         if result.warning_count > 0:
-            ui.label(t("concerns.summary_warning", count=result.warning_count)).classes(
-                "bg-yellow-500 text-white text-sm font-bold px-3 py-1 rounded-full"
-            )
+            ui.badge(
+                t("concerns.summary_warning", count=result.warning_count),
+                color="warning",
+            ).classes("text-sm font-bold px-3 py-1 rounded-full")
         if result.info_count > 0:
-            ui.label(t("concerns.summary_info", count=result.info_count)).classes(
-                "bg-blue-500 text-white text-sm font-bold px-3 py-1 rounded-full"
-            )
-        ui.label(t("concerns.affected_count", count=result.total_vms_checked)).classes("text-sm text-gray-500")
+            ui.badge(
+                t("concerns.summary_info", count=result.info_count),
+                color="info",
+            ).classes("text-sm font-bold px-3 py-1 rounded-full")
+        ui.label(t("concerns.affected_count", count=result.total_vms_checked)).classes("text-sm").style(
+            "color:var(--sp-muted)"
+        )
 
 
 def _render_finding_card(finding: HealthFinding) -> None:
     """Render a single finding as a left-bordered card with severity color."""
-    card_classes = _SEVERITY_CARD_CLASSES.get(finding.severity, "border-l-4 border-gray-400 bg-gray-50 p-4 gap-2")
-    badge_classes = _SEVERITY_BADGE_CLASSES.get(finding.severity, "bg-gray-500 text-white text-xs px-2 py-0.5 rounded")
-    title_classes = _SEVERITY_TITLE_CLASSES.get(finding.severity, "font-semibold text-gray-800")
+    card_style = _SEVERITY_CARD_STYLE.get(
+        finding.severity,
+        "border-left:4px solid var(--sp-line);background:var(--sp-surface-2);",
+    )
+    badge_color = _SEVERITY_BADGE_COLOR.get(finding.severity, "grey-7")
+    title_style = _SEVERITY_TITLE_STYLE.get(finding.severity, "color:var(--sp-muted);font-weight:600;")
 
-    with ui.card().classes(f"w-full {card_classes}"):
+    with ui.card().classes("w-full p-4 gap-2").style(card_style):
         with ui.row().classes("items-center gap-2 flex-wrap"):
-            ui.label(finding.severity.upper()).classes(badge_classes)
-            ui.label(t(finding.title)).classes(title_classes)
+            ui.badge(finding.severity.upper(), color=badge_color).classes("text-xs font-bold px-2 py-0.5 rounded")
+            ui.label(t(finding.title)).classes("font-semibold").style(title_style)
             if finding.cluster:
-                ui.label(finding.cluster).classes("text-xs font-mono bg-gray-100 text-gray-700 px-2 py-0.5 rounded")
-        ui.label(t(finding.detail, count=finding.affected_count)).classes("text-sm text-gray-700")
+                ui.label(finding.cluster).classes("text-xs sp-mono px-2 py-0.5 rounded").style(
+                    "background:var(--sp-surface-2);border:1px solid var(--sp-line);color:var(--sp-muted)"
+                )
+        ui.label(t(finding.detail, count=finding.affected_count)).classes("text-sm").style("color:var(--sp-muted)")
         if finding.remediation:
-            ui.label(finding.remediation).classes("text-sm text-gray-500 italic mt-1")
+            ui.label(finding.remediation).classes("text-sm italic mt-1").style("color:var(--sp-muted)")
         if finding.affected_vms:
             names_str = ", ".join(finding.affected_vms)
-            ui.label(t("concerns.affected_vms", names=names_str)).classes("text-xs text-gray-500 font-mono")
+            ui.label(t("concerns.affected_vms", names=names_str)).classes("text-xs sp-mono").style(
+                "color:var(--sp-muted)"
+            )
 
 
 def _render_findings_section(
@@ -87,7 +105,7 @@ def _render_findings_section(
     if not findings:
         return
     with ui.column().classes("w-full gap-2"):
-        ui.label(section_title).classes("text-lg font-bold text-gray-700 mt-2")
+        ui.label(section_title).classes("text-lg font-bold mt-2").style("color:var(--sp-muted)")
         for finding in findings:
             _render_finding_card(finding)
 
@@ -138,19 +156,19 @@ async def concerns_page() -> None:
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
             ui.card().classes("p-8 gap-4 items-center text-center"),
         ):
-            ui.icon("health_and_safety", size="3rem").classes("text-gray-400")
-            ui.label(t("concerns.no_data")).classes("text-xl text-gray-500 text-center")
+            ui.icon("health_and_safety", size="3rem").style("color:var(--sp-muted)")
+            ui.label(t("concerns.no_data")).classes("text-xl text-center").style("color:var(--sp-muted)")
             ui.button(
                 t("report.go_to_upload"),
                 on_click=lambda: ui.navigate.to("/upload"),
                 icon="arrow_forward",
-            ).classes("bg-blue-700 text-white")
+            ).props("color=primary")
         return
 
     result = run_health_checks(df)
 
     with layout("StorePredict - " + t("concerns.title")), ui.column().classes("w-full max-w-4xl mx-auto p-4 gap-4"):
-        ui.label(t("concerns.title")).classes("text-2xl font-bold text-blue-900")
+        ui.label(t("concerns.title")).classes("text-2xl font-bold sp-display")
         _render_summary_badges(result)
         with ui.row().classes("gap-2 items-center"):
             ui.button(
@@ -160,7 +178,7 @@ async def concerns_page() -> None:
                     generate_concerns_pdf(result, locale=_get_locale()),
                     t("concerns.export_pdf_filename"),
                 ),
-            ).classes("bg-blue-700 text-white text-sm")
+            ).classes("text-sm").props("color=primary")
             ui.button(
                 t("concerns.export_csv"),
                 icon="download",
@@ -168,11 +186,11 @@ async def concerns_page() -> None:
                     generate_concerns_csv(result),
                     t("concerns.export_csv_filename"),
                 ),
-            ).classes("bg-green-700 text-white text-sm")
+            ).classes("text-sm").props("color=positive")
         ui.separator()
         if not result.findings:
             with ui.row().classes("items-center gap-2"):
-                ui.icon("check_circle", size="1.5rem").classes("text-green-600")
-                ui.label(t("concerns.no_findings")).classes("text-green-600 font-medium")
+                ui.icon("check_circle", size="1.5rem").props("color=positive")
+                ui.label(t("concerns.no_findings")).classes("font-medium").style("color:var(--q-positive)")
         else:
             _render_findings_by_severity(result.findings)
