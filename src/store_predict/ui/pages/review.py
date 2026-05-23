@@ -9,6 +9,7 @@ from nicegui import ui
 from store_predict.config import DRR_CSV_PATH, StorageModel
 from store_predict.i18n import t
 from store_predict.services.drr_table import DRRTable, apply_storage_model
+from store_predict.ui.components.confidence_filter import build_confidence_filters
 from store_predict.ui.components.summary_stats import build_summary_stats
 from store_predict.ui.components.vm_table import create_vm_table
 from store_predict.ui.components.workload_dialog import WorkloadDialog
@@ -158,6 +159,10 @@ async def review_page() -> None:
         with stats_container:
             build_summary_stats(row_data)
 
+        # Confidence-triage filters — populated after the grid exists (the chip
+        # click handlers need the grid in scope).
+        filter_container = ui.column().classes("w-full")
+
         # Build "Category / Subcategory" labels for inline dropdown
         subcategory_labels = [f"{opt['category']} / {opt['subcategory']}" for opt in workload_options]
 
@@ -190,6 +195,9 @@ async def review_page() -> None:
             subcategory_labels=subcategory_labels,
             has_performance_data=has_perf,
         )
+
+        with filter_container:
+            build_confidence_filters(row_data, grid)
 
         # Toolbar: quick filter + column visibility panel (placed after grid so
         # the grid variable is in scope for the closures — NiceGUI renders

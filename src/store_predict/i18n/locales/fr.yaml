@@ -39,6 +39,8 @@ review:
   no_rows_selected: "Aucune ligne sélectionnée. Utilisez les cases à cocher pour sélectionner des VMs."
   updated_notify: "%{count} VM(s) mises à jour vers %{category} / %{subcategory}"
   search_placeholder: "Rechercher des VMs..."
+  filter_label: "Confiance"
+  filter_all: "Tout"
   column_panel_title: "Afficher les colonnes"
   column_panel_tip: "Les colonnes masquées ne sont pas incluses dans les résultats de recherche."
 

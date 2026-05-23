@@ -39,6 +39,8 @@ review:
   no_rows_selected: "No rows selected. Use checkboxes to select VMs first."
   updated_notify: "Updated %{count} VM(s) to %{category} / %{subcategory}"
   search_placeholder: "Search VMs..."
+  filter_label: "Confidence"
+  filter_all: "All"
   column_panel_title: "Show Columns"
   column_panel_tip: "Hidden columns are not included in search results."
 
