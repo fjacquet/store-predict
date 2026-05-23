@@ -36,6 +36,7 @@ markdown_extensions:
 not_in_nav: |
   adr/0*.md
   research/phase-*.md
+  research/semantic-classifier.md
 
 nav:
   - Home: index.md

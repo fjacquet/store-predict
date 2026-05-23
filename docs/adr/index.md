@@ -85,3 +85,7 @@ ADRs document key technical decisions made during StorePredict development.
 | [079](079-description-fallback-opt-in.md) | Classifier description fallback is opt-in per rule | Accepted | 2026-05-01 |
 | [080](080-size-based-unknown-reroute.md) | Size-based reroute for unknown VMs ≥100 GiB to File / General Purpose at DRR=2.0 (2:1) | Accepted | 2026-05-01 |
 | [081](081-customer-app-classification-rules.md) | Application-aware classification rules for app-named VM estates | Accepted | 2026-05-22 |
+| [082](082-semantic-router-primary-classifier.md) | Semantic-router (FastEmbed) as primary classifier; regex rules demoted to overrides | Accepted | 2026-05-23 |
+| [083](083-fastembed-offline-encoder.md) | FastEmbed (ONNX, BAAI/bge-small-en-v1.5) as offline embedding encoder | Accepted | 2026-05-23 |
+| [084](084-retire-llm-fallback-dormant.md) | Retire LLM classification from active pipeline; keep module dormant | Accepted | 2026-05-23 |
+| [085](085-curated-self-learning-exemplars.md) | Curated exemplars + in-memory same-file self-learning for semantic router | Accepted | 2026-05-23 |
