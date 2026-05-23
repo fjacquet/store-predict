@@ -18,7 +18,7 @@ dependencies = [
     "matplotlib>=3.8",
     "python-pptx>=1.0,<2.0",
     "litellm>=1.83.7",
-    "semantic-router>=0.1.0,<0.2.0",
+    "semantic-router>=0.1.15,<0.2.0",  # >=0.1.15: CVE-2026-42208 (0.1.14 yanked: unbounded litellm pin)
     "fastembed>=0.8,<0.9",
     "pydantic>=2.12.5",
     "pydantic-settings>=2.13.0,<3.0",
