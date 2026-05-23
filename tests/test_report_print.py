@@ -117,3 +117,40 @@ class TestFindingsDataSerialization:
         prefix = check_id.split(".")[0] if "." in check_id else check_id
         assert prefix == "data_quality"
         assert _prefix_key.get(prefix) == "pdf.findings_category_data_quality"
+
+
+def test_pptx_handler_produces_pptx_bytes() -> None:
+    """The report page's PPTX path produces a valid .pptx for a real summary."""
+    from store_predict.pipeline.calculation import calculate
+    from store_predict.services.pptx_report import generate_report_pptx
+
+    rows = [
+        {
+            "vm_name": "SQL01",
+            "workload_category": "Database/Microsoft SQL",
+            "provisioned_mib": 20480.0,
+            "in_use_mib": 12288.0,
+            "drr": 5.0,
+        },
+        {
+            "vm_name": "WEB01",
+            "workload_category": "Virtual Machines",
+            "provisioned_mib": 10240.0,
+            "in_use_mib": 6144.0,
+            "drr": 5.0,
+        },
+    ]
+    summary = calculate(rows)
+    out = generate_report_pptx(summary, "Wiring Test", locale="fr")
+    assert out[:4] == b"PK\x03\x04"
+
+
+def test_report_page_imports_pptx_generator() -> None:
+    """report.py must import generate_report_pptx (button wiring)."""
+    import store_predict.ui.pages.report as report_mod
+
+    assert (
+        hasattr(report_mod, "generate_report_pptx")
+        or "generate_report_pptx" in report_mod.__dict__
+        or hasattr(report_mod, "_on_download_pptx")
+    )

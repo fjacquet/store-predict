@@ -26,6 +26,7 @@ from store_predict.services.pdf_report import (
     sanitize_filename,
     validate_logo,
 )
+from store_predict.services.pptx_report import generate_report_pptx
 from store_predict.ui.layout import layout
 from store_predict.ui.state import get_scope_selection, load_filtered_session_data
 
@@ -205,6 +206,15 @@ async def report_page() -> None:
                 .tooltip(t("tooltip.download_excel"))
             )
 
+            pptx_btn = (
+                ui.button(
+                    t("report.download_pptx"),
+                    icon="slideshow",
+                )
+                .props("color=secondary")
+                .tooltip(t("tooltip.download_pptx"))
+            )
+
             save_btn = (
                 ui.button(
                     t("session.save_button"),
@@ -233,6 +243,13 @@ async def report_page() -> None:
             finally:
                 excel_btn.enable()
 
+        async def on_download_pptx() -> None:
+            pptx_btn.disable()
+            try:
+                await _on_download_pptx(summary, project_name, health_result)
+            finally:
+                pptx_btn.enable()
+
         async def _save_session() -> None:
             session_snapshot: dict[str, object] = dict(app.storage.tab)
             # Get original file bytes — stored as raw bytes; fall back to empty
@@ -247,6 +264,7 @@ async def report_page() -> None:
 
         pdf_btn.on("click", on_download_pdf)
         excel_btn.on("click", on_download_excel)
+        pptx_btn.on("click", on_download_pptx)
         save_btn.on("click", _save_session)
 
         # Charts section
@@ -376,4 +394,41 @@ def _on_download_excel(
         xlsx_bytes,
         filename=filename,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
+async def _on_download_pptx(
+    summary: object,
+    project_name: str,
+    health_result: HealthCheckResult | None = None,
+) -> None:
+    """Generate the PowerPoint deck and trigger a browser download."""
+    from store_predict.pipeline.calculation import CalculationSummary
+
+    assert isinstance(summary, CalculationSummary)
+
+    company_logo_b64: str = app.storage.tab.get("company_logo_b64", "")
+    company_logo_bytes: bytes | None = base64.b64decode(company_logo_b64) if company_logo_b64 else None
+
+    try:
+        pptx_bytes = await run.io_bound(
+            generate_report_pptx,
+            summary,
+            project_name,
+            get_locale(),
+            company_logo_bytes,
+            health_result,
+        )
+    except Exception:
+        ui.notify(t("error.unexpected"), type="negative")
+        return
+
+    safe_name = sanitize_filename(project_name)
+    date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
+    scope_suffix = _scope_filename_suffix()
+    filename = f"StorePredict_{safe_name}{scope_suffix}_{date_str}.pptx"
+    ui.download(
+        pptx_bytes,
+        filename=filename,
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
     )
