@@ -125,3 +125,29 @@ class TestMainDeck:
         text = _slide_text(prs)
         # t() always returns fr in tests (NiceGUI storage unavailable); check fr translation
         assert "Recommandation" in text  # pptx.recommendation_heading (fr)
+
+
+class TestAppendix:
+    def test_breakdown_table_present(self) -> None:
+        summary = _make_summary([("Database/Microsoft SQL", 3, 30720.0, 5.0)])
+        prs = Presentation(BytesIO(generate_report_pptx(summary, "X", locale="en")))
+        assert any(shape.has_table for slide in prs.slides for shape in slide.shapes)
+        # t() always returns fr in tests (NiceGUI storage unavailable); check fr translation
+        assert "Catégorie" in _slide_text(prs)  # pdf.table_category (fr)
+
+    def test_layout_slide_present_with_vms_absent_when_empty(self) -> None:
+        with_vms = _make_summary([("Virtual Machines", 2, 10240.0, 5.0)])
+        n_with = len(Presentation(BytesIO(generate_report_pptx(with_vms, "X", locale="en"))).slides)
+        empty = _make_summary()  # total_vms == 0
+        n_empty = len(Presentation(BytesIO(generate_report_pptx(empty, "X", locale="en"))).slides)
+        assert n_with > n_empty
+
+    def test_findings_slide_added_only_with_findings(self) -> None:
+        summary = _make_summary([("Virtual Machines", 2, 10240.0, 5.0)])
+        n_no = len(Presentation(BytesIO(generate_report_pptx(summary, "X", locale="en"))).slides)
+        n_yes = len(
+            Presentation(
+                BytesIO(generate_report_pptx(summary, "X", locale="en", health_result=_make_health_result()))
+            ).slides
+        )
+        assert n_yes == n_no + 1

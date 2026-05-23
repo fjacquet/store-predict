@@ -20,7 +20,7 @@ from pptx.util import Inches, Pt
 
 from store_predict.i18n import t
 from store_predict.services import pptx_charts
-from store_predict.services.pdf_report import format_storage
+from store_predict.services.pdf_report import _layout_metric_rows, format_storage
 
 if TYPE_CHECKING:
     from pptx.slide import Slide
@@ -185,6 +185,103 @@ def _slide_recommendation(prs: Any, summary: CalculationSummary, health_result: 
         _add_text(slide, lines, Inches(0.6), Inches(4.2), Inches(11), Inches(0.8), size=18)
 
 
+def _add_table(slide: Slide, rows: list[list[str]], left: Inches, top: Inches, width: Inches, height: Inches) -> None:
+    """Add a styled table; row 0 is the navy header row."""
+    n_rows = len(rows)
+    n_cols = len(rows[0])
+    table = slide.shapes.add_table(n_rows, n_cols, left, top, width, height).table
+    for c in range(n_cols):
+        cell = table.cell(0, c)
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = _BRAND_NAVY
+        run = cell.text_frame.paragraphs[0].add_run()
+        run.text = rows[0][c]
+        run.font.size = Pt(12)
+        run.font.bold = True
+        run.font.color.rgb = _WHITE
+    for r in range(1, n_rows):
+        for c in range(n_cols):
+            cell = table.cell(r, c)
+            run = cell.text_frame.paragraphs[0].add_run()
+            run.text = rows[r][c]
+            run.font.size = Pt(11)
+            run.font.color.rgb = _DARK
+
+
+def _slide_breakdown_table(prs: Any, summary: CalculationSummary) -> None:
+    slide = _new_blank_slide(prs)
+    _add_header_band(slide, t("report.breakdown_heading"))
+    rows: list[list[str]] = [
+        [
+            t("pdf.table_category"),
+            t("pdf.table_vms"),
+            t("pdf.table_provisioned"),
+            t("pdf.table_avg_drr"),
+            t("pdf.table_required"),
+        ]
+    ]
+    for grp in summary.workload_groups:
+        rows.append(
+            [
+                grp.category,
+                str(grp.vm_count),
+                f"{grp.total_provisioned_mib / 1024:.1f}",
+                f"{grp.avg_drr:.2f}",
+                f"{grp.total_required_mib / 1024:.1f}",
+            ]
+        )
+    rows.append(
+        [
+            t("pdf.table_total"),
+            str(summary.total_vms),
+            f"{summary.total_provisioned_mib / 1024:.1f}",
+            f"{summary.weighted_avg_drr:.2f}",
+            f"{summary.total_required_mib / 1024:.1f}",
+        ]
+    )
+    _add_table(slide, rows, Inches(0.6), Inches(1.3), Inches(12), Inches(5.5))
+
+
+def _slide_layout_strategies(prs: Any, summary: CalculationSummary) -> None:
+    from store_predict.pipeline.layout_engine import generate_all_proposals
+
+    proposals = generate_all_proposals(summary)
+    slide = _new_blank_slide(prs)
+    _add_header_band(slide, t("pdf.layout_heading"))
+    rows: list[list[str]] = [
+        [t("layout_page.metric"), t("strategy.consolidation"), t("strategy.performance"), t("strategy.uniform")]
+    ]
+    for metric_key, c_val, p_val, u_val in _layout_metric_rows(proposals):
+        rows.append([t(f"metrics.{metric_key}"), c_val, p_val, u_val])
+    _add_table(slide, rows, Inches(0.6), Inches(1.2), Inches(12), Inches(6.0))
+
+
+def _slide_findings(prs: Any, health_result: HealthCheckResult) -> None:
+    from store_predict.pipeline.health_checks import Severity
+
+    slide = _new_blank_slide(prs)
+    _add_header_band(slide, t("pdf.findings_summary_heading"))
+    sev_labels = {
+        Severity.CRITICAL: t("pdf.findings_severity_critical"),
+        Severity.WARNING: t("pdf.findings_severity_warning"),
+        Severity.INFO: t("pdf.findings_severity_info"),
+    }
+    rows: list[list[str]] = [[t("pdf.findings_col_severity"), t("pdf.findings_col_count")]]
+    for sev, label in sev_labels.items():
+        count = sum(1 for f in health_result.findings if f.severity == sev)
+        if count > 0:
+            rows.append([label, str(count)])
+    _add_table(slide, rows, Inches(0.6), Inches(1.3), Inches(6), Inches(3))
+
+
+def _slide_charts(prs: Any, summary: CalculationSummary) -> None:
+    slide = _new_blank_slide(prs)
+    _add_header_band(slide, t("pdf.charts_heading"))
+    pptx_charts.add_sankey_picture(slide, summary, Inches(0.6), Inches(1.2), Inches(12), Inches(2.6))
+    pptx_charts.add_workload_pie(slide, summary, Inches(0.6), Inches(4.0), Inches(6), Inches(3.2))
+    pptx_charts.add_drr_bar(slide, summary, Inches(6.8), Inches(4.0), Inches(6), Inches(3.2))
+
+
 def generate_report_pptx(
     summary: CalculationSummary,
     project_name: str,
@@ -217,6 +314,14 @@ def generate_report_pptx(
     _slide_drr_story(prs, summary)
     _slide_workload_mix(prs, summary)
     _slide_recommendation(prs, summary, health_result)
+
+    # --- Appendix ---
+    _slide_breakdown_table(prs, summary)
+    if summary.total_vms > 0:
+        _slide_layout_strategies(prs, summary)
+    if health_result is not None and health_result.has_data and health_result.findings:
+        _slide_findings(prs, health_result)
+    _slide_charts(prs, summary)
 
     buf = BytesIO()
     prs.save(buf)
