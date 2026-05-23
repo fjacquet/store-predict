@@ -123,8 +123,7 @@ class TestMainDeck:
         chart_count = sum(1 for slide in prs.slides for shape in slide.shapes if shape.has_chart)
         assert chart_count >= 2
         text = _slide_text(prs)
-        # t() always returns fr in tests (NiceGUI storage unavailable); check fr translation
-        assert "Recommandation" in text  # pptx.recommendation_heading (fr)
+        assert "Recommendation" in text  # pptx.recommendation_heading (en)
 
 
 class TestAppendix:
@@ -132,8 +131,7 @@ class TestAppendix:
         summary = _make_summary([("Database/Microsoft SQL", 3, 30720.0, 5.0)])
         prs = Presentation(BytesIO(generate_report_pptx(summary, "X", locale="en")))
         assert any(shape.has_table for slide in prs.slides for shape in slide.shapes)
-        # t() always returns fr in tests (NiceGUI storage unavailable); check fr translation
-        assert "Catégorie" in _slide_text(prs)  # pdf.table_category (fr)
+        assert "Category" in _slide_text(prs)  # pdf.table_category (en)
 
     def test_layout_slide_present_with_vms_absent_when_empty(self) -> None:
         with_vms = _make_summary([("Virtual Machines", 2, 10240.0, 5.0)])

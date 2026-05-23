@@ -18,7 +18,6 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches, Pt
 
-from store_predict.i18n import t
 from store_predict.services import pptx_charts
 from store_predict.services.pdf_report import _layout_metric_rows, format_storage
 
@@ -29,6 +28,19 @@ if TYPE_CHECKING:
     from store_predict.pipeline.health_checks import HealthCheckResult
 
 __all__ = ["generate_report_pptx"]
+
+
+def t(key: str, **kwargs: object) -> str:
+    """Translate via raw python-i18n using the process-global locale.
+
+    Deliberately NOT the tab-scoped ``store_predict.i18n.t`` wrapper: this module
+    runs inside ``run.io_bound`` (a worker thread with no NiceGUI request context),
+    where that wrapper's ``get_locale()`` falls back to the default and would ignore
+    the ``locale`` argument. ``generate_report_pptx`` sets the locale once via
+    ``_i18n.set("locale", locale)``; this mirrors ``excel_report``.
+    """
+    return str(_i18n.t(key, **kwargs))
+
 
 # Slide geometry (16:9) and brand colours (match the PDF deliverable).
 _SLIDE_W = Inches(13.333)

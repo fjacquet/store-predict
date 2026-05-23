@@ -11,11 +11,11 @@ from __future__ import annotations
 from io import BytesIO
 from typing import TYPE_CHECKING
 
+import i18n as _i18n
 from pptx.chart.data import CategoryChartData
 from pptx.dml.color import RGBColor
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
 
-from store_predict.i18n import t
 from store_predict.services.pdf_charts import render_sankey_png
 
 if TYPE_CHECKING:
@@ -37,6 +37,15 @@ DELL_PALETTE_HEX = ("007DB8", "40A8D8", "6C757D", "ADB5BD", "CED4DA", "DEE2E6")
 _PALETTE = tuple(RGBColor.from_string(h) for h in DELL_PALETTE_HEX)
 _NAVY = RGBColor.from_string("1E3A5F")
 _LIGHT_BLUE = RGBColor.from_string("40A8D8")
+
+
+def t(key: str, **kwargs: object) -> str:
+    """Translate via raw python-i18n (process-global locale set by the caller).
+
+    Mirrors ``pptx_report.t``: these builders run inside ``run.io_bound`` where the
+    tab-scoped wrapper would ignore the requested locale.
+    """
+    return str(_i18n.t(key, **kwargs))
 
 
 def add_workload_pie(slide: Slide, summary: CalculationSummary, x: Length, y: Length, cx: Length, cy: Length) -> None:
