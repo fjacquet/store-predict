@@ -999,3 +999,116 @@ class TestV900PatternsAndSizeAware:
         )
         out = classify_dataframe(df, _registry())
         assert out.iloc[0]["workload_subcategory"] == "VMware / Hyper-V / KVM - No Database, File nor Email"
+
+
+# ---------------------------------------------------------------------------
+# 12. Customer application patterns (Valais-canton RVTools export)
+#
+# This estate names VMs by application (saperp-p01, mail-p01, worker1.oc.vs.ch)
+# rather than by SQL*/ORA*/VDI* keywords. These rules identify the families that
+# could be researched; bespoke/unidentified apps deliberately stay at the
+# >=100 GiB File/General-Purpose 2:1 reroute floor.
+# ---------------------------------------------------------------------------
+
+WS_2019 = "Microsoft Windows Server 2019 (64-bit)"
+RHEL_9 = "Red Hat Enterprise Linux 9 (64-bit)"
+
+
+class TestCustomerAppPatterns:
+    """Patterns added after analysis of the Valais-canton RVTools export."""
+
+    def test_sap_application_components_are_traditional(self) -> None:
+        """SAP NetWeaver/app components (saperp, sapnwg, sapbobi, sapfront...)
+        classify as SAP Traditional (R/3 / ECC), DRR 5."""
+        for vm_name in ("saperp-prd", "sapnwg-gs1", "sapbobi-p03", "sapbods-d03", "sapfront-f01"):
+            result = _registry().classify(vm_name, RHEL_9)
+            assert result.category == "Database", f"{vm_name} -> {result.category}"
+            assert result.subcategory == "SAP Traditional (R/3 / ECC)", f"{vm_name} -> {result.subcategory}"
+            assert result.confidence == "rule_match"
+
+    def test_sap_hana_db_not_stolen_by_app_rule(self) -> None:
+        """saphdb-* (the HANA database tier) must stay SAP HANA(S4), DRR 2 —
+        the SAP-application rule must NOT capture it."""
+        result = _registry().classify("saphdb-bpc", RHEL_9)
+        assert result.subcategory == "SAP HANA(S4)"
+
+    def test_sap_mssql_stays_microsoft_sql(self) -> None:
+        """sapmssql-* is SQL-backed and must keep Microsoft SQL (priority wins)."""
+        result = _registry().classify("sapmssql-p01", WS_2019)
+        assert result.subcategory == "Microsoft SQL"
+
+    def test_live_mail_is_email(self) -> None:
+        """mail-p01 (live Exchange mailbox store) -> Email, DRR 2."""
+        result = _registry().classify("mail-p01", WS_2019)
+        assert result.category == "Email"
+        assert result.confidence == "rule_match"
+
+    def test_mail_archive_is_file_archive(self) -> None:
+        """mailarch-* (mail archive) -> File/Archive, DRR 1 (not Email)."""
+        result = _registry().classify("mailarch-p01", WS_2019)
+        assert result.category == "File"
+        assert result.subcategory.startswith("Archive")
+
+    def test_video_management_is_file_archive(self) -> None:
+        """videomgmt-* (surveillance video) -> File/Archive, DRR 1."""
+        result = _registry().classify("videomgmt-p02", WS_2019)
+        assert result.category == "File"
+        assert result.subcategory.startswith("Archive")
+
+    def test_openshift_nodes_are_containers(self) -> None:
+        """OpenShift worker/master/bootstrap nodes -> Containers, DRR 2."""
+        for vm_name in ("worker1.oc.vs.ch", "master1.oc.vs.ch", "bootstrap.oc.vs.ch"):
+            result = _registry().classify(vm_name, RHEL_9)
+            assert result.category == "Containers", f"{vm_name} -> {result.category}"
+            assert result.confidence == "rule_match"
+
+    def test_opsmaster_not_misread_as_openshift(self) -> None:
+        """'opsmaster-p03' must NOT match the ^master\\d OpenShift pattern."""
+        result = _registry().classify("opsmaster-p03", "VMware Photon OS (64-bit)")
+        assert result.category != "Containers"
+
+    def test_dms_ecm_systems_are_content_servers(self) -> None:
+        """ECM/DMS/capture systems -> File Content Servers, DRR 2."""
+        for vm_name in ("ecm-p01", "kendox-p01", "autostore-p02", "austoreft-p01", "youdoc-p01", "otrecm-p01"):
+            result = _registry().classify(vm_name, WS_2019)
+            assert result.category == "File", f"{vm_name} -> {result.category}"
+            assert result.subcategory == "Content Servers (Git, Sharepoint)", f"{vm_name} -> {result.subcategory}"
+
+    def test_artifact_and_cicd_are_devops(self) -> None:
+        """Artifactory/CICD -> File Developer Workspaces (DevOps)."""
+        for vm_name in ("artifact-p01", "cicd-p06"):
+            result = _registry().classify(vm_name, RHEL_9)
+            assert result.subcategory == "Developer Workspaces (DevOps)", f"{vm_name} -> {result.subcategory}"
+
+    def test_monitor_is_logging(self) -> None:
+        """monitor-* metrics collectors -> Logging - Analytics, DRR 1.5."""
+        result = _registry().classify("monitor-p01", RHEL_9)
+        assert result.category == "Logging - Analytics"
+
+    def test_cantonal_domain_controllers_are_vm(self) -> None:
+        """Cantonal DCs (infradc, jusdc, infrapoldc, exploitdc) -> Virtual Machines."""
+        for vm_name in ("infradc-p01", "jusdc-p01", "infrapoldc-d01", "exploitdc-p01"):
+            result = _registry().classify(vm_name, WS_2019)
+            assert result.category == "Virtual Machines", f"{vm_name} -> {result.category}"
+            assert result.rule_name == "Domain Controller / AAD"
+
+    def test_citrix_ddc_not_matched_as_domain_controller(self) -> None:
+        """Citrix Delivery Controller 'ddc' must NOT match the cantonal DC pattern."""
+        for vm_name in ("ctxddcpol-p01", "ddc-d01"):
+            result = _registry().classify(vm_name, WS_2019)
+            assert result.rule_name != "Domain Controller / AAD", f"{vm_name} wrongly matched DC rule"
+
+    def test_identified_app_servers_are_vm(self) -> None:
+        """Identified app servers (Abacus, midPoint, Talend, Eyeglass) -> Virtual
+        Machines, DRR 5 (data lives on a separate DB / they are appliances)."""
+        for vm_name in ("abacus-p01", "midpoint-p01", "talend-p10", "EyeglassClusterAgent 1"):
+            result = _registry().classify(vm_name, RHEL_9)
+            assert result.category == "Virtual Machines", f"{vm_name} -> {result.category}"
+            assert result.rule_name == "Application servers (identified)"
+
+    def test_bespoke_unidentified_apps_stay_at_floor(self) -> None:
+        """Unidentified bespoke cantonal apps must NOT be force-classified —
+        they fall to OS-fallback (then the >=100 GiB File reroute handles size)."""
+        for vm_name in ("benwue-t01", "lacepol-p01", "cmikes-p01", "geres-p01"):
+            result = _registry().classify(vm_name, RHEL_9)
+            assert result.confidence in ("os_fallback", "default"), f"{vm_name} -> {result.confidence}"
