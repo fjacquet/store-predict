@@ -28,6 +28,12 @@ RUN --mount=type=cache,target=/tmp/uv-cache,uid=1000,gid=1000 \
 
 EXPOSE 8080
 
+# Pre-download the FastEmbed model so the container runs fully offline.
+# FASTEMBED_CACHE_PATH points under WORKDIR (/app) which is owned by appuser,
+# so no root / chown gymnastics are required.
+ENV FASTEMBED_CACHE_PATH=/app/.fastembed_cache
+RUN .venv/bin/python -c "from fastembed import TextEmbedding; TextEmbedding('BAAI/bge-small-en-v1.5')"
+
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080')" || exit 1
 
