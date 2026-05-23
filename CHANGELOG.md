@@ -16,7 +16,7 @@ All notable changes to StorePredict are documented here.
   See [ADR-082](adr/082-semantic-router-primary-classifier.md).
 
 - **`build_override_rules()`** — high-confidence subset of the existing rule registry
-  (priority ≥ 900). These fire before the semantic pass. SAP HANA, DDVE, Email, VDI, and
+  (priority < 900). These fire before the semantic pass. SAP HANA, DDVE, Email, VDI, and
   other unambiguous product tokens are preserved as deterministic overrides.
 
 - **`SemanticConfig` settings class** (`SEMANTIC_THRESHOLD`, `SEMANTIC_MODEL`,

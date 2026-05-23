@@ -35,7 +35,7 @@ offline, see ADR-083). The new cascade is:
 
 ```
 normalize(vm_name)
-  → override rules  (build_override_rules, priority ≥ 900)
+  → override rules  (build_override_rules, priority < 900)
   → semantic router (FastEmbedEncoder + curated exemplars, see ADR-085)
   → default         (Unknown Reducible, confidence="default")
   → ADR-080 size reroute (applied after classification)
@@ -43,7 +43,7 @@ normalize(vm_name)
 
 The existing `build_default_rules()` is refactored into two functions:
 
-- `build_override_rules()` — high-confidence, high-priority rules (priority ≥ 900) that must
+- `build_override_rules()` — high-confidence, high-priority rules (priority < 900) that must
   fire before any learned or semantic logic. These cover cases where the product/app token is
   unambiguous: `MSSQL`, `ORACLE`, `HANA`, `VDI`, `SAP HANA`, `DDVE`, known healthcare and
   cantonal app families. Typically 25–35 rules.
@@ -57,7 +57,8 @@ Classification confidence values:
 | Override rule matched | `"override"` |
 | Semantic router matched | `"semantic"` |
 | No match (unknown) | `"default"` |
-| OS fallback | `"os_fallback"` |
+
+(`rule_match` and `os_fallback` are registry-internal confidences from `build_default_rules`; the v10 active pipeline emits only `override`, `semantic`, `default`.)
 
 The `classification_rule` field records the matched rule name for override hits, or
 `"semantic:<route> (score X.XX)"` for semantic hits, giving a human-readable audit trail.
