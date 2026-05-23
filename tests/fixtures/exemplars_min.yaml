@@ -1,0 +1,18 @@
+# tests/fixtures/exemplars_min.yaml
+# Tiny exemplars set for fast, deterministic unit tests.
+routes:
+  - category: Database
+    subcategory: Microsoft SQL
+    utterances:
+      - "microsoft sql server"
+      - "mssql database node"
+  - category: Email
+    subcategory: Domino/Notes, Exchange, Sendmail, Zimbra, etc
+    utterances:
+      - "microsoft exchange mailbox server"
+      - "zimbra mail server"
+  - category: Containers
+    subcategory: Kubernetes, OpenShift, Docker, Tanzu, etc
+    utterances:
+      - "kubernetes worker node"
+      - "docker swarm host"

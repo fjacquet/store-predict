@@ -1,0 +1,143 @@
+# src/store_predict/data/classification_exemplars.yaml
+# Curated, SYNTHETIC exemplars for the semantic classifier. No customer data.
+# Each route maps to a DRR base category/subcategory (see data/DRR.csv).
+# Encryption/compression variants are deliberately excluded — they are user toggles.
+# Utterances are example VM names + short role phrases the encoder embeds.
+routes:
+  - category: Database
+    subcategory: Oracle
+    utterances:
+      - "oracle database server"
+      - "ora db production instance"
+      - "oracle rac node"
+      - "oradb listener host"
+  - category: Database
+    subcategory: Microsoft SQL
+    utterances:
+      - "microsoft sql server"
+      - "mssql database node"
+      - "sql server reporting services"
+      - "ms sql always-on replica"
+  - category: Database
+    subcategory: My SQL / NoSQL
+    utterances:
+      - "mysql database server"
+      - "mariadb cluster node"
+      - "redis cache store"
+      - "nosql document database"
+  - category: Database
+    subcategory: PostgreSQL
+    utterances:
+      - "postgresql database server"
+      - "postgres primary node"
+      - "pgsql analytics database"
+  - category: Database
+    subcategory: DB2
+    utterances:
+      - "ibm db2 database server"
+      - "db2 mainframe gateway"
+  - category: Database
+    subcategory: MongoDB
+    utterances:
+      - "mongodb document store"
+      - "mongo replica set member"
+  - category: Database
+    subcategory: SAP HANA(S4)
+    utterances:
+      - "sap hana in-memory database"
+      - "s4 hana production"
+      - "hana db scale-out node"
+  - category: Database
+    subcategory: SAP Traditional (R/3 / ECC)
+    utterances:
+      - "sap ecc application server"
+      - "sap r/3 traditional system"
+      - "sap netweaver host"
+  - category: HealthCare
+    subcategory: EMR/EHR (Epic, McKesson)
+    utterances:
+      - "epic electronic medical records"
+      - "mckesson ehr server"
+      - "hospital clinical records system"
+  - category: File
+    subcategory: General Purpose
+    utterances:
+      - "general purpose file server"
+      - "shared documents fileserver"
+      - "smb network file share"
+  - category: File
+    subcategory: Content Servers (Git, Sharepoint)
+    utterances:
+      - "git source control server"
+      - "sharepoint content server"
+      - "gitlab repository host"
+  - category: File
+    subcategory: Developer Workspaces (DevOps)
+    utterances:
+      - "devops build agent workspace"
+      - "jenkins ci developer host"
+      - "developer sandbox workstation"
+  - category: VDI
+    subcategory: Full Clone / MCS (Citrix)
+    utterances:
+      - "citrix mcs full clone desktop"
+      - "persistent vdi virtual desktop"
+  - category: VDI
+    subcategory: Linked Clone / PVS (Citrix)
+    utterances:
+      - "citrix pvs linked clone"
+      - "non-persistent vdi pool desktop"
+  - category: VDI
+    subcategory: VDI Profiles
+    utterances:
+      - "vdi user profile management"
+      - "roaming profile share for desktops"
+  - category: Logging - Analytics
+    subcategory: FortiNet, Elastic Search, Splunk, ELK, etc
+    utterances:
+      - "splunk log indexer"
+      - "elasticsearch search cluster node"
+      - "elk logging stack"
+      - "fortinet analyzer appliance"
+  - category: Email
+    subcategory: Domino/Notes, Exchange, Sendmail, Zimbra, etc
+    utterances:
+      - "microsoft exchange mailbox server"
+      - "exchange transport hub"
+      - "zimbra mail server"
+      - "lotus domino notes server"
+  - category: Containers
+    subcategory: Kubernetes, OpenShift, Docker, Tanzu, etc
+    utterances:
+      - "kubernetes worker node"
+      - "openshift container platform host"
+      - "docker swarm node"
+      - "tanzu kubernetes cluster"
+  - category: Virtual Machines
+    subcategory: VMware / Hyper-V / KVM - No Database, File nor Email
+    utterances:
+      - "generic windows application server"
+      - "linux utility virtual machine"
+      - "internal line-of-business app host"
+  - category: VM Replication
+    subcategory: Veeam, Zerto, RP4VM
+    utterances:
+      - "veeam backup proxy"
+      - "zerto replication appliance"
+      - "rp4vm recoverpoint host"
+  - category: VM Replication
+    subcategory: Commvault
+    utterances:
+      - "commvault media agent"
+      - "commvault backup commserve"
+  - category: Boot from SAN
+    subcategory: Linux, VMware, Windows - OS Boot
+    utterances:
+      - "boot from san os volume"
+      - "diskless esxi boot lun"
+  - category: Web Servers
+    subcategory: Content not included
+    utterances:
+      - "nginx reverse proxy web server"
+      - "apache httpd front-end"
+      - "iis web application server"
