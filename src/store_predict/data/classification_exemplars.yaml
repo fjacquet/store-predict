@@ -136,7 +136,7 @@ routes:
       - "boot from san os volume"
       - "diskless esxi boot lun"
   - category: Web Servers
-    subcategory: Content not included
+    subcategory: Content included
     utterances:
       - "nginx reverse proxy web server"
       - "apache httpd front-end"
