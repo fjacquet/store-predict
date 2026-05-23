@@ -16,6 +16,15 @@ from store_predict.services.excel_report import generate_report_xlsx
 from store_predict.services.pdf_report import sanitize_filename
 from store_predict.ui.layout import layout
 
+_MIB_PER_TIB = 1024 * 1024  # datastore sizes are expressed in TiB (labelled "TB" in the UI)
+_DS_SIZE_PRESETS_TIB = (2, 4, 8, 16, 32, 64)
+
+
+def _tib_to_mib(tib: float) -> int:
+    """Convert a datastore size in TiB to whole MiB."""
+    return round(tib * _MIB_PER_TIB)
+
+
 # ---------------------------------------------------------------------------
 # Session state helpers
 # ---------------------------------------------------------------------------
@@ -493,7 +502,10 @@ def _build_settings_panel(
     """Render the Advanced Settings collapsible panel."""
 
     def _on_ds_capacity_change(e: object) -> None:
-        app.storage.tab["layout_max_ds_mib"] = int(e.value)  # type: ignore[attr-defined]
+        val = e.value  # type: ignore[attr-defined]  # datastore size in TiB ("TB")
+        if val is None or float(val) <= 0:
+            return
+        app.storage.tab["layout_max_ds_mib"] = _tib_to_mib(float(val))
         _rebuild_layout(results_container, vm_data)
 
     def _on_max_vms_change(e: object) -> None:
@@ -514,15 +526,6 @@ def _build_settings_panel(
         app.storage.tab["layout_growth_pct"] = float(e.value)  # type: ignore[attr-defined]
         _rebuild_layout(results_container, vm_data)
 
-    tb_options = {
-        2 * 1024 * 1024: "2 TB",
-        4 * 1024 * 1024: "4 TB",
-        8 * 1024 * 1024: "8 TB",
-        16 * 1024 * 1024: "16 TB",
-        32 * 1024 * 1024: "32 TB",
-        64 * 1024 * 1024: "64 TB",
-    }
-
     with (
         ui.expansion(
             t("layout_page.settings_title"),
@@ -533,13 +536,26 @@ def _build_settings_panel(
         .style("border:1px solid var(--sp-line)"),
         ui.column().classes("w-full gap-4 p-2"),
     ):
-        # 1. Max DS capacity — dropdown
-        ui.select(
-            options=tb_options,
-            value=int(constraints.max_ds_capacity_mib),
-            label=t("layout_page.max_ds_capacity"),
-            on_change=_on_ds_capacity_change,
-        ).classes("w-full").tooltip(t("tooltip.max_ds_capacity"))
+        # 1. Max DS capacity — editable TB value with preset shortcuts
+        ds_capacity_input = (
+            ui.number(
+                label=t("layout_page.max_ds_capacity"),
+                value=round(constraints.max_ds_capacity_mib / _MIB_PER_TIB, 2),
+                min=1,
+                max=256,
+                step=1,
+                suffix="TB",
+                on_change=_on_ds_capacity_change,
+            )
+            .classes("w-full")
+            .tooltip(t("tooltip.max_ds_capacity"))
+        )
+        with ui.row().classes("gap-1 flex-wrap"):
+            for _preset in _DS_SIZE_PRESETS_TIB:
+                ui.button(
+                    f"{_preset} TB",
+                    on_click=lambda p=_preset: ds_capacity_input.set_value(p),
+                ).props("flat dense size=sm color=primary")
 
         # 2. Max VMs per DS — slider
         with ui.column().classes("w-full gap-1"):
