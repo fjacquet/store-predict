@@ -7,27 +7,30 @@ import logging
 import tempfile
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
-import pandas as pd
 from nicegui import app, background_tasks, run, ui
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 from store_predict.config import DRR_CSV_PATH
 from store_predict.i18n import t
 from store_predict.logging_config import hash_name
 from store_predict.pipeline.classification import (
     RuleRegistry,
-    build_default_rules,
+    build_override_rules,
     classify_dataframe,
 )
 from store_predict.pipeline.errors import IngestionError
 from store_predict.pipeline.ingestion import ingest_file, ingest_two_files
-from store_predict.pipeline.llm_classifier import classify_unknown_vms_async
+from store_predict.pipeline.semantic_classifier import SemanticClassifier
 from store_predict.pipeline.session_archive import is_session_zip, restore_session_zip
 from store_predict.pipeline.validation import validate_upload
 from store_predict.pipeline.zip_extraction import extract_liveoptics_from_zip
 from store_predict.services.drr_table import DRRTable
 from store_predict.services.llm_config import LLMConfig
+from store_predict.services.semantic_config import get_semantic_config
 from store_predict.ui.layout import layout
 from store_predict.ui.state import (
     add_pending_file,
@@ -35,7 +38,6 @@ from store_predict.ui.state import (
     clear_session_data,
     get_llm_ui_enabled,
     get_pending_files,
-    save_rule_suggestions,
     set_llm_ui_enabled,
     set_project_name,
 )
@@ -230,44 +232,33 @@ async def upload_page() -> None:
             """
 
             progress.value = 0.6
-            registry = RuleRegistry(build_default_rules())
-            df = await run.io_bound(classify_dataframe, df, registry)
-
-            # --- LLM Classification Fallback ---
-            logger.info(
-                "LLM config: enabled=%s ui_enabled=%s model=%s api_base=%s",
-                llm_cfg.enabled,
-                _llm_ui_enabled,
-                llm_cfg.model,
-                llm_cfg.api_base,
-            )
-            if llm_cfg.enabled and _llm_ui_enabled:
+            registry = RuleRegistry(build_override_rules())
+            sem_cfg = get_semantic_config()
+            semantic = None
+            if sem_cfg.enabled:
                 with upload_widget:
-                    llm_notif = ui.notification(t("llm.classifying"), spinner=True, timeout=None, type="info")
+                    sem_notif = ui.notification(t("semantic.classifying"), spinner=True, timeout=None, type="info")
                 try:
-                    drr_table_for_llm = DRRTable.from_csv(DRR_CSV_PATH)
-                    vm_records: list[dict[str, Any]] = df.to_dict(orient="records")  # type: ignore[assignment]
-
-                    def _llm_progress(done: int, total: int) -> None:
-                        llm_notif.message = t("llm.classifying_progress", done=done, total=total)
-
-                    vm_records, rule_suggestions = await classify_unknown_vms_async(
-                        vm_records, drr_table_for_llm, llm_cfg, on_progress=_llm_progress
-                    )
-                    save_rule_suggestions(rule_suggestions)
-                    df = pd.DataFrame(vm_records)
-                    llm_count = sum(1 for r in vm_records if r.get("classification_confidence") == "llm")
-                    if llm_count > 0:
-                        llm_notif.message = t("llm.classified_notify", count=llm_count)
-                        llm_notif.type = "positive"
-                    else:
-                        llm_notif.dismiss()
+                    semantic = await run.io_bound(SemanticClassifier, sem_cfg)
                 except Exception:
-                    llm_notif.message = t("llm.error")
-                    llm_notif.type = "negative"
-                finally:
-                    llm_notif.spinner = False
-            # --- End LLM Classification Fallback ---
+                    logger.warning("Semantic classifier init failed; using overrides + default only")
+                    semantic = None
+                    with upload_widget:
+                        sem_notif.message = t("semantic.error")
+                        sem_notif.type = "warning"
+                        sem_notif.spinner = False
+
+            df = await run.io_bound(classify_dataframe, df, registry, semantic)
+
+            if semantic is not None:
+                sem_count = int((df["classification_confidence"] == "semantic").sum())
+                with upload_widget:
+                    if sem_count > 0:
+                        sem_notif.message = t("semantic.classified_notify", count=sem_count)
+                        sem_notif.type = "positive"
+                    else:
+                        sem_notif.dismiss()
+                    sem_notif.spinner = False
 
             progress.value = 0.85
             drr_table = DRRTable.from_csv(DRR_CSV_PATH)
