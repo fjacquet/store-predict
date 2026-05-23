@@ -60,9 +60,7 @@ def test_unknown_rate_not_regressed(classified_customer_df) -> None:  # type: ig
     most of those into real categories, leaving few as 'default' (Unknown)."""
     total = len(classified_customer_df)
     n_default = int((classified_customer_df["classification_confidence"] == "default").sum())
-    assert n_default <= 300, (
-        f"Unknown/default rate too high: {n_default}/{total}\n{_summary(classified_customer_df)}"
-    )
+    assert n_default <= 300, f"Unknown/default rate too high: {n_default}/{total}\n{_summary(classified_customer_df)}"
 
 
 @pytest.mark.slow
