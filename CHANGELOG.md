@@ -27,6 +27,47 @@ All notable changes to StorePredict are documented here.
   host's Ollama via `LLM_API_BASE=http://host.docker.internal:11434`; `docker-compose.yml`
   now maps `host.docker.internal:host-gateway` so it resolves on Linux too.
 
+## [v9.1.0] - 2026-05-22
+
+Adds application-aware classification rules so estates that name VMs by application
+(rather than by `SQL*/ORA*/VDI*` product tokens) are classified accurately instead of
+collapsing into the `File / General Purpose` size-reroute floor. Derived from a real
+Valais-canton RVTools export (791 VMs, 948.8 TiB) where 90% of capacity previously sat in
+one bucket. Optimised for **accurate & defensible** sizing — see [ADR-081](adr/081-customer-app-classification-rules.md).
+
+### New / extended classification rules
+
+- **SAP application components** (`saperp`, `sapnwg`, `sapbobi`, `sapbods`, `sapbpc`,
+  `sapads`, `sapccm`, `sapsom`, `sapcua`, `sapbcom`, `sapenow`, `sapcockpit`, `saplicenses`,
+  `sapfront`) → `Database / SAP Traditional (R/3 / ECC)` (5:1). HANA DB tiers (`saphdb*`)
+  keep `SAP HANA(S4)` (2:1); `sapmssql` keeps `Microsoft SQL`.
+- **Live mail** (`\bMAIL\b`, e.g. `mail-p01`) → `Email` (2:1). **Mail archive** (`mailarch`)
+  and **video management** (`videomgmt`) → `File / Archive` (1:1, incompressible media).
+- **OpenShift/Kubernetes nodes** (`worker1`, `master1`, `bootstrap`) → `Containers` (2:1),
+  start-anchored so `opsmaster-*` is not misread as a node.
+- **DMS / ECM / capture** (Kendox, AutoStore, YouDoc, OpenText `otrecm`, `docpro`, `^ecm`) →
+  `File / Content Servers`; **Artifactory / CICD** → `File / Developer Workspaces (DevOps)`.
+- **Monitoring** (`^monitor`) → `Logging - Analytics` (1.5:1).
+- **Cantonal domain controllers** (`infradc`, `jusdc`, `infrapoldc`, `exploitdc`) →
+  `Virtual Machines`; prefix-qualified so the Citrix Delivery Controller `ddc`/`ctxddcpol`
+  is excluded.
+- **Identified app servers / appliances** (Abacus ERP, Evolveum midPoint, identity
+  metadirectory, Messerli, Talend, Superna Eyeglass) → `Virtual Machines` (5:1).
+
+### Behaviour
+
+- On the reference file, rule-matched VMs rise 100 → 358 and the generic `File / General
+  Purpose` bucket drops 857 → 525 TiB. Weighted DRR 2.02 → 2.10:1 (required 470.1 → 452.2 TiB).
+- Unidentified bespoke apps deliberately remain on the ADR-080 ≥100 GiB `File / General
+  Purpose @ 2.0` reroute floor — no 5:1 is claimed on inventory that cannot be defended.
+- All rules reference existing `DRR.csv` entries; no reference rows added.
+
+### Tests
+
+- `tests/test_classification.py::TestCustomerAppPatterns` — 15 tests (positive cases plus the
+  critical negatives: HANA/SQL not stolen, `opsmaster` not OpenShift, `ddc` not a DC, bespoke
+  apps stay at the floor). Full suite: 651 passed.
+
 ## [v9.0.2] - 2026-05-20
 
 Retires the synthetic `Virtual Machines / Large data-bearing (>100 GiB unknown)` category.
