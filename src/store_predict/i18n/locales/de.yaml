@@ -57,6 +57,7 @@ report:
   charts_heading: "Datenvisualisierungen"
   download_pdf: "PDF-Bericht herunterladen"
   download_excel: "Excel-Bericht herunterladen"
+  download_pptx: "PowerPoint herunterladen"
   back_to_review: "Zurück zur Überprüfung"
   go_to_upload: "Zum Hochladen"
   upload_logo: "Unternehmenslogo hochladen"
@@ -318,6 +319,7 @@ tooltip:
   storage_model: "Ziel-Dell-Speicherplattform auswählen — beeinflusst DRR-Koeffizienten"
   download_pdf: "Einseitigen Dimensionierungsbericht als PDF herunterladen"
   download_excel: "Alle Daten als Excel-Arbeitsmappe herunterladen (4 Blätter)"
+  download_pptx: "Sizing-Bericht als bearbeitbare PowerPoint-Präsentation herunterladen"
   upload_logo: "Unternehmenslogo zur PDF-Berichtsüberschrift hinzufügen"
   max_ds_capacity: "Maximale Rohkapazität pro Datastore (TiB)"
   max_vms_per_ds: "Maximale Anzahl von VMs, die einen Datastore teilen können"
@@ -409,3 +411,12 @@ confidence:
   override: "Regel"
   semantic: "Semantisch"
   default: "Standard"
+
+pptx:
+  exec_summary_heading: "Zusammenfassung"
+  drr_story_heading: "Datenreduktion"
+  workload_mix_heading: "Workload-Verteilung"
+  recommendation_heading: "Empfehlung"
+  appendix_heading: "Anhang"
+  provisioned: "Bereitgestellt"
+  required: "Erforderlich"

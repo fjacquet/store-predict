@@ -57,6 +57,7 @@ report:
   charts_heading: "Data Visualizations"
   download_pdf: Download PDF Report
   download_excel: Download Excel Report
+  download_pptx: Download PowerPoint
   back_to_review: Back to Review
   go_to_upload: Go to Upload
   upload_logo: "Upload Company Logo"
@@ -318,6 +319,7 @@ tooltip:
   storage_model: "Select the target Dell storage platform — affects DRR coefficients"
   download_pdf: "Download a one-page sizing report as PDF"
   download_excel: "Download full data as Excel workbook (4 sheets)"
+  download_pptx: "Download the sizing report as an editable PowerPoint deck"
   upload_logo: "Add your company logo to the PDF report header"
   max_ds_capacity: "Maximum raw capacity per datastore (TiB)"
   max_vms_per_ds: "Maximum number of VMs that can share one datastore"
@@ -409,3 +411,12 @@ confidence:
   override: "Override"
   semantic: "Semantic"
   default: "Default"
+
+pptx:
+  exec_summary_heading: Executive Summary
+  drr_story_heading: Data Reduction
+  workload_mix_heading: Workload Mix
+  recommendation_heading: Recommendation
+  appendix_heading: Appendix
+  provisioned: Provisioned
+  required: Required
