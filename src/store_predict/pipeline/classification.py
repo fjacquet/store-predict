@@ -992,6 +992,18 @@ def build_default_rules() -> list[ClassificationRule]:
     ]
 
 
+def build_override_rules() -> list[ClassificationRule]:
+    """High-precision, must-win classification rules for the semantic cascade.
+
+    These are exactly the named application/folder rules from
+    :func:`build_default_rules` with ``priority < 900``. The OS-based fallback
+    rules (900-998) and the catch-all default (999) are intentionally excluded:
+    VMs that only those rules would have matched flow to the semantic tier
+    instead, which makes a better category guess than a generic OS bucket.
+    """
+    return [rule for rule in build_default_rules() if rule.priority < 900]
+
+
 # ---------------------------------------------------------------------------
 # DataFrame-level classification
 # ---------------------------------------------------------------------------

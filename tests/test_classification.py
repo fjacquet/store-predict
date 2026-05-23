@@ -1112,3 +1112,40 @@ class TestCustomerAppPatterns:
         for vm_name in ("benwue-t01", "lacepol-p01", "cmikes-p01", "geres-p01"):
             result = _registry().classify(vm_name, RHEL_9)
             assert result.confidence in ("os_fallback", "default"), f"{vm_name} -> {result.confidence}"
+
+
+class TestBuildOverrideRules:
+    def test_excludes_os_fallback_and_default(self) -> None:
+        from store_predict.pipeline.classification import (
+            build_default_rules,
+            build_override_rules,
+        )
+
+        overrides = build_override_rules()
+        assert overrides, "override set must not be empty"
+        assert all(r.priority < 900 for r in overrides)
+        # every override is also present in the full default set
+        default_names = {r.name for r in build_default_rules()}
+        assert {r.name for r in overrides} <= default_names
+
+    def test_high_precision_app_rules_are_overrides(self) -> None:
+        from store_predict.pipeline.classification import (
+            RuleRegistry,
+            build_override_rules,
+        )
+
+        reg = RuleRegistry(build_override_rules())
+        verdict = reg.classify("PRD-MSSQL-01", "Microsoft Windows Server 2019")
+        assert verdict.category == "Database"
+        assert verdict.confidence == "rule_match"
+
+    def test_generic_windows_is_not_an_override(self) -> None:
+        from store_predict.pipeline.classification import (
+            RuleRegistry,
+            build_override_rules,
+        )
+
+        reg = RuleRegistry(build_override_rules())
+        # No app keyword in the name → no override → registry returns its default.
+        verdict = reg.classify("APPSRV-GENERIC-01", "Microsoft Windows Server 2019")
+        assert verdict.confidence == "default"
