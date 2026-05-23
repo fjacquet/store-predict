@@ -58,9 +58,12 @@ In `pyproject.toml`, add to the `dependencies` array (after the `litellm` line):
 
 ```toml
     "litellm>=1.83.7",
-    "semantic-router[fastembed]>=0.1.0,<0.2.0",
+    "semantic-router>=0.1.0,<0.2.0",
+    "fastembed>=0.8,<0.9",
     "pydantic>=2.12.5",
 ```
+
+> **Why not `semantic-router[fastembed]`?** That extra pins `fastembed>=0.3.0,<0.4`, whose transitive `pillow<11` conflicts with this project's `pillow>=12.2.0`. `fastembed==0.8.0` allows `pillow<13.0,>=11.0.0` (py3.13) / `>=10.3.0,<13.0` (py3.12) — compatible. `FastEmbedEncoder` lazy-imports `fastembed`, so a standalone newer version works. (Verified: resolves cleanly, pulls `onnxruntime==1.26.0`, no pillow downgrade.)
 
 - [ ] **Step 2: Install and lock**
 
@@ -69,8 +72,8 @@ Expected: resolves and installs `semantic-router`, `fastembed`, `onnxruntime`; u
 
 - [ ] **Step 3: Verify the import and encoder class are available**
 
-Run: `.venv/bin/python -c "from semantic_router.routers import SemanticRouter; from semantic_router.encoders import FastEmbedEncoder; from semantic_router import Route; print('ok')"`
-Expected: prints `ok` (no ImportError).
+Run: `.venv/bin/python -c "from semantic_router.routers import SemanticRouter; from semantic_router.encoders import FastEmbedEncoder; from semantic_router import Route; from fastembed import TextEmbedding; print('ok')"`
+Expected: prints `ok` (no ImportError) — confirms `fastembed` is actually installed, not just lazily importable.
 
 - [ ] **Step 4: Commit**
 
