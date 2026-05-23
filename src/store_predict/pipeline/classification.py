@@ -154,7 +154,7 @@ class ClassificationResult:
     category: str
     subcategory: str
     rule_name: str
-    confidence: str  # "rule_match" | "os_fallback" | "default"
+    confidence: str  # "override" | "semantic" | "default" (cascade) | "rule_match" | "os_fallback" (registry-internal)
 
 
 # ---------------------------------------------------------------------------
@@ -1114,7 +1114,7 @@ def classify_dataframe(
                 verdicts[i] = ClassificationResult(
                     category=sv.category,
                     subcategory=sv.subcategory,
-                    rule_name=f"semantic:{sv.route_name} (score {sv.score:.2f})",
+                    rule_name=f"semantic:{sv.route_name.removesuffix('|learned')} (score {sv.score:.2f})",
                     confidence="semantic",
                 )
 
