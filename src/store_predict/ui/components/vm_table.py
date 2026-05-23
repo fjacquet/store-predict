@@ -40,9 +40,11 @@ def create_vm_table(
     """
     locale = get_locale()
 
-    # Inject AG Grid French locale pack when locale is 'fr'. Self-hosted from
-    # /public/vendor (offline-friendly — no CDN); exposes AG_GRID_LOCALE_FR.
-    if locale == "fr":
+    # Inject the matching AG Grid locale pack for non-English locales. Self-hosted
+    # from /public/vendor (offline — no CDN); the bundle exposes AG_GRID_LOCALE_<XX>
+    # (FR/DE/IT all present). English uses AG Grid's built-in default.
+    ag_locale_global = "" if locale == "en" else f"AG_GRID_LOCALE_{locale.upper()}"
+    if ag_locale_global:
         ui.add_head_html('<script src="/public/vendor/ag-grid-locale.min.js" defer></script>')
 
     # Use full "Category / Subcategory" labels when available
@@ -221,10 +223,10 @@ def create_vm_table(
         "context": {},
     }
 
-    # Apply French locale text when locale is 'fr'.
-    # Use typeof guard so the grid still works if the CDN hasn't loaded yet.
-    if locale == "fr":
-        grid_options[":localeText"] = "typeof AG_GRID_LOCALE_FR !== 'undefined' ? AG_GRID_LOCALE_FR : undefined"
+    # Apply the locale's text pack. The typeof guard keeps the grid working even
+    # if the locale script hasn't finished loading yet.
+    if ag_locale_global:
+        grid_options[":localeText"] = f"typeof {ag_locale_global} !== 'undefined' ? {ag_locale_global} : undefined"
 
     grid = ui.aggrid(grid_options).classes("w-full").style("height: 600px")
 

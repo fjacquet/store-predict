@@ -48,10 +48,13 @@ def _resolve_storage_secret() -> tuple[str, bool]:
 
 
 @ui.page("/")
-def index_page() -> None:
+async def index_page() -> None:
     """Landing page for StorePredict."""
     from store_predict.ui.layout import layout
 
+    # Await the client so app.storage.tab (and thus the chosen locale) is readable;
+    # without this the landing page always renders in the default language.
+    await ui.context.client.connected()
     with layout(), ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"):
         ui.label(APP_TITLE).classes("text-5xl sp-display").style("color:var(--sp-ink)")
         ui.label(t("home.subtitle")).classes("text-xl").style("color:var(--sp-muted)")

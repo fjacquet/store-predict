@@ -1,30 +1,37 @@
-"""FR/EN language toggle button for the shared header."""
+"""Language selector (EN/FR/DE/IT) for the shared header."""
 
 from __future__ import annotations
 
 from nicegui import ui
 
-from store_predict.i18n import t
 from store_predict.i18n.locale import get_locale, set_locale
+
+# (locale code, native name shown in the menu, short label shown on the button)
+_LANGUAGES: tuple[tuple[str, str, str], ...] = (
+    ("en", "English", "EN"),
+    ("fr", "Français", "FR"),
+    ("de", "Deutsch", "DE"),
+    ("it", "Italiano", "IT"),
+)
 
 
 def add_locale_toggle() -> None:
-    """Add FR/EN language toggle button to the current layout container.
+    """Add an EN/FR/DE/IT language selector to the shared header.
 
-    The button label shows the language you will SWITCH TO (not current),
-    which is the standard UX convention (same as Wikipedia, Google, etc.).
-
-    Clicking writes the new locale to app.storage.tab and reloads the page.
-    Full page reload is required because:
-    - ui.header cannot be inside @ui.refreshable (NiceGUI 1.5+ limitation)
-    - AG Grid does not support dynamic localeText updates on existing grid instances
+    The button shows the current language; its menu lists all four by native
+    name. Choosing one writes the locale to ``app.storage.tab`` and reloads the
+    page — a full reload is required because ``ui.header`` can't be refreshable
+    and AG Grid can't swap ``localeText`` on an existing grid instance.
     """
     current = get_locale()
-    next_locale = "en" if current == "fr" else "fr"
-    label = t("layout.language")  # "FR" (when current=en) or "EN" (when current=fr)
+    short = next((label for code, _name, label in _LANGUAGES if code == current), current.upper())
 
-    def _switch() -> None:
-        set_locale(next_locale)
+    def _switch(code: str) -> None:
+        set_locale(code)
         ui.run_javascript("location.reload()")
 
-    ui.button(label, on_click=_switch).props("flat color=white dense")
+    with ui.button(short, icon="language").props("flat color=white dense"), ui.menu():
+        for code, name, _label in _LANGUAGES:
+            item = ui.menu_item(name, on_click=lambda c=code: _switch(c))
+            if code == current:
+                item.props("active").classes("text-weight-bold")
