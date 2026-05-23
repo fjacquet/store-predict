@@ -249,7 +249,6 @@ llm:
 
 semantic:
   classifying: "Classifying VMs by semantic similarity..."
-  classifying_progress: "Semantic classification: %{done} / %{total} VMs"
   classified_notify: "Semantically classified %{count} VM(s)"
   error: "Semantic classification unavailable; rule-based results will be used."
 

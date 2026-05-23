@@ -11,15 +11,20 @@ Usage:  rtk python scripts/tune_semantic_thresholds.py
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from store_predict.pipeline.classification import RuleRegistry, build_override_rules
 from store_predict.pipeline.parsers.rvtools import parse_rvtools
-from store_predict.pipeline.semantic_classifier import SemanticClassifier, _route_name
+from store_predict.pipeline.semantic_classifier import SemanticClassifier
 from store_predict.services.semantic_config import SemanticConfig
 
+# Override via the SEMANTIC_TUNE_FILE env var on machines without the default path.
 CUSTOMER_FILE = Path(
-    "/Users/fjacquet/Library/CloudStorage/OneDrive-Home/20260430_1400_allvCenters.xlsx",
+    os.environ.get(
+        "SEMANTIC_TUNE_FILE",
+        "/Users/fjacquet/Library/CloudStorage/OneDrive-Home/20260430_1400_allvCenters.xlsx",
+    )
 )
 
 
@@ -36,16 +41,13 @@ def main() -> None:
     for _, row in df.iterrows():
         name = str(row.get("vm_name") or "")
         os_name = str(row.get("os_name") or "")
-        verdict = registry.classify(name, os_name)
         text = f"{name} {os_name}".strip()
         if not text:
             continue
-        if verdict.confidence == "rule_match":
-            x.append(text)
-            y.append(_route_name(verdict.category, verdict.subcategory))
-        else:
-            x.append(text)
-            y.append(None)  # unmatched -> should not force any route
+        verdict = registry.classify(name, os_name)
+        # rule_match -> ground-truth route label; otherwise None (should not force a route)
+        x.append(text)
+        y.append(f"{verdict.category}|{verdict.subcategory}" if verdict.confidence == "rule_match" else None)
 
     sem = SemanticClassifier(config=SemanticConfig())
     print("Before:", sem._router.get_thresholds())

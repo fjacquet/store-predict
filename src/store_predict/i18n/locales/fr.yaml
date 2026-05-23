@@ -249,7 +249,6 @@ llm:
 
 semantic:
   classifying: "Classification des VM par similarité sémantique..."
-  classifying_progress: "Classification sémantique : %{done} / %{total} VM"
   classified_notify: "%{count} VM classée(s) sémantiquement"
   error: "Classification sémantique indisponible ; les résultats par règles seront utilisés."
 

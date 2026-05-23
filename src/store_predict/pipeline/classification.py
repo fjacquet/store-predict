@@ -1097,7 +1097,9 @@ def classify_dataframe(
         else:
             verdicts.append(None)  # unmatched -> pass 2
 
-    # Pass 2: semantic tier (with same-file self-learning).
+    # Pass 2: semantic tier (with same-file self-learning). Classified per-VM (not
+    # batched) so each VM's result is independent of the others in the file —
+    # FastEmbed's ONNX output is not bit-stable across batch sizes.
     if semantic is not None:
         if semantic.self_learning and learned:
             semantic.add_learned(learned)
@@ -1107,14 +1109,14 @@ def classify_dataframe(
             r = rows[i]
             try:
                 sv = semantic.classify(_text(r["vm_name"], r["os_name"], r["description"]))
-            except Exception:  # never abort the upload on a model error
-                logger.warning("Semantic classification error on one VM; falling back to default")
+            except Exception as exc:  # never abort the upload on a model error
+                logger.warning("Semantic classification error on a VM (%s); using default", type(exc).__name__)
                 sv = None
             if sv is not None:
                 verdicts[i] = ClassificationResult(
                     category=sv.category,
                     subcategory=sv.subcategory,
-                    rule_name=f"semantic:{sv.route_name.removesuffix('|learned')} (score {sv.score:.2f})",
+                    rule_name=f"semantic:{sv.display_route} (score {sv.score:.2f})",
                     confidence="semantic",
                 )
 
@@ -1126,9 +1128,10 @@ def classify_dataframe(
 
     # Size-aware reroute post-pass (ADR-080).
     if has_provisioned:
+        prov_values = df["provisioned_mib"].tolist()
         for i, verdict in enumerate(classifications):
             if verdict.confidence in ("semantic", "default") and verdict.subcategory in _UNKNOWN_SUBCATEGORIES:
-                prov = df.iloc[i].get("provisioned_mib")
+                prov = prov_values[i]
                 if pd.notna(prov) and float(prov) >= LARGE_VM_THRESHOLD_MIB:
                     classifications[i] = ClassificationResult(
                         category="File",

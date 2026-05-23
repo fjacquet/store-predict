@@ -59,6 +59,11 @@ class SemanticVerdict:
     route_name: str
     score: float
 
+    @property
+    def display_route(self) -> str:
+        """Route name without the internal self-learning suffix (customer-facing)."""
+        return self.route_name.removesuffix(_LEARNED_SUFFIX)
+
 
 @lru_cache(maxsize=4)
 def _get_encoder(model: str) -> DenseEncoder:
@@ -102,7 +107,7 @@ class SemanticClassifier:
     @property
     def self_learning(self) -> bool:
         """Whether same-file override hits should seed extra utterances."""
-        return bool(self._config.self_learning)
+        return self._config.self_learning
 
     def add_learned(self, utterances_by_pair: dict[tuple[str, str], list[str]]) -> None:
         """Add same-file override names as extra utterances (in-memory only).
@@ -129,6 +134,12 @@ class SemanticClassifier:
     def classify(self, text: str) -> SemanticVerdict | None:
         """Return a verdict for *text*, or None if empty / below threshold.
 
+        Classification is intentionally per-text (not batched): FastEmbed's ONNX
+        inference is not bit-stable across batch sizes (~1e-4 elementwise drift),
+        so batching would make a VM's result depend on how many other VMs are in
+        the same upload — unacceptable for defensible sizing. Per-text keeps each
+        VM's classification independent and reproducible.
+
         ``SemanticRouter.__call__`` returns ``RouteChoice | list[RouteChoice]``.
         With the default ``limit=1`` we always get a single ``RouteChoice``, but
         we guard against the list branch defensively.
@@ -136,16 +147,14 @@ class SemanticClassifier:
         if not text or not text.strip():
             return None
         result = self._router(text)
-        # result type is RouteChoice | list[RouteChoice] per the library's signature.
-        # With limit=1 (default) it is always a single RouteChoice; guard for safety.
         choice = (result[0] if result else None) if isinstance(result, list) else result
         if choice is None or not isinstance(choice, RouteChoice) or choice.name is None:
             return None
         pair = self._mapping.get(choice.name)
         if pair is None:
             return None
-        category, subcategory = pair
         if choice.similarity_score is None:
             return None  # matched but unscored: not defensible, treat as unclassified
+        category, subcategory = pair
         score = float(choice.similarity_score)
         return SemanticVerdict(category=category, subcategory=subcategory, route_name=choice.name, score=score)
