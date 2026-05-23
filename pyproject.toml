@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "store-predict"
-version = "9.1.0"
+version = "10.0.0"
 description = "Dell PowerStore DRR sizing tool"
 requires-python = ">=3.12"
 dependencies = [
@@ -17,6 +17,8 @@ dependencies = [
     "pillow>=12.2.0",
     "matplotlib>=3.8",
     "litellm>=1.83.7",
+    "semantic-router>=0.1.0,<0.2.0",
+    "fastembed>=0.8,<0.9",
     "pydantic>=2.12.5",
     "pydantic-settings>=2.13.0,<3.0",
 ]
@@ -29,6 +31,7 @@ dev = [
     "mypy>=1.10",
     "pyright>=1.1.408",
     "pandas-stubs>=2.2",
+    "types-PyYAML",
 ]
 docs = [
     "mkdocs",
@@ -51,7 +54,7 @@ override-dependencies = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-store_predict = ["data/*.csv", "data/*.png", "data/*.ttf", "i18n/locales/*.yaml"]
+store_predict = ["data/*.csv", "data/*.png", "data/*.ttf", "data/*.yaml", "i18n/locales/*.yaml"]
 
 [tool.ruff]
 target-version = "py312"
@@ -106,6 +109,14 @@ module = "litellm.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = "semantic_router.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "fastembed.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = "pydantic_settings.*"
 ignore_missing_imports = false
 
@@ -119,3 +130,4 @@ omit = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=store_predict --cov-report=term-missing --cov-report=xml"
+markers = ["slow: tests that load the FastEmbed model (real embeddings)"]

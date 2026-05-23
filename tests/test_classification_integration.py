@@ -13,9 +13,12 @@ import pytest
 from store_predict.pipeline.classification import (
     RuleRegistry,
     build_default_rules,
+    build_override_rules,
     classify_dataframe,
 )
 from store_predict.pipeline.ingestion import ingest_file
+from store_predict.pipeline.semantic_classifier import SemanticClassifier
+from store_predict.services.semantic_config import SemanticConfig
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -30,6 +33,13 @@ if TYPE_CHECKING:
 def _registry() -> RuleRegistry:
     """Build a registry with the full default rule set."""
     return RuleRegistry(build_default_rules())
+
+
+def _cascade(df):  # type: ignore[no-untyped-def]
+    """Run the v10 cascade: override rules + the real semantic tier."""
+    registry = RuleRegistry(build_override_rules())
+    semantic = SemanticClassifier(config=SemanticConfig())
+    return classify_dataframe(df, registry, semantic=semantic)
 
 
 # ---------------------------------------------------------------------------
@@ -92,6 +102,7 @@ class TestLiveOpticsSampleClassification:
             null_count = result[col].isna().sum()
             assert null_count == 0, f"Column {col!r} has {null_count} null values"
 
+    @pytest.mark.slow
     def test_classify_liveoptics_sample_unknown_under_20pct(
         self,
         liveoptics_xlsx_path: Path,
@@ -101,7 +112,7 @@ class TestLiveOpticsSampleClassification:
         This is the primary success criterion from ROADMAP.md.
         """
         df = ingest_file(liveoptics_xlsx_path)
-        result = classify_dataframe(df, _registry())
+        result = _cascade(df)
 
         total = len(result)
         unknown_count = (result["workload_category"] == "Unknown (Reducible)").sum()
@@ -240,6 +251,7 @@ class TestEndToEndPipeline:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.slow
 def test_classification_coverage_report(liveoptics_xlsx_path: Path) -> None:
     """Print a human-readable classification coverage report.
 
@@ -247,7 +259,7 @@ def test_classification_coverage_report(liveoptics_xlsx_path: Path) -> None:
     Also verifies confidence breakdown is reasonable.
     """
     df = ingest_file(liveoptics_xlsx_path)
-    result = classify_dataframe(df, _registry())
+    result = _cascade(df)
 
     total = len(result)
     assert total > 0, "No VMs in result"
@@ -281,11 +293,11 @@ def test_classification_coverage_report(liveoptics_xlsx_path: Path) -> None:
         pct = count / total * 100
         print(f"  {conf:<20} {count:5d} ({pct:5.1f}%)")
 
-    # rule_match should be present (VMs matched by specific rules)
-    assert "rule_match" in confidence_counts.index, "No VMs matched by specific rules (rule_match missing)"
+    # override should be present (VMs matched by override rules)
+    assert "override" in confidence_counts.index, "No VMs matched by override rules (override missing)"
 
-    # os_fallback should be present (generic VMs caught by OS)
-    assert "os_fallback" in confidence_counts.index, "No VMs matched by OS fallback (os_fallback missing)"
+    # semantic should be present (VMs matched by semantic tier)
+    assert "semantic" in confidence_counts.index, "No VMs matched by semantic tier (semantic missing)"
 
     # default should be minimal (<5%)
     default_count = confidence_counts.get("default", 0)

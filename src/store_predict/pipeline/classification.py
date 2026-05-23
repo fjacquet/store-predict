@@ -10,12 +10,19 @@ pairs only.  The DRRTable service provides ratio lookup separately.
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import pandas as pd
 
 from store_predict.config import COMPANY_PREFIX_PATTERNS
+
+if TYPE_CHECKING:
+    from store_predict.pipeline.semantic_classifier import SemanticClassifier
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -147,7 +154,7 @@ class ClassificationResult:
     category: str
     subcategory: str
     rule_name: str
-    confidence: str  # "rule_match" | "os_fallback" | "default"
+    confidence: str  # "override" | "semantic" | "default" (cascade) | "rule_match" | "os_fallback" (registry-internal)
 
 
 # ---------------------------------------------------------------------------
@@ -992,6 +999,18 @@ def build_default_rules() -> list[ClassificationRule]:
     ]
 
 
+def build_override_rules() -> list[ClassificationRule]:
+    """High-precision, must-win classification rules for the semantic cascade.
+
+    These are exactly the named application/folder rules from
+    :func:`build_default_rules` with ``priority < 900``. The OS-based fallback
+    rules (900-998) and the catch-all default (999) are intentionally excluded:
+    VMs that only those rules would have matched flow to the semantic tier
+    instead, which makes a better category guess than a generic OS bucket.
+    """
+    return [rule for rule in build_default_rules() if rule.priority < 900]
+
+
 # ---------------------------------------------------------------------------
 # DataFrame-level classification
 # ---------------------------------------------------------------------------
@@ -1017,21 +1036,31 @@ _UNKNOWN_SUBCATEGORIES: frozenset[str] = frozenset(
 def classify_dataframe(
     df: pd.DataFrame,
     registry: RuleRegistry,
+    semantic: SemanticClassifier | None = None,
 ) -> pd.DataFrame:
-    """Classify all VMs in *df*, returning a copy with four new columns.
+    """Classify all VMs in *df* via override -> semantic -> default cascade.
 
     Added columns: ``workload_category``, ``workload_subcategory``,
     ``classification_rule``, ``classification_confidence``.
 
-    NaN ``os_name`` values are converted to empty string before matching
-    so that ``"nan"`` does not accidentally trigger patterns.
+    Pass 1 runs the deterministic override *registry* (priority<900 rules). A
+    match is labelled ``confidence="override"`` and ``classification_rule
+    ="override:<RuleName>"``. Override hits also seed the semantic tier's
+    self-learning (same-file utterances) when *semantic* is provided and
+    self-learning is enabled.
 
-    Size-aware reroute: VMs with ``confidence in {"os_fallback","default"}``
-    AND ``provisioned_mib >= LARGE_VM_THRESHOLD_MIB`` AND original subcategory
-    in ``_UNKNOWN_SUBCATEGORIES`` are rerouted to the existing "File / General
-    Purpose" category at DRR=2.0 (2:1), tagged ``rule_name="Large generic
-    (>=100 GiB)"`` for provenance. Specific app rules (rule_match) are never
-    rerouted.
+    Pass 2 runs the *semantic* classifier on rows that no override matched. A
+    verdict at/above threshold is labelled ``confidence="semantic"`` and
+    ``classification_rule="semantic:<route> (score 0.84)"``. Below threshold —
+    or when *semantic* is None — the row is ``confidence="default"`` /
+    ``Unknown (Reducible)``.
+
+    A per-row semantic error never aborts the upload: it falls to ``default``.
+
+    Size-aware reroute (ADR-080): rows with ``confidence in {"semantic",
+    "default"}`` AND original subcategory in ``_UNKNOWN_SUBCATEGORIES`` AND
+    ``provisioned_mib >= LARGE_VM_THRESHOLD_MIB`` are rerouted to "File /
+    General Purpose" (DRR 2.0), tagged ``rule_name="Large generic (>=100 GiB)"``.
     """
     result = df.copy()
 
@@ -1039,29 +1068,77 @@ def classify_dataframe(
     has_folder = "vm_folder" in df.columns
     has_provisioned = "provisioned_mib" in df.columns
 
-    classifications = []
+    def _text(vm_name: str, os_name: str, description: str) -> str:
+        return " ".join(part for part in (vm_name, os_name, description) if part).strip()
+
+    rows: list[dict[str, str]] = []
     for _, row in df.iterrows():
         vm_name = str(row["vm_name"]) if pd.notna(row["vm_name"]) else ""
         os_name = str(row["os_name"]) if pd.notna(row["os_name"]) else ""
         description = str(row["vm_description"]) if has_description and pd.notna(row.get("vm_description")) else ""
         folder = str(row["vm_folder"]) if has_folder and pd.notna(row.get("vm_folder")) else ""
-        verdict = registry.classify(vm_name, os_name, description, folder)
+        rows.append({"vm_name": vm_name, "os_name": os_name, "description": description, "folder": folder})
 
-        if (
-            has_provisioned
-            and verdict.confidence in ("os_fallback", "default")
-            and verdict.subcategory in _UNKNOWN_SUBCATEGORIES
-        ):
-            prov = row.get("provisioned_mib")
-            if pd.notna(prov) and float(prov) >= LARGE_VM_THRESHOLD_MIB:
-                verdict = ClassificationResult(
-                    category="File",
-                    subcategory="General Purpose",
-                    rule_name="Large generic (>=100 GiB)",
-                    confidence=verdict.confidence,
+    # Pass 1: deterministic overrides.
+    verdicts: list[ClassificationResult | None] = []
+    learned: dict[tuple[str, str], list[str]] = {}
+    for r in rows:
+        rule_verdict = registry.classify(r["vm_name"], r["os_name"], r["description"], r["folder"])
+        if rule_verdict.confidence == "rule_match":
+            verdicts.append(
+                ClassificationResult(
+                    category=rule_verdict.category,
+                    subcategory=rule_verdict.subcategory,
+                    rule_name=f"override:{rule_verdict.rule_name}",
+                    confidence="override",
+                )
+            )
+            learned.setdefault((rule_verdict.category, rule_verdict.subcategory), []).append(r["vm_name"])
+        else:
+            verdicts.append(None)  # unmatched -> pass 2
+
+    # Pass 2: semantic tier (with same-file self-learning). Classified per-VM (not
+    # batched) so each VM's result is independent of the others in the file —
+    # FastEmbed's ONNX output is not bit-stable across batch sizes.
+    if semantic is not None:
+        if semantic.self_learning and learned:
+            semantic.add_learned(learned)
+        for i, verdict in enumerate(verdicts):
+            if verdict is not None:
+                continue
+            r = rows[i]
+            try:
+                sv = semantic.classify(_text(r["vm_name"], r["os_name"], r["description"]))
+            except Exception as exc:  # never abort the upload on a model error
+                logger.warning("Semantic classification error on a VM (%s); using default", type(exc).__name__)
+                sv = None
+            if sv is not None:
+                verdicts[i] = ClassificationResult(
+                    category=sv.category,
+                    subcategory=sv.subcategory,
+                    rule_name=f"semantic:{sv.display_route} (score {sv.score:.2f})",
+                    confidence="semantic",
                 )
 
-        classifications.append(verdict)
+    # Fill remaining unmatched rows with the explicit default.
+    classifications: list[ClassificationResult] = [
+        v if v is not None else ClassificationResult("Unknown (Reducible)", "Unknown (Reducible)", "default", "default")
+        for v in verdicts
+    ]
+
+    # Size-aware reroute post-pass (ADR-080).
+    if has_provisioned:
+        prov_values = df["provisioned_mib"].tolist()
+        for i, verdict in enumerate(classifications):
+            if verdict.confidence in ("semantic", "default") and verdict.subcategory in _UNKNOWN_SUBCATEGORIES:
+                prov = prov_values[i]
+                if pd.notna(prov) and float(prov) >= LARGE_VM_THRESHOLD_MIB:
+                    classifications[i] = ClassificationResult(
+                        category="File",
+                        subcategory="General Purpose",
+                        rule_name="Large generic (>=100 GiB)",
+                        confidence=verdict.confidence,
+                    )
 
     result["workload_category"] = [c.category for c in classifications]
     result["workload_subcategory"] = [c.subcategory for c in classifications]

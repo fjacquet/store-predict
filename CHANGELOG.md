@@ -2,6 +2,60 @@
 
 All notable changes to StorePredict are documented here.
 
+## [10.0.0] - 2026-05-23
+
+> **BREAKING** — the classification engine has been redesigned. The LLM classification tier
+> is removed from the active pipeline. Confidence values and `classification_rule` formats
+> have changed. See ADRs 082–085.
+
+### Added
+
+- **Semantic-router primary classifier.** `FastEmbedEncoder("BAAI/bge-small-en-v1.5")` (ONNX,
+  offline) is now the second classification tier, between deterministic override rules and the
+  Unknown default. On the reference customer file (1373 VMs), Unknown VMs dropped to ~0.
+  See [ADR-082](adr/082-semantic-router-primary-classifier.md).
+
+- **`build_override_rules()`** — high-confidence subset of the existing rule registry
+  (priority < 900). These fire before the semantic pass. SAP HANA, DDVE, Email, VDI, and
+  other unambiguous product tokens are preserved as deterministic overrides.
+
+- **`SemanticConfig` settings class** (`SEMANTIC_THRESHOLD`, `SEMANTIC_MODEL`,
+  `SEMANTIC_ENABLED`) — env-var-driven configuration for the semantic tier, consistent with
+  `LLMConfig` conventions.
+
+- **Curated exemplar file** (`src/store_predict/data/classification_exemplars.yaml`) — 23
+  routes, 5–15 utterances each, synthetic but representative of real VM naming conventions.
+  See [ADR-085](adr/085-curated-self-learning-exemplars.md).
+
+- **In-memory same-file self-learning** — VMs matched by override rules seed extra utterances
+  for the current upload only; never persisted to disk or git. Adapts the semantic index to
+  the naming conventions of the uploaded file.
+
+- **Semantic confidence values.** `classification_confidence` now uses `"override"` (was
+  `"rule_match"` for high-priority rules), `"semantic"` (new), and `"default"` (unchanged).
+  The `classification_rule` field records `"semantic:<route> (score X.XX)"` for semantic hits.
+
+- **New dependencies:** `semantic-router>=0.1.0,<0.2.0`, `fastembed>=0.8`, `onnxruntime`.
+  The FastEmbed ONNX model (`BAAI/bge-small-en-v1.5`, ~130 MB) is baked into the Docker
+  image at build time. See [ADR-083](adr/083-fastembed-offline-encoder.md).
+
+### Changed
+
+- Classification cascade order: **normalize → override rules → semantic router → default →
+  ADR-080 size reroute.** The LLM tier is no longer in this cascade.
+
+- `build_default_rules()` still returns the full rule set for backward compatibility, but the
+  active pipeline calls `build_override_rules()` instead.
+
+### Removed (breaking)
+
+- **LLM classification tier removed from the active pipeline.** `llm_classifier.py` and
+  `llm_config.py` are retained but unwired from `upload.py`. `LLM_ENABLED=true` has no
+  effect in v10.x. See [ADR-084](adr/084-retire-llm-fallback-dormant.md).
+
+- The `"rule_match"` confidence value is no longer emitted by the active pipeline (it was
+  the value for rules in the 0–899 priority range, which are no longer called as a group).
+
 ## [Unreleased]
 
 ### Fixed
