@@ -90,6 +90,24 @@ h1,h2,h3,h4,.sp-display {{ font-weight:700; letter-spacing:-.02em; }}
 .sp-nav-link:hover {{ color:#FFFFFF; }}
 .sp-nav-link.sp-active {{ color:#FFFFFF; border-bottom-color:var(--sp-accent); }}
 
+/* Linear workflow step bar (Upload -> Scope -> Review -> Report). */
+.sp-steps {{ background:var(--sp-surface); border-bottom:1px solid var(--sp-line); }}
+.sp-step {{
+  display:inline-flex; align-items:center; gap:.4rem; text-decoration:none;
+  color:var(--sp-muted); font-size:.84rem; font-weight:500;
+  padding:.15rem .55rem; border-radius:6px; transition:color .15s ease;
+}}
+.sp-step:hover {{ color:var(--sp-ink); }}
+.sp-step .sp-step-num {{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:1.3rem; height:1.3rem; border-radius:50%; background:var(--sp-line);
+  color:var(--sp-muted); font-size:.72rem; font-weight:700;
+}}
+.sp-step.sp-step-active {{ color:var(--sp-ink); font-weight:600; }}
+.sp-step.sp-step-active .sp-step-num {{ background:var(--sp-accent); color:#1E2761; }}
+.sp-step-sep {{ color:var(--sp-line); font-size:1.1rem; user-select:none; }}
+.sp-step-sep::before {{ content:"\\203A"; }}
+
 /* Surfaces & accessibility polish. */
 .sp-card {{
   background:var(--sp-surface); border:1px solid var(--sp-line);
@@ -149,6 +167,10 @@ body.body--dark .sp-chip-default  {{ background:#3A2A12; color:#E0A75A; border-c
       var href = ((a.getAttribute('href') || '').replace(/\\/+$/, '') || '/');
       var active = href === '/' ? path === '/' : (path === href || path.indexOf(href + '/') === 0);
       a.classList.toggle('sp-active', active);
+    }});
+    document.querySelectorAll('.sp-step').forEach(function(a) {{
+      var href = ((a.getAttribute('href') || '').replace(/\\/+$/, '') || '/');
+      a.classList.toggle('sp-step-active', path === href);
     }});
     return true;
   }}

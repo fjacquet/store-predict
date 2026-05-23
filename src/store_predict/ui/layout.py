@@ -27,6 +27,15 @@ _NAV_LINKS: tuple[tuple[str, str], ...] = (
     ("layout.compute", "/compute"),
 )
 
+# The core linear workflow, shown as a step bar under the header (current step
+# is highlighted client-side by the theme script matching the path).
+_FLOW_STEPS: tuple[tuple[str, str], ...] = (
+    ("layout.upload", "/upload"),
+    ("layout.scope", "/scope"),
+    ("layout.review", "/review"),
+    ("layout.report", "/report"),
+)
+
 
 @contextmanager
 def layout(title: str = "StorePredict") -> Iterator[None]:
@@ -39,4 +48,11 @@ def layout(title: str = "StorePredict") -> Iterator[None]:
                 ui.link(t(key), route).classes("sp-nav-link")
             add_dark_mode_toggle()
             add_locale_toggle()
+    with ui.row().classes("sp-steps w-full items-center gap-1 px-6 py-2"):
+        for index, (key, route) in enumerate(_FLOW_STEPS):
+            if index:
+                ui.label().classes("sp-step-sep")
+            with ui.link(target=route).classes("sp-step"):
+                ui.label(str(index + 1)).classes("sp-step-num")
+                ui.label(t(key)).classes("sp-step-label")
     yield
