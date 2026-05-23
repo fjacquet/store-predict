@@ -87,7 +87,8 @@ h1,h2,h3,h4,.sp-display {{ font-weight:700; letter-spacing:-.02em; }}
   padding:.3rem .15rem; border-bottom:2px solid transparent;
   transition:color .15s ease, border-color .15s ease;
 }}
-.sp-nav-link:hover {{ color:#FFFFFF; border-bottom-color:var(--sp-accent); }}
+.sp-nav-link:hover {{ color:#FFFFFF; }}
+.sp-nav-link.sp-active {{ color:#FFFFFF; border-bottom-color:var(--sp-accent); }}
 
 /* Surfaces & accessibility polish. */
 .sp-card {{
@@ -136,6 +137,28 @@ body.body--dark .sp-chip-default  {{ background:#3A2A12; color:#E0A75A; border-c
 }}
 .sp-stat-value {{ font-size:1.7rem; font-weight:700; color:var(--sp-ink); font-variant-numeric:tabular-nums; }}
 </style>
+<script>
+// Wayfinding: mark the current nav link active (gold underline). NiceGUI builds
+// the DOM asynchronously, so wait for the links via a MutationObserver.
+(function() {{
+  function mark() {{
+    var links = document.querySelectorAll('.sp-nav-link');
+    if (!links.length) return false;
+    var path = (location.pathname.replace(/\\/+$/, '') || '/');
+    links.forEach(function(a) {{
+      var href = ((a.getAttribute('href') || '').replace(/\\/+$/, '') || '/');
+      var active = href === '/' ? path === '/' : (path === href || path.indexOf(href + '/') === 0);
+      a.classList.toggle('sp-active', active);
+    }});
+    return true;
+  }}
+  if (!mark()) {{
+    var obs = new MutationObserver(function() {{ if (mark()) obs.disconnect(); }});
+    obs.observe(document.documentElement, {{ childList: true, subtree: true }});
+    setTimeout(function() {{ try {{ obs.disconnect(); }} catch (e) {{}} }}, 5000);
+  }}
+}})();
+</script>
 """
 
 _styles_registered = False
