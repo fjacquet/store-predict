@@ -62,3 +62,6 @@ samples/
 .nicegui/
 # Added by code-review-graph
 .code-review-graph/
+
+# Playwright MCP screenshot/snapshot artifacts
+.playwright-mcp/
