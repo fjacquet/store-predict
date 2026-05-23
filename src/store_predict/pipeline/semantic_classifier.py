@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 _DEFAULT_EXEMPLARS = Path(__file__).resolve().parent.parent / "data" / "classification_exemplars.yaml"
 _ROUTE_SEP = "|"
-_LEARNED_SUFFIX = "|learned"
+_LEARNED_SUFFIX = _ROUTE_SEP + "learned"
 
 
 @dataclass(frozen=True)
@@ -77,10 +77,13 @@ class SemanticClassifier:
         self._config = config
         self._encoder = _get_encoder(config.model)
         path = exemplars_path or _DEFAULT_EXEMPLARS
-        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        routes_data = data.get("routes") or []
+        if not routes_data:
+            raise ValueError(f"exemplars file has no 'routes': {path}")
         self._mapping: dict[str, tuple[str, str]] = {}
         routes: list[Route] = []
-        for entry in data["routes"]:
+        for entry in routes_data:
             category = entry["category"]
             subcategory = entry["subcategory"]
             name = _route_name(category, subcategory)
@@ -137,5 +140,7 @@ class SemanticClassifier:
         if pair is None:
             return None
         category, subcategory = pair
-        score = float(choice.similarity_score) if choice.similarity_score is not None else 0.0
+        if choice.similarity_score is None:
+            return None  # matched but unscored: not defensible, treat as unclassified
+        score = float(choice.similarity_score)
         return SemanticVerdict(category=category, subcategory=subcategory, route_name=choice.name, score=score)

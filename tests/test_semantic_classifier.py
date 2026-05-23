@@ -69,5 +69,5 @@ def test_verdict_is_frozen() -> None:
     v = SemanticVerdict(
         category="Database", subcategory="Microsoft SQL", route_name="Database|Microsoft SQL", score=0.8
     )
-    with pytest.raises((AttributeError, Exception)):
+    with pytest.raises(AttributeError):
         v.score = 0.1  # type: ignore[misc]
