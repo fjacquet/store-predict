@@ -98,6 +98,14 @@ module = "reportlab.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = "pptx.*"
+# python-pptx ships a partial py.typed; skip following it so its untyped
+# calls (RGBColor.from_string, CategoryChartData, .chart) aren't flagged
+# under strict mode. ignore_missing_imports alone is a no-op for a typed pkg.
+follow_imports = "skip"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = "i18n.*"
 ignore_missing_imports = true
 

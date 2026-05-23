@@ -32,14 +32,14 @@ __all__ = ["generate_report_pptx"]
 # Slide geometry (16:9) and brand colours (match the PDF deliverable).
 _SLIDE_W = Inches(13.333)
 _SLIDE_H = Inches(7.5)
-_BRAND_NAVY = RGBColor.from_string("1E3A5F")  # type: ignore[no-untyped-call]
-_WHITE = RGBColor.from_string("FFFFFF")  # type: ignore[no-untyped-call]
-_DARK = RGBColor.from_string("333333")  # type: ignore[no-untyped-call]
+_BRAND_NAVY = RGBColor.from_string("1E3A5F")
+_WHITE = RGBColor.from_string("FFFFFF")
+_DARK = RGBColor.from_string("333333")
 _BLANK_LAYOUT = 6  # "Blank" layout in the default template
 
 
 def _new_blank_slide(prs: Any) -> Slide:
-    return prs.slides.add_slide(prs.slide_layouts[_BLANK_LAYOUT])  # type: ignore[no-any-return]
+    return prs.slides.add_slide(prs.slide_layouts[_BLANK_LAYOUT])
 
 
 def _add_header_band(slide: Slide, heading: str) -> None:
@@ -103,7 +103,7 @@ def _add_kpi_tile(slide: Slide, label: str, value: str, left: Inches, top: Inche
     r_label = p_label.add_run()
     r_label.text = label
     r_label.font.size = Pt(12)
-    r_label.font.color.rgb = RGBColor.from_string("9DBBD6")  # type: ignore[no-untyped-call]
+    r_label.font.color.rgb = RGBColor.from_string("9DBBD6")
     p_value = tf.add_paragraph()
     p_value.alignment = PP_ALIGN.CENTER
     r_value = p_value.add_run()
