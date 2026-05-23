@@ -99,6 +99,11 @@ class SemanticClassifier:
         self._router.set_threshold(config.score_threshold)
         logger.debug("SemanticClassifier ready with %d routes, threshold=%.2f", len(routes), config.score_threshold)
 
+    @property
+    def self_learning(self) -> bool:
+        """Whether same-file override hits should seed extra utterances."""
+        return bool(self._config.self_learning)
+
     def add_learned(self, utterances_by_pair: dict[tuple[str, str], list[str]]) -> None:
         """Add same-file override names as extra utterances (in-memory only).
 

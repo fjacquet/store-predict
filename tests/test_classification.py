@@ -13,6 +13,7 @@ import pytest
 from store_predict.pipeline.classification import (
     RuleRegistry,
     build_default_rules,
+    build_override_rules,
     classify_dataframe,
 )
 
@@ -27,6 +28,15 @@ if TYPE_CHECKING:
 def _registry() -> RuleRegistry:
     """Convenience: build a registry with the full default rule set."""
     return RuleRegistry(build_default_rules())
+
+
+def _override_registry() -> RuleRegistry:
+    """Build a registry with override-only rules (priority < 900).
+
+    Used in classify_dataframe tests to exercise the cascade: deterministic
+    override -> default (no semantic tier in unit tests).
+    """
+    return RuleRegistry(build_override_rules())
 
 
 # ---------------------------------------------------------------------------
@@ -219,7 +229,13 @@ def test_case_insensitive() -> None:
 
 class TestClassifyDataFrame:
     def test_classify_dataframe_adds_columns(self) -> None:
-        """classify_dataframe adds 4 new columns with correct values."""
+        """classify_dataframe adds 4 new columns with correct values.
+
+        Uses override-only registry (cascade model): CADSRVSQL001 hits the SQL
+        override rule (confidence="override"); GENERIC-SVR and UNKNOWN-001 have
+        no override match and no semantic tier, so both fall to "Unknown
+        (Reducible)" with confidence="default".
+        """
         df = pd.DataFrame(
             {
                 "vm_name": ["CADSRVSQL001", "GENERIC-SVR", "UNKNOWN-001"],
@@ -230,7 +246,7 @@ class TestClassifyDataFrame:
                 ],
             }
         )
-        result = classify_dataframe(df, _registry())
+        result = classify_dataframe(df, _override_registry())
 
         # Original unchanged
         assert "vm_name" in result.columns
@@ -245,20 +261,22 @@ class TestClassifyDataFrame:
         ]:
             assert col in result.columns
 
-        # Values correct
+        # Values correct: SQL override hit, two unmatched VMs fall to default
         assert result.iloc[0]["workload_category"] == "Database"
-        assert result.iloc[1]["workload_category"] == "Virtual Machines"
+        assert result.iloc[0]["classification_confidence"] == "override"
+        assert result.iloc[1]["workload_category"] == "Unknown (Reducible)"
+        assert result.iloc[1]["classification_confidence"] == "default"
         assert result.iloc[2]["workload_category"] == "Unknown (Reducible)"
 
     def test_classify_dataframe_handles_nan_os(self) -> None:
-        """NaN os_name does not crash and classifies to default or OS fallback."""
+        """NaN os_name does not crash and classifies to default or override."""
         df = pd.DataFrame(
             {
                 "vm_name": ["SOME-VM"],
                 "os_name": [None],
             }
         )
-        result = classify_dataframe(df, _registry())
+        result = classify_dataframe(df, _override_registry())
         assert result.iloc[0]["workload_category"] is not None
 
     def test_classify_dataframe_does_not_mutate_input(self) -> None:
@@ -270,7 +288,7 @@ class TestClassifyDataFrame:
             }
         )
         original_cols = list(df.columns)
-        _ = classify_dataframe(df, _registry())
+        _ = classify_dataframe(df, _override_registry())
         assert list(df.columns) == original_cols
 
 
@@ -918,7 +936,13 @@ class TestV900PatternsAndSizeAware:
         assert result.category == "Logging - Analytics"
 
     def test_small_unknown_vm_stays_generic(self) -> None:
-        """50 GiB Windows Server with no name match stays in generic VM bucket."""
+        """50 GiB Windows Server with no name match stays in Unknown (Reducible).
+
+        With the override-cascade model, a generic Windows Server VM with no
+        app keyword hits no override rule and falls to confidence="default" →
+        "Unknown (Reducible)".  50 GiB is below the 100 GiB reroute threshold
+        so it is never promoted to File / General Purpose.
+        """
         df = pd.DataFrame(
             {
                 "vm_name": ["GENERIC-APP-50G"],
@@ -926,12 +950,18 @@ class TestV900PatternsAndSizeAware:
                 "provisioned_mib": [50 * 1024],
             }
         )
-        out = classify_dataframe(df, _registry())
-        assert out.iloc[0]["workload_subcategory"] == "VMware / Hyper-V / KVM - No Database, File nor Email"
-        assert out.iloc[0]["classification_confidence"] == "os_fallback"
+        out = classify_dataframe(df, _override_registry())
+        assert out.iloc[0]["workload_subcategory"] == "Unknown (Reducible)"
+        assert out.iloc[0]["classification_confidence"] == "default"
 
     def test_large_unknown_vm_reroutes_to_file_general(self) -> None:
-        """200 GiB Windows Server unknown VM reroutes to File / General Purpose."""
+        """200 GiB Windows Server unknown VM reroutes to File / General Purpose.
+
+        With the override-cascade model, the VM has no override hit and no
+        semantic tier → confidence="default".  The size-aware reroute (ADR-080)
+        still applies to confidence in {"semantic", "default"}, so the reroute
+        fires and the confidence remains "default" for provenance.
+        """
         df = pd.DataFrame(
             {
                 "vm_name": ["GENERIC-APP-200G"],
@@ -939,13 +969,13 @@ class TestV900PatternsAndSizeAware:
                 "provisioned_mib": [200 * 1024],
             }
         )
-        out = classify_dataframe(df, _registry())
+        out = classify_dataframe(df, _override_registry())
         assert out.iloc[0]["workload_category"] == "File"
         assert out.iloc[0]["workload_subcategory"] == "General Purpose"
         # rule_name marks this as a size-based reroute, not a real File rule match.
         assert out.iloc[0]["classification_rule"] == "Large generic (>=100 GiB)"
-        # Confidence preserves provenance (still os_fallback, not rule_match).
-        assert out.iloc[0]["classification_confidence"] == "os_fallback"
+        # Confidence preserves provenance (default, not override).
+        assert out.iloc[0]["classification_confidence"] == "default"
 
     def test_large_default_unknown_vm_reroutes(self) -> None:
         """500 GiB VM with no name match AND no OS match (confidence=default)
@@ -957,14 +987,18 @@ class TestV900PatternsAndSizeAware:
                 "provisioned_mib": [500 * 1024],
             }
         )
-        out = classify_dataframe(df, _registry())
+        out = classify_dataframe(df, _override_registry())
         assert out.iloc[0]["workload_category"] == "File"
         assert out.iloc[0]["workload_subcategory"] == "General Purpose"
         assert out.iloc[0]["classification_confidence"] == "default"
 
     def test_large_specific_app_not_rerouted(self) -> None:
         """A 1 TiB Oracle VM keeps its Database/Oracle classification —
-        rule_match is never overridden by size-based reroute."""
+        override hits are never overridden by size-based reroute.
+
+        confidence is now "override" (was "rule_match" in the old single-pass
+        model); the size reroute only applies to "semantic"/"default".
+        """
         df = pd.DataFrame(
             {
                 "vm_name": ["oracle-prod-01"],
@@ -972,10 +1006,10 @@ class TestV900PatternsAndSizeAware:
                 "provisioned_mib": [1024 * 1024],  # 1 TiB
             }
         )
-        out = classify_dataframe(df, _registry())
+        out = classify_dataframe(df, _override_registry())
         assert out.iloc[0]["workload_category"] == "Database"
         assert out.iloc[0]["workload_subcategory"] == "Oracle"
-        assert out.iloc[0]["classification_confidence"] == "rule_match"
+        assert out.iloc[0]["classification_confidence"] == "override"
 
     def test_threshold_boundary_exact_100gib(self) -> None:
         """100 GiB exactly is the threshold — must reroute (≥, inclusive)."""
@@ -986,19 +1020,23 @@ class TestV900PatternsAndSizeAware:
                 "provisioned_mib": [100 * 1024],
             }
         )
-        out = classify_dataframe(df, _registry())
+        out = classify_dataframe(df, _override_registry())
         assert out.iloc[0]["workload_subcategory"] == "General Purpose"
 
     def test_classify_dataframe_without_provisioned_column(self) -> None:
-        """When provisioned_mib column is absent, no reroute happens (no crash)."""
+        """When provisioned_mib column is absent, no reroute happens (no crash).
+
+        The VM falls to confidence="default" / "Unknown (Reducible)" and stays
+        there because there is no provisioned_mib to trigger the size reroute.
+        """
         df = pd.DataFrame(
             {
                 "vm_name": ["GENERIC-APP-LARGE"],
                 "os_name": ["Microsoft Windows Server 2019 (64-bit)"],
             }
         )
-        out = classify_dataframe(df, _registry())
-        assert out.iloc[0]["workload_subcategory"] == "VMware / Hyper-V / KVM - No Database, File nor Email"
+        out = classify_dataframe(df, _override_registry())
+        assert out.iloc[0]["workload_subcategory"] == "Unknown (Reducible)"
 
 
 # ---------------------------------------------------------------------------
