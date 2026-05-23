@@ -149,3 +149,37 @@ class TestAppendix:
             ).slides
         )
         assert n_yes == n_no + 1
+
+
+class TestPptxLocale:
+    def test_en_and_fr_differ(self) -> None:
+        summary = _make_summary([("Database/Microsoft SQL", 2, 20480.0, 5.0)])
+        en = generate_report_pptx(summary, "X", locale="en")
+        fr = generate_report_pptx(summary, "X", locale="fr")
+        assert en != fr
+
+    def test_fr_label_present(self) -> None:
+        summary = _make_summary([("Virtual Machines", 1, 10240.0, 5.0)])
+        prs = Presentation(BytesIO(generate_report_pptx(summary, "X", locale="fr")))
+        assert "Synthèse" in _slide_text(prs)  # pptx.exec_summary_heading (fr)
+
+    def test_default_locale_is_fr(self) -> None:
+        summary = _make_summary([("Virtual Machines", 1, 10240.0, 5.0)])
+        prs = Presentation(BytesIO(generate_report_pptx(summary, "X")))
+        assert "Synthèse" in _slide_text(prs)
+
+
+class TestPptxRobustness:
+    def test_empty_summary_still_generates(self) -> None:
+        prs = Presentation(BytesIO(generate_report_pptx(_make_summary(), "Empty")))
+        assert len(prs.slides) >= 2  # title + exec + breakdown + charts, no layout slide
+
+    def test_logo_bytes_accepted(self) -> None:
+        from PIL import Image as PILImage
+
+        buf = BytesIO()
+        PILImage.new("RGBA", (4, 4), (0, 0, 0, 0)).save(buf, format="PNG")
+        png = buf.getvalue()
+        summary = _make_summary([("Virtual Machines", 1, 10240.0, 5.0)])
+        result = generate_report_pptx(summary, "X", company_logo_bytes=png)
+        assert result[:4] == b"PK\x03\x04"
