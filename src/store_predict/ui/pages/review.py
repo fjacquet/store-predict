@@ -278,9 +278,7 @@ def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -
     with stats_container:
         build_summary_stats(row_data)
         with (
-            ui.card()
-            .classes("w-full p-4 gap-1")
-            .style("background:var(--sp-surface);border:1px solid var(--sp-line)")
+            ui.card().classes("w-full p-4 gap-1").style("background:var(--sp-surface);border:1px solid var(--sp-line)")
         ):
             ui.label(t("review.distribution_title")).classes("sp-stat-label")
             build_category_chart(row_data)
