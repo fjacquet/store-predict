@@ -105,6 +105,24 @@ class TestSankeyImageFlowable:
 
     def test_sankey_palette_matches_echart(self) -> None:
         """Palette 6th color must be #DEE2E6 (matching ECharts DELL_PALETTE)."""
-        src = inspect.getsource(make_sankey_image_flowable)
-        assert '"#DEE2E6"' in src, "make_sankey_image_flowable palette must contain '#DEE2E6' (ECharts match)"
-        assert '"#5B8DB8"' not in src, "make_sankey_image_flowable must NOT contain old mismatched color '#5B8DB8'"
+        from store_predict.services.pdf_charts import render_sankey_png
+
+        src = inspect.getsource(render_sankey_png)
+        assert '"#DEE2E6"' in src, "render_sankey_png palette must contain '#DEE2E6' (ECharts match)"
+        assert '"#5B8DB8"' not in src, "render_sankey_png must NOT contain old mismatched color '#5B8DB8'"
+
+
+def test_render_sankey_png_returns_png_bytes() -> None:
+    from store_predict.services.pdf_charts import render_sankey_png
+
+    summary = _make_summary([("Database/Microsoft SQL", 3, 30720.0, 5.0)])
+    png = render_sankey_png(summary, width_pt=480, height_pt=180)
+    assert isinstance(png, (bytes, bytearray))
+    assert png[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_render_sankey_png_returns_none_for_empty() -> None:
+    from store_predict.services.pdf_charts import render_sankey_png
+
+    summary = _make_summary([])  # 0 VMs, total_provisioned_mib == 0
+    assert render_sankey_png(summary, width_pt=480, height_pt=180) is None
