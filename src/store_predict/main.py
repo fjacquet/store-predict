@@ -53,13 +53,13 @@ def index_page() -> None:
     from store_predict.ui.layout import layout
 
     with layout(), ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"):
-        ui.label(APP_TITLE).classes("text-4xl font-bold text-blue-900")
-        ui.label(t("home.subtitle")).classes("text-xl text-gray-600")
-        ui.label(t("home.description")).classes("text-center text-gray-500 max-w-lg")
+        ui.label(APP_TITLE).classes("text-5xl sp-display").style("color:var(--sp-ink)")
+        ui.label(t("home.subtitle")).classes("text-xl").style("color:var(--sp-muted)")
+        ui.label(t("home.description")).classes("text-center max-w-lg").style("color:var(--sp-muted)")
         ui.button(
             t("home.cta"),
             on_click=lambda: ui.navigate.to("/upload"),
-        ).classes("bg-blue-700 text-white")
+        ).props("size=lg unelevated")
 
 
 _PUBLIC_DIR = Path(__file__).resolve().parents[2] / "public"
