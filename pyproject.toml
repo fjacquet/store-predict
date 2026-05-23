@@ -108,6 +108,18 @@ module = "litellm.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "semantic_router.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "fastembed.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
 module = "pydantic_settings.*"
 ignore_missing_imports = false
 
@@ -121,3 +133,4 @@ omit = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov=store_predict --cov-report=term-missing --cov-report=xml"
+markers = ["slow: tests that load the FastEmbed model (real embeddings)"]
