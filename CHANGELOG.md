@@ -4,6 +4,29 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- **LLM classification silently failing with reasoning ("thinking") Ollama models.**
+  A model like `ollama/lfm2.5-thinking` emits `<think>...</think>` chain-of-thought
+  instead of the terse `Category|KEYWORD` (or batch JSON) the classifier parses, so
+  every VM came back unclassified. litellm returned 200 (no exception), so the
+  circuit breaker never tripped and `_call_llm`'s broad `except` had nothing to log —
+  the failure was invisible. Fixes:
+  - Parsers now strip `<think>...</think>` blocks (including a truncated trailing
+    block) before parsing, so a thinking model that *does* reach an answer works.
+  - `_call_llm` now logs the failing exception type (WARNING) and detail (DEBUG);
+    a non-empty-but-unparseable response logs a hint to switch to an instruct model.
+  - Single-VM `max_tokens` raised 30 → 64.
+  - `.env.example` documents that `LLM_MODEL` must be a non-thinking instruct model.
+  - Recommended config: use an instruct model (e.g. `ollama/gemma4:e4b`), not a
+    `*-thinking` variant.
+
+- **LLM classification failing in Docker against a host-local Ollama.** Inside the
+  container `localhost:11434` is the container, not the host, so every call failed
+  (connection refused) and the circuit breaker opened — 0 VMs classified. Reach the
+  host's Ollama via `LLM_API_BASE=http://host.docker.internal:11434`; `docker-compose.yml`
+  now maps `host.docker.internal:host-gateway` so it resolves on Linux too.
+
 ## [v9.1.0] - 2026-05-22
 
 Adds application-aware classification rules so estates that name VMs by application
