@@ -5,6 +5,7 @@ from __future__ import annotations
 from io import BytesIO
 from typing import TYPE_CHECKING
 
+import i18n as _i18n
 from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.piecharts import Pie
 from reportlab.graphics.shapes import Drawing
@@ -197,11 +198,11 @@ def render_sankey_png(summary: CalculationSummary, width_pt: int = 500, height_p
         ax.add_patch(PathPatch(MplPath(verts, codes), facecolor=_hex_rgba(color, 0.35), edgecolor="none", zorder=2))
 
     _node(left_x, left_y0, prov_h, "#007DB8")
-    _label(left_x + node_w / 2, left_y0 + prov_h + 0.03, "Provisioned")
+    _label(left_x + node_w / 2, left_y0 + prov_h + 0.03, str(_i18n.t("chart.provisioned")))
     _label(left_x + node_w / 2, left_y0 - 0.04, f"{total_prov / 1024:.0f} GiB", size=6.0, va="top")
 
     _node(right_x, right_y0, req_h, "#40A8D8")
-    _label(right_x + node_w / 2, right_y0 + req_h + 0.03, "Required")
+    _label(right_x + node_w / 2, right_y0 + req_h + 0.03, str(_i18n.t("chart.required")))
     _label(right_x + node_w / 2, right_y0 - 0.04, f"{total_req / 1024:.0f} GiB", size=6.0, va="top")
 
     cur_left_top = left_y0 + prov_h

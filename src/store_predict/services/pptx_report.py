@@ -313,8 +313,11 @@ def generate_report_pptx(
     Returns:
         The .pptx document as bytes.
     """
-    # Set the process-global locale before any t() call. Safe: this function is
-    # fully synchronous (called via run.io_bound), so there is no coroutine interleaving.
+    # Set the process-global locale before any t() call. Safe within one call (this
+    # function is synchronous — no coroutine interleaving), matching pdf_report/
+    # excel_report. NOTE: not thread-safe across *concurrent* report generations in
+    # different locales (run.io_bound uses a thread pool); benign in the single-
+    # container deployment. A lock or per-call locale= would be needed for multi-user.
     _i18n.set("locale", locale)
 
     prs = Presentation()
