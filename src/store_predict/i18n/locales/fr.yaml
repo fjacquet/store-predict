@@ -247,6 +247,12 @@ llm:
   disabled: "Classification IA désactivée (définir LLM_ENABLED=true pour activer)"
   error: "La classification par IA a échoué. Les résultats basés sur les règles seront utilisés."
 
+semantic:
+  classifying: "Classification des VM par similarité sémantique..."
+  classifying_progress: "Classification sémantique : %{done} / %{total} VM"
+  classified_notify: "%{count} VM classée(s) sémantiquement"
+  error: "Classification sémantique indisponible ; les résultats par règles seront utilisés."
+
 detail_bar:
   placeholder: "Cliquez sur une ligne VM pour afficher ses détails supplémentaires ici."
   os: "OS"

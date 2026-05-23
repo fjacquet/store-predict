@@ -247,6 +247,12 @@ llm:
   disabled: "AI classification disabled (set LLM_ENABLED=true to enable)"
   error: "AI classification failed. Rules-based results will be used."
 
+semantic:
+  classifying: "Classifying VMs by semantic similarity..."
+  classifying_progress: "Semantic classification: %{done} / %{total} VMs"
+  classified_notify: "Semantically classified %{count} VM(s)"
+  error: "Semantic classification unavailable; rule-based results will be used."
+
 detail_bar:
   placeholder: "Click a VM row to see its supplementary details here."
   os: "OS"
