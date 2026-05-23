@@ -9,6 +9,7 @@ from nicegui import ui
 from store_predict.config import DRR_CSV_PATH, StorageModel
 from store_predict.i18n import t
 from store_predict.services.drr_table import DRRTable, apply_storage_model
+from store_predict.ui.components.category_chart import build_category_chart
 from store_predict.ui.components.confidence_filter import build_confidence_filters
 from store_predict.ui.components.summary_stats import build_summary_stats
 from store_predict.ui.components.vm_table import create_vm_table
@@ -156,8 +157,7 @@ async def review_page() -> None:
 
         # Summary stats container (will be rebuilt on changes)
         stats_container = ui.column().classes("w-full")
-        with stats_container:
-            build_summary_stats(row_data)
+        _rebuild_stats(stats_container, row_data)
 
         # Confidence-triage filters — populated after the grid exists (the chip
         # click handlers need the grid in scope).
@@ -273,10 +273,17 @@ async def review_page() -> None:
 
 
 def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -> None:
-    """Clear and rebuild the summary stats in the container."""
+    """Clear and rebuild the summary stats + distribution donut in the container."""
     stats_container.clear()
     with stats_container:
         build_summary_stats(row_data)
+        with (
+            ui.card()
+            .classes("w-full p-4 gap-1")
+            .style("background:var(--sp-surface);border:1px solid var(--sp-line)")
+        ):
+            ui.label(t("review.distribution_title")).classes("sp-stat-label")
+            build_category_chart(row_data)
 
 
 def _build_rule_suggestions_panel() -> None:

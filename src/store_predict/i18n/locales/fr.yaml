@@ -41,6 +41,7 @@ review:
   search_placeholder: "Rechercher des VMs..."
   filter_label: "Confiance"
   filter_all: "Tout"
+  distribution_title: "Répartition des charges"
   column_panel_title: "Afficher les colonnes"
   column_panel_tip: "Les colonnes masquées ne sont pas incluses dans les résultats de recherche."
 

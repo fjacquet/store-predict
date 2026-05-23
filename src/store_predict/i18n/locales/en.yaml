@@ -41,6 +41,7 @@ review:
   search_placeholder: "Search VMs..."
   filter_label: "Confidence"
   filter_all: "All"
+  distribution_title: "Workload distribution"
   column_panel_title: "Show Columns"
   column_panel_tip: "Hidden columns are not included in search results."
 
