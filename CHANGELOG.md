@@ -2,6 +2,24 @@
 
 All notable changes to StorePredict are documented here.
 
+## [10.2.0] - 2026-05-23
+
+### Added
+
+- **PowerPoint (`.pptx`) export** on the report page, alongside PDF and Excel. A
+  hybrid deck: a concise customer-facing pitch (title, executive summary, DRR
+  story, workload mix, recommendation) plus a technical appendix (full breakdown
+  table, layout strategies, health findings, charts). Pie and bar charts are
+  native, editable PowerPoint charts; the Sankey is an embedded image. Branding
+  matches the PDF deliverable and reuses the company-logo upload. Localized in
+  EN/FR/DE/IT. New dependency: `python-pptx`. See
+  [ADR-086](adr/086-pptx-export.md).
+
+### Security
+
+- Bumped `semantic-router` to `>=0.1.15` (CVE-2026-42208; 0.1.14 yanked —
+  unbounded litellm pin).
+
 ## [10.0.0] - 2026-05-23
 
 > **BREAKING** — the classification engine has been redesigned. The LLM classification tier
