@@ -76,13 +76,13 @@ async def review_page() -> None:
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
             ui.card().classes("p-8 gap-4 items-center text-center"),
         ):
-            ui.icon("upload_file", size="3rem").classes("text-gray-400")
-            ui.label(t("review.no_data")).classes("text-xl text-gray-500")
+            ui.icon("upload_file", size="3rem").style("color:var(--sp-muted)")
+            ui.label(t("review.no_data")).classes("text-xl").style("color:var(--sp-muted)")
             ui.button(
                 t("report.go_to_upload"),
                 on_click=lambda: ui.navigate.to("/upload"),
                 icon="arrow_forward",
-            ).classes("bg-blue-700 text-white")
+            ).props("color=primary")
         return
 
     # Load DRR reference data
@@ -110,7 +110,7 @@ async def review_page() -> None:
         # Title row with scope indicator
         with ui.row().classes("w-full items-center justify-between"):
             with ui.row().classes("items-center gap-3"):
-                ui.label(t("review.title")).classes("text-2xl font-bold")
+                ui.label(t("review.title")).classes("text-2xl sp-display")
                 # Scope badge — show which datacenters/clusters are active
                 selected_dcs, selected_cls = get_scope_selection()
                 if selected_dcs or selected_cls:
@@ -120,12 +120,12 @@ async def review_page() -> None:
                     if selected_cls:
                         parts.append(f"{len(selected_cls)} CL")
                     scope_label = ", ".join(parts)
-                    ui.badge(scope_label, color="blue").classes("text-xs").tooltip(
+                    ui.badge(scope_label, color="primary").classes("text-xs").tooltip(
                         ", ".join(selected_dcs + selected_cls)
                     )
             project = get_project_name()
             if project:
-                ui.label(t("review.project_label", name=project)).classes("text-lg text-gray-500")
+                ui.label(t("review.project_label", name=project)).classes("text-lg").style("color:var(--sp-muted)")
 
         # Storage model selector — switches DRR calculation strategy
         current_model = get_storage_model()
@@ -173,9 +173,13 @@ async def review_page() -> None:
         has_perf = any(_has_iops(r.get("peak_iops")) for r in row_data)
 
         # Detail bar — shows supplementary columns for the clicked VM
-        detail_bar = ui.row().classes("w-full items-start gap-4 p-3 bg-gray-50 border rounded-lg min-h-12")
+        detail_bar = (
+            ui.row()
+            .classes("w-full items-start gap-4 p-3 rounded-lg min-h-12")
+            .style("background:var(--sp-surface-2);border:1px solid var(--sp-line)")
+        )
         with detail_bar:
-            ui.label(t("detail_bar.placeholder")).classes("text-sm text-gray-400 italic")
+            ui.label(t("detail_bar.placeholder")).classes("text-sm italic").style("color:var(--sp-muted)")
 
         # AG Grid table — assigned first so toolbar closures can reference the name
         grid = create_vm_table(
@@ -229,7 +233,7 @@ async def review_page() -> None:
                 t("review.new_analysis"),
                 on_click=_new_analysis,
                 icon="restart_alt",
-            ).classes("bg-gray-200 text-gray-800").tooltip(t("tooltip.new_analysis"))
+            ).props("flat color=grey-7").tooltip(t("tooltip.new_analysis"))
             ui.button(
                 t("review.bulk_update"),
                 on_click=lambda: _handle_bulk_update(
@@ -240,21 +244,21 @@ async def review_page() -> None:
                     stats_container,
                 ),
                 icon="edit",
-            ).classes("bg-orange-700 text-white").tooltip(t("tooltip.bulk_update"))
+            ).props("color=accent text-color=dark").tooltip(t("tooltip.bulk_update"))
             ui.button(
                 t("review.mark_ignored"),
                 on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, ignored=True),
                 icon="visibility_off",
-            ).classes("bg-gray-700 text-white").tooltip(t("tooltip.mark_ignored"))
+            ).props("color=grey-7").tooltip(t("tooltip.mark_ignored"))
             ui.button(
                 t("review.mark_active"),
                 on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, ignored=False),
                 icon="visibility",
-            ).classes("bg-teal-700 text-white").tooltip(t("tooltip.mark_active"))
+            ).props("color=positive").tooltip(t("tooltip.mark_active"))
             ui.button(
                 t("review.generate_report"),
                 on_click=lambda: ui.navigate.to("/report"),
-            ).classes("bg-blue-700 text-white")
+            ).props("color=primary")
 
         # Proposed rule suggestions from LLM (shown only when suggestions exist)
         _build_rule_suggestions_panel()
@@ -547,8 +551,8 @@ def _update_detail_bar(detail_bar: ui.row, row: dict[str, Any], has_performance_
             ]
         for label, value in fields:
             with ui.column().classes("gap-0 min-w-28"):
-                ui.label(label).classes("text-xs text-gray-500 font-medium uppercase tracking-wide")
-                ui.label(value).classes("text-sm text-gray-800 font-mono truncate max-w-xs")
+                ui.label(label).classes("text-xs font-medium uppercase tracking-wide").style("color:var(--sp-muted)")
+                ui.label(value).classes("text-sm sp-mono truncate max-w-xs").style("color:var(--sp-ink)")
 
 
 def _handle_row_click(

@@ -40,12 +40,10 @@ def create_vm_table(
     """
     locale = get_locale()
 
-    # Inject AG Grid French locale pack via CDN when locale is 'fr'
+    # Inject AG Grid French locale pack when locale is 'fr'. Self-hosted from
+    # /public/vendor (offline-friendly — no CDN); exposes AG_GRID_LOCALE_FR.
     if locale == "fr":
-        cdn_url = (
-            "https://cdn.jsdelivr.net/npm/@ag-grid-community/locale@32.2.2/dist/umd/@ag-grid-community/locale.min.js"
-        )
-        ui.add_head_html(f'<script src="{cdn_url}" defer></script>')
+        ui.add_head_html('<script src="/public/vendor/ag-grid-locale.min.js" defer></script>')
 
     # Use full "Category / Subcategory" labels when available
     dropdown_values = subcategory_labels if subcategory_labels else workload_categories
@@ -79,7 +77,7 @@ def create_vm_table(
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
-            "minWidth": 350,
+            "minWidth": 230,
         },
         {
             "field": "workload_subcategory",
@@ -92,7 +90,7 @@ def create_vm_table(
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
-            "minWidth": 350,
+            "minWidth": 300,
         },
         {
             "field": "drr",
@@ -102,6 +100,8 @@ def create_vm_table(
             "sortable": True,
             "filter": "agNumberColumnFilter",
             "floatingFilter": True,
+            "minWidth": 90,
+            "maxWidth": 110,
             ":valueFormatter": "params => params.value != null ? params.value.toFixed(1) : ''",
         },
         {
@@ -109,6 +109,7 @@ def create_vm_table(
             "headerName": t("columns.provisioned_mib"),
             "sortable": True,
             "filter": "agNumberColumnFilter",
+            "minWidth": 140,
             ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
         },
         {
@@ -116,6 +117,18 @@ def create_vm_table(
             "headerName": t("columns.confidence"),
             "sortable": True,
             "filter": "agTextColumnFilter",
+            "minWidth": 140,
+            # Render confidence as a colour-coded chip: green=deterministic
+            # override, navy=semantic, amber=Unknown/review (legacy values mapped).
+            ":cellRenderer": (
+                "params => {"
+                " const v = params.value || '';"
+                " const m = {override:'override', semantic:'semantic', default:'default',"
+                " rule_match:'override', os_fallback:'semantic', llm:'muted'};"
+                " const k = m[v] || 'default';"
+                " return v ? `<span class=\"sp-chip sp-chip-${k}\">${v}</span>` : '';"
+                "}"
+            ),
         },
         {
             "field": "is_ignored",
@@ -131,6 +144,7 @@ def create_vm_table(
         {
             "field": "datacenter",
             "headerName": t("columns.datacenter"),
+            "hide": True,
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
@@ -138,6 +152,7 @@ def create_vm_table(
         {
             "field": "cluster",
             "headerName": t("columns.cluster"),
+            "hide": True,
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
