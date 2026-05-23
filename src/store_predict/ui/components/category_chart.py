@@ -32,7 +32,13 @@ _PALETTE = (
 
 def build_category_chart(row_data: list[dict[str, Any]]) -> ui.echart:
     """Build a donut of active-VM counts per workload category."""
-    counts = Counter(str(row.get("workload_category", "—")) for row in row_data if not row.get("is_ignored", False))
+
+    def _category(row: dict[str, Any]) -> str:
+        value = row.get("workload_category")
+        # Treat None/empty as the em-dash placeholder (str(None) would leak "None").
+        return str(value) if value not in (None, "") else "—"
+
+    counts = Counter(_category(row) for row in row_data if not row.get("is_ignored", False))
     data = [{"name": name, "value": value} for name, value in counts.most_common()]
     option: dict[str, Any] = {
         "color": list(_PALETTE),

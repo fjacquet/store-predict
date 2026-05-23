@@ -305,7 +305,6 @@ excel:
   sheet_findings: "Problemi rilevati"
   col_finding: "Problema"
   col_severity: "Gravità"
-  col_category: "Categoria"
   col_affected_vms: "VM interessate"
   col_detail: "Dettaglio"
   col_cluster: "Cluster"
@@ -405,3 +404,8 @@ compute:
   redirect_message: "Il dimensionamento del calcolo è stato spostato in PreSizion, uno strumento dedicato con funzionalità avanzate di dimensionamento per calcolo, storage e rete."
   open_presizion: "Apri PreSizion"
   view_source: "Visualizza su GitHub"
+
+confidence:
+  override: "Regola"
+  semantic: "Semantica"
+  default: "Predefinito"

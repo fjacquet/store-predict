@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, Any
 
 from nicegui import ui
@@ -49,6 +50,16 @@ def create_vm_table(
 
     # Use full "Category / Subcategory" labels when available
     dropdown_values = subcategory_labels if subcategory_labels else workload_categories
+
+    # Localized confidence labels (current locale), injected into the chip renderer below.
+    conf_labels = json.dumps(
+        {
+            "override": t("confidence.override"),
+            "semantic": t("confidence.semantic"),
+            "default": t("confidence.default"),
+        },
+        ensure_ascii=False,
+    )
 
     # Main columns — the 6 columns needed for classification review.
     # Supplementary columns (OS, description, in_use, performance) are shown
@@ -122,13 +133,16 @@ def create_vm_table(
             "minWidth": 140,
             # Render confidence as a colour-coded chip: green=deterministic
             # override, navy=semantic, amber=Unknown/review (legacy values mapped).
+            # The raw value drives the colour class; the localized label is shown.
             ":cellRenderer": (
                 "params => {"
+                f" const labels = {conf_labels};"
                 " const v = params.value || '';"
                 " const m = {override:'override', semantic:'semantic', default:'default',"
                 " rule_match:'override', os_fallback:'semantic', llm:'muted'};"
                 " const k = m[v] || 'default';"
-                " return v ? `<span class=\"sp-chip sp-chip-${k}\">${v}</span>` : '';"
+                " const text = labels[v] || v;"
+                " return v ? `<span class=\"sp-chip sp-chip-${k}\">${text}</span>` : '';"
                 "}"
             ),
         },

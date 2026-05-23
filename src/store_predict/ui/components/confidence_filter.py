@@ -26,11 +26,13 @@ _TIERS: tuple[tuple[str | None, str, str], ...] = (
 )
 
 
-def build_confidence_filters(row_data: Iterable[dict[str, Any]], grid: ui.aggrid) -> ui.row:
+def build_confidence_filters(row_data: Iterable[dict[str, Any]], grid: ui.aggrid, active: str | None = None) -> ui.row:
     """Build a row of clickable chips filtering *grid* by classification confidence.
 
     Each chip shows its tier's VM count; clicking applies an AG Grid equals-filter
-    on ``classification_confidence`` (the "All" chip clears it). Returns the row.
+    on ``classification_confidence`` (the "All" chip clears it). *active* sets which
+    chip starts selected (used when rebuilding to refresh counts while preserving
+    the current filter). Returns the row.
     """
     counts = {"override": 0, "semantic": 0, "default": 0}
     total = 0
@@ -51,11 +53,12 @@ def build_confidence_filters(row_data: Iterable[dict[str, Any]], grid: ui.aggrid
 
     async def _apply(active: str | None) -> None:
         _select(active)
-        model: dict[str, Any] = (
-            {}
-            if active is None
-            else {"classification_confidence": {"filterType": "text", "type": "equals", "filter": active}}
-        )
+        # Merge into the existing filter model so other column filters survive.
+        model: dict[str, Any] = await grid.run_grid_method("getFilterModel") or {}
+        if active is None:
+            model.pop("classification_confidence", None)
+        else:
+            model["classification_confidence"] = {"filterType": "text", "type": "equals", "filter": active}
         await grid.run_grid_method("setFilterModel", model)
 
     row = ui.row().classes("w-full items-center gap-2 flex-wrap")
@@ -64,11 +67,11 @@ def build_confidence_filters(row_data: Iterable[dict[str, Any]], grid: ui.aggrid
             "color:var(--sp-muted)"
         )
         for value, color, text_color in _TIERS:
-            label = t("review.filter_all") if value is None else value
+            label = t("review.filter_all") if value is None else t(f"confidence.{value}")
             count = total if value is None else counts[value]
             chip = ui.chip(f"{label} · {count}", color=color).props(f"clickable text-color={text_color}")
             chip.on("click", lambda v=value: _apply(v))
             chips[value] = chip
 
-    _select(None)  # "All" active by default (grid shows everything)
+    _select(active)  # reflect the current filter (None = "All")
     return row

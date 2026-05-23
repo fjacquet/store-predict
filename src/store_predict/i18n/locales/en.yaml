@@ -305,7 +305,6 @@ excel:
   sheet_findings: "Findings"
   col_finding: "Finding"
   col_severity: "Severity"
-  col_category: "Category"
   col_affected_vms: "Affected VMs"
   col_detail: "Detail"
   col_cluster: "Cluster"
@@ -405,3 +404,8 @@ compute:
   redirect_message: "Compute sizing has moved to PreSizion, a dedicated tool with advanced compute, storage, and network sizing capabilities."
   open_presizion: "Open PreSizion"
   view_source: "View on GitHub"
+
+confidence:
+  override: "Override"
+  semantic: "Semantic"
+  default: "Default"

@@ -305,7 +305,6 @@ excel:
   sheet_findings: "Befunde"
   col_finding: "Befund"
   col_severity: "Schweregrad"
-  col_category: "Kategorie"
   col_affected_vms: "Betroffene VMs"
   col_detail: "Detail"
   col_cluster: "Cluster"
@@ -405,3 +404,8 @@ compute:
   redirect_message: "Die Compute-Dimensionierung wurde nach PreSizion verlagert, einem dedizierten Werkzeug mit erweiterten Compute-, Speicher- und Netzwerk-Dimensionierungsfunktionen."
   open_presizion: "PreSizion öffnen"
   view_source: "Auf GitHub ansehen"
+
+confidence:
+  override: "Regel"
+  semantic: "Semantisch"
+  default: "Standard"

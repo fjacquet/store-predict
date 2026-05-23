@@ -190,7 +190,9 @@ async def review_page() -> None:
         grid = create_vm_table(
             _to_grid_rows(row_data),
             categories,
-            on_cell_changed=lambda e: _handle_cell_change(e, row_data, drr_table, grid, stats_container),
+            on_cell_changed=lambda e: _handle_cell_change(
+                e, row_data, drr_table, grid, stats_container, filter_container
+            ),
             on_row_clicked=lambda e: _handle_row_click(e, detail_bar, has_perf),
             subcategory_labels=subcategory_labels,
             has_performance_data=has_perf,
@@ -250,17 +252,18 @@ async def review_page() -> None:
                     workload_options,
                     grid,
                     stats_container,
+                    filter_container,
                 ),
                 icon="edit",
             ).props("color=accent text-color=dark").tooltip(t("tooltip.bulk_update"))
             ui.button(
                 t("review.mark_ignored"),
-                on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, ignored=True),
+                on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, filter_container, ignored=True),
                 icon="visibility_off",
             ).props("color=grey-7").tooltip(t("tooltip.mark_ignored"))
             ui.button(
                 t("review.mark_active"),
-                on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, ignored=False),
+                on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, filter_container, ignored=False),
                 icon="visibility",
             ).props("color=positive").tooltip(t("tooltip.mark_active"))
             ui.button(
@@ -282,6 +285,29 @@ def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -
         ):
             ui.label(t("review.distribution_title")).classes("sp-stat-label")
             build_category_chart(row_data)
+
+
+def _rebuild_filters(
+    filter_container: ui.column,
+    row_data: list[dict[str, Any]],
+    grid: ui.aggrid,
+    active: str | None,
+) -> None:
+    """Rebuild the confidence-triage chips so their counts refresh after edits.
+
+    *active* keeps the chip selection in sync with the grid's restored filter.
+    """
+    filter_container.clear()
+    with filter_container:
+        build_confidence_filters(row_data, grid, active)
+
+
+def _active_confidence(filter_model: dict[str, Any] | None) -> str | None:
+    """Extract the active classification-confidence filter value, if any."""
+    if filter_model and "classification_confidence" in filter_model:
+        value = filter_model["classification_confidence"].get("filter")
+        return str(value) if value is not None else None
+    return None
 
 
 def _build_rule_suggestions_panel() -> None:
@@ -346,6 +372,7 @@ async def _handle_bulk_update(
     workload_options: list[dict[str, Any]],
     grid: ui.aggrid,
     stats_container: ui.column,
+    filter_container: ui.column,
 ) -> None:
     """Apply a workload category to all selected rows."""
     selected = await grid.get_selected_rows()
@@ -398,6 +425,7 @@ async def _handle_bulk_update(
     grid.options["rowData"] = trimmed
     grid.run_grid_method("setGridOption", "rowData", trimmed)
     _rebuild_stats(stats_container, row_data)
+    _rebuild_filters(filter_container, row_data, grid, _active_confidence(filter_model))
 
     # Restore filter/page state
     if filter_model:
@@ -417,6 +445,7 @@ async def _handle_mark_ignored(
     row_data: list[dict[str, Any]],
     grid: ui.aggrid,
     stats_container: ui.column,
+    filter_container: ui.column,
     *,
     ignored: bool,
 ) -> None:
@@ -438,6 +467,7 @@ async def _handle_mark_ignored(
     grid.options["rowData"] = trimmed
     grid.run_grid_method("setGridOption", "rowData", trimmed)
     _rebuild_stats(stats_container, row_data)
+    _rebuild_filters(filter_container, row_data, grid, _active_confidence(filter_model))
 
     if filter_model:
         await grid.run_grid_method("setFilterModel", filter_model)
@@ -455,6 +485,7 @@ async def _handle_cell_change(
     drr_table: DRRTable,
     grid: ui.aggrid,
     stats_container: ui.column,
+    filter_container: ui.column,
 ) -> None:
     """Handle inline cell edit (workload dropdown or DRR manual edit).
 
@@ -515,6 +546,7 @@ async def _handle_cell_change(
     grid.options["rowData"] = trimmed
     grid.run_grid_method("setGridOption", "rowData", trimmed)
     _rebuild_stats(stats_container, row_data)
+    _rebuild_filters(filter_container, row_data, grid, _active_confidence(filter_model))
 
     # Restore filter/page state after update
     if filter_model:

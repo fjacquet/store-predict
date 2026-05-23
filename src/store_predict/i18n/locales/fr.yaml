@@ -305,7 +305,6 @@ excel:
   sheet_findings: "Problèmes détectés"
   col_finding: "Problème"
   col_severity: "Sévérité"
-  col_category: "Catégorie"
   col_affected_vms: "VMs affectées"
   col_detail: "Détail"
   col_cluster: "Cluster"
@@ -405,3 +404,8 @@ compute:
   redirect_message: "Le dimensionnement calcul a été déplacé vers PreSizion, un outil dédié avec des capacités avancées de dimensionnement calcul, stockage et réseau."
   open_presizion: "Ouvrir PreSizion"
   view_source: "Voir sur GitHub"
+
+confidence:
+  override: "Règle"
+  semantic: "Sémantique"
+  default: "Défaut"
