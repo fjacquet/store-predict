@@ -39,6 +39,9 @@ review:
   no_rows_selected: "Aucune ligne sélectionnée. Utilisez les cases à cocher pour sélectionner des VMs."
   updated_notify: "%{count} VM(s) mises à jour vers %{category} / %{subcategory}"
   search_placeholder: "Rechercher des VMs..."
+  filter_label: "Confiance"
+  filter_all: "Tout"
+  distribution_title: "Répartition des charges"
   column_panel_title: "Afficher les colonnes"
   column_panel_tip: "Les colonnes masquées ne sont pas incluses dans les résultats de recherche."
 
@@ -302,7 +305,6 @@ excel:
   sheet_findings: "Problèmes détectés"
   col_finding: "Problème"
   col_severity: "Sévérité"
-  col_category: "Catégorie"
   col_affected_vms: "VMs affectées"
   col_detail: "Détail"
   col_cluster: "Cluster"
@@ -402,3 +404,8 @@ compute:
   redirect_message: "Le dimensionnement calcul a été déplacé vers PreSizion, un outil dédié avec des capacités avancées de dimensionnement calcul, stockage et réseau."
   open_presizion: "Ouvrir PreSizion"
   view_source: "Voir sur GitHub"
+
+confidence:
+  override: "Règle"
+  semantic: "Sémantique"
+  default: "Défaut"

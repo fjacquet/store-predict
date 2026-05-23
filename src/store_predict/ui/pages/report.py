@@ -58,13 +58,13 @@ async def report_page() -> None:
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
             ui.card().classes("p-8 gap-4 items-center text-center"),
         ):
-            ui.icon("upload_file", size="3rem").classes("text-gray-400")
-            ui.label(t("report.no_data")).classes("text-xl text-gray-500")
+            ui.icon("upload_file", size="3rem").style("color:var(--sp-muted)")
+            ui.label(t("report.no_data")).classes("text-xl").style("color:var(--sp-muted)")
             ui.button(
                 t("report.go_to_upload"),
                 on_click=lambda: ui.navigate.to("/upload"),
                 icon="arrow_forward",
-            ).classes("bg-blue-700 text-white")
+            ).props("color=primary")
         return
 
     # Convert filtered DataFrame to row dicts for calculation
@@ -83,13 +83,13 @@ async def report_page() -> None:
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
             ui.card().classes("p-8 gap-4 items-center text-center"),
         ):
-            ui.icon("visibility_off", size="3rem").classes("text-gray-400")
-            ui.label(t("report.all_ignored")).classes("text-xl text-gray-500")
+            ui.icon("visibility_off", size="3rem").style("color:var(--sp-muted)")
+            ui.label(t("report.all_ignored")).classes("text-xl").style("color:var(--sp-muted)")
             ui.button(
                 t("report.back_to_review"),
                 on_click=lambda: ui.navigate.to("/review"),
                 icon="arrow_back",
-            ).classes("bg-blue-700 text-white")
+            ).props("color=primary")
         return
 
     # Run calculation
@@ -114,11 +114,11 @@ async def report_page() -> None:
                         parts.append(f"{len(selected_dcs)} DC")
                     if selected_cls:
                         parts.append(f"{len(selected_cls)} CL")
-                    ui.badge(", ".join(parts), color="blue").classes("text-xs").tooltip(
+                    ui.badge(", ".join(parts), color="primary").classes("text-xs").tooltip(
                         ", ".join(selected_dcs + selected_cls)
                     )
             if project_name:
-                ui.label(t("report.project_label", name=project_name)).classes("text-lg text-gray-500")
+                ui.label(t("report.project_label", name=project_name)).classes("text-lg").style("color:var(--sp-muted)")
 
         # Totals cards
         ui.label(t("report.totals_heading")).classes("text-xl font-semibold")
@@ -192,7 +192,7 @@ async def report_page() -> None:
                     t("report.download_pdf"),
                     icon="download",
                 )
-                .classes("bg-blue-700 text-white")
+                .props("color=primary")
                 .tooltip(t("tooltip.download_pdf"))
             )
 
@@ -201,7 +201,7 @@ async def report_page() -> None:
                     t("report.download_excel"),
                     icon="table_view",
                 )
-                .classes("bg-green-700 text-white")
+                .props("color=positive")
                 .tooltip(t("tooltip.download_excel"))
             )
 
@@ -210,14 +210,14 @@ async def report_page() -> None:
                     t("session.save_button"),
                     icon="save",
                 )
-                .classes("bg-purple-700 text-white")
+                .props("color=grey-7")
                 .tooltip(t("session.save_tooltip"))
             )
 
             ui.button(
                 t("report.back_to_review"),
                 on_click=lambda: ui.navigate.to("/review"),
-            ).classes("bg-gray-600 text-white")
+            ).props("flat color=grey-7")
 
         async def on_download_pdf() -> None:
             pdf_btn.disable()
@@ -280,7 +280,7 @@ def _build_charts_section(summary: CalculationSummary) -> None:
 def _summary_card(label: str, value: str) -> None:
     """Render a single summary metric card."""
     with ui.card().classes("p-4"):
-        ui.label(label).classes("text-sm text-gray-500")
+        ui.label(label).classes("text-sm").style("color:var(--sp-muted)")
         ui.label(value).classes("text-xl font-bold")
 
 
@@ -337,7 +337,7 @@ def _build_logo_upload_section() -> None:
             t("report.logo_remove"),
             on_click=_remove_logo,
             icon="delete",
-        ).classes("bg-gray-400 text-white text-sm")
+        ).classes("text-sm").props("flat color=grey-7")
 
 
 async def _handle_logo_upload(e: object) -> None:

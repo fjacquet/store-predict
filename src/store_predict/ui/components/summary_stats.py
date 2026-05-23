@@ -47,8 +47,12 @@ def build_summary_stats(row_data: list[dict[str, Any]]) -> ui.row:
     row = ui.row().classes("w-full gap-4")
     with row:
         for label, value in stats:
-            with ui.card().classes("flex-1 p-4"):
-                ui.label(label).classes("text-sm text-gray-500 dark:text-gray-400")
-                ui.label(value).classes("text-2xl font-bold")
+            with (
+                ui.card()
+                .classes("flex-1 p-4 gap-1 sp-stat")
+                .style("background:var(--sp-surface);border:1px solid var(--sp-line)")
+            ):
+                ui.label(label).classes("sp-stat-label")
+                ui.label(value).classes("sp-stat-value")
 
     return row

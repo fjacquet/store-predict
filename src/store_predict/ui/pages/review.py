@@ -9,6 +9,8 @@ from nicegui import ui
 from store_predict.config import DRR_CSV_PATH, StorageModel
 from store_predict.i18n import t
 from store_predict.services.drr_table import DRRTable, apply_storage_model
+from store_predict.ui.components.category_chart import build_category_chart
+from store_predict.ui.components.confidence_filter import build_confidence_filters
 from store_predict.ui.components.summary_stats import build_summary_stats
 from store_predict.ui.components.vm_table import create_vm_table
 from store_predict.ui.components.workload_dialog import WorkloadDialog
@@ -76,13 +78,13 @@ async def review_page() -> None:
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
             ui.card().classes("p-8 gap-4 items-center text-center"),
         ):
-            ui.icon("upload_file", size="3rem").classes("text-gray-400")
-            ui.label(t("review.no_data")).classes("text-xl text-gray-500")
+            ui.icon("upload_file", size="3rem").style("color:var(--sp-muted)")
+            ui.label(t("review.no_data")).classes("text-xl").style("color:var(--sp-muted)")
             ui.button(
                 t("report.go_to_upload"),
                 on_click=lambda: ui.navigate.to("/upload"),
                 icon="arrow_forward",
-            ).classes("bg-blue-700 text-white")
+            ).props("color=primary")
         return
 
     # Load DRR reference data
@@ -110,7 +112,7 @@ async def review_page() -> None:
         # Title row with scope indicator
         with ui.row().classes("w-full items-center justify-between"):
             with ui.row().classes("items-center gap-3"):
-                ui.label(t("review.title")).classes("text-2xl font-bold")
+                ui.label(t("review.title")).classes("text-2xl sp-display")
                 # Scope badge — show which datacenters/clusters are active
                 selected_dcs, selected_cls = get_scope_selection()
                 if selected_dcs or selected_cls:
@@ -120,12 +122,12 @@ async def review_page() -> None:
                     if selected_cls:
                         parts.append(f"{len(selected_cls)} CL")
                     scope_label = ", ".join(parts)
-                    ui.badge(scope_label, color="blue").classes("text-xs").tooltip(
+                    ui.badge(scope_label, color="primary").classes("text-xs").tooltip(
                         ", ".join(selected_dcs + selected_cls)
                     )
             project = get_project_name()
             if project:
-                ui.label(t("review.project_label", name=project)).classes("text-lg text-gray-500")
+                ui.label(t("review.project_label", name=project)).classes("text-lg").style("color:var(--sp-muted)")
 
         # Storage model selector — switches DRR calculation strategy
         current_model = get_storage_model()
@@ -155,8 +157,11 @@ async def review_page() -> None:
 
         # Summary stats container (will be rebuilt on changes)
         stats_container = ui.column().classes("w-full")
-        with stats_container:
-            build_summary_stats(row_data)
+        _rebuild_stats(stats_container, row_data)
+
+        # Confidence-triage filters — populated after the grid exists (the chip
+        # click handlers need the grid in scope).
+        filter_container = ui.column().classes("w-full")
 
         # Build "Category / Subcategory" labels for inline dropdown
         subcategory_labels = [f"{opt['category']} / {opt['subcategory']}" for opt in workload_options]
@@ -173,19 +178,28 @@ async def review_page() -> None:
         has_perf = any(_has_iops(r.get("peak_iops")) for r in row_data)
 
         # Detail bar — shows supplementary columns for the clicked VM
-        detail_bar = ui.row().classes("w-full items-start gap-4 p-3 bg-gray-50 border rounded-lg min-h-12")
+        detail_bar = (
+            ui.row()
+            .classes("w-full items-start gap-4 p-3 rounded-lg min-h-12")
+            .style("background:var(--sp-surface-2);border:1px solid var(--sp-line)")
+        )
         with detail_bar:
-            ui.label(t("detail_bar.placeholder")).classes("text-sm text-gray-400 italic")
+            ui.label(t("detail_bar.placeholder")).classes("text-sm italic").style("color:var(--sp-muted)")
 
         # AG Grid table — assigned first so toolbar closures can reference the name
         grid = create_vm_table(
             _to_grid_rows(row_data),
             categories,
-            on_cell_changed=lambda e: _handle_cell_change(e, row_data, drr_table, grid, stats_container),
+            on_cell_changed=lambda e: _handle_cell_change(
+                e, row_data, drr_table, grid, stats_container, filter_container
+            ),
             on_row_clicked=lambda e: _handle_row_click(e, detail_bar, has_perf),
             subcategory_labels=subcategory_labels,
             has_performance_data=has_perf,
         )
+
+        with filter_container:
+            build_confidence_filters(row_data, grid)
 
         # Toolbar: quick filter + column visibility panel (placed after grid so
         # the grid variable is in scope for the closures — NiceGUI renders
@@ -229,7 +243,7 @@ async def review_page() -> None:
                 t("review.new_analysis"),
                 on_click=_new_analysis,
                 icon="restart_alt",
-            ).classes("bg-gray-200 text-gray-800").tooltip(t("tooltip.new_analysis"))
+            ).props("flat color=grey-7").tooltip(t("tooltip.new_analysis"))
             ui.button(
                 t("review.bulk_update"),
                 on_click=lambda: _handle_bulk_update(
@@ -238,33 +252,62 @@ async def review_page() -> None:
                     workload_options,
                     grid,
                     stats_container,
+                    filter_container,
                 ),
                 icon="edit",
-            ).classes("bg-orange-700 text-white").tooltip(t("tooltip.bulk_update"))
+            ).props("color=accent text-color=dark").tooltip(t("tooltip.bulk_update"))
             ui.button(
                 t("review.mark_ignored"),
-                on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, ignored=True),
+                on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, filter_container, ignored=True),
                 icon="visibility_off",
-            ).classes("bg-gray-700 text-white").tooltip(t("tooltip.mark_ignored"))
+            ).props("color=grey-7").tooltip(t("tooltip.mark_ignored"))
             ui.button(
                 t("review.mark_active"),
-                on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, ignored=False),
+                on_click=lambda: _handle_mark_ignored(row_data, grid, stats_container, filter_container, ignored=False),
                 icon="visibility",
-            ).classes("bg-teal-700 text-white").tooltip(t("tooltip.mark_active"))
+            ).props("color=positive").tooltip(t("tooltip.mark_active"))
             ui.button(
                 t("review.generate_report"),
                 on_click=lambda: ui.navigate.to("/report"),
-            ).classes("bg-blue-700 text-white")
+            ).props("color=primary")
 
         # Proposed rule suggestions from LLM (shown only when suggestions exist)
         _build_rule_suggestions_panel()
 
 
 def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -> None:
-    """Clear and rebuild the summary stats in the container."""
+    """Clear and rebuild the summary stats + distribution donut in the container."""
     stats_container.clear()
     with stats_container:
         build_summary_stats(row_data)
+        with (
+            ui.card().classes("w-full p-4 gap-1").style("background:var(--sp-surface);border:1px solid var(--sp-line)")
+        ):
+            ui.label(t("review.distribution_title")).classes("sp-stat-label")
+            build_category_chart(row_data)
+
+
+def _rebuild_filters(
+    filter_container: ui.column,
+    row_data: list[dict[str, Any]],
+    grid: ui.aggrid,
+    active: str | None,
+) -> None:
+    """Rebuild the confidence-triage chips so their counts refresh after edits.
+
+    *active* keeps the chip selection in sync with the grid's restored filter.
+    """
+    filter_container.clear()
+    with filter_container:
+        build_confidence_filters(row_data, grid, active)
+
+
+def _active_confidence(filter_model: dict[str, Any] | None) -> str | None:
+    """Extract the active classification-confidence filter value, if any."""
+    if filter_model and "classification_confidence" in filter_model:
+        value = filter_model["classification_confidence"].get("filter")
+        return str(value) if value is not None else None
+    return None
 
 
 def _build_rule_suggestions_panel() -> None:
@@ -329,6 +372,7 @@ async def _handle_bulk_update(
     workload_options: list[dict[str, Any]],
     grid: ui.aggrid,
     stats_container: ui.column,
+    filter_container: ui.column,
 ) -> None:
     """Apply a workload category to all selected rows."""
     selected = await grid.get_selected_rows()
@@ -381,6 +425,7 @@ async def _handle_bulk_update(
     grid.options["rowData"] = trimmed
     grid.run_grid_method("setGridOption", "rowData", trimmed)
     _rebuild_stats(stats_container, row_data)
+    _rebuild_filters(filter_container, row_data, grid, _active_confidence(filter_model))
 
     # Restore filter/page state
     if filter_model:
@@ -400,6 +445,7 @@ async def _handle_mark_ignored(
     row_data: list[dict[str, Any]],
     grid: ui.aggrid,
     stats_container: ui.column,
+    filter_container: ui.column,
     *,
     ignored: bool,
 ) -> None:
@@ -421,6 +467,7 @@ async def _handle_mark_ignored(
     grid.options["rowData"] = trimmed
     grid.run_grid_method("setGridOption", "rowData", trimmed)
     _rebuild_stats(stats_container, row_data)
+    _rebuild_filters(filter_container, row_data, grid, _active_confidence(filter_model))
 
     if filter_model:
         await grid.run_grid_method("setFilterModel", filter_model)
@@ -438,6 +485,7 @@ async def _handle_cell_change(
     drr_table: DRRTable,
     grid: ui.aggrid,
     stats_container: ui.column,
+    filter_container: ui.column,
 ) -> None:
     """Handle inline cell edit (workload dropdown or DRR manual edit).
 
@@ -498,6 +546,7 @@ async def _handle_cell_change(
     grid.options["rowData"] = trimmed
     grid.run_grid_method("setGridOption", "rowData", trimmed)
     _rebuild_stats(stats_container, row_data)
+    _rebuild_filters(filter_container, row_data, grid, _active_confidence(filter_model))
 
     # Restore filter/page state after update
     if filter_model:
@@ -547,8 +596,8 @@ def _update_detail_bar(detail_bar: ui.row, row: dict[str, Any], has_performance_
             ]
         for label, value in fields:
             with ui.column().classes("gap-0 min-w-28"):
-                ui.label(label).classes("text-xs text-gray-500 font-medium uppercase tracking-wide")
-                ui.label(value).classes("text-sm text-gray-800 font-mono truncate max-w-xs")
+                ui.label(label).classes("text-xs font-medium uppercase tracking-wide").style("color:var(--sp-muted)")
+                ui.label(value).classes("text-sm sp-mono truncate max-w-xs").style("color:var(--sp-ink)")
 
 
 def _handle_row_click(

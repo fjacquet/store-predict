@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, Any
 
 from nicegui import ui
@@ -40,15 +41,25 @@ def create_vm_table(
     """
     locale = get_locale()
 
-    # Inject AG Grid French locale pack via CDN when locale is 'fr'
-    if locale == "fr":
-        cdn_url = (
-            "https://cdn.jsdelivr.net/npm/@ag-grid-community/locale@32.2.2/dist/umd/@ag-grid-community/locale.min.js"
-        )
-        ui.add_head_html(f'<script src="{cdn_url}" defer></script>')
+    # Inject the matching AG Grid locale pack for non-English locales. Self-hosted
+    # from /public/vendor (offline — no CDN); the bundle exposes AG_GRID_LOCALE_<XX>
+    # (FR/DE/IT all present). English uses AG Grid's built-in default.
+    ag_locale_global = "" if locale == "en" else f"AG_GRID_LOCALE_{locale.upper()}"
+    if ag_locale_global:
+        ui.add_head_html('<script src="/public/vendor/ag-grid-locale.min.js" defer></script>')
 
     # Use full "Category / Subcategory" labels when available
     dropdown_values = subcategory_labels if subcategory_labels else workload_categories
+
+    # Localized confidence labels (current locale), injected into the chip renderer below.
+    conf_labels = json.dumps(
+        {
+            "override": t("confidence.override"),
+            "semantic": t("confidence.semantic"),
+            "default": t("confidence.default"),
+        },
+        ensure_ascii=False,
+    )
 
     # Main columns — the 6 columns needed for classification review.
     # Supplementary columns (OS, description, in_use, performance) are shown
@@ -79,7 +90,7 @@ def create_vm_table(
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
-            "minWidth": 350,
+            "minWidth": 230,
         },
         {
             "field": "workload_subcategory",
@@ -92,7 +103,7 @@ def create_vm_table(
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
-            "minWidth": 350,
+            "minWidth": 300,
         },
         {
             "field": "drr",
@@ -102,6 +113,8 @@ def create_vm_table(
             "sortable": True,
             "filter": "agNumberColumnFilter",
             "floatingFilter": True,
+            "minWidth": 90,
+            "maxWidth": 110,
             ":valueFormatter": "params => params.value != null ? params.value.toFixed(1) : ''",
         },
         {
@@ -109,6 +122,7 @@ def create_vm_table(
             "headerName": t("columns.provisioned_mib"),
             "sortable": True,
             "filter": "agNumberColumnFilter",
+            "minWidth": 140,
             ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
         },
         {
@@ -116,6 +130,21 @@ def create_vm_table(
             "headerName": t("columns.confidence"),
             "sortable": True,
             "filter": "agTextColumnFilter",
+            "minWidth": 140,
+            # Render confidence as a colour-coded chip: green=deterministic
+            # override, navy=semantic, amber=Unknown/review (legacy values mapped).
+            # The raw value drives the colour class; the localized label is shown.
+            ":cellRenderer": (
+                "params => {"
+                f" const labels = {conf_labels};"
+                " const v = params.value || '';"
+                " const m = {override:'override', semantic:'semantic', default:'default',"
+                " rule_match:'override', os_fallback:'semantic', llm:'muted'};"
+                " const k = m[v] || 'default';"
+                " const text = labels[v] || v;"
+                " return v ? `<span class=\"sp-chip sp-chip-${k}\">${text}</span>` : '';"
+                "}"
+            ),
         },
         {
             "field": "is_ignored",
@@ -131,6 +160,7 @@ def create_vm_table(
         {
             "field": "datacenter",
             "headerName": t("columns.datacenter"),
+            "hide": True,
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
@@ -138,6 +168,7 @@ def create_vm_table(
         {
             "field": "cluster",
             "headerName": t("columns.cluster"),
+            "hide": True,
             "sortable": True,
             "filter": "agTextColumnFilter",
             "floatingFilter": True,
@@ -206,10 +237,10 @@ def create_vm_table(
         "context": {},
     }
 
-    # Apply French locale text when locale is 'fr'.
-    # Use typeof guard so the grid still works if the CDN hasn't loaded yet.
-    if locale == "fr":
-        grid_options[":localeText"] = "typeof AG_GRID_LOCALE_FR !== 'undefined' ? AG_GRID_LOCALE_FR : undefined"
+    # Apply the locale's text pack. The typeof guard keeps the grid working even
+    # if the locale script hasn't finished loading yet.
+    if ag_locale_global:
+        grid_options[":localeText"] = f"typeof {ag_locale_global} !== 'undefined' ? {ag_locale_global} : undefined"
 
     grid = ui.aggrid(grid_options).classes("w-full").style("height: 600px")
 

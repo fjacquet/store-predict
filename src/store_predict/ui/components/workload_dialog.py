@@ -30,7 +30,7 @@ class WorkloadDialog(ui.dialog):
         self.props("persistent")
         with self, ui.card().classes("min-w-[500px]"):
             ui.label(t("dialog.workloads_for", vm_name=vm_name)).classes("text-lg font-bold")
-            ui.label(t("dialog.select_hint")).classes("text-sm text-gray-500")
+            ui.label(t("dialog.select_hint")).classes("text-sm").style("color:var(--sp-muted)")
             self.select = (
                 ui.select(
                     options=all_options,
@@ -46,4 +46,4 @@ class WorkloadDialog(ui.dialog):
                 ui.button(
                     t("dialog.apply"),
                     on_click=lambda: self.submit(self.select.value),
-                ).classes("bg-blue-600 text-white")
+                ).props("color=primary")

@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <!-- Background rounded square -->
-  <rect width="32" height="32" rx="6" fill="#1E3A5F"/>
-  <!-- Storage cylinder (bottom) -->
-  <ellipse cx="16" cy="22" rx="9" ry="3" fill="#3B82F6" opacity="0.6"/>
-  <rect x="7" y="16" width="18" height="6" fill="#3B82F6" opacity="0.6"/>
-  <ellipse cx="16" cy="16" rx="9" ry="3" fill="#60A5FA"/>
-  <!-- Trend arrow (prediction) -->
-  <polyline points="9,14 13,10 17,12 23,7" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <polygon points="23,7 20,6 22,9" fill="#FFFFFF"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="StorePredict">
+  <!-- Midnight Executive palette: navy ground, navy/ice storage cylinder, gold prediction arrow -->
+  <rect width="32" height="32" rx="7" fill="#1E2761"/>
+  <!-- Storage cylinder -->
+  <ellipse cx="16" cy="22" rx="9" ry="3" fill="#3245B7"/>
+  <rect x="7" y="16" width="18" height="6" fill="#3245B7"/>
+  <ellipse cx="16" cy="16" rx="9" ry="3" fill="#B0C2F9"/>
+  <!-- Trend arrow (prediction) in gold -->
+  <polyline points="9,14 13,10 17,12 23,7" stroke="#F9B935" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <polygon points="23,7 20,6 22,9" fill="#F9B935"/>
 </svg>

@@ -32,13 +32,13 @@ async def scope_page() -> None:
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
             ui.card().classes("p-8 gap-4 items-center text-center"),
         ):
-            ui.icon("upload_file", size="3rem").classes("text-gray-400")
-            ui.label(t("review.no_data")).classes("text-xl text-gray-500")
+            ui.icon("upload_file", size="3rem").style("color:var(--sp-muted)")
+            ui.label(t("review.no_data")).classes("text-xl").style("color:var(--sp-muted)")
             ui.button(
                 t("report.go_to_upload"),
                 on_click=lambda: ui.navigate.to("/upload"),
                 icon="arrow_forward",
-            ).classes("bg-blue-700 text-white")
+            ).props("color=primary")
         return
 
     # Extract unique values
@@ -60,17 +60,17 @@ async def scope_page() -> None:
         layout("StorePredict - Scope"),
         ui.column().classes("w-full max-w-3xl mx-auto p-8 gap-6"),
     ):
-        ui.label(t("scope.title")).classes("text-3xl font-bold")
+        ui.label(t("scope.title")).classes("text-3xl font-bold sp-display")
         if project_name:
-            ui.label(t("review.project_label", name=project_name)).classes("text-lg text-gray-500")
+            ui.label(t("review.project_label", name=project_name)).classes("text-lg").style("color:var(--sp-muted)")
 
-        ui.label(t("scope.description")).classes("text-gray-600")
+        ui.label(t("scope.description")).style("color:var(--sp-muted)")
 
         # Summary card
         total_vms = len(df)
-        with ui.card().classes("w-full p-4 bg-blue-50 border-l-4 border-blue-500"):
+        with ui.card().classes("w-full p-4").style("background:var(--sp-surface-2);border:1px solid var(--sp-line)"):
             ui.label(t("scope.total_vms", count=total_vms, dcs=len(all_dcs), clusters=len(all_clusters))).classes(
-                "text-sm text-blue-800"
+                "text-sm"
             )
 
         dc_select = None
@@ -117,7 +117,10 @@ async def scope_page() -> None:
             if selected_cls and "cluster" in df.columns:
                 filtered = filtered[filtered["cluster"].isin(selected_cls)]
             preview_container.clear()
-            with preview_container, ui.card().classes("w-full p-3 bg-gray-50"):
+            _card = (
+                ui.card().classes("w-full p-3").style("background:var(--sp-surface-2);border:1px solid var(--sp-line)")
+            )
+            with preview_container, _card:
                 ui.label(t("scope.preview_count", count=len(filtered), total=total_vms)).classes("text-sm font-medium")
 
         _update_preview()
@@ -132,13 +135,13 @@ async def scope_page() -> None:
                 t("scope.select_all"),
                 on_click=lambda: _select_all(dc_select, all_dcs, cluster_select, all_clusters),
                 icon="select_all",
-            ).classes("bg-gray-200 text-gray-800")
+            ).props("flat color=grey-7")
 
             ui.button(
                 t("scope.continue"),
                 on_click=lambda: _on_continue(dc_select, all_dcs, cluster_select, all_clusters),
                 icon="arrow_forward",
-            ).classes("bg-blue-700 text-white")
+            ).props("color=primary")
 
 
 def _select_all(

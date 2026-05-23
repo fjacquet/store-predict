@@ -108,21 +108,20 @@ def _build_comparison_table(proposals: list[LayoutProposal]) -> None:
     with ui.grid().classes("grid grid-cols-3 gap-4 w-full mb-4"):
         for proposal in proposals:
             is_recommended = proposal.strategy_name == recommended
-            card_classes = "p-4 text-center border-2"
-            if is_recommended:
-                card_classes += " border-green-500 bg-green-50"
-            else:
-                card_classes += " border-gray-200"
+            card_classes = "p-4 text-center border-2 rounded"
+            border_color = "var(--q-positive)" if is_recommended else "var(--sp-line)"
 
-            with ui.card().classes(card_classes):
+            with ui.card().classes(card_classes).style(f"border-color:{border_color}"):
                 with ui.row().classes("items-center justify-center gap-2"):
                     strategy_label = t(f"strategy.{proposal.strategy_name}")
                     ui.label(strategy_label).classes("text-lg font-bold")
                     if is_recommended:
-                        ui.badge(t("layout_page.recommended"), color="green")
-                ui.label(t(f"strategy.{proposal.strategy_name}_desc")).classes("text-sm text-gray-500")
-                ui.label(str(proposal.metrics.total_ds_count)).classes("text-3xl font-bold text-blue-700")
-                ui.label(t("metrics.ds_count")).classes("text-xs text-gray-500")
+                        ui.badge(t("layout_page.recommended"), color="positive")
+                ui.label(t(f"strategy.{proposal.strategy_name}_desc")).classes("text-sm").style("color:var(--sp-muted)")
+                ui.label(str(proposal.metrics.total_ds_count)).classes("text-3xl font-bold").style(
+                    "color:var(--sp-primary)"
+                )
+                ui.label(t("metrics.ds_count")).classes("text-xs").style("color:var(--sp-muted)")
 
     # Full metrics comparison table
     p = proposals
@@ -347,13 +346,14 @@ def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> N
           </q-td>
         </q-tr>
         <q-tr v-show="props.expand" :props="props">
-          <q-td colspan="100%" class="bg-gray-50">
+          <q-td colspan="100%" style="background:var(--sp-surface-2);border-top:1px solid var(--sp-line)">
             <div class="p-2">
-              <div class="text-sm font-semibold text-gray-600 mb-1">{vms_label}:</div>
+              <div class="text-sm font-semibold mb-1" style="color:var(--sp-muted)">{vms_label}:</div>
               <div
                 v-for="vm in props.row.vm_names"
                 :key="vm"
-                class="text-sm text-gray-700 ml-2"
+                class="text-sm ml-2"
+                style="color:var(--sp-ink)"
               >
                 {{{{ vm }}}}
               </div>
@@ -372,30 +372,32 @@ def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> N
 def _build_strategy_detail(proposal: LayoutProposal) -> None:
     """Render description, summary stats, and expandable datastore table for one strategy."""
     desc_key = f"strategy.{proposal.strategy_name}_desc"
-    ui.label(t(desc_key)).classes("text-sm text-gray-500 mb-2")
+    ui.label(t(desc_key)).classes("text-sm mb-2").style("color:var(--sp-muted)")
 
     m = proposal.metrics
     with ui.row().classes("gap-4 mb-4 flex-wrap"):
         with ui.card().classes("p-3 text-center min-w-[100px]"):
-            ui.label(str(m.total_ds_count)).classes("text-2xl font-bold text-blue-700")
-            ui.label(t("metrics.ds_count")).classes("text-xs text-gray-500")
+            ui.label(str(m.total_ds_count)).classes("text-2xl font-bold").style("color:var(--sp-primary)")
+            ui.label(t("metrics.ds_count")).classes("text-xs").style("color:var(--sp-muted)")
         with ui.card().classes("p-3 text-center min-w-[120px]"):
-            ui.label(_fmt_tib(m.total_raw_capacity_mib)).classes("text-xl font-bold text-blue-700")
-            ui.label(t("metrics.raw_capacity")).classes("text-xs text-gray-500")
+            ui.label(_fmt_tib(m.total_raw_capacity_mib)).classes("text-xl font-bold").style("color:var(--sp-primary)")
+            ui.label(t("metrics.raw_capacity")).classes("text-xs").style("color:var(--sp-muted)")
         with ui.card().classes("p-3 text-center min-w-[100px]"):
-            ui.label(_fmt_pct(m.avg_utilization_pct)).classes("text-xl font-bold text-blue-700")
-            ui.label(t("metrics.avg_utilization")).classes("text-xs text-gray-500")
+            ui.label(_fmt_pct(m.avg_utilization_pct)).classes("text-xl font-bold").style("color:var(--sp-primary)")
+            ui.label(t("metrics.avg_utilization")).classes("text-xs").style("color:var(--sp-muted)")
         with ui.card().classes("p-3 text-center min-w-[100px]"):
-            ui.label(f"{m.isolation_score:.2f}").classes("text-xl font-bold text-blue-700")
-            ui.label(t("metrics.isolation_score")).classes("text-xs text-gray-500").tooltip(
+            ui.label(f"{m.isolation_score:.2f}").classes("text-xl font-bold").style("color:var(--sp-primary)")
+            ui.label(t("metrics.isolation_score")).classes("text-xs").style("color:var(--sp-muted)").tooltip(
                 t("tooltip.isolation_score")
             )
         with ui.card().classes("p-3 text-center min-w-[100px]"):
-            ui.label(str(m.oversized_vm_count)).classes("text-xl font-bold text-blue-700")
-            ui.label(t("metrics.oversized_vms")).classes("text-xs text-gray-500").tooltip(t("tooltip.oversized_vms"))
+            ui.label(str(m.oversized_vm_count)).classes("text-xl font-bold").style("color:var(--sp-primary)")
+            ui.label(t("metrics.oversized_vms")).classes("text-xs").style("color:var(--sp-muted)").tooltip(
+                t("tooltip.oversized_vms")
+            )
 
     if not proposal.datastores:
-        ui.label(t("layout_page.no_datastores")).classes("text-gray-400 italic p-4")
+        ui.label(t("layout_page.no_datastores")).classes("italic p-4").style("color:var(--sp-muted)")
         return
 
     _build_datastore_table(proposal.datastores)
@@ -526,7 +528,9 @@ def _build_settings_panel(
             t("layout_page.settings_title"),
             icon="settings",
             caption=t("layout_page.settings_subtitle"),
-        ).classes("w-full border border-gray-200 rounded-lg"),
+        )
+        .classes("w-full rounded-lg")
+        .style("border:1px solid var(--sp-line)"),
         ui.column().classes("w-full gap-4 p-2"),
     ):
         # 1. Max DS capacity — dropdown
@@ -541,7 +545,7 @@ def _build_settings_panel(
         with ui.column().classes("w-full gap-1"):
             with ui.row().classes("w-full items-center justify-between"):
                 ui.label(t("layout_page.max_vms_per_ds")).classes("text-sm")
-                max_vms_label = ui.label(str(constraints.max_vms_per_ds)).classes("text-sm font-mono w-8 text-right")
+                max_vms_label = ui.label(str(constraints.max_vms_per_ds)).classes("text-sm sp-mono w-8 text-right")
             max_vms_slider = (
                 ui.slider(
                     min=5,
@@ -571,7 +575,7 @@ def _build_settings_panel(
             with ui.row().classes("w-full items-center justify-between"):
                 ui.label(t("layout_page.snapshot_reserve")).classes("text-sm")
                 snap_label = ui.label(f"{constraints.snapshot_reserve_pct:.0f}%").classes(
-                    "text-sm font-mono w-8 text-right"
+                    "text-sm sp-mono w-8 text-right"
                 )
             snap_slider = (
                 ui.slider(
@@ -592,7 +596,7 @@ def _build_settings_panel(
             with ui.row().classes("w-full items-center justify-between"):
                 ui.label(t("layout_page.growth_margin")).classes("text-sm")
                 growth_label = ui.label(f"{constraints.growth_margin_pct:.0f}%").classes(
-                    "text-sm font-mono w-8 text-right"
+                    "text-sm sp-mono w-8 text-right"
                 )
             growth_slider = (
                 ui.slider(
@@ -637,13 +641,13 @@ async def layout_page() -> None:
             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
             ui.card().classes("p-8 gap-4 items-center text-center"),
         ):
-            ui.icon("grid_view", size="3rem").classes("text-gray-400")
-            ui.label(t("layout_page.no_data")).classes("text-xl text-gray-500")
+            ui.icon("grid_view", size="3rem").style("color:var(--sp-muted)")
+            ui.label(t("layout_page.no_data")).classes("text-xl").style("color:var(--sp-muted)")
             ui.button(
                 t("report.go_to_upload"),
                 on_click=lambda: ui.navigate.to("/upload"),
                 icon="arrow_forward",
-            ).classes("bg-blue-700 text-white")
+            ).props("color=primary")
         return
 
     constraints = _load_constraints()
@@ -653,12 +657,12 @@ async def layout_page() -> None:
 
     with layout("StorePredict - Layout"), ui.column().classes("w-full p-4 gap-4"):
         with ui.row().classes("w-full items-center justify-between"):
-            ui.label(t("layout_page.title")).classes("text-2xl font-bold")
+            ui.label(t("layout_page.title")).classes("text-2xl font-bold sp-display")
             with ui.row().classes("gap-2"):
                 excel_btn = ui.button(
                     t("layout_page.download_excel"),
                     icon="table_view",
-                ).classes("bg-green-700 text-white")
+                ).props("color=positive")
 
         def _on_excel() -> None:
             excel_btn.disable()

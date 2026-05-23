@@ -1,0 +1,411 @@
+home:
+  subtitle: "PowerStore DRR Dimensionierungswerkzeug"
+  description: "Analysieren Sie VMware-Workload-Exporte (RVTools, LiveOptics), um Datenreduktionsverhältnisse auf Dell PowerStore-Arrays vorherzusagen."
+  cta: "Workload-Daten hochladen"
+
+upload:
+  title: "Workload-Daten hochladen"
+  project_label: Projektname
+  project_placeholder: "z. B. Kunde-DC-Migration-2026"
+  drop_label: "RVTools- oder LiveOptics-Datei hier ablegen (.xlsx, .csv)"
+  supported_formats: "Unterstützte Formate: RVTools (.xlsx), LiveOptics (.xlsx, .csv)"
+  loaded_notify: "%{count} VM(s) geladen"
+  processing: "Datei wird verarbeitet, bitte warten..."
+  llm_toggle: "KI-Klassifizierung verwenden"
+  llm_disabled_hint: "LLM_ENABLED=true setzen, um KI-Klassifizierung zu aktivieren"
+  analyse_button: "Analysieren"
+  merge_summary: "%{total} VMs zusammengeführt (%{matched} übereinstimmend, %{rv_only} nur RVTools, %{lo_only} nur LiveOptics)"
+  format_conflict: "Beide Dateien haben dasselbe Format. Bitte eine RVTools- und eine LiveOptics-Datei hochladen."
+  file_ready: "%{name} bereit (%{fmt})"
+
+session:
+  save_button: "Sitzung speichern"
+  save_tooltip: "Ein .zip-Archiv mit dem Original-Export und allen Einstellungen dieser Sitzung herunterladen"
+  restore_success: "Sitzung wiederhergestellt — %{count} VM(s) geladen"
+  restore_error: "Sitzung konnte nicht wiederhergestellt werden: %{reason}"
+  restore_format_hint: "StorePredict-Sitzungsdatei erkannt"
+
+review:
+  title: "Klassifizierungen überprüfen"
+  project_label: "Projekt: %{name}"
+  no_data: "Keine Daten hochgeladen."
+  new_analysis: "Neue Analyse"
+  bulk_update: "Workload-Massenaktualisierung"
+  mark_ignored: "Als ignoriert markieren"
+  mark_active: "Als aktiv markieren"
+  ignored_notify: "%{count} VM(s) als ignoriert markiert"
+  activated_notify: "%{count} VM(s) als aktiv markiert"
+  generate_report: "Bericht erstellen"
+  no_rows_selected: "Keine Zeilen ausgewählt. Bitte zuerst VMs über Kontrollkästchen auswählen."
+  updated_notify: "%{count} VM(s) aktualisiert auf %{category} / %{subcategory}"
+  search_placeholder: "VMs suchen..."
+  filter_label: "Konfidenz"
+  filter_all: "Alle"
+  distribution_title: "Workload-Verteilung"
+  column_panel_title: "Spalten anzeigen"
+  column_panel_tip: "Ausgeblendete Spalten werden nicht in den Suchergebnissen berücksichtigt."
+
+report:
+  title: "Dimensionierungsbericht"
+  project_label: "Projekt: %{name}"
+  no_data: "Keine Daten verfügbar. Bitte zuerst eine Datei hochladen."
+  all_ignored: "Alle VMs sind als ignoriert markiert — nichts zu berichten. Zurück zur Überprüfung, um mindestens eine VM wieder einzuschließen."
+  totals_heading: "Gesamtwerte"
+  averages_heading: "Durchschnittswerte"
+  performance_heading: "Leistungszusammenfassung"
+  breakdown_heading: "Workload-Aufschlüsselung"
+  charts_heading: "Datenvisualisierungen"
+  download_pdf: "PDF-Bericht herunterladen"
+  download_excel: "Excel-Bericht herunterladen"
+  back_to_review: "Zurück zur Überprüfung"
+  go_to_upload: "Zum Hochladen"
+  upload_logo: "Unternehmenslogo hochladen"
+  logo_upload_label: "PNG oder JPEG, max. 200 KB"
+  logo_uploaded: "Logo erfolgreich hochgeladen"
+  logo_error_format: "Logo muss PNG oder JPEG sein"
+  logo_error_size: "Logo-Datei zu groß (max. 200 KB)"
+  logo_remove: "Logo entfernen"
+  logo_removed: "Unternehmenslogo entfernt"
+
+scope:
+  title: "Analysebereich auswählen"
+  description: "Wählen Sie aus, welche Rechenzentren und Cluster in die Analyse einbezogen werden sollen. Nicht ausgewählte Elemente werden von Dimensionierungsberechnungen und Berichten ausgeschlossen."
+  datacenter_label: "Rechenzentren"
+  cluster_label: "Cluster"
+  datacenter_placeholder: "Rechenzentren auswählen..."
+  cluster_placeholder: "Cluster auswählen..."
+  total_vms: "%{count} VMs in %{dcs} Rechenzentrum(en) und %{clusters} Cluster(n)"
+  preview_count: "%{count} von %{total} VMs ausgewählt"
+  select_all: "Alle auswählen"
+  continue: "Weiter zur Überprüfung"
+
+columns:
+  vm_name: VM-Name
+  os: "Betriebssystem"
+  description: Beschreibung
+  workload_category: "Workload-Kategorie"
+  subcategory: "Unterkategorie"
+  drr: DRR
+  provisioned_mib: "Bereitgestellt (MiB)"
+  in_use_mib: "Genutzt (MiB)"
+  confidence: Konfidenz
+  is_ignored: Ignoriert
+  peak_iops: "IOPS-Spitze"
+  iops_8k: "8K-Äq. IOPS"
+  peak_mbs: "Spitzendurchsatz (MB/s)"
+  num_cpus: "vCPUs"
+  memory_mib: "RAM (MiB)"
+  avg_iops: "Durchschn. IOPS"
+  datacenter: "Rechenzentrum"
+  cluster: "Cluster"
+  vm_folder: "Ordner"
+
+stats:
+  total_vms: "Gesamt VMs"
+  total_provisioned: "Gesamt bereitgestellt"
+  avg_drr: "Durchschn. DRR"
+  effective_capacity: "Effektive Kapazität"
+  ignored_count: "Ignorierte VMs"
+  total_cpus: "Gesamt vCPUs"
+  total_memory: "Gesamtspeicher"
+  total_in_use: "Gesamt genutzt"
+  required_capacity: "Erforderliche Kapazität"
+  avg_cpus: "Durchschn. vCPUs / VM"
+  avg_memory: "Durchschn. Speicher / VM"
+  avg_storage: "Durchschn. Speicher / VM"
+  largest_vm: "Größte VM"
+  total_avg_iops: "Gesamt durchschn. IOPS"
+  hottest_vm: "Höchste VM-IOPS-Spitze"
+  peak_throughput: "Spitzendurchsatz"
+  iops_8k: "8K-Äq. IOPS"
+
+pdf:
+  report_title: "StorePredict Dimensionierungsbericht"
+  total_vms: "Gesamt VMs:"
+  total_cpus: "Gesamt vCPUs:"
+  total_memory: "Gesamtspeicher:"
+  total_provisioned: "Gesamt bereitgestellt:"
+  total_in_use: "Gesamt genutzt:"
+  required_capacity: "Erforderliche Kapazität:"
+  avg_cpus: "Durchschn. vCPUs / VM:"
+  avg_memory: "Durchschn. Speicher / VM:"
+  avg_storage: "Durchschn. Speicher / VM:"
+  weighted_drr: "Gewichteter Durchschn. DRR:"
+  largest_vm: "Größte VM:"
+  total_avg_iops: "Gesamt durchschn. IOPS:"
+  hottest_vm: "Höchste VM-IOPS-Spitze:"
+  peak_throughput: "Spitzendurchsatz:"
+  iops_8k: "Gesamt 8K-Äquivalent IOPS:"
+  table_category: "Kategorie"
+  table_vms: VMs
+  table_provisioned: "Bereitgestellt (GiB)"
+  table_avg_drr: "Durchschn. DRR"
+  table_required: "Erforderlich (GiB)"
+  table_total: GESAMT
+  performance_heading: "Leistungszusammenfassung"
+  stats_heading: "VM-Statistiken"
+  charts_heading: "Datenanalyse"
+  sankey_title: "Datenreduzierungsfluss"
+  pie_title: "Workload-Verteilung"
+  drr_bar_title: "DRR nach Workload-Kategorie"
+  before_after_title: "Kapazität: Vor vs. nach DRR"
+  layout_heading: "Empfehlungen zur Datastore-Aufteilung"
+  ds_detail_heading: "Datastores"
+  layout_strategy_label: "Strategie"
+  findings_summary_heading: "Systemzustand – Zusammenfassung"
+  findings_detail_heading: "Systemzustand – Detailbefunde"
+  findings_col_severity: "Schweregrad"
+  findings_col_category: "Kategorie"
+  findings_col_finding: "Befund"
+  findings_col_count: "Betroffene VMs"
+  findings_col_detail: "Detail"
+  findings_no_findings: "Keine Probleme gefunden — Umgebung ist in gutem Zustand."
+  findings_category_data_quality: "Datenqualität"
+  findings_category_sizing_risk: "Dimensionierungsrisiko"
+  findings_category_best_practice: "VMware Best Practice"
+  findings_severity_critical: "Kritisch"
+  findings_severity_warning: "Warnung"
+  findings_severity_info: "Info"
+
+layout:
+  home: "Startseite"
+  upload: "Hochladen"
+  scope: "Bereich"
+  review: "Überprüfung"
+  report: "Bericht"
+  layout: "Layout"
+  concerns: "Warnungen"
+  compute: "Compute-Dimensionierung"
+  dark_mode: "Dunkelmodus"
+  language: "DE"
+
+layout_page:
+  title: "Empfehlungen zur Datastore-Aufteilung"
+  no_data: "Keine Berechnungsdaten verfügbar. Bitte zuerst eine Datei hochladen."
+  settings_title: "Erweiterte Einstellungen"
+  settings_subtitle: "Einschränkungen anpassen, um Layouts neu zu generieren"
+  max_ds_capacity: "Maximale Datastore-Kapazität"
+  max_vms_per_ds: "Max. VMs pro Datastore"
+  iops_budget: "IOPS-Budget pro Datastore"
+  snapshot_reserve: "Snapshot-Reserve %"
+  growth_margin: "Wachstumsmarge %"
+  metric: Metrik
+  recommended: Empfohlen
+  comparison_heading: "Strategievergleich"
+  detail_heading: "Strategiedetail: %{strategy}"
+  detail_tabs_heading: "Strategiedetails"
+  no_datastores: "Für diese Strategie wurden keine Datastores generiert."
+  download_pdf: "Layout-PDF herunterladen"
+  download_excel: "Layout-Excel herunterladen"
+  expand_all: "Alle aufklappen"
+  collapse_all: "Alle einklappen"
+
+strategy:
+  consolidation: Konsolidierung
+  performance: Performance
+  uniform: Gleichmäßig
+  consolidation_desc: "Anzahl der Datastores minimieren"
+  performance_desc: "Workload-Isolierung maximieren"
+  uniform_desc: "Ausgeglichene Auslastung"
+
+metrics:
+  ds_count: "Anzahl Datastores"
+  raw_capacity: "Rohkapazität (TiB)"
+  usable_capacity: "Nutzbare Kapazität (TiB)"
+  used_capacity: "Genutzte Kapazität (TiB)"
+  avg_utilization: "Durchschn. Auslastung %"
+  min_utilization: "Minimale Auslastung %"
+  max_utilization: "Maximale Auslastung %"
+  avg_vm_density: "Durchschn. VMs/Datastore"
+  max_vm_density: "Max. VMs/Datastore"
+  total_iops: "Gesamt platzierte IOPS"
+  max_iops_ds: "Max. IOPS (einzelner Datastore)"
+  iops_headroom: "IOPS-Puffer %"
+  isolation_score: "Isolierungswert"
+  snapshot_rating: "Snapshot-Granularität"
+  oversized_vms: "Überdimensionierte VMs"
+
+ds:
+  name: Datastore
+  raw_cap: "Rohkapazität"
+  used: "Genutzt"
+  util: "Auslastung %"
+  vms: VMs
+  iops: IOPS
+  workloads: "Workload-Typen"
+  vm_list: "Zugewiesene VMs"
+
+dialog:
+  workloads_for: "Workloads für %{vm_name}"
+  select_hint: "Einen oder mehrere Workload-Typen auswählen. Der konservativste (niedrigste) DRR wird verwendet."
+  select_label: "Workload-Typen auswählen"
+  cancel: Abbrechen
+  apply: Übernehmen
+
+llm:
+  classifying: "Unbekannte VMs werden per KI klassifiziert..."
+  classifying_progress: "KI-Klassifizierung: %{done} / %{total} VMs"
+  classified_notify: "KI hat %{count} VM(s) klassifiziert"
+  unavailable: "KI-Klassifizierung nicht verfügbar (LLM_MODEL / LLM_API_KEY prüfen)"
+  disabled: "KI-Klassifizierung deaktiviert (LLM_ENABLED=true setzen, um zu aktivieren)"
+  error: "KI-Klassifizierung fehlgeschlagen. Regelbasierte Ergebnisse werden verwendet."
+
+semantic:
+  classifying: "VMs werden per semantischer Ähnlichkeit klassifiziert..."
+  classified_notify: "%{count} VM(s) semantisch klassifiziert"
+  error: "Semantische Klassifizierung nicht verfügbar; regelbasierte Ergebnisse werden verwendet."
+
+detail_bar:
+  placeholder: "Auf eine VM-Zeile klicken, um zusätzliche Details anzuzeigen."
+  os: "OS"
+  description: "Beschreibung"
+  in_use: "Genutzt"
+  peak_iops: "IOPS-Spitze"
+  iops_8k: "IOPS 8k"
+  peak_mbs: "MB/s-Spitze"
+
+rule_suggestions:
+  title: "Vorgeschlagene Klassifizierungsregeln"
+  subtitle: "In classification.py einfügen, um künftige KI-Aufrufe zu vermeiden"
+  description: "Die KI hat in dieser Sitzung diese Schlüsselwortmuster identifiziert. Jeder Ausschnitt kann direkt in build_default_rules() eingefügt werden — Priorität und Unterkategorie vor dem Übernehmen prüfen."
+  copy: "Kopieren"
+  vm_count: "%{count} VM(s)"
+  examples: "z. B. %{examples}"
+
+storage_model:
+  label: "Zielspeicher"
+  powerstore: "PowerStore"
+  powerflex: "PowerFlex"
+  powervault: "PowerVault"
+
+error:
+  unexpected: "Ein unerwarteter Fehler ist aufgetreten. Bitte erneut versuchen."
+  logo_upload_failed: "Logo-Upload fehlgeschlagen. Bitte eine gültige PNG- oder JPEG-Datei verwenden."
+
+excel:
+  sheet_summary: "Zusammenfassung"
+  sheet_breakdown: "Workload-Aufschlüsselung"
+  sheet_vm_detail: "VM-Details"
+  sheet_layout: "Layout-Empfehlungen"
+  col_metric: "Metrik"
+  col_value: "Wert"
+  col_category: "Kategorie"
+  col_vms: "VMs"
+  col_provisioned_gib: "Bereitgestellt (GiB)"
+  col_in_use_gib: "Genutzt (GiB)"
+  col_avg_drr: "Durchschn. DRR"
+  col_required_gib: "Erforderlich (GiB)"
+  col_vm_name: "VM-Name"
+  col_workload: "Workload"
+  col_drr: "DRR"
+  col_peak_iops: "IOPS-Spitze"
+  col_avg_iops: "Durchschn. IOPS"
+  col_peak_mbs: "Spitzendurchsatz (MB/s)"
+  col_iops_8k: "8K-Äq. IOPS"
+  sheet_findings: "Befunde"
+  col_finding: "Befund"
+  col_severity: "Schweregrad"
+  col_affected_vms: "Betroffene VMs"
+  col_detail: "Detail"
+  col_cluster: "Cluster"
+
+tooltip:
+  llm_toggle: "KI-Klassifizierung (LLM) für unbekannte VMs aktivieren"
+  new_analysis: "Sitzungsdaten löschen und neue Analyse von der Upload-Seite starten"
+  bulk_update: "Eine Workload-Kategorie auf alle ausgewählten Zeilen anwenden"
+  mark_ignored: "Ausgewählte VMs von DRR-Berechnung und Berichten ausschließen"
+  mark_active: "Ausgewählte VMs in DRR-Berechnung und Berichte wieder einschließen"
+  storage_model: "Ziel-Dell-Speicherplattform auswählen — beeinflusst DRR-Koeffizienten"
+  download_pdf: "Einseitigen Dimensionierungsbericht als PDF herunterladen"
+  download_excel: "Alle Daten als Excel-Arbeitsmappe herunterladen (4 Blätter)"
+  upload_logo: "Unternehmenslogo zur PDF-Berichtsüberschrift hinzufügen"
+  max_ds_capacity: "Maximale Rohkapazität pro Datastore (TiB)"
+  max_vms_per_ds: "Maximale Anzahl von VMs, die einen Datastore teilen können"
+  iops_budget: "Maximale IOPS-Last pro Datastore vor dem Aufteilen"
+  snapshot_reserve: "Prozentsatz der Datastore-Kapazität, der für Snapshots reserviert ist"
+  growth_margin: "Zusätzlicher Kapazitätspuffer für zukünftiges Wachstum"
+  isolation_score: "0.0 = alle Workloads gemischt; 1.0 = alle Workloads isoliert"
+  oversized_vms: "VMs, die zu groß für einen Standard-Datastore sind — erhalten dedizierte Datastores"
+  quick_filter: "Suche über alle sichtbaren Spalten. Spalte einblenden, um sie in die Suche einzuschließen."
+
+chart:
+  provisioned: "Bereitgestellt"
+  required: "Erforderlich"
+  single_category: "Einzelne Kategorie"
+  drr_axis: "DRR"
+  gib_axis: "GiB"
+
+concerns:
+  title: "Systemzustandsprüfungen & Warnungen"
+  no_data: "Keine Daten hochgeladen. Datei hochladen, um Systemzustandsbefunde anzuzeigen."
+  no_findings: "Keine Warnungen gefunden — Umgebung ist in gutem Zustand."
+  summary_critical: "%{count} Kritisch"
+  summary_warning: "%{count} Warnung(en)"
+  summary_info: "%{count} Info"
+  section_data_quality: "Datenqualität"
+  section_sizing_risk: "Dimensionierungsrisiken"
+  section_best_practice: "VMware Best Practices"
+  affected_vms: "Betroffene VMs: %{names}"
+  affected_count: "%{count} VM(s)"
+  export_pdf: "PDF exportieren"
+  export_csv: "CSV exportieren"
+  export_pdf_filename: "concerns-report.pdf"
+  export_csv_filename: "concerns-report.csv"
+
+health:
+  missing_os:
+    title: "VMs ohne Betriebssysteminformationen"
+    detail: "%{count} VM(s) haben keine OS-Daten — Klassifizierungsgenauigkeit verringert."
+  zero_provisioned:
+    title: "VMs ohne bereitgestellten Speicher"
+    detail: "%{count} VM(s) zeigen 0 MiB bereitgestellt — Speicherdimensionierung wird unvollständig sein."
+  missing_cpu:
+    title: "VMs ohne CPU-Daten"
+    detail: "%{count} VM(s) haben vCPU-Anzahl 0 — Compute-Dimensionierungsschätzungen unzuverlässig."
+  missing_ram:
+    title: "VMs ohne RAM-Daten"
+    detail: "%{count} VM(s) haben RAM von 0 MiB — Compute-Dimensionierungsschätzungen unzuverlässig."
+  high_powered_off_ratio:
+    title: "Hoher Anteil ausgeschalteter VMs"
+    detail: "%{pct}% der VMs sind ausgeschaltet — Daten stammen möglicherweise aus einem veralteten Umgebungs-Snapshot."
+  high_unknown_ratio:
+    title: "Hoher Anteil unbekannter VMs"
+    detail: "%{count} VM(s) (%{pct}%) als Unbekannt klassifiziert — DRR-Schätzungen sind konservative Standardwerte."
+  large_unknown_vms:
+    title: "Große nicht klassifizierte VMs"
+    detail: "%{count} VM(s) über 1 TiB sind Unbekannt — für genauen DRR klassifizieren."
+  iops_budget_exceeded:
+    title: "VMs überschreiten Datastore-IOPS-Budget"
+    detail: "%{count} VM(s) IOPS-Spitzenwerte überschreiten das Standard-Budget von 100K/Datastore."
+  no_cluster:
+    title: "VMs ohne Cluster-Zuweisung"
+    detail: "%{count} VM(s) sind keinem Cluster zugewiesen — vMotion-Migration nicht möglich."
+  old_hw_version:
+    title: "VMs mit alter Hardware-Version"
+    detail: "%{count} VM(s) sind unterhalb von vHW 17 (ESXi 7.0) — Hardware-Upgrade empfohlen."
+  very_old_hw_version:
+    title: "VMs mit sehr alter Hardware-Version (Kritisch)"
+    detail: "%{count} VM(s) sind unterhalb von vHW 14 (ESXi 6.7) — wahrscheinlich inkompatibel mit modernem vSphere."
+  tools_not_installed:
+    title: "VMs ohne VMware Tools"
+    detail: "%{count} VM(s) haben VMware Tools nicht installiert — für Migrationskonsistenz erforderlich."
+  tools_not_running:
+    title: "VMs mit nicht ausgeführten VMware Tools"
+    detail: "%{count} VM(s) haben VMware Tools installiert, aber nicht ausgeführt — Gast-OS prüfen."
+  no_hw_data:
+    title: "Keine Hardware-Versionsdaten verfügbar"
+    detail: "Dieser Export enthält keine Hardware-Versionsspalte — Hardware-Kompatibilität kann nicht bewertet werden."
+  small_cluster_ha:
+    title: "Kleiner Cluster (HA-Risiko)"
+    detail: "%{count} VM(s) in diesem Cluster — mindestens 3 Hosts für N+1 HA empfohlen."
+
+compute:
+  title: "Compute-Dimensionierung"
+  redirect_message: "Die Compute-Dimensionierung wurde nach PreSizion verlagert, einem dedizierten Werkzeug mit erweiterten Compute-, Speicher- und Netzwerk-Dimensionierungsfunktionen."
+  open_presizion: "PreSizion öffnen"
+  view_source: "Auf GitHub ansehen"
+
+confidence:
+  override: "Regel"
+  semantic: "Semantisch"
+  default: "Standard"
