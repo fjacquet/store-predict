@@ -19,6 +19,7 @@ from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches, Pt
 
 from store_predict.i18n import t
+from store_predict.services import pptx_charts
 from store_predict.services.pdf_report import format_storage
 
 if TYPE_CHECKING:
@@ -140,6 +141,50 @@ def _slide_exec_summary(prs: Any, summary: CalculationSummary) -> None:
         _add_kpi_tile(slide, label, value, Inches(0.6 + i * 3.15), top, width)
 
 
+def _slide_drr_story(prs: Any, summary: CalculationSummary) -> None:
+    slide = _new_blank_slide(prs)
+    _add_header_band(slide, t("pptx.drr_story_heading"))
+    _add_text(
+        slide,
+        f"{summary.weighted_avg_drr:.1f}x",
+        Inches(0.6),
+        Inches(1.3),
+        Inches(4),
+        Inches(1.2),
+        size=54,
+        bold=True,
+        color=_BRAND_NAVY,
+    )
+    _add_text(slide, t("pdf.weighted_drr"), Inches(0.6), Inches(2.5), Inches(4), Inches(0.6), size=16)
+    pptx_charts.add_before_after_bar(slide, summary, Inches(4.8), Inches(1.4), Inches(8.0), Inches(5.4))
+
+
+def _slide_workload_mix(prs: Any, summary: CalculationSummary) -> None:
+    slide = _new_blank_slide(prs)
+    _add_header_band(slide, t("pptx.workload_mix_heading"))
+    pptx_charts.add_workload_pie(slide, summary, Inches(0.6), Inches(1.3), Inches(12), Inches(5.6))
+
+
+def _slide_recommendation(prs: Any, summary: CalculationSummary, health_result: HealthCheckResult | None) -> None:
+    from store_predict.pipeline.health_checks import Severity
+
+    slide = _new_blank_slide(prs)
+    _add_header_band(slide, t("pptx.recommendation_heading"))
+    _add_kpi_tile(
+        slide,
+        t("stats.required_capacity"),
+        format_storage(summary.total_required_mib),
+        Inches(0.6),
+        Inches(2.0),
+        Inches(5),
+    )
+    if health_result is not None and health_result.has_data and health_result.findings:
+        n_crit = sum(1 for f in health_result.findings if f.severity == Severity.CRITICAL)
+        n_warn = sum(1 for f in health_result.findings if f.severity == Severity.WARNING)
+        lines = f"{t('pdf.findings_severity_critical')}: {n_crit}    {t('pdf.findings_severity_warning')}: {n_warn}"
+        _add_text(slide, lines, Inches(0.6), Inches(4.2), Inches(11), Inches(0.8), size=18)
+
+
 def generate_report_pptx(
     summary: CalculationSummary,
     project_name: str,
@@ -169,6 +214,9 @@ def generate_report_pptx(
 
     _slide_title(prs, project_name, company_logo_bytes)
     _slide_exec_summary(prs, summary)
+    _slide_drr_story(prs, summary)
+    _slide_workload_mix(prs, summary)
+    _slide_recommendation(prs, summary, health_result)
 
     buf = BytesIO()
     prs.save(buf)

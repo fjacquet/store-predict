@@ -111,3 +111,17 @@ class TestPptxGeneratesBytes:
         prs = Presentation(BytesIO(generate_report_pptx(summary, "Acme Corp", locale="en")))
         assert len(prs.slides) >= 2
         assert "Acme Corp" in _slide_text(prs)
+
+
+class TestMainDeck:
+    def test_main_deck_has_charts_and_recommendation(self) -> None:
+        summary = _make_summary([("Database/Microsoft SQL", 3, 30720.0, 5.0), ("Virtual Machines", 2, 10240.0, 5.0)])
+        prs = Presentation(BytesIO(generate_report_pptx(summary, "X", locale="en")))
+        # title + exec + drr-story + workload-mix + recommendation = 5 main slides
+        assert len(prs.slides) >= 5
+        # at least two native charts across the deck (before/after bar + workload pie)
+        chart_count = sum(1 for slide in prs.slides for shape in slide.shapes if shape.has_chart)
+        assert chart_count >= 2
+        text = _slide_text(prs)
+        # t() always returns fr in tests (NiceGUI storage unavailable); check fr translation
+        assert "Recommandation" in text  # pptx.recommendation_heading (fr)
