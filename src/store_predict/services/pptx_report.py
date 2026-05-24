@@ -448,9 +448,7 @@ def _slide_findings(prs: Any, health_result: HealthCheckResult) -> None:
     rows: list[list[str]] = [
         [t("pdf.findings_col_severity"), t("pdf.findings_col_finding"), t("pdf.findings_col_count")]
     ]
-    rows.extend(
-        [t(f"pdf.findings_severity_{f.severity}"), t(f.title), f"{f.affected_count:,}"] for f in findings
-    )
+    rows.extend([t(f"pdf.findings_severity_{f.severity}"), t(f.title), f"{f.affected_count:,}"] for f in findings)
     _add_table(
         slide,
         rows,
