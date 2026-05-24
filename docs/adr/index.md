@@ -90,3 +90,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [084](084-retire-llm-fallback-dormant.md) | Retire LLM classification from active pipeline; keep module dormant | Accepted | 2026-05-23 |
 | [085](085-curated-self-learning-exemplars.md) | Curated exemplars + in-memory same-file self-learning for semantic router | Accepted | 2026-05-23 |
 | [086](086-pptx-export.md) | PowerPoint (PPTX) export | Accepted | 2026-05-23 |
+| [087](087-remove-llm-tier.md) | Remove the dormant LLM classification tier | Accepted | 2026-05-24 |

@@ -139,7 +139,7 @@ def create_vm_table(
                 f" const labels = {conf_labels};"
                 " const v = params.value || '';"
                 " const m = {override:'override', semantic:'semantic', default:'default',"
-                " rule_match:'override', os_fallback:'semantic', llm:'muted'};"
+                " rule_match:'override', os_fallback:'semantic'};"
                 " const k = m[v] || 'default';"
                 " const text = labels[v] || v;"
                 " return v ? `<span class=\"sp-chip sp-chip-${k}\">${text}</span>` : '';"

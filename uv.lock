@@ -3043,11 +3043,10 @@ wheels = [
 
 [[package]]
 name = "store-predict"
-version = "10.2.0"
+version = "10.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastembed" },
-    { name = "litellm" },
     { name = "matplotlib" },
     { name = "nicegui" },
     { name = "openpyxl" },
@@ -3080,7 +3079,6 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "fastembed", specifier = ">=0.8,<0.9" },
-    { name = "litellm", specifier = ">=1.83.7" },
     { name = "matplotlib", specifier = ">=3.8" },
     { name = "mkdocs", marker = "extra == 'docs'" },
     { name = "mkdocs-material", marker = "extra == 'docs'" },

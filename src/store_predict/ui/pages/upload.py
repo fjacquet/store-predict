@@ -29,16 +29,13 @@ from store_predict.pipeline.session_archive import is_session_zip, restore_sessi
 from store_predict.pipeline.validation import validate_upload
 from store_predict.pipeline.zip_extraction import extract_liveoptics_from_zip
 from store_predict.services.drr_table import DRRTable
-from store_predict.services.llm_config import LLMConfig
 from store_predict.services.semantic_config import get_semantic_config
 from store_predict.ui.layout import layout
 from store_predict.ui.state import (
     add_pending_file,
     clear_pending_files,
     clear_session_data,
-    get_llm_ui_enabled,
     get_pending_files,
-    set_llm_ui_enabled,
     set_project_name,
 )
 
@@ -114,18 +111,6 @@ async def upload_page() -> None:
 
         # Format hints
         ui.label(t("upload.supported_formats")).classes("text-sm").style("color:var(--sp-muted)")
-
-        # AI classification toggle — only interactive when LLM is configured via env
-        llm_cfg = LLMConfig()
-        with ui.row().classes("items-center gap-3 mt-2"):
-            llm_switch = ui.switch(
-                t("upload.llm_toggle"),
-                value=get_llm_ui_enabled(),
-                on_change=lambda e: set_llm_ui_enabled(e.value),
-            ).tooltip(t("tooltip.llm_toggle"))
-            if not llm_cfg.enabled:
-                llm_switch.disable()
-                ui.label(t("upload.llm_disabled_hint")).classes("text-xs italic").style("color:var(--sp-muted)")
 
         async def _handle_session_restore(zip_bytes: bytes) -> None:
             """Restore a StorePredict session archive into app.storage.tab and navigate to /review."""
@@ -222,13 +207,12 @@ async def upload_page() -> None:
             df: pd.DataFrame,
             _tab: dict[str, object],
             _project_name: str,
-            _llm_ui_enabled: bool,
         ) -> None:
             """Classify, enrich with DRR, store results, and navigate.
 
             Shared by single-file and two-file paths.
-            _tab, _project_name, _llm_ui_enabled must be captured inside a slot
-            context by the caller before this coroutine is awaited.
+            _tab and _project_name must be captured inside a slot context
+            by the caller before this coroutine is awaited.
             """
 
             progress.value = 0.6
@@ -293,7 +277,6 @@ async def upload_page() -> None:
                 _tab = app.storage.tab
                 pending = get_pending_files()  # capture before clear_session_data wipes it
                 _project_name = str(_tab.get("project_name", ""))
-                _llm_ui_enabled = bool(_tab.get("llm_ui_enabled", True))
                 clear_session_data()
 
             if not pending:
@@ -332,7 +315,7 @@ async def upload_page() -> None:
                             )
 
                 progress.value = 0.3
-                await _run_pipeline(df, _tab, _project_name, _llm_ui_enabled)
+                await _run_pipeline(df, _tab, _project_name)
 
             except IngestionError as exc:
                 with upload_widget:

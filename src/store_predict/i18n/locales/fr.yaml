@@ -11,8 +11,6 @@ upload:
   supported_formats: "Formats supportés : RVTools (.xlsx), LiveOptics (.xlsx, .csv)"
   loaded_notify: "%{count} VM(s) chargées"
   processing: "Traitement du fichier en cours, veuillez patienter..."
-  llm_toggle: "Utiliser la classification IA"
-  llm_disabled_hint: "Définissez LLM_ENABLED=true pour activer la classification IA"
   analyse_button: "Analyser"
   merge_summary: "%{total} VMs fusionnées (%{matched} correspondantes, %{rv_only} RVTools uniquement, %{lo_only} LiveOptics uniquement)"
   format_conflict: "Les deux fichiers ont le même format. Veuillez téléverser un fichier RVTools et un fichier LiveOptics."
@@ -243,14 +241,6 @@ dialog:
   cancel: Annuler
   apply: Appliquer
 
-llm:
-  classifying: "Classification des VM inconnues par IA en cours..."
-  classifying_progress: "Classification IA : %{done} / %{total} VM"
-  classified_notify: "L'IA a classifié %{count} VM(s)"
-  unavailable: "Classification IA indisponible (vérifier LLM_MODEL / LLM_API_KEY)"
-  disabled: "Classification IA désactivée (définir LLM_ENABLED=true pour activer)"
-  error: "La classification par IA a échoué. Les résultats basés sur les règles seront utilisés."
-
 semantic:
   classifying: "Classification des VM par similarité sémantique..."
   classified_notify: "%{count} VM classée(s) sémantiquement"
@@ -264,14 +254,6 @@ detail_bar:
   peak_iops: "IOPS crête"
   iops_8k: "IOPS 8k"
   peak_mbs: "MB/s crête"
-
-rule_suggestions:
-  title: "Nouvelles règles de classification proposées"
-  subtitle: "À ajouter dans classification.py pour éviter de futurs appels IA"
-  description: "L'IA a identifié ces mots-clés lors de cette session. Chaque extrait est prêt à coller dans build_default_rules() — vérifiez la priorité et la sous-catégorie avant de valider."
-  copy: "Copier"
-  vm_count: "%{count} VM(s)"
-  examples: "ex. %{examples}"
 
 storage_model:
   label: "Stockage cible"
@@ -311,7 +293,6 @@ excel:
   col_cluster: "Cluster"
 
 tooltip:
-  llm_toggle: "Activer la classification par IA (LLM) pour les VMs inconnues"
   new_analysis: "Effacer la session et démarrer une nouvelle analyse depuis la page de téléchargement"
   bulk_update: "Appliquer une catégorie de charge à toutes les lignes sélectionnées"
   mark_ignored: "Exclure les VMs sélectionnées du calcul DRR et des rapports"

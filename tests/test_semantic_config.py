@@ -1,4 +1,4 @@
-"""Tests for SemanticConfig (env-driven, mirrors LLMConfig pattern)."""
+"""Tests for SemanticConfig (env-driven configuration via env-var settings pattern)."""
 
 from __future__ import annotations
 

@@ -2,6 +2,28 @@
 
 All notable changes to StorePredict are documented here.
 
+## [10.3.0] - 2026-05-24
+
+### Removed
+
+- **LLM classification tier** fully removed. The dormant `llm_classifier.py`
+  pipeline module and `llm_config.py` service (retired to dormant in ADR-084)
+  are deleted entirely. The v10 semantic-router classifier (ADR-082) replaces
+  all AI-assisted classification; no functionality is lost.
+- **AI-classification toggle** removed from the upload page. The switch and its
+  disabled-hint label (keys `upload.llm_toggle`, `upload.llm_disabled_hint`,
+  `tooltip.llm_toggle`) are gone from all four locales (EN/FR/DE/IT).
+- **Rule-suggestions panel** removed from the review page. The
+  `_build_rule_suggestions_panel()` function and associated i18n block
+  (`rule_suggestions.*`) no longer exist.
+- **LLM session state helpers** (`get_llm_ui_enabled`, `set_llm_ui_enabled`,
+  `save_rule_suggestions`, `load_rule_suggestions`) removed from `state.py`.
+- **`LLM_*` env-var block** removed from `.env.example`. Any existing `LLM_*`
+  env vars in deployment `.env` files are silently ignored (no code reads them).
+- **Direct `litellm` dependency** removed from `pyproject.toml`. `litellm`
+  remains present as a transitive dependency of `semantic-router` and is not
+  evicted from the environment. See ADR-087.
+
 ## [10.2.0] - 2026-05-24
 
 ### Added

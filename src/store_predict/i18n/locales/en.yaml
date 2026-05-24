@@ -11,8 +11,6 @@ upload:
   supported_formats: "Supported formats: RVTools (.xlsx), LiveOptics (.xlsx, .csv)"
   loaded_notify: "Loaded %{count} VM(s)"
   processing: "Processing file, please wait..."
-  llm_toggle: "Use AI classification"
-  llm_disabled_hint: "Set LLM_ENABLED=true to activate AI classification"
   analyse_button: "Analyse"
   merge_summary: "Merged %{total} VMs (%{matched} matched, %{rv_only} RVTools-only, %{lo_only} LiveOptics-only)"
   format_conflict: "Both files have the same format. Upload one RVTools and one LiveOptics file."
@@ -243,14 +241,6 @@ dialog:
   cancel: Cancel
   apply: Apply
 
-llm:
-  classifying: "Classifying unknown VMs with AI..."
-  classifying_progress: "AI classification: %{done} / %{total} VMs"
-  classified_notify: "AI classified %{count} VM(s)"
-  unavailable: "AI classification unavailable (check LLM_MODEL / LLM_API_KEY)"
-  disabled: "AI classification disabled (set LLM_ENABLED=true to enable)"
-  error: "AI classification failed. Rules-based results will be used."
-
 semantic:
   classifying: "Classifying VMs by semantic similarity..."
   classified_notify: "Semantically classified %{count} VM(s)"
@@ -264,14 +254,6 @@ detail_bar:
   peak_iops: "Peak IOPS"
   iops_8k: "IOPS 8k"
   peak_mbs: "Peak MB/s"
-
-rule_suggestions:
-  title: "Proposed Classification Rules"
-  subtitle: "Add these to classification.py to avoid future AI calls"
-  description: "The AI identified these keyword patterns this session. Each snippet is ready to paste into build_default_rules() — review the priority and subcategory before committing."
-  copy: "Copy"
-  vm_count: "%{count} VM(s)"
-  examples: "e.g. %{examples}"
 
 storage_model:
   label: "Target Storage"
@@ -311,7 +293,6 @@ excel:
   col_cluster: "Cluster"
 
 tooltip:
-  llm_toggle: "Enable AI (LLM) classification for unknown VMs"
   new_analysis: "Clear session data and start a new analysis from the upload page"
   bulk_update: "Apply a workload category to all selected rows"
   mark_ignored: "Exclude selected VMs from DRR calculation and reports"

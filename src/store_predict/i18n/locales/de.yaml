@@ -11,8 +11,6 @@ upload:
   supported_formats: "Unterstützte Formate: RVTools (.xlsx), LiveOptics (.xlsx, .csv)"
   loaded_notify: "%{count} VM(s) geladen"
   processing: "Datei wird verarbeitet, bitte warten..."
-  llm_toggle: "KI-Klassifizierung verwenden"
-  llm_disabled_hint: "LLM_ENABLED=true setzen, um KI-Klassifizierung zu aktivieren"
   analyse_button: "Analysieren"
   merge_summary: "%{total} VMs zusammengeführt (%{matched} übereinstimmend, %{rv_only} nur RVTools, %{lo_only} nur LiveOptics)"
   format_conflict: "Beide Dateien haben dasselbe Format. Bitte eine RVTools- und eine LiveOptics-Datei hochladen."
@@ -243,14 +241,6 @@ dialog:
   cancel: Abbrechen
   apply: Übernehmen
 
-llm:
-  classifying: "Unbekannte VMs werden per KI klassifiziert..."
-  classifying_progress: "KI-Klassifizierung: %{done} / %{total} VMs"
-  classified_notify: "KI hat %{count} VM(s) klassifiziert"
-  unavailable: "KI-Klassifizierung nicht verfügbar (LLM_MODEL / LLM_API_KEY prüfen)"
-  disabled: "KI-Klassifizierung deaktiviert (LLM_ENABLED=true setzen, um zu aktivieren)"
-  error: "KI-Klassifizierung fehlgeschlagen. Regelbasierte Ergebnisse werden verwendet."
-
 semantic:
   classifying: "VMs werden per semantischer Ähnlichkeit klassifiziert..."
   classified_notify: "%{count} VM(s) semantisch klassifiziert"
@@ -264,14 +254,6 @@ detail_bar:
   peak_iops: "IOPS-Spitze"
   iops_8k: "IOPS 8k"
   peak_mbs: "MB/s-Spitze"
-
-rule_suggestions:
-  title: "Vorgeschlagene Klassifizierungsregeln"
-  subtitle: "In classification.py einfügen, um künftige KI-Aufrufe zu vermeiden"
-  description: "Die KI hat in dieser Sitzung diese Schlüsselwortmuster identifiziert. Jeder Ausschnitt kann direkt in build_default_rules() eingefügt werden — Priorität und Unterkategorie vor dem Übernehmen prüfen."
-  copy: "Kopieren"
-  vm_count: "%{count} VM(s)"
-  examples: "z. B. %{examples}"
 
 storage_model:
   label: "Zielspeicher"
@@ -311,7 +293,6 @@ excel:
   col_cluster: "Cluster"
 
 tooltip:
-  llm_toggle: "KI-Klassifizierung (LLM) für unbekannte VMs aktivieren"
   new_analysis: "Sitzungsdaten löschen und neue Analyse von der Upload-Seite starten"
   bulk_update: "Eine Workload-Kategorie auf alle ausgewählten Zeilen anwenden"
   mark_ignored: "Ausgewählte VMs von DRR-Berechnung und Berichten ausschließen"

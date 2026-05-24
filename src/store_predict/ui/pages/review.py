@@ -22,7 +22,6 @@ from store_predict.ui.state import (
     get_storage_model,
     get_workload_options,
     load_filtered_session_data,
-    load_rule_suggestions,
     save_filtered_rows,
     set_storage_model,
 )
@@ -271,9 +270,6 @@ async def review_page() -> None:
                 on_click=lambda: ui.navigate.to("/report"),
             ).props("color=primary")
 
-        # Proposed rule suggestions from LLM (shown only when suggestions exist)
-        _build_rule_suggestions_panel()
-
 
 def _rebuild_stats(stats_container: ui.column, row_data: list[dict[str, Any]]) -> None:
     """Clear and rebuild the summary stats + distribution donut in the container."""
@@ -308,62 +304,6 @@ def _active_confidence(filter_model: dict[str, Any] | None) -> str | None:
         value = filter_model["classification_confidence"].get("filter")
         return str(value) if value is not None else None
     return None
-
-
-def _build_rule_suggestions_panel() -> None:
-    """Render a collapsible panel of LLM-proposed classification rules.
-
-    Each suggestion shows a copy-pasteable ``ClassificationRule(...)`` snippet
-    that the developer can add to ``build_default_rules`` in classification.py
-    to avoid future LLM calls for the same keyword pattern.
-
-    The panel is hidden when there are no suggestions this session.
-    """
-    suggestions = load_rule_suggestions()
-    if not suggestions:
-        return
-
-    with ui.expansion(
-        t("rule_suggestions.title"),
-        icon="lightbulb",
-        caption=t("rule_suggestions.subtitle"),
-    ).classes("w-full border border-yellow-300 rounded-lg bg-yellow-50"):
-        ui.label(t("rule_suggestions.description")).classes("text-sm text-gray-600 mb-2")
-
-        for suggestion in suggestions:
-            # Compute a safe rule name from the keyword (title-case)
-            rule_name = suggestion.keyword.title()
-            # Estimate a priority: database → 1xx range, else 3xx (infrastructure)
-            # This is a hint only — the developer will adjust.
-            priority_hint = 110 + len(suggestions) if "Database" in suggestion.category else 360
-
-            snippet = (
-                f"ClassificationRule(\n"
-                f'    name="{rule_name}",\n'
-                f'    category="{suggestion.category}",\n'
-                f'    subcategory="{suggestion.subcategory}",\n'
-                f"    priority={priority_hint},\n"
-                f'    vm_name_patterns=_patterns("{suggestion.keyword}"),\n'
-                f"),"
-            )
-
-            examples_str = ", ".join(suggestion.vm_examples[:3])
-            badge_label = t("rule_suggestions.vm_count", count=suggestion.count)
-
-            with ui.card().classes("w-full p-3 gap-2 bg-white border border-yellow-200"):
-                with ui.row().classes("items-center justify-between w-full"):
-                    with ui.row().classes("items-center gap-2"):
-                        ui.badge(suggestion.keyword).classes("bg-yellow-500 text-white font-mono text-xs")
-                        ui.label(f"→ {suggestion.category}").classes("text-sm font-semibold")
-                        ui.badge(badge_label).classes("bg-gray-200 text-gray-700 text-xs")
-                    ui.button(
-                        t("rule_suggestions.copy"),
-                        icon="content_copy",
-                        on_click=lambda s=snippet: ui.run_javascript(f"navigator.clipboard.writeText({s!r})"),
-                    ).classes("text-xs bg-gray-100 text-gray-700").props("flat dense")
-
-                ui.label(t("rule_suggestions.examples", examples=examples_str)).classes("text-xs text-gray-500")
-                ui.code(snippet, language="python").classes("w-full text-xs")
 
 
 async def _handle_bulk_update(

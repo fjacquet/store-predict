@@ -9,7 +9,6 @@ import pandas as pd
 from nicegui import app
 
 from store_predict.config import DRR_CSV_PATH, StorageModel
-from store_predict.pipeline.llm_classifier import RuleSuggestion
 from store_predict.services.drr_table import DRRTable
 
 
@@ -138,45 +137,6 @@ def get_storage_model() -> StorageModel:
 def set_storage_model(model: StorageModel) -> None:
     """Persist the selected storage model in tab-scoped session."""
     app.storage.tab["storage_model"] = model.value
-
-
-def get_llm_ui_enabled() -> bool:
-    """Return per-session AI classification preference (default True)."""
-    return bool(app.storage.tab.get("llm_ui_enabled", True))
-
-
-def set_llm_ui_enabled(val: bool) -> None:
-    """Persist the AI classification toggle state in tab-scoped session."""
-    app.storage.tab["llm_ui_enabled"] = val
-
-
-def save_rule_suggestions(suggestions: list[RuleSuggestion]) -> None:
-    """Persist LLM rule suggestions in tab-scoped session storage."""
-    app.storage.tab["rule_suggestions"] = [
-        {
-            "keyword": s.keyword,
-            "category": s.category,
-            "subcategory": s.subcategory,
-            "vm_examples": s.vm_examples,
-            "count": s.count,
-        }
-        for s in suggestions
-    ]
-
-
-def load_rule_suggestions() -> list[RuleSuggestion]:
-    """Retrieve LLM rule suggestions from session storage."""
-    raw: list[dict[str, Any]] = app.storage.tab.get("rule_suggestions", [])
-    return [
-        RuleSuggestion(
-            keyword=r["keyword"],
-            category=r["category"],
-            subcategory=r["subcategory"],
-            vm_examples=r.get("vm_examples", []),
-            count=r.get("count", 1),
-        )
-        for r in raw
-    ]
 
 
 @functools.cache
