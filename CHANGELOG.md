@@ -13,6 +13,12 @@ All notable changes to StorePredict are documented here.
   (Severity · Finding · affected VMs) instead of duplicating the severity-count
   cards already shown on the Recommendation slide.
 
+### Fixed
+
+- **Version reporting.** `store_predict.__version__` was hardcoded at `6.1.0`
+  and had drifted from the packaged version. It now derives from package
+  metadata (single source of truth: `pyproject.toml`), guarded by a test.
+
 ## [11.0.0] - 2026-05-24
 
 ### Changed
