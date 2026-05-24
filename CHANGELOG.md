@@ -2,6 +2,25 @@
 
 All notable changes to StorePredict are documented here.
 
+## [10.3.1] - 2026-05-24
+
+### Changed
+
+- **PowerPoint deck redesign** to match the web app's visual language (Midnight
+  Executive — navy + gold on a light canvas): a full-bleed title slide with
+  gold-accent KPI tiles, white left-accent stat-card grids that fill each slide,
+  a navy header band with a gold rule, data labels on charts, a colour-coded
+  workload donut + horizontal capacity bar, and a footer on every slide.
+- Charts now **aggregate workload categories by name** — no more duplicate
+  `Database` / `File` / `VDI` labels — and storage KPIs use a single compact
+  unit. CPU/RAM KPI cards are hidden when those columns are absent from the
+  source export (so the deck never shows bare zeros).
+
+### Internal
+
+- Dropped the dead `litellm.*` mypy override (litellm is no longer imported
+  directly after the v10.3.0 LLM-tier removal).
+
 ## [10.3.0] - 2026-05-24
 
 ### Removed
