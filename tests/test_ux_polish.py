@@ -45,7 +45,6 @@ REQUIRED_KEYS = [
     "error.unexpected",
     "error.logo_upload_failed",
     "upload.processing",
-    "llm.error",
 ]
 
 
@@ -155,18 +154,11 @@ def test_upload_has_run_io_bound() -> None:
     assert "run.io_bound" in source, "upload.py must wrap ingest_file/classify_dataframe in run.io_bound"
 
 
-def test_upload_has_persistent_llm_notification() -> None:
-    """upload.py must use ui.notification (persistent) for LLM classification, not ui.notify."""
-    source = _page_source("upload")
-    assert "ui.notification" in source, "upload.py must use ui.notification with spinner=True for LLM classification"
-
-
 # ---------------------------------------------------------------------------
 # Phase 18: tooltip and chart i18n keys exist in both locales
 # ---------------------------------------------------------------------------
 
 PHASE_18_KEYS = [
-    "tooltip.llm_toggle",
     "tooltip.bulk_update",
     "tooltip.storage_model",
     "tooltip.download_pdf",

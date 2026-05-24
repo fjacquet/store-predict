@@ -1,9 +1,9 @@
 """Configuration for the semantic-router classification tier.
 
 Reads from environment variables with the ``SEMANTIC_`` prefix (case-insensitive),
-mirroring the ``LLMConfig`` pattern. The ``get_semantic_config()`` singleton reads
-env vars once at first call. Tests override by instantiating ``SemanticConfig()``
-directly, which bypasses the singleton cache.
+mirroring the project's env-var settings pattern. The ``get_semantic_config()``
+singleton reads env vars once at first call. Tests override by instantiating
+``SemanticConfig()`` directly, which bypasses the singleton cache.
 """
 
 from __future__ import annotations
