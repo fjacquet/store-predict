@@ -2,7 +2,7 @@
 
 All notable changes to StorePredict are documented here.
 
-## [10.2.0] - 2026-05-23
+## [10.2.0] - 2026-05-24
 
 ### Added
 
@@ -15,10 +15,60 @@ All notable changes to StorePredict are documented here.
   EN/FR/DE/IT. New dependency: `python-pptx`. See
   [ADR-086](adr/086-pptx-export.md).
 
+- **Editable custom datastore size** on the Layout page (Settings → Max DS
+  capacity) — enter any value (e.g. 10 TB), not just the six power-of-two
+  presets, which remain as one-click shortcuts.
+
+### Changed
+
+- **Removed the redundant step bar.** The numbered Upload → Scope → Review →
+  Report bar duplicated the header navigation (which already links every route);
+  the header nav is now the single navigation surface.
+
+- **Accessibility (WCAG AA).** Fixed the muted-chip contrast (now ≥ 4.5:1 via a
+  new `--sp-muted-strong` token) and added a `prefers-reduced-motion` media query
+  so transitions are near-instant for users who request reduced motion.
+
 ### Security
 
 - Bumped `semantic-router` to `>=0.1.15` (CVE-2026-42208; 0.1.14 yanked —
   unbounded litellm pin).
+## [10.1.0] - 2026-05-23
+
+UI modernization and a four-language interface. No pipeline or sizing-logic changes —
+classification and DRR results are identical to 10.0.0.
+
+### Added
+
+- **"Midnight Executive" design system** — a shared visual identity with the sibling vAtlas
+  estate tool. Navy/gold/ice palette and self-hosted JetBrains Mono for tabular data, all
+  driven from design tokens in `src/store_predict/ui/theme.py` (`apply_theme()`). Fonts and
+  the AG Grid locale pack are bundled under `/public` — fully offline, no CDN.
+
+- **German and Italian translations.** The interface now ships in four languages (English,
+  French, German, Italian) with full key parity (341 keys each). A header locale selector
+  switches live; French remains the default. AG Grid's own UI strings are localized per
+  language from a self-hosted locale bundle.
+
+- **Confidence-triage filter chips** on the review grid — one-click chips (`override · N`,
+  `semantic · N`, `default · N`, `All`) that filter the table to a confidence tier, so an
+  engineer can isolate the VMs needing review. They compose with the grid's column filters.
+
+- **Workload-distribution donut** — an ECharts chart summarising the active-VM mix per
+  workload category on the review page.
+
+- **Brand favicon** — a navy/gold SVG mark (`public/favicon.svg`).
+
+### Changed
+
+- **Review table restyled** with the AG Grid Theming API and design tokens. Classification
+  confidence renders as colour-coded chips: green = deterministic override, navy = semantic
+  match, amber = Unknown / needs-review.
+
+- **Wayfinding** — a gold active-nav underline and an Upload → Scope → Review → Report step
+  bar that reflects progress through the workflow.
+
+- All pages retoned off ad-hoc Tailwind onto the shared theme tokens.
 
 ## [10.0.0] - 2026-05-23
 
@@ -73,8 +123,6 @@ All notable changes to StorePredict are documented here.
 
 - The `"rule_match"` confidence value is no longer emitted by the active pipeline (it was
   the value for rules in the 0–899 priority range, which are no longer called as a group).
-
-## [Unreleased]
 
 ### Fixed
 
