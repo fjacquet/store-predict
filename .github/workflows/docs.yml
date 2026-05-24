@@ -4,9 +4,15 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+# GitHub Pages allows a single active deployment to the `github-pages`
+# environment. A per-ref group (docs-${{ github.ref }}) let different tags
+# (v11.0.1, v11.0.2, …) run concurrently and race that single deployment — the
+# losers failed. Use GitHub's canonical constant group so docs runs serialize:
+# pending runs collapse to the latest, and in-progress deployments finish
+# rather than being interrupted mid-deploy.
 concurrency:
-  group: docs-${{ github.ref }}
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 # Pages-from-Actions deployment (replaces the legacy gh-pages branch
 # workflow which auto-spawned a deprecated Node 20 pages-build-deployment
