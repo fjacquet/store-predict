@@ -16,20 +16,18 @@ Source-level dependency metadata (uv.lock, SBOM) is intentionally left intact;
 only the shipped image swaps this in. See docs/adr and Dockerfile.
 """
 
+from typing import ClassVar
+
 __version__ = "0.0.0+storepredict-stub"
 
 
 class EmbeddingResponse:  # referenced only in isinstance()/annotations, never constructed
-    data: list = []
+    data: ClassVar[list] = []
 
 
 def embedding(*args: object, **kwargs: object) -> "EmbeddingResponse":
-    raise NotImplementedError(
-        "litellm is stubbed out in store-predict; LiteLLM-backed encoders are unavailable."
-    )
+    raise NotImplementedError("litellm is stubbed out in store-predict; LiteLLM-backed encoders are unavailable.")
 
 
 async def aembedding(*args: object, **kwargs: object) -> "EmbeddingResponse":
-    raise NotImplementedError(
-        "litellm is stubbed out in store-predict; LiteLLM-backed encoders are unavailable."
-    )
+    raise NotImplementedError("litellm is stubbed out in store-predict; LiteLLM-backed encoders are unavailable.")
