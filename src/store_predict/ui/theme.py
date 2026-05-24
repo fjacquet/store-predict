@@ -43,7 +43,7 @@ _STYLESHEET = f"""
 
 :root {{
   --sp-canvas:#F8FAFC; --sp-surface:#FFFFFF; --sp-surface-2:#F1F5F9;
-  --sp-ink:#0F172A; --sp-muted:#64748B; --sp-line:#E2E8F0;
+  --sp-ink:#0F172A; --sp-muted:#64748B; --sp-muted-strong:#556070; --sp-line:#E2E8F0;
   --sp-navy:#1E2761; --sp-primary:{PRIMARY}; --sp-primary-soft:#EAEEFB; --sp-ice:#B0C2F9;
   --sp-accent:{ACCENT};
   --sp-header:#1E2761;
@@ -55,7 +55,7 @@ _STYLESHEET = f"""
 }}
 body.body--dark {{
   --sp-canvas:#0C0F16; --sp-surface:#161B24; --sp-surface-2:#11161F;
-  --sp-ink:#F1F5F9; --sp-muted:#94A3B8; --sp-line:#232933;
+  --sp-ink:#F1F5F9; --sp-muted:#94A3B8; --sp-muted-strong:#94A3B8; --sp-line:#232933;
   --sp-primary:#819AE9; --sp-primary-soft:#1A2440;
   --sp-header:#14182E;
   --sp-shadow:0 1px 2px rgba(0,0,0,.45), 0 12px 32px -16px rgba(0,0,0,.65);
@@ -90,24 +90,6 @@ h1,h2,h3,h4,.sp-display {{ font-weight:700; letter-spacing:-.02em; }}
 .sp-nav-link:hover {{ color:#FFFFFF; }}
 .sp-nav-link.sp-active {{ color:#FFFFFF; border-bottom-color:var(--sp-accent); }}
 
-/* Linear workflow step bar (Upload -> Scope -> Review -> Report). */
-.sp-steps {{ background:var(--sp-surface); border-bottom:1px solid var(--sp-line); }}
-.sp-step {{
-  display:inline-flex; align-items:center; gap:.4rem; text-decoration:none;
-  color:var(--sp-muted); font-size:.84rem; font-weight:500;
-  padding:.15rem .55rem; border-radius:6px; transition:color .15s ease;
-}}
-.sp-step:hover {{ color:var(--sp-ink); }}
-.sp-step .sp-step-num {{
-  display:inline-flex; align-items:center; justify-content:center;
-  width:1.3rem; height:1.3rem; border-radius:50%; background:var(--sp-line);
-  color:var(--sp-muted); font-size:.72rem; font-weight:700;
-}}
-.sp-step.sp-step-active {{ color:var(--sp-ink); font-weight:600; }}
-.sp-step.sp-step-active .sp-step-num {{ background:var(--sp-accent); color:#1E2761; }}
-.sp-step-sep {{ color:var(--sp-line); font-size:1.1rem; user-select:none; }}
-.sp-step-sep::before {{ content:"\\203A"; }}
-
 /* Surfaces & accessibility polish. */
 .sp-card {{
   background:var(--sp-surface); border:1px solid var(--sp-line);
@@ -116,6 +98,14 @@ h1,h2,h3,h4,.sp-display {{ font-weight:700; letter-spacing:-.02em; }}
 *:focus-visible {{ outline:2px solid var(--sp-accent); outline-offset:2px; border-radius:3px; }}
 ::selection {{ background:var(--sp-primary); color:#FFFFFF; }}
 * {{ scrollbar-width:thin; scrollbar-color:var(--sp-line) transparent; }}
+
+/* Honor the user's reduced-motion preference: near-instant transitions/animations. */
+@media (prefers-reduced-motion: reduce) {{
+  *, *::before, *::after {{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }}
+}}
 
 /* AG Grid (v34 themeQuartz + colorSchemeVariable): drive colors from our tokens.
    NiceGUI syncs data-ag-theme-mode with Quasar body--dark, so tokens swap too. */
@@ -142,7 +132,7 @@ h1,h2,h3,h4,.sp-display {{ font-weight:700; letter-spacing:-.02em; }}
 .sp-chip-override {{ background:#E7F4EC; color:#1F6B41; border-color:#BFE3CD; }}
 .sp-chip-semantic {{ background:var(--sp-primary-soft); color:#2A357A; border-color:#C9D3F4; }}
 .sp-chip-default  {{ background:#FCEEDD; color:#9A5A09; border-color:#F4D6B0; }}
-.sp-chip-muted    {{ background:var(--sp-line); color:var(--sp-muted); }}
+.sp-chip-muted    {{ background:var(--sp-line); color:var(--sp-muted-strong); }}
 body.body--dark .sp-chip-override {{ background:#15301F; color:#79C99A; border-color:#1F4D30; }}
 body.body--dark .sp-chip-semantic {{ background:#1A2440; color:#9BB0F0; border-color:#2A3A6B; }}
 body.body--dark .sp-chip-default  {{ background:#3A2A12; color:#E0A75A; border-color:#5A4220; }}
@@ -167,10 +157,6 @@ body.body--dark .sp-chip-default  {{ background:#3A2A12; color:#E0A75A; border-c
       var href = ((a.getAttribute('href') || '').replace(/\\/+$/, '') || '/');
       var active = href === '/' ? path === '/' : (path === href || path.indexOf(href + '/') === 0);
       a.classList.toggle('sp-active', active);
-    }});
-    document.querySelectorAll('.sp-step').forEach(function(a) {{
-      var href = ((a.getAttribute('href') || '').replace(/\\/+$/, '') || '/');
-      a.classList.toggle('sp-step-active', path === href);
     }});
     return true;
   }}
