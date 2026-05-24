@@ -57,6 +57,7 @@ _DEEP = RGBColor.from_string("1E2761")
 _LIGHT = RGBColor.from_string("819AE9")
 _MUTED = RGBColor.from_string("64748B")
 _FONT = "Arial"  # standard deck font (matches pptx_report)
+_MONO = "Consolas"  # monospace for numerals (data labels, value axis)
 
 
 def t(key: str, **kwargs: object) -> str:
@@ -106,6 +107,7 @@ def _style_axes(chart: Any, *, size: int = 9) -> None:
         try:
             axis.tick_labels.font.size = Pt(size)
             axis.tick_labels.font.color.rgb = _MUTED
+            axis.tick_labels.font.name = _MONO if axis_name == "value_axis" else _FONT
         except (ValueError, NotImplementedError):
             pass
 
@@ -119,6 +121,7 @@ def _enable_data_labels(
     dl.number_format = num_format
     dl.number_format_is_linked = False
     dl.font.size = Pt(size)
+    dl.font.name = _MONO
     if position is not None:
         dl.position = position
 
@@ -149,6 +152,7 @@ def add_workload_pie(slide: Slide, summary: CalculationSummary, x: Length, y: Le
     dl.number_format = "0%"
     dl.number_format_is_linked = False
     dl.font.size = Pt(8)
+    dl.font.name = _MONO
     dl.font.color.rgb = RGBColor.from_string("FFFFFF")
 
 

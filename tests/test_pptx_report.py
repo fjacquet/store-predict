@@ -186,7 +186,7 @@ class TestPptxRobustness:
 
 
 class TestPptxFont:
-    def test_all_text_runs_use_arial(self) -> None:
+    def test_text_arial_with_consolas_numerals(self) -> None:
         summary = _make_summary([("Database/Microsoft SQL", 3, 30720.0, 5.0), ("Virtual Machines", 2, 10240.0, 5.0)])
         prs = Presentation(BytesIO(generate_report_pptx(summary, "X", locale="fr")))
         fonts: set[str | None] = set()
@@ -198,4 +198,5 @@ class TestPptxFont:
                     for row in shape.table.rows:
                         for cell in row.cells:
                             fonts.update(r.font.name for p in cell.text_frame.paragraphs for r in p.runs)
-        assert fonts == {"Arial"}
+        # Arial for text/labels/tables; Consolas (mono) for the KPI numerals.
+        assert fonts == {"Arial", "Consolas"}
