@@ -5,6 +5,7 @@ from __future__ import annotations
 from io import BytesIO
 from typing import TYPE_CHECKING
 
+import i18n as _i18n
 from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.piecharts import Pie
 from reportlab.graphics.shapes import Drawing
@@ -21,6 +22,7 @@ __all__ = [
     "make_drr_bar_drawing",
     "make_pie_drawing",
     "make_sankey_image_flowable",
+    "render_sankey_png",
 ]
 
 # Dell brand colours as ReportLab Color objects
@@ -116,11 +118,11 @@ def make_pie_drawing(summary: CalculationSummary, width: int = 250, height: int 
     return d
 
 
-def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500, height_pt: int = 200) -> Flowable:
-    """Return a ReportLab Image with a Bezier-curve Sankey rendered via matplotlib Agg (headless).
+def render_sankey_png(summary: CalculationSummary, width_pt: int = 500, height_pt: int = 200) -> bytes | None:
+    """Render the provisioned→required Sankey to PNG bytes via matplotlib Agg (headless).
 
-    Uses matplotlib's non-interactive Agg backend — no display or browser required.
-    Flow bands are cubic Bezier sigmoid curves for a professional appearance.
+    Returns ``None`` when there is no data to plot (no workload groups or zero
+    provisioned capacity). Flow bands are cubic Bezier sigmoid curves.
     """
     from matplotlib.backends.backend_agg import FigureCanvasAgg
     from matplotlib.figure import Figure
@@ -129,7 +131,7 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
     from matplotlib.path import Path as MplPath
 
     if not summary.workload_groups or summary.total_provisioned_mib == 0:
-        return Spacer(width_pt, 0)
+        return None
 
     _fp = FontProperties(fname=str(FONT_PATH_LIGHT)) if FONT_PATH_LIGHT.exists() else FontProperties()
 
@@ -139,7 +141,6 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
 
     palette = ["#007DB8", "#40A8D8", "#6C757D", "#ADB5BD", "#CED4DA", "#DEE2E6"]
 
-    # Build figure with Agg canvas (headless — no display needed)
     dpi = 300
     fig = Figure(figsize=(width_pt / 72, height_pt / 72), dpi=dpi, facecolor="white")
     FigureCanvasAgg(fig)
@@ -148,7 +149,6 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
     ax.set_ylim(0.0, 1.0)
     ax.axis("off")
 
-    # Normalised layout (0..1 coordinate space)
     node_w = 0.03
     left_x = 0.05
     right_x = 0.92
@@ -172,17 +172,16 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
         return (int(hx[1:3], 16) / 255, int(hx[3:5], 16) / 255, int(hx[5:7], 16) / 255, alpha)
 
     def _flow_band(x0: float, yb0: float, h0: float, x1: float, yb1: float, h1: float, color: str) -> None:
-        """Cubic Bezier sigmoid band connecting two vertical segments."""
         cx = (x0 + x1) / 2.0
         verts = [
             (x0, yb0),
             (cx, yb0),
             (cx, yb1),
-            (x1, yb1),  # bottom edge: cubic Bezier
+            (x1, yb1),
             (x1, yb1 + h1),
             (cx, yb1 + h1),
             (cx, yb0 + h0),
-            (x0, yb0 + h0),  # top edge: cubic Bezier
+            (x0, yb0 + h0),
             (x0, yb0),
         ]
         codes = [
@@ -198,17 +197,14 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
         ]
         ax.add_patch(PathPatch(MplPath(verts, codes), facecolor=_hex_rgba(color, 0.35), edgecolor="none", zorder=2))
 
-    # Left node — total provisioned
     _node(left_x, left_y0, prov_h, "#007DB8")
-    _label(left_x + node_w / 2, left_y0 + prov_h + 0.03, "Provisioned")
+    _label(left_x + node_w / 2, left_y0 + prov_h + 0.03, str(_i18n.t("chart.provisioned")))
     _label(left_x + node_w / 2, left_y0 - 0.04, f"{total_prov / 1024:.0f} GiB", size=6.0, va="top")
 
-    # Right node — total required
     _node(right_x, right_y0, req_h, "#40A8D8")
-    _label(right_x + node_w / 2, right_y0 + req_h + 0.03, "Required")
+    _label(right_x + node_w / 2, right_y0 + req_h + 0.03, str(_i18n.t("chart.required")))
     _label(right_x + node_w / 2, right_y0 - 0.04, f"{total_req / 1024:.0f} GiB", size=6.0, va="top")
 
-    # Mid nodes + Bezier flow bands
     cur_left_top = left_y0 + prov_h
     cur_right_top = right_y0 + req_h
 
@@ -243,8 +239,14 @@ def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500,
         cur_left_top -= seg_prov_h
         cur_right_top -= seg_req_h
 
-    # Render to PNG bytes and return as ReportLab Image
     buf = BytesIO()
     fig.savefig(buf, format="png", dpi=dpi, facecolor="white")
-    buf.seek(0)
-    return Image(buf, width=width_pt, height=height_pt)
+    return buf.getvalue()
+
+
+def make_sankey_image_flowable(summary: CalculationSummary, width_pt: int = 500, height_pt: int = 200) -> Flowable:
+    """Return a ReportLab Image with the provisioned→required Sankey, or an empty Spacer when no data."""
+    png = render_sankey_png(summary, width_pt=width_pt, height_pt=height_pt)
+    if png is None:
+        return Spacer(width_pt, 0)
+    return Image(BytesIO(png), width=width_pt, height=height_pt)

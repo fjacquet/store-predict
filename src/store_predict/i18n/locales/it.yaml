@@ -57,6 +57,7 @@ report:
   charts_heading: "Visualizzazioni dei dati"
   download_pdf: "Scarica report PDF"
   download_excel: "Scarica report Excel"
+  download_pptx: "Scarica PowerPoint"
   back_to_review: "Torna alla revisione"
   go_to_upload: "Vai al caricamento"
   upload_logo: "Carica logo aziendale"
@@ -318,6 +319,7 @@ tooltip:
   storage_model: "Seleziona la piattaforma storage Dell di destinazione — influisce sui coefficienti DRR"
   download_pdf: "Scarica un report di dimensionamento di una pagina in formato PDF"
   download_excel: "Scarica tutti i dati come cartella di lavoro Excel (4 fogli)"
+  download_pptx: "Scarica il report di dimensionamento come presentazione PowerPoint modificabile"
   upload_logo: "Aggiungi il logo della tua azienda all'intestazione del report PDF"
   max_ds_capacity: "Capacità grezza massima per datastore (TiB)"
   max_vms_per_ds: "Numero massimo di VM che possono condividere un datastore"
@@ -409,3 +411,12 @@ confidence:
   override: "Regola"
   semantic: "Semantica"
   default: "Predefinito"
+
+pptx:
+  exec_summary_heading: "Sintesi"
+  drr_story_heading: "Riduzione dei dati"
+  workload_mix_heading: "Distribuzione dei carichi"
+  recommendation_heading: "Raccomandazione"
+  appendix_heading: "Appendice"
+  provisioned: "Provisionato"
+  required: "Richiesto"

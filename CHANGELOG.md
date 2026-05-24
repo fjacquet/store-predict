@@ -2,6 +2,37 @@
 
 All notable changes to StorePredict are documented here.
 
+## [10.2.0] - 2026-05-24
+
+### Added
+
+- **PowerPoint (`.pptx`) export** on the report page, alongside PDF and Excel. A
+  hybrid deck: a concise customer-facing pitch (title, executive summary, DRR
+  story, workload mix, recommendation) plus a technical appendix (full breakdown
+  table, layout strategies, health findings, charts). Pie and bar charts are
+  native, editable PowerPoint charts; the Sankey is an embedded image. Branding
+  matches the PDF deliverable and reuses the company-logo upload. Localized in
+  EN/FR/DE/IT. New dependency: `python-pptx`. See
+  [ADR-086](adr/086-pptx-export.md).
+
+- **Editable custom datastore size** on the Layout page (Settings → Max DS
+  capacity) — enter any value (e.g. 10 TB), not just the six power-of-two
+  presets, which remain as one-click shortcuts.
+
+### Changed
+
+- **Removed the redundant step bar.** The numbered Upload → Scope → Review →
+  Report bar duplicated the header navigation (which already links every route);
+  the header nav is now the single navigation surface.
+
+- **Accessibility (WCAG AA).** Fixed the muted-chip contrast (now ≥ 4.5:1 via a
+  new `--sp-muted-strong` token) and added a `prefers-reduced-motion` media query
+  so transitions are near-instant for users who request reduced motion.
+
+### Security
+
+- Bumped `semantic-router` to `>=0.1.15` (CVE-2026-42208; 0.1.14 yanked —
+  unbounded litellm pin).
 ## [10.1.0] - 2026-05-23
 
 UI modernization and a four-language interface. No pipeline or sizing-logic changes —
