@@ -157,4 +157,8 @@ jobs:
           image: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
           severity-cutoff: high
           fail-build: true
+          # Only fail on High/Critical CVEs that HAVE a fix (an upgrade or a
+          # patched base image). Unfixable base-OS noise won't block the release;
+          # actionable issues (like the semantic-router CVE) still do.
+          only-fixed: true
           output-format: table
