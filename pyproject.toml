@@ -113,10 +113,6 @@ module = "xlsxwriter.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "litellm.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
 module = "semantic_router.*"
 ignore_missing_imports = true
 
