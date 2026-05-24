@@ -2,6 +2,22 @@
 
 All notable changes to StorePredict are documented here.
 
+## [11.0.2] - 2026-05-24
+
+### Changed
+
+- **Smaller, leaner Docker image (~740 MB → 633 MB).** The `Dockerfile` is now a
+  two-stage build: a builder installs dependencies and pre-fetches the FastEmbed
+  model, and the runtime stage copies only the virtualenv, the source, and the
+  model cache — so the ~49 MB `uv` binary and all build tooling no longer ship.
+- **litellm/tiktoken stripped from the runtime image.** semantic-router imports
+  them eagerly, but StorePredict only ever uses the local `FastEmbedEncoder`, so
+  the builder swaps the real packages for tiny stubs (`docker/stubs/`) and drops
+  the orphaned `fastuuid`. This removes ~58 MB **and litellm's CVE surface** from
+  the shipped image. `uv.lock` and the source SBOM are left untouched (the real
+  dependency tree stays honest); only the image swaps. A build-time import check
+  fails the build if a future semantic-router bump outgrows the stub surface.
+
 ## [11.0.1] - 2026-05-24
 
 ### Changed

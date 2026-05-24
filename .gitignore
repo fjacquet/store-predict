@@ -65,3 +65,7 @@ samples/
 
 # Playwright MCP screenshot/snapshot artifacts
 .playwright-mcp/
+
+# Generated SBOMs (produced by `uv export` / the release pipeline, not source)
+sbom*.json
+sbom*.xml
