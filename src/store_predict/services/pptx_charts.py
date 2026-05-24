@@ -56,6 +56,7 @@ _NAVY = RGBColor.from_string("3245B7")
 _DEEP = RGBColor.from_string("1E2761")
 _LIGHT = RGBColor.from_string("819AE9")
 _MUTED = RGBColor.from_string("64748B")
+_FONT = "Arial"  # standard deck font (matches pptx_report)
 
 
 def t(key: str, **kwargs: object) -> str:
@@ -97,6 +98,7 @@ def _by_category(summary: CalculationSummary) -> list[tuple[str, float, float, f
 
 def _style_axes(chart: Any, *, size: int = 9) -> None:
     """Shrink axis tick labels and mute gridlines for a cleaner look."""
+    chart.font.name = _FONT
     for axis_name in ("category_axis", "value_axis"):
         axis = getattr(chart, axis_name, None)
         if axis is None:
@@ -130,6 +132,7 @@ def add_workload_pie(slide: Slide, summary: CalculationSummary, x: Length, y: Le
     data.categories = [r[0] for r in rows]
     data.add_series("GiB", tuple(r[1] for r in rows))
     chart = slide.shapes.add_chart(XL_CHART_TYPE.DOUGHNUT, x, y, cx, cy, data).chart
+    chart.font.name = _FONT
     chart.has_legend = True
     chart.legend.position = XL_LEGEND_POSITION.RIGHT
     chart.legend.include_in_layout = False

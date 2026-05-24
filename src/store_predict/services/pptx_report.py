@@ -70,6 +70,7 @@ _WHITE = RGBColor.from_string("FFFFFF")
 _ICE = RGBColor.from_string("B0C2F9")  # light-blue on navy
 _RED = RGBColor.from_string("DF202E")
 _ORANGE = RGBColor.from_string("EF8700")
+_FONT = "Arial"  # standard deck font (overrides the PowerPoint default)
 
 _DATE = datetime.now(tz=UTC).strftime("%Y-%m-%d")
 
@@ -96,6 +97,13 @@ def _no_line_no_shadow(shape: Any) -> None:
     shape.shadow.inherit = False
 
 
+def _apply_font(run: Any, *, size: int, bold: bool = False, color: RGBColor = _INK) -> None:
+    run.font.name = _FONT
+    run.font.size = Pt(size)
+    run.font.bold = bold
+    run.font.color.rgb = color
+
+
 def _add_header_band(slide: Slide, heading: str) -> None:
     """Navy band across the top with a white heading and a gold bottom rule."""
     band = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), _SLIDE_W, _BAND_H)
@@ -108,9 +116,7 @@ def _add_header_band(slide: Slide, heading: str) -> None:
     p = tf.paragraphs[0]
     run = p.add_run()
     run.text = heading
-    run.font.size = Pt(26)
-    run.font.bold = True
-    run.font.color.rgb = _WHITE
+    _apply_font(run, size=26, bold=True, color=_WHITE)
     rule = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), _BAND_H, _SLIDE_W, Inches(0.05))
     rule.fill.solid()
     rule.fill.fore_color.rgb = _GOLD
@@ -127,8 +133,7 @@ def _add_footer(slide: Slide, project_name: str, *, on_dark: bool = False) -> No
     p = tf.paragraphs[0]
     run = p.add_run()
     run.text = "  ·  ".join(parts)
-    run.font.size = Pt(9)
-    run.font.color.rgb = _ICE if on_dark else _MUTED
+    _apply_font(run, size=9, color=_ICE if on_dark else _MUTED)
 
 
 def _add_text(
@@ -151,9 +156,7 @@ def _add_text(
     p.alignment = align
     run = p.add_run()
     run.text = text
-    run.font.size = Pt(size)
-    run.font.bold = bold
-    run.font.color.rgb = color
+    _apply_font(run, size=size, bold=bold, color=color)
 
 
 def _stat_card(
@@ -197,14 +200,11 @@ def _stat_card(
     p_label = tf.paragraphs[0]
     r_label = p_label.add_run()
     r_label.text = label
-    r_label.font.size = Pt(11)
-    r_label.font.color.rgb = _ICE if dark else _MUTED
+    _apply_font(r_label, size=11, color=_ICE if dark else _MUTED)
     p_value = tf.add_paragraph()
     r_value = p_value.add_run()
     r_value.text = value
-    r_value.font.size = Pt(value_pt)
-    r_value.font.bold = True
-    r_value.font.color.rgb = _GOLD if dark else _INK
+    _apply_font(r_value, size=value_pt, bold=True, color=_GOLD if dark else _INK)
 
 
 def _card_grid(
@@ -380,9 +380,7 @@ def _add_table(
                 para.alignment = PP_ALIGN.RIGHT
             run = para.add_run()
             run.text = rows[r][c]
-            run.font.size = Pt(12 if r == 0 else 11)
-            run.font.bold = r == 0
-            run.font.color.rgb = _WHITE if r == 0 else _INK
+            _apply_font(run, size=12 if r == 0 else 11, bold=r == 0, color=_WHITE if r == 0 else _INK)
 
 
 def _slide_breakdown_table(prs: Any, summary: CalculationSummary) -> None:

@@ -2,7 +2,7 @@
 
 All notable changes to StorePredict are documented here.
 
-## [10.3.1] - 2026-05-24
+## [11.0.0] - 2026-05-24
 
 ### Changed
 
@@ -15,6 +15,8 @@ All notable changes to StorePredict are documented here.
   `Database` / `File` / `VDI` labels — and storage KPIs use a single compact
   unit. CPU/RAM KPI cards are hidden when those columns are absent from the
   source export (so the deck never shows bare zeros).
+- The deck now uses **Arial** throughout (slides and charts) — the standard
+  presentation font — instead of the PowerPoint default.
 
 ### Internal
 
