@@ -70,7 +70,8 @@ _WHITE = RGBColor.from_string("FFFFFF")
 _ICE = RGBColor.from_string("B0C2F9")  # light-blue on navy
 _RED = RGBColor.from_string("DF202E")
 _ORANGE = RGBColor.from_string("EF8700")
-_FONT = "Arial"  # standard deck font (overrides the PowerPoint default)
+_FONT = "Arial"  # standard deck font (text, labels, headings, tables)
+_MONO = "Consolas"  # monospace for numerals (KPI/stat values) — the on-screen idiom
 
 _DATE = datetime.now(tz=UTC).strftime("%Y-%m-%d")
 
@@ -97,8 +98,8 @@ def _no_line_no_shadow(shape: Any) -> None:
     shape.shadow.inherit = False
 
 
-def _apply_font(run: Any, *, size: int, bold: bool = False, color: RGBColor = _INK) -> None:
-    run.font.name = _FONT
+def _apply_font(run: Any, *, size: int, bold: bool = False, color: RGBColor = _INK, mono: bool = False) -> None:
+    run.font.name = _MONO if mono else _FONT
     run.font.size = Pt(size)
     run.font.bold = bold
     run.font.color.rgb = color
@@ -204,7 +205,7 @@ def _stat_card(
     p_value = tf.add_paragraph()
     r_value = p_value.add_run()
     r_value.text = value
-    _apply_font(r_value, size=value_pt, bold=True, color=_GOLD if dark else _INK)
+    _apply_font(r_value, size=value_pt, bold=True, color=_GOLD if dark else _INK, mono=True)
 
 
 def _card_grid(
@@ -357,6 +358,7 @@ def _add_table(
     height: Any,
     *,
     numeric_from_col: int = 1,
+    col_widths: list[float] | None = None,
 ) -> None:
     """Add a styled table: navy header, zebra body rows, right-aligned numerics."""
     n_rows = len(rows)
@@ -365,6 +367,9 @@ def _add_table(
     table = gf.table
     table.first_row = False
     table.horz_banding = False
+    if col_widths is not None:
+        for i, w in enumerate(col_widths):
+            table.columns[i].width = Inches(w)
     for r in range(n_rows):
         for c in range(n_cols):
             cell = table.cell(r, c)
@@ -438,23 +443,23 @@ def _slide_findings(prs: Any, health_result: HealthCheckResult) -> None:
 
     slide = _new_slide(prs)
     _add_header_band(slide, t("pdf.findings_summary_heading"))
-    counts = {sev: sum(1 for f in health_result.findings if f.severity == sev) for sev in Severity}
-    cards: list[tuple[str, str, RGBColor]] = [
-        (t("pdf.findings_severity_critical"), str(counts.get(Severity.CRITICAL, 0)), _RED),
-        (t("pdf.findings_severity_warning"), str(counts.get(Severity.WARNING, 0)), _ORANGE),
-        (t("pdf.findings_severity_info"), str(counts.get(Severity.INFO, 0)), _PRIMARY),
+    order = {Severity.CRITICAL: 0, Severity.WARNING: 1, Severity.INFO: 2}
+    findings = sorted(health_result.findings, key=lambda f: (order.get(f.severity, 3), f.check_id))
+    rows: list[list[str]] = [
+        [t("pdf.findings_col_severity"), t("pdf.findings_col_finding"), t("pdf.findings_col_count")]
     ]
-    _card_grid(slide, cards, top=Inches(1.8), n_cols=3, card_h=Inches(1.8))
-    total = sum(counts.values())
-    _add_text(
+    rows.extend(
+        [t(f"pdf.findings_severity_{f.severity}"), t(f.title), f"{f.affected_count:,}"] for f in findings
+    )
+    _add_table(
         slide,
-        t("pdf.findings_col_count") + f": {total}",
+        rows,
         _MARGIN,
-        Inches(4.1),
+        _BODY_TOP,
         _CONTENT_W,
-        Inches(0.5),
-        size=14,
-        color=_MUTED,
+        Inches(5.4),
+        numeric_from_col=2,
+        col_widths=[2.0, 8.233, 2.0],
     )
     _add_footer(slide, "")
 
