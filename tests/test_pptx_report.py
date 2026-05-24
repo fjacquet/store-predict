@@ -183,3 +183,19 @@ class TestPptxRobustness:
         summary = _make_summary([("Virtual Machines", 1, 10240.0, 5.0)])
         result = generate_report_pptx(summary, "X", company_logo_bytes=png)
         assert result[:4] == b"PK\x03\x04"
+
+
+class TestPptxFont:
+    def test_all_text_runs_use_arial(self) -> None:
+        summary = _make_summary([("Database/Microsoft SQL", 3, 30720.0, 5.0), ("Virtual Machines", 2, 10240.0, 5.0)])
+        prs = Presentation(BytesIO(generate_report_pptx(summary, "X", locale="fr")))
+        fonts: set[str | None] = set()
+        for slide in prs.slides:
+            for shape in slide.shapes:
+                if shape.has_text_frame:
+                    fonts.update(r.font.name for p in shape.text_frame.paragraphs for r in p.runs)
+                if shape.has_table:
+                    for row in shape.table.rows:
+                        for cell in row.cells:
+                            fonts.update(r.font.name for p in cell.text_frame.paragraphs for r in p.runs)
+        assert fonts == {"Arial"}

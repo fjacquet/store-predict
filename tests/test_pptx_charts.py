@@ -37,12 +37,20 @@ def _blank_slide():
     return prs.slides.add_slide(prs.slide_layouts[6])
 
 
-def test_add_workload_pie_adds_pie_chart() -> None:
+def test_add_workload_pie_adds_doughnut_chart() -> None:
     slide = _blank_slide()
     pptx_charts.add_workload_pie(slide, _make_summary(), Inches(1), Inches(1), Inches(5), Inches(4))
     charts = [s.chart for s in slide.shapes if s.has_chart]
     assert len(charts) == 1
-    assert charts[0].chart_type == XL_CHART_TYPE.PIE
+    assert charts[0].chart_type == XL_CHART_TYPE.DOUGHNUT
+
+
+def test_add_capacity_bar_adds_bar_chart() -> None:
+    slide = _blank_slide()
+    pptx_charts.add_capacity_bar(slide, _make_summary(), Inches(1), Inches(1), Inches(5), Inches(4))
+    charts = [s.chart for s in slide.shapes if s.has_chart]
+    assert len(charts) == 1
+    assert charts[0].chart_type == XL_CHART_TYPE.BAR_CLUSTERED
 
 
 def test_add_drr_bar_adds_column_chart() -> None:
@@ -65,6 +73,7 @@ def test_chart_builders_noop_on_empty_summary() -> None:
     empty = CalculationSummary([], [], 0, 0.0, 0.0, 0.0, 0.0)
     slide = _blank_slide()
     pptx_charts.add_workload_pie(slide, empty, Inches(1), Inches(1), Inches(5), Inches(4))
+    pptx_charts.add_capacity_bar(slide, empty, Inches(1), Inches(1), Inches(5), Inches(4))
     pptx_charts.add_drr_bar(slide, empty, Inches(1), Inches(1), Inches(5), Inches(4))
     pptx_charts.add_before_after_bar(slide, empty, Inches(1), Inches(1), Inches(5), Inches(4))
     assert not any(s.has_chart for s in slide.shapes)
