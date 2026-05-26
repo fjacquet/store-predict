@@ -211,8 +211,8 @@ def _sum_per_vm(
         series = (
             pd.to_numeric(sdf[col_map[col]], errors="coerce").fillna(0.0) if col_map.get(col) else pd.Series([0.0] * n)
         )
-        by_uuid[col] = series.groupby(uuid).sum().to_dict()
-        by_name[col] = series.groupby(name).sum().to_dict()
+        by_uuid[col] = {str(k): float(v) for k, v in series.groupby(uuid).sum().items()}
+        by_name[col] = {str(k): float(v) for k, v in series.groupby(name).sum().items()}
     return by_uuid, by_name
 
 
