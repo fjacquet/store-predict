@@ -2,7 +2,7 @@
 
 All notable changes to StorePredict are documented here.
 
-## [Unreleased]
+## [11.0.3] - 2026-05-26
 
 ### Fixed
 
