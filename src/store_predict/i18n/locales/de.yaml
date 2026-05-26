@@ -13,6 +13,7 @@ upload:
   processing: "Datei wird verarbeitet, bitte warten..."
   analyse_button: "Analysieren"
   merge_summary: "%{total} VMs zusammengeführt (%{matched} übereinstimmend, %{rv_only} nur RVTools, %{lo_only} nur LiveOptics)"
+  vsan_capacity_basis: "vSAN auf %{vsan} VMs erkannt — Kapazität aus der Gast-Sicht berechnet (ohne FTT-/Spiegel-Overhead, inkl. eingebundener Volumes): %{provisioned} TiB bereitgestellt statt %{raw} TiB (RVTools-Rohwert). %{fallback} VMs ohne Gastdaten behalten den RVTools-Wert."
   format_conflict: "Beide Dateien haben dasselbe Format. Bitte eine RVTools- und eine LiveOptics-Datei hochladen."
   file_ready: "%{name} bereit (%{fmt})"
 

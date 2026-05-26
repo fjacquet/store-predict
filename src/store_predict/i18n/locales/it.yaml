@@ -13,6 +13,7 @@ upload:
   processing: "Elaborazione del file in corso, attendere prego..."
   analyse_button: "Analizza"
   merge_summary: "%{total} VM unite (%{matched} corrispondenti, %{rv_only} solo RVTools, %{lo_only} solo LiveOptics)"
+  vsan_capacity_basis: "vSAN rilevato su %{vsan} VM — capacità calcolata dalla vista guest (senza overhead FTT/mirror, inclusi i volumi montati): %{provisioned} TiB di provisioning contro %{raw} TiB (valore grezzo RVTools). %{fallback} VM senza dati guest mantengono il valore RVTools."
   format_conflict: "Entrambi i file hanno lo stesso formato. Caricare un file RVTools e un file LiveOptics."
   file_ready: "%{name} pronto (%{fmt})"
 

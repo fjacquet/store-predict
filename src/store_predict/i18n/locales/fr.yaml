@@ -13,6 +13,7 @@ upload:
   processing: "Traitement du fichier en cours, veuillez patienter..."
   analyse_button: "Analyser"
   merge_summary: "%{total} VMs fusionnées (%{matched} correspondantes, %{rv_only} RVTools uniquement, %{lo_only} LiveOptics uniquement)"
+  vsan_capacity_basis: "vSAN détecté sur %{vsan} VMs — capacité calculée depuis la vue invité (sans surcharge FTT/miroir, volumes montés inclus) : %{provisioned} Tio provisionnés contre %{raw} Tio (valeur brute RVTools). %{fallback} VMs sans données invité ont conservé la valeur RVTools."
   format_conflict: "Les deux fichiers ont le même format. Veuillez téléverser un fichier RVTools et un fichier LiveOptics."
   file_ready: "%{name} prêt (%{fmt})"
 

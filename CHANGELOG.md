@@ -2,6 +2,22 @@
 
 All notable changes to StorePredict are documented here.
 
+## [Unreleased]
+
+### Fixed
+
+- **Accurate vSAN capacity sizing from RVTools.** RVTools `vInfo` capacity is a
+  vCenter datastore-level figure that, on vSAN, includes FTT/mirror overhead
+  (over-sizing ≈2×) yet misses guest-mounted volumes such as Kubernetes
+  persistent volumes (under-sizing those VMs). StorePredict now recomputes RVTools
+  `provisioned` / `in_use` from the FTT-free, mount-aware **guest-level** view —
+  `max(Σ vPartition.Capacity, Σ vDisk.Capacity / Total disk capacity)` for
+  provisioned and `Σ vPartition.Consumed` for used — falling back to the raw
+  `vInfo` value only when a VM has no guest or disk data. Validated against a real
+  Dell Live Optics deck: reproduces its provisioned total within 0.8% and used
+  within 0.3%, while being correct per VM. Non-vSAN and LiveOptics inputs are
+  unchanged. An upload notice and INFO log surface the adjustment. See ADR-088.
+
 ## [11.0.2] - 2026-05-24
 
 ### Changed

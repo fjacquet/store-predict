@@ -62,12 +62,18 @@ RVTOOLS_ALIASES: dict[str, list[str]] = {
     "memory_mib": ["Memory", "Memory MB", "Memory MiB"],
     "provisioned_mib": ["Provisioned MB", "Provisioned MiB"],
     "in_use_mib": ["In Use MB", "In Use MiB"],
+    # Optional: sum of VMDK provisioned sizes (FTT-free). Newer RVTools only;
+    # used by the guest-level capacity basis, not part of the canonical schema.
+    "total_disk_capacity_mib": ["Total disk capacity MiB", "Total disk capacity MB"],
     "datacenter": ["Datacenter"],
     "cluster": ["Cluster"],
     "vm_description": ["Annotation", "Notes"],
     "vm_folder": ["Folder", "VM Folder", "Path"],
     "hw_version": ["HW version", "Hardware version", "HW Version"],
     "tools_status": ["Tools Status", "VMware Tools Status"],
+    # Optional join key + home-datastore path for the guest-level capacity basis.
+    "vm_uuid": ["VM UUID"],
+    "vm_path": ["Path"],
 }
 
 LIVEOPTICS_ALIASES: dict[str, list[str]] = {
@@ -107,6 +113,32 @@ LIVEOPTICS_VM_DISKS_ALIASES: dict[str, list[str]] = {
 }
 
 REQUIRED_LIVEOPTICS_VM_DISKS_COLUMNS: set[str] = {"capacity_mib"}
+
+# --- RVTools secondary sheets, used by the guest-level capacity basis ---
+# vDisk: per-disk VMDK logical capacity (FTT-free). Column name is "Capacity MiB"
+# in RVTools 4.x, "Capacity MB" in older versions.
+RVTOOLS_VDISK_ALIASES: dict[str, list[str]] = {
+    "vm_uuid": ["VM UUID"],
+    "vm_name": ["VM"],
+    "capacity_mib": ["Capacity MiB", "Capacity MB"],
+}
+REQUIRED_RVTOOLS_VDISK_COLUMNS: set[str] = {"capacity_mib"}
+
+# vPartition: guest-filesystem capacity/used (FTT-free, captures mounted volumes).
+RVTOOLS_VPARTITION_ALIASES: dict[str, list[str]] = {
+    "vm_uuid": ["VM UUID"],
+    "vm_name": ["VM"],
+    "capacity_mib": ["Capacity MiB", "Capacity MB"],
+    "consumed_mib": ["Consumed MiB", "Consumed MB"],
+}
+REQUIRED_RVTOOLS_VPARTITION_COLUMNS: set[str] = {"capacity_mib"}
+
+# vDatastore: used only to count VMs on vSAN datastores for the user-facing notice.
+RVTOOLS_VDATASTORE_ALIASES: dict[str, list[str]] = {
+    "name": ["Name"],
+    "type": ["Type"],
+}
+REQUIRED_RVTOOLS_VDATASTORE_COLUMNS: set[str] = {"name", "type"}
 
 
 def resolve_columns(
