@@ -91,3 +91,4 @@ ADRs document key technical decisions made during StorePredict development.
 | [085](085-curated-self-learning-exemplars.md) | Curated exemplars + in-memory same-file self-learning for semantic router | Accepted | 2026-05-23 |
 | [086](086-pptx-export.md) | PowerPoint (PPTX) export | Accepted | 2026-05-23 |
 | [087](087-remove-llm-tier.md) | Remove the dormant LLM classification tier | Accepted | 2026-05-24 |
+| [088](088-rvtools-guest-level-capacity.md) | RVTools capacity from the guest-level view (FTT-free, mount-aware) | Accepted | 2026-05-26 |

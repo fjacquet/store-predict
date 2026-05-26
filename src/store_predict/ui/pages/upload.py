@@ -314,6 +314,24 @@ async def upload_page() -> None:
                                 timeout=8000,
                             )
 
+                # Surface the RVTools guest-level capacity adjustment (vSAN: FTT-free,
+                # mount-aware). Only shown when vSAN VMs are present, since that is when
+                # the datastore figure would otherwise be FTT-inflated.
+                cap_info = df.attrs.get("rvtools_capacity_info")
+                if cap_info is not None and cap_info.vsan_vm_count > 0:
+                    with upload_widget:
+                        ui.notify(
+                            t(
+                                "upload.vsan_capacity_basis",
+                                vsan=cap_info.vsan_vm_count,
+                                provisioned=round(cap_info.post_provisioned_mib / 1024 / 1024, 1),
+                                raw=round(cap_info.pre_provisioned_mib / 1024 / 1024, 1),
+                                fallback=cap_info.fallback_count,
+                            ),
+                            type="info",
+                            timeout=10000,
+                        )
+
                 progress.value = 0.3
                 await _run_pipeline(df, _tab, _project_name)
 
