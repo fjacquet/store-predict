@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-05-26
-**Milestone:** maincd — vSAN sizing fidelity
+**Milestone:** main — vSAN sizing fidelity
 
 ## Context
 

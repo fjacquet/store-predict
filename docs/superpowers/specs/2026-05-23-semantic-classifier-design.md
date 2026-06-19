@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-23
 **Status:** Draft — pending user review
-**Branch:** `feat/semantic-classifier-v10` (cut from `maincd` @ `90eb6fc`)
+**Branch:** `feat/semantic-classifier-v10` (cut from `main` @ `90eb6fc`)
 **Supersedes / relates to:** ADR-081 (app-aware rules), the LLM classification fallback (ADR for `llm_classifier`)
 
 ## 1. Problem & Goal
@@ -18,7 +18,7 @@ ever-growing regex list), fully offline, and cheaper/faster than the LLM path �
 regressing the real-customer baseline.
 
 This is shipped as a **breaking major version (v10.0.0)** on a dedicated branch. The real-customer
-baseline test is the **merge gate** before anything reaches `maincd`.
+baseline test is the **merge gate** before anything reaches `main`.
 
 ## 2. End-State Cascade
 
@@ -141,7 +141,7 @@ Re-run whenever exemplars change.
 ## 8. Testing Strategy
 
 - **Baseline is the merge gate:** `tests/test_real_customer_baseline.py` must not regress, and
-  should ideally lower the Unknown rate. Go/no-go for merging to `maincd`.
+  should ideally lower the Unknown rate. Go/no-go for merging to `main`.
 - **Real encoder, no mocks** (project convention): semantic tests run real FastEmbed on small
   canned exemplars. The model is pre-cached in CI via the same bake step as Docker, so tests are
   offline; mark them `slow` if needed.
@@ -153,7 +153,7 @@ Re-run whenever exemplars change.
 ## 9. Versioning, Branch & Docs
 
 - **v10.0.0** — breaking (classifier behavior change; LLM no longer in the active path).
-- **Branch:** `feat/semantic-classifier-v10` off `maincd` @ `90eb6fc` (post-#22 merge). Not stacked
+- **Branch:** `feat/semantic-classifier-v10` off `main` @ `90eb6fc` (post-#22 merge). Not stacked
   on the old LLM-fix branch.
 - **ADRs:** (a) "Semantic-router as primary classifier"; (b) "FastEmbed offline encoder";
   (c) "Retire LLM classification fallback from active pipeline (kept dormant)"; (d) "Curated +
