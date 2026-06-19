@@ -1475,7 +1475,7 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>"
 - Modify: `CHANGELOG.md`
 - Modify: `pyproject.toml` (version)
 
-> **Version note:** This feature is a new minor release. The release branch/PR `release/v10.1.0` (PR #26) is the next tagged release. If `v10.1.0` has been merged when this task runs, bump to `10.2.0`. If not yet merged, still use `10.2.0` and resolve the trivial `pyproject.toml`/`CHANGELOG.md` conflict at merge time (this branch will rebase onto the released `maincd`). Confirm the current released version with `rtk git tag --sort=-creatordate | head -3` before choosing the number.
+> **Version note:** This feature is a new minor release. The release branch/PR `release/v10.1.0` (PR #26) is the next tagged release. If `v10.1.0` has been merged when this task runs, bump to `10.2.0`. If not yet merged, still use `10.2.0` and resolve the trivial `pyproject.toml`/`CHANGELOG.md` conflict at merge time (this branch will rebase onto the released `main`). Confirm the current released version with `rtk git tag --sort=-creatordate | head -3` before choosing the number.
 
 - [ ] **Step 1: Write the ADR**
 

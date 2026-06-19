@@ -82,7 +82,7 @@
 
 **CI Pipeline:**
 - GitHub Actions - Two workflows:
-  1. **ci.yml** - Runs on push/PR to `maincd` branch
+  1. **ci.yml** - Runs on push/PR to `main` branch
      - Lint: `ruff check --fix` + `ruff format`
      - Type check: `mypy src/`
      - Test: `pytest --cov=store_predict`

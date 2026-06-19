@@ -116,7 +116,7 @@
 
 **CI/CD:**
 - GitHub Actions - Two workflows:
-  - `ci.yml` - Lint, type-check, test, upload coverage to Codecov (pushes to `maincd` branch)
+  - `ci.yml` - Lint, type-check, test, upload coverage to Codecov (pushes to `main` branch)
   - `docs.yml` - Deploy MkDocs to GitHub Pages on version tag (`v*`)
 
 ---
