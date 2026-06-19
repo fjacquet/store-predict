@@ -57,7 +57,10 @@ security:  ## Semgrep SAST (advisory; non-blocking — CodeQL/osv are the blocki
 	uvx semgrep scan --config auto --skip-unknown-extensions || true
 
 docs: ## Build MkDocs documentation strict mode to site/ (fjacquet/ci standard)
-	uv run mkdocs build --strict --site-dir site
+	# --extra docs self-provisions mkdocs-material: the central mkdocs-publish
+	# action runs `make docs` WITHOUT a prior `make install`, and mkdocs lives in
+	# the `docs` optional-dependencies extra (uv does not auto-sync extras).
+	uv run --extra docs mkdocs build --strict --site-dir site
 
 coverage-upload: ## Upload coverage.xml to Codecov (fjacquet/ci standard)
 	uvx --from codecov-cli codecov upload-process --file coverage.xml || true
