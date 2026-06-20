@@ -65,4 +65,4 @@ nav:
   - ADR: adr/index.md
 
 extra:
-  version: v11.0.4
+  version: v11.1.0
