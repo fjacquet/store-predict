@@ -4,7 +4,7 @@
 # Everything here (uv binary, build cruft) is discarded; only what we COPY into
 # the runtime stage ships. This is what drops the ~49 MB uv binary from the
 # final image.
-FROM python:3.12-slim AS builder
+FROM python:3.13-slim AS builder
 
 # uv is needed only to build the virtualenv; it stays in this throwaway stage.
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
@@ -37,7 +37,7 @@ RUN .venv/bin/python -c "from fastembed import TextEmbedding; TextEmbedding('BAA
 # dependency metadata (uv.lock / SBOM) is left untouched — only the image swaps.
 COPY docker/stubs/ /tmp/stubs/
 RUN set -eux; \
-    SITE=.venv/lib/python3.12/site-packages; \
+    SITE=.venv/lib/python3.13/site-packages; \
     rm -rf "$SITE"/litellm "$SITE"/litellm-*.dist-info \
            "$SITE"/tiktoken "$SITE"/tiktoken-*.dist-info \
            "$SITE"/fastuuid*; \
@@ -47,9 +47,9 @@ RUN set -eux; \
     .venv/bin/python -c "import litellm, tiktoken; from semantic_router import Route; from semantic_router.encoders import FastEmbedEncoder; from semantic_router.routers import SemanticRouter; from semantic_router.schema import RouteChoice; print('stub swap verified — semantic_router imports OK without real litellm/tiktoken')"
 
 # ── Stage 2: runtime — Python, the venv, the code, and the model only ─────────
-# Same python:3.12-slim base as the builder, so the venv's interpreter symlink
-# (/usr/local/bin/python3.12) and onnxruntime's .so files resolve identically.
-FROM python:3.12-slim
+# Same python:3.13-slim base as the builder, so the venv's interpreter symlink
+# (/usr/local/bin/python3.13) and onnxruntime's .so files resolve identically.
+FROM python:3.13-slim
 
 # Non-root user created before any files land — no chown -R layer needed.
 RUN useradd --uid 1000 --create-home --shell /bin/bash appuser
