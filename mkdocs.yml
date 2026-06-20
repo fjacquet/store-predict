@@ -63,3 +63,6 @@ nav:
   - Changelog: changelog.md
   - Research: research/index.md
   - ADR: adr/index.md
+
+extra:
+  version: v11.0.4
