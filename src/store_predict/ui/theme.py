@@ -37,6 +37,13 @@ _FONT_FACES = "".join(
     for weight in (400, 500)
 )
 
+_FAVICON_LINKS = """\
+<link rel="icon" type="image/png" sizes="32x32" href="/public/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="256x256" href="/public/favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/public/apple-touch-icon.png">
+"""
+
 _STYLESHEET = f"""
 <style>
 {_FONT_FACES}
@@ -180,6 +187,7 @@ def apply_theme() -> None:
     """
     global _styles_registered
     if not _styles_registered:
+        ui.add_head_html(_FAVICON_LINKS, shared=True)
         ui.add_head_html(_STYLESHEET, shared=True)
         _styles_registered = True
     ui.colors(
