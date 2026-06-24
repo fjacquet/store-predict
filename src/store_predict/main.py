@@ -77,7 +77,12 @@ def main() -> None:
     if _PUBLIC_DIR.is_dir():
         app.add_static_files("/public", str(_PUBLIC_DIR))
     storage_secret, is_dev = _resolve_storage_secret()
-    favicon = str(_PUBLIC_DIR / "favicon.png") if (_PUBLIC_DIR / "favicon.png").exists() else str(_PUBLIC_DIR / "favicon.svg") if (_PUBLIC_DIR / "favicon.svg").exists() else None
+    favicon: str | None = None
+    for _icon_name in ("favicon.png", "favicon.svg"):
+        _icon_path = _PUBLIC_DIR / _icon_name
+        if _icon_path.exists():
+            favicon = str(_icon_path)
+            break
     ui.run(
         title=APP_TITLE,
         port=APP_PORT,
