@@ -14,7 +14,7 @@ dependencies = [
     "reportlab>=4.0",
     "python-i18n[YAML]>=0.3.9",
     "xlsxwriter>=3.2.9",
-    "pillow>=12.2.0",
+    "pillow>=12.3.0",
     "matplotlib>=3.8",
     "python-pptx>=1.0,<2.0",
     "semantic-router>=0.1.15,<0.2.0",  # >=0.1.15: CVE-2026-42208 (0.1.14 yanked: unbounded litellm pin)
