@@ -417,9 +417,7 @@ def _make_summary() -> CalculationSummary:
         WorkloadGroupResult("Database/Microsoft SQL", 3, 30720.0, 18432.0, 5.0, 6144.0),
         WorkloadGroupResult("Virtual Machines", 2, 10240.0, 6144.0, 5.0, 2048.0),
     ]
-    vm_calcs = [
-        VMCalculation(f"VM-{i}", "Virtual Machines", 5120.0, 3072.0, 5.0, 1024.0) for i in range(5)
-    ]
+    vm_calcs = [VMCalculation(f"VM-{i}", "Virtual Machines", 5120.0, 3072.0, 5.0, 1024.0) for i in range(5)]
     return CalculationSummary(
         vm_calculations=vm_calcs,
         workload_groups=groups,
@@ -522,9 +520,7 @@ _NAVY = RGBColor.from_string("1E3A5F")
 _LIGHT_BLUE = RGBColor.from_string("40A8D8")
 
 
-def add_workload_pie(
-    slide: Slide, summary: CalculationSummary, x: Length, y: Length, cx: Length, cy: Length
-) -> None:
+def add_workload_pie(slide: Slide, summary: CalculationSummary, x: Length, y: Length, cx: Length, cy: Length) -> None:
     """Add an editable pie chart of provisioned capacity per workload category."""
     if not summary.workload_groups:
         return
@@ -541,9 +537,7 @@ def add_workload_pie(
         point.format.fill.fore_color.rgb = _PALETTE[idx % len(_PALETTE)]
 
 
-def add_drr_bar(
-    slide: Slide, summary: CalculationSummary, x: Length, y: Length, cx: Length, cy: Length
-) -> None:
+def add_drr_bar(slide: Slide, summary: CalculationSummary, x: Length, y: Length, cx: Length, cy: Length) -> None:
     """Add an editable column chart of average DRR per workload category."""
     if not summary.workload_groups:
         return
@@ -576,9 +570,7 @@ def add_before_after_bar(
     chart.series[1].format.fill.fore_color.rgb = _LIGHT_BLUE
 
 
-def add_sankey_picture(
-    slide: Slide, summary: CalculationSummary, x: Length, y: Length, cx: Length, cy: Length
-) -> None:
+def add_sankey_picture(slide: Slide, summary: CalculationSummary, x: Length, y: Length, cx: Length, cy: Length) -> None:
     """Embed the provisioned→required Sankey as a picture. No-op when there is no data."""
     # width_pt/height_pt only set the render aspect ratio; the picture is sized to (cx, cy).
     png = render_sankey_png(summary, width_pt=640, height_pt=240)
@@ -907,7 +899,9 @@ def _add_kpi_tile(slide: Slide, label: str, value: str, left: Inches, top: Inche
 def _slide_title(prs: Presentation, project_name: str, company_logo_bytes: bytes | None) -> None:
     slide = _new_blank_slide(prs)
     _add_header_band(slide, t("pdf.report_title"))
-    _add_text(slide, project_name, Inches(0.6), Inches(2.6), Inches(12), Inches(1), size=40, bold=True, color=_BRAND_NAVY)
+    _add_text(
+        slide, project_name, Inches(0.6), Inches(2.6), Inches(12), Inches(1), size=40, bold=True, color=_BRAND_NAVY
+    )
     date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
     _add_text(slide, date_str, Inches(0.6), Inches(3.6), Inches(12), Inches(0.6), size=18)
     if company_logo_bytes:
@@ -996,9 +990,7 @@ Append to `tests/test_pptx_report.py`:
 ```python
 class TestMainDeck:
     def test_main_deck_has_charts_and_recommendation(self) -> None:
-        summary = _make_summary(
-            [("Database/Microsoft SQL", 3, 30720.0, 5.0), ("Virtual Machines", 2, 10240.0, 5.0)]
-        )
+        summary = _make_summary([("Database/Microsoft SQL", 3, 30720.0, 5.0), ("Virtual Machines", 2, 10240.0, 5.0)])
         prs = Presentation(BytesIO(generate_report_pptx(summary, "X", locale="en")))
         # title + exec + drr-story + workload-mix + recommendation = 5 main slides
         assert len(prs.slides) >= 5
@@ -1045,21 +1037,25 @@ def _slide_workload_mix(prs: Presentation, summary: CalculationSummary) -> None:
     pptx_charts.add_workload_pie(slide, summary, Inches(0.6), Inches(1.3), Inches(12), Inches(5.6))
 
 
-def _slide_recommendation(prs: Presentation, summary: CalculationSummary, health_result: HealthCheckResult | None) -> None:
+def _slide_recommendation(
+    prs: Presentation, summary: CalculationSummary, health_result: HealthCheckResult | None
+) -> None:
     from store_predict.pipeline.health_checks import Severity
 
     slide = _new_blank_slide(prs)
     _add_header_band(slide, t("pptx.recommendation_heading"))
     _add_kpi_tile(
-        slide, t("stats.required_capacity"), format_storage(summary.total_required_mib), Inches(0.6), Inches(2.0), Inches(5)
+        slide,
+        t("stats.required_capacity"),
+        format_storage(summary.total_required_mib),
+        Inches(0.6),
+        Inches(2.0),
+        Inches(5),
     )
     if health_result is not None and health_result.has_data and health_result.findings:
         n_crit = sum(1 for f in health_result.findings if f.severity == Severity.CRITICAL)
         n_warn = sum(1 for f in health_result.findings if f.severity == Severity.WARNING)
-        lines = (
-            f"{t('pdf.findings_severity_critical')}: {n_crit}    "
-            f"{t('pdf.findings_severity_warning')}: {n_warn}"
-        )
+        lines = f"{t('pdf.findings_severity_critical')}: {n_crit}    {t('pdf.findings_severity_warning')}: {n_warn}"
         _add_text(slide, lines, Inches(0.6), Inches(4.2), Inches(11), Inches(0.8), size=18)
 ```
 
@@ -1349,8 +1345,20 @@ def test_pptx_handler_produces_pptx_bytes() -> None:
     from store_predict.services.pptx_report import generate_report_pptx
 
     rows = [
-        {"vm_name": "SQL01", "workload_category": "Database/Microsoft SQL", "provisioned_mib": 20480.0, "in_use_mib": 12288.0, "drr": 5.0},
-        {"vm_name": "WEB01", "workload_category": "Virtual Machines", "provisioned_mib": 10240.0, "in_use_mib": 6144.0, "drr": 5.0},
+        {
+            "vm_name": "SQL01",
+            "workload_category": "Database/Microsoft SQL",
+            "provisioned_mib": 20480.0,
+            "in_use_mib": 12288.0,
+            "drr": 5.0,
+        },
+        {
+            "vm_name": "WEB01",
+            "workload_category": "Virtual Machines",
+            "provisioned_mib": 10240.0,
+            "in_use_mib": 6144.0,
+            "drr": 5.0,
+        },
     ]
     summary = calculate(rows)
     out = generate_report_pptx(summary, "Wiring Test", locale="fr")
@@ -1361,8 +1369,10 @@ def test_report_page_imports_pptx_generator() -> None:
     """report.py must import generate_report_pptx (button wiring)."""
     import store_predict.ui.pages.report as report_mod
 
-    assert hasattr(report_mod, "generate_report_pptx") or "generate_report_pptx" in report_mod.__dict__ or hasattr(
-        report_mod, "_on_download_pptx"
+    assert (
+        hasattr(report_mod, "generate_report_pptx")
+        or "generate_report_pptx" in report_mod.__dict__
+        or hasattr(report_mod, "_on_download_pptx")
     )
 ```
 

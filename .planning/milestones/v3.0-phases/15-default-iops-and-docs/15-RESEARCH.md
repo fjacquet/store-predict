@@ -128,6 +128,7 @@ from pathlib import Path
 
 _IOPS_CSV_PATH = Path(__file__).parent.parent.parent.parent / "samples" / "IOPS.csv"
 
+
 def _load_iops_from_csv(path: Path = _IOPS_CSV_PATH) -> dict[str, float]:
     """Load workload IOPS estimates from CSV. Falls back to hardcoded dict if file missing."""
     if not path.exists():
@@ -144,6 +145,7 @@ def _load_iops_from_csv(path: Path = _IOPS_CSV_PATH) -> dict[str, float]:
                 except ValueError:
                     pass
     return result if result else dict(_DEFAULT_IOPS_HARDCODED)
+
 
 DEFAULT_IOPS_BY_WORKLOAD: dict[str, float] = _load_iops_from_csv()
 ```
@@ -289,6 +291,7 @@ _DEFAULT_IOPS_HARDCODED: dict[str, float] = {
     "Unknown (Reducible)/Unknown (Reducible)": 50.0,
 }
 
+
 def _load_iops_from_csv(path: Path = _IOPS_CSV_PATH) -> dict[str, float]:
     if not path.exists():
         return dict(_DEFAULT_IOPS_HARDCODED)
@@ -304,6 +307,7 @@ def _load_iops_from_csv(path: Path = _IOPS_CSV_PATH) -> dict[str, float]:
                 except ValueError:
                     pass
     return result if result else dict(_DEFAULT_IOPS_HARDCODED)
+
 
 DEFAULT_IOPS_BY_WORKLOAD: dict[str, float] = _load_iops_from_csv()
 _DEFAULT_IOPS_FALLBACK: float = 50.0

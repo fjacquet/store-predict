@@ -140,6 +140,7 @@ def t(key: str, **kwargs: object) -> str:
     async event loop is single-threaded; no interleaving occurs within one call.
     """
     from store_predict.i18n.locale import get_locale  # avoid circular import
+
     locale = get_locale()
     i18n.set("locale", locale)
     return str(i18n.t(key, **kwargs))
@@ -160,6 +161,7 @@ def get_locale() -> str:
     """
     try:
         from nicegui import app
+
         return str(app.storage.tab.get("locale", _DEFAULT_LOCALE))
     except RuntimeError:
         # Called outside NiceGUI request context (e.g., tests)
@@ -169,6 +171,7 @@ def get_locale() -> str:
 def set_locale(locale: str) -> None:
     """Persist locale choice to tab storage."""
     from nicegui import app
+
     app.storage.tab["locale"] = locale
 ```
 
@@ -463,6 +466,7 @@ def generate_report_pdf(
     # Set global locale for this call — safe because PDF generation
     # is a single synchronous function; no interleaving possible
     import i18n as _i18n
+
     _i18n.set("locale", locale)
     # ... rest of generation uses t() calls directly ...
 ```
@@ -588,8 +592,7 @@ i18n.t("upload.loaded_notify", count=42)
 ```python
 # Source: github.com/zauberzeug/nicegui/discussions/3899
 CDN_LOCALE_URL = (
-    "https://cdn.jsdelivr.net/npm/@ag-grid-community/locale@32.2.2"
-    "/dist/umd/@ag-grid-community/locale.min.js"
+    "https://cdn.jsdelivr.net/npm/@ag-grid-community/locale@32.2.2/dist/umd/@ag-grid-community/locale.min.js"
 )
 ui.add_head_html(f'<script src="{CDN_LOCALE_URL}" defer></script>')
 
@@ -619,6 +622,7 @@ def _switch_locale() -> None:
 def get_locale() -> str:
     try:
         from nicegui import app
+
         return str(app.storage.tab.get("locale", "fr"))
     except RuntimeError:
         # Outside NiceGUI request context (pytest, scripts)
@@ -632,9 +636,11 @@ def get_locale() -> str:
 locale = get_locale()  # reads app.storage.tab
 pdf_bytes = generate_report_pdf(summary, project_name, locale=locale)
 
+
 # Inside generate_report_pdf():
 def generate_report_pdf(summary, project_name, locale="fr"):
     import i18n as _i18n
+
     _i18n.set("locale", locale)
     # All label strings use t() calls
     story.append(Paragraph(t("pdf.totals_heading"), heading_style))

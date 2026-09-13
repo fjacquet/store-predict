@@ -98,14 +98,15 @@ tests/
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class LLMConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LLM_", case_sensitive=False)
 
     enabled: bool = False
-    model: str = "openai/gpt-4o-mini"         # litellm model string
-    api_key: SecretStr = SecretStr("")         # provider API key
-    api_base: str | None = None               # Ollama: http://host.docker.internal:11434
-    timeout: int = 30                         # seconds
+    model: str = "openai/gpt-4o-mini"  # litellm model string
+    api_key: SecretStr = SecretStr("")  # provider API key
+    api_base: str | None = None  # Ollama: http://host.docker.internal:11434
+    timeout: int = 30  # seconds
 
     # Expose key only at call site, never in logs
     def get_api_key(self) -> str:
@@ -130,6 +131,7 @@ _cb_fail_count: int = 0
 _cb_open_until: float = 0.0
 _CB_FAIL_MAX = 3
 _CB_COOLDOWN = 60.0  # seconds
+
 
 async def classify_single_vm(
     vm_name: str,
@@ -288,6 +290,7 @@ No new column needed. The `vm_table.py` component passes `classification_confide
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class LLMConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LLM_", case_sensitive=False)
 
@@ -306,6 +309,7 @@ class LLMConfig(BaseSettings):
 # Source: https://docs.litellm.ai/docs/completion/stream
 import asyncio
 import litellm
+
 
 async def call_llm(model: str, messages: list, api_key: str | None, api_base: str | None, timeout: int) -> str:
     response = await asyncio.wait_for(
@@ -346,9 +350,9 @@ model = "openrouter/anthropic/claude-3-5-sonnet-20240620"
 # Load valid categories from DRRTable — ground truth from DRR.csv
 valid_categories: set[str] = {entry.category for entry in drr_table.entries}
 
-raw_response = "Database"           # LLM output
+raw_response = "Database"  # LLM output
 if raw_response in valid_categories:
-    category = raw_response         # accept
+    category = raw_response  # accept
 else:
     category = "Unknown (Reducible)"  # reject hallucination
 ```
@@ -357,6 +361,7 @@ else:
 ```python
 import asyncio
 from typing import Any
+
 
 async def classify_unknown_vms_async(
     vm_records: list[dict[str, Any]],
@@ -369,9 +374,7 @@ async def classify_unknown_vms_async(
 
     async def _classify_one(record: dict[str, Any]) -> None:
         async with sem:
-            result = await classify_single_vm(
-                record["vm_name"], record.get("os_name", ""), valid_categories, config
-            )
+            result = await classify_single_vm(record["vm_name"], record.get("os_name", ""), valid_categories, config)
             if result:
                 record["workload_category"] = result
                 record["classification_confidence"] = "llm"
@@ -387,22 +390,27 @@ async def classify_unknown_vms_async(
 import pytest
 from store_predict.services.llm_config import LLMConfig
 
+
 def test_llm_disabled_by_default() -> None:
     config = LLMConfig()
     assert config.enabled is False
 
+
 def test_api_key_not_exposed_in_repr() -> None:
     import os
+
     os.environ["LLM_API_KEY"] = "sk-secret-test-key"
     config = LLMConfig()
     assert "sk-secret-test-key" not in repr(config)
     assert "sk-secret-test-key" not in str(config)
     del os.environ["LLM_API_KEY"]
 
+
 def test_llm_classifier_skips_when_disabled(drr_table) -> None:
     """classify_unknown_vms_async returns unchanged records when disabled."""
     import asyncio
     from store_predict.pipeline.llm_classifier import classify_unknown_vms_async
+
     records = [{"vm_name": "UNKNOWN-01", "os_name": "", "classification_confidence": "default"}]
     config = LLMConfig()  # enabled=False
     result = asyncio.run(classify_unknown_vms_async(records, set(), config))

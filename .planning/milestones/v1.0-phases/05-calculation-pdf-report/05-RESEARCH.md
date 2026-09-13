@@ -90,9 +90,11 @@ src/store_predict/
 # Source: Project convention (pipeline has zero imports from UI)
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class VMCalculation:
     """Per-VM calculation result."""
+
     vm_name: str
     workload_category: str
     provisioned_mib: float
@@ -100,9 +102,11 @@ class VMCalculation:
     drr: float
     required_mib: float  # = provisioned_mib / drr
 
+
 @dataclass(frozen=True)
 class WorkloadGroupResult:
     """Aggregated results for one workload category."""
+
     category: str
     vm_count: int
     total_provisioned_mib: float
@@ -110,9 +114,11 @@ class WorkloadGroupResult:
     avg_drr: float  # weighted average for this group
     total_required_mib: float
 
+
 @dataclass(frozen=True)
 class CalculationSummary:
     """Full calculation output."""
+
     vm_calculations: list[VMCalculation]
     workload_groups: list[WorkloadGroupResult]
     total_vms: int
@@ -120,6 +126,7 @@ class CalculationSummary:
     total_in_use_mib: float
     total_required_mib: float
     weighted_avg_drr: float
+
 
 def calculate(row_data: list[dict[str, Any]]) -> CalculationSummary:
     """Core calculation function. No UI dependencies."""
@@ -142,23 +149,25 @@ from reportlab.lib.units import inch, mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
+
 def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes:
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
         title=f"StorePredict Report - {project_name}",
-        leftMargin=20*mm,
-        rightMargin=20*mm,
-        topMargin=20*mm,
-        bottomMargin=20*mm,
+        leftMargin=20 * mm,
+        rightMargin=20 * mm,
+        topMargin=20 * mm,
+        bottomMargin=20 * mm,
     )
     # Register Vera for French chars
     import reportlab
     import os
-    font_dir = os.path.join(os.path.dirname(reportlab.__file__), 'fonts')
-    pdfmetrics.registerFont(TTFont('Vera', os.path.join(font_dir, 'Vera.ttf')))
-    pdfmetrics.registerFont(TTFont('VeraBd', os.path.join(font_dir, 'VeraBd.ttf')))
+
+    font_dir = os.path.join(os.path.dirname(reportlab.__file__), "fonts")
+    pdfmetrics.registerFont(TTFont("Vera", os.path.join(font_dir, "Vera.ttf")))
+    pdfmetrics.registerFont(TTFont("VeraBd", os.path.join(font_dir, "VeraBd.ttf")))
 
     story = [...]  # Build flowables
     doc.build(story, onFirstPage=_draw_header)
@@ -175,15 +184,17 @@ def generate_report_pdf(summary: CalculationSummary, project_name: str) -> bytes
 # Source: NiceGUI docs (https://nicegui.io/documentation/download)
 from nicegui import ui
 
+
 def _download_pdf():
     pdf_bytes = generate_report_pdf(summary, project_name)
     ui.download.content(
         pdf_bytes,
         filename=f"StorePredict_{project_name}_{date_str}.pdf",
-        media_type='application/pdf',
+        media_type="application/pdf",
     )
 
-ui.button('Download PDF Report', on_click=_download_pdf, icon='download')
+
+ui.button("Download PDF Report", on_click=_download_pdf, icon="download")
 ```
 
 ### Pattern 4: Branded PDF Header via onFirstPage Callback
@@ -196,6 +207,7 @@ ui.button('Download PDF Report', on_click=_download_pdf, icon='download')
 # Source: ReportLab docs (https://docs.reportlab.com/reportlab/userguide/ch5_platypus)
 from reportlab.lib.pagesizes import A4
 
+
 def _draw_header(canvas, doc):
     canvas.saveState()
     width, height = A4
@@ -204,8 +216,8 @@ def _draw_header(canvas, doc):
     canvas.rect(0, height - 50, width, 50, fill=True, stroke=False)
     # Title
     canvas.setFillColorRGB(1, 1, 1)
-    canvas.setFont('VeraBd', 18)
-    canvas.drawString(20*mm, height - 35, "StorePredict Sizing Report")
+    canvas.setFont("VeraBd", 18)
+    canvas.drawString(20 * mm, height - 35, "StorePredict Sizing Report")
     canvas.restoreState()
 ```
 
@@ -320,14 +332,16 @@ workload_results = []
 for category, vms in sorted(groups.items()):
     prov = sum(v.provisioned_mib for v in vms)
     req = sum(v.required_mib for v in vms)
-    workload_results.append(WorkloadGroupResult(
-        category=category,
-        vm_count=len(vms),
-        total_provisioned_mib=prov,
-        total_in_use_mib=sum(v.in_use_mib for v in vms),
-        avg_drr=prov / req if req > 0 else 0.0,
-        total_required_mib=req,
-    ))
+    workload_results.append(
+        WorkloadGroupResult(
+            category=category,
+            vm_count=len(vms),
+            total_provisioned_mib=prov,
+            total_in_use_mib=sum(v.in_use_mib for v in vms),
+            avg_drr=prov / req if req > 0 else 0.0,
+            total_required_mib=req,
+        )
+    )
 ```
 
 ### PDF: Workload Breakdown Table (FR-6.3)
@@ -337,41 +351,49 @@ for category, vms in sorted(groups.items()):
 from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 
-header = ['Category', 'VMs', 'Provisioned (GiB)', 'Avg DRR', 'Required (GiB)']
+header = ["Category", "VMs", "Provisioned (GiB)", "Avg DRR", "Required (GiB)"]
 data = [header]
 for wg in summary.workload_groups:
-    data.append([
-        wg.category,
-        str(wg.vm_count),
-        f"{wg.total_provisioned_mib / 1024:.1f}",
-        f"{wg.avg_drr:.1f}x",
-        f"{wg.total_required_mib / 1024:.1f}",
-    ])
+    data.append(
+        [
+            wg.category,
+            str(wg.vm_count),
+            f"{wg.total_provisioned_mib / 1024:.1f}",
+            f"{wg.avg_drr:.1f}x",
+            f"{wg.total_required_mib / 1024:.1f}",
+        ]
+    )
 # Totals row
-data.append([
-    'TOTAL',
-    str(summary.total_vms),
-    f"{summary.total_provisioned_mib / 1024:.1f}",
-    f"{summary.weighted_avg_drr:.1f}x",
-    f"{summary.total_required_mib / 1024:.1f}",
-])
+data.append(
+    [
+        "TOTAL",
+        str(summary.total_vms),
+        f"{summary.total_provisioned_mib / 1024:.1f}",
+        f"{summary.weighted_avg_drr:.1f}x",
+        f"{summary.total_required_mib / 1024:.1f}",
+    ]
+)
 
 table = Table(data, colWidths=[150, 50, 100, 70, 100])
-table.setStyle(TableStyle([
-    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e3a5f')),  # Dark blue header
-    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-    ('FONTNAME', (0, 0), (-1, 0), 'VeraBd'),
-    ('FONTNAME', (0, 1), (-1, -1), 'Vera'),
-    ('FONTSIZE', (0, 0), (-1, -1), 9),
-    ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-    ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-    ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-    ('ROWBACKGROUNDS', (0, 1), (-1, -2), [colors.white, colors.HexColor('#f0f4f8')]),
-    ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#e8ecf0')),  # Totals row
-    ('FONTNAME', (0, -1), (-1, -1), 'VeraBd'),  # Bold totals
-    ('TOPPADDING', (0, 0), (-1, -1), 4),
-    ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-]))
+table.setStyle(
+    TableStyle(
+        [
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1e3a5f")),  # Dark blue header
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
+            ("FONTNAME", (0, 1), (-1, -1), "Vera"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
+            ("ALIGN", (0, 0), (0, -1), "LEFT"),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -2), [colors.white, colors.HexColor("#f0f4f8")]),
+            ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#e8ecf0")),  # Totals row
+            ("FONTNAME", (0, -1), (-1, -1), "VeraBd"),  # Bold totals
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ]
+    )
+)
 ```
 
 ### NiceGUI: Download Trigger (FR-6.5)
@@ -380,17 +402,18 @@ table.setStyle(TableStyle([
 # Source: NiceGUI docs (https://nicegui.io/documentation/download) verified via Context7
 from nicegui import ui
 
+
 def _on_download():
     pdf_bytes = generate_report_pdf(summary, project_name)
-    safe_name = re.sub(r'[^\w\-]', '_', project_name) if project_name else 'report'
+    safe_name = re.sub(r"[^\w\-]", "_", project_name) if project_name else "report"
     ui.download.content(
         pdf_bytes,
         filename=f"StorePredict_{safe_name}_{date_str}.pdf",
-        media_type='application/pdf',
+        media_type="application/pdf",
     )
 
-ui.button('Download PDF Report', on_click=_on_download, icon='download') \
-    .classes('bg-blue-700 text-white')
+
+ui.button("Download PDF Report", on_click=_on_download, icon="download").classes("bg-blue-700 text-white")
 ```
 
 ### Navigation: Review -> Report
@@ -401,8 +424,7 @@ ui.button('Download PDF Report', on_click=_on_download, icon='download') \
 ui.link("Report", "/report").classes("text-white no-underline hover:underline")
 
 # Add to review page (bottom navigation button):
-ui.button("Generate Report", on_click=lambda: ui.navigate.to("/report")) \
-    .classes("bg-blue-700 text-white")
+ui.button("Generate Report", on_click=lambda: ui.navigate.to("/report")).classes("bg-blue-700 text-white")
 ```
 
 ## State of the Art

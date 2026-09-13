@@ -94,18 +94,22 @@ for metric_key, c_val, p_val, u_val in _layout_metric_rows(proposals):
 
 col_widths = [160, 100, 100, 100]
 table = Table(table_data, colWidths=col_widths)
-table.setStyle(TableStyle([
-    ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
-    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-    ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
-    ("FONTNAME", (0, 1), (-1, -1), "Vera"),
-    ("FONTSIZE", (0, 0), (-1, -1), 9),
-    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-    ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
-    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-    ("TOPPADDING", (0, 0), (-1, -1), 3),
-    ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-]))
+table.setStyle(
+    TableStyle(
+        [
+            ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
+            ("FONTNAME", (0, 1), (-1, -1), "Vera"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING", (0, 0), (-1, -1), 3),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+        ]
+    )
+)
 story.append(table)
 ```
 
@@ -135,6 +139,7 @@ def _write_layout_sheet(
     number_fmt: Format,
 ) -> None:
     from store_predict.pipeline.layout_engine import generate_all_proposals
+
     proposals = generate_all_proposals(summary)
 
     ws = wb.add_worksheet(_i18n.t("excel.sheet_layout"))
@@ -162,8 +167,12 @@ def _write_layout_sheet(
         row += 1
         # DS sub-table headers
         ds_headers = [
-            _i18n.t("ds.name"), _i18n.t("ds.raw_cap"), _i18n.t("ds.used"),
-            _i18n.t("ds.util"), _i18n.t("ds.vms"), _i18n.t("ds.iops"),
+            _i18n.t("ds.name"),
+            _i18n.t("ds.raw_cap"),
+            _i18n.t("ds.used"),
+            _i18n.t("ds.util"),
+            _i18n.t("ds.vms"),
+            _i18n.t("ds.iops"),
             _i18n.t("ds.workloads"),
         ]
         ws.write_row(row, 0, ds_headers, header_fmt)
@@ -192,8 +201,13 @@ def _layout_metric_rows(proposals: list[LayoutProposal]) -> list[tuple[str, str,
     """Build display rows for the strategy comparison table (PDF and Excel shared)."""
     p = proposals  # [consolidation, performance, uniform]
     return [
-        ("ds_count",       str(p[0].metrics.total_ds_count), str(p[1].metrics.total_ds_count), str(p[2].metrics.total_ds_count)),
-        ("raw_capacity",   _fmt_tib(p[0].metrics.total_raw_capacity_mib), ...),
+        (
+            "ds_count",
+            str(p[0].metrics.total_ds_count),
+            str(p[1].metrics.total_ds_count),
+            str(p[2].metrics.total_ds_count),
+        ),
+        ("raw_capacity", _fmt_tib(p[0].metrics.total_raw_capacity_mib), ...),
         ("avg_utilization", _fmt_pct(p[0].metrics.avg_utilization_pct), ...),
         # ... all 15 metrics matching layout_page.py _build_comparison_table()
     ]
@@ -281,22 +295,25 @@ story.append(PageBreak())
 story.append(Paragraph(t("pdf.layout_heading"), heading_style))
 story.append(Spacer(1, 12))
 
-table_data = [[t("layout_page.metric"), t("strategy.consolidation"),
-               t("strategy.performance"), t("strategy.uniform")]]
+table_data = [[t("layout_page.metric"), t("strategy.consolidation"), t("strategy.performance"), t("strategy.uniform")]]
 # ... append metric rows ...
 col_widths = [160, 100, 100, 100]  # A4 usable ≈ 460pt after margins
 table = Table(table_data, colWidths=col_widths)
-table.setStyle(TableStyle([
-    ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
-    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-    ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
-    ("FONTSIZE", (0, 0), (-1, -1), 9),
-    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-    ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
-    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-    ("TOPPADDING", (0, 0), (-1, -1), 3),
-    ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-]))
+table.setStyle(
+    TableStyle(
+        [
+            ("BACKGROUND", (0, 0), (-1, 0), _BRAND_BLUE),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "VeraBd"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING", (0, 0), (-1, -1), 3),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+        ]
+    )
+)
 story.append(table)
 ```
 
@@ -324,13 +341,17 @@ row += 1
 # metric rows
 for metric_key, c_val, p_val, u_val in metric_rows:
     ws.write(row, 0, metric_key, bold_fmt)
-    ws.write(row, 1, c_val); ws.write(row, 2, p_val); ws.write(row, 3, u_val)
+    ws.write(row, 1, c_val)
+    ws.write(row, 2, p_val)
+    ws.write(row, 3, u_val)
     row += 1
 row += 1  # blank separator
 # per-strategy sub-tables
 for proposal in proposals:
-    ws.write(row, 0, strategy_label, bold_fmt); row += 1
-    ws.write_row(row, 0, ds_headers, header_fmt); row += 1
+    ws.write(row, 0, strategy_label, bold_fmt)
+    row += 1
+    ws.write_row(row, 0, ds_headers, header_fmt)
+    row += 1
     for ds in proposal.datastores:
         ws.write_row(row, 0, [ds.name, ds.raw_cap_tib, ds.used_tib, ds.util_pct, ...])
         row += 1

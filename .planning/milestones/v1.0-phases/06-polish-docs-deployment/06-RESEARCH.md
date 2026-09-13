@@ -112,6 +112,7 @@ ui.run(
 # XLSX files are ZIP archives: magic bytes PK\x03\x04
 XLSX_MAGIC = b"PK\x03\x04"
 
+
 def validate_upload(content: bytes, filename: str) -> None:
     suffix = Path(filename).suffix.lower()
     if suffix not in (".xlsx", ".csv"):
@@ -344,17 +345,21 @@ import pandas as pd
 import pytest
 from store_predict.pipeline.classification import RuleRegistry, build_default_rules, classify_dataframe
 
+
 def make_large_dataframe(n: int = 5000) -> pd.DataFrame:
     """Create a synthetic DataFrame with n VMs for performance testing."""
     names = [f"VM-{i:04d}" for i in range(n)]
     os_values = ["Microsoft Windows Server 2019"] * (n // 2) + ["Red Hat Enterprise Linux 8"] * (n - n // 2)
-    return pd.DataFrame({
-        "vm_name": names,
-        "os": os_values,
-        "provisioned_mib": [102400.0] * n,
-        "in_use_mib": [51200.0] * n,
-        "is_template": [False] * n,
-    })
+    return pd.DataFrame(
+        {
+            "vm_name": names,
+            "os": os_values,
+            "provisioned_mib": [102400.0] * n,
+            "in_use_mib": [51200.0] * n,
+            "is_template": [False] * n,
+        }
+    )
+
 
 def test_classification_5000_vms_under_10s():
     """NFR-4.1: Classification of 5000 VMs must complete without timeout."""

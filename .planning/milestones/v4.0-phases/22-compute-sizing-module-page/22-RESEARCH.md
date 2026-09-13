@@ -121,35 +121,39 @@ __all__ = [
     "DELL_POWEREDGE_PRESETS",
 ]
 
+
 @dataclass(frozen=True)
 class HostConfig:
     """Physical host specification for ESXi sizing."""
-    name: str           # Display label, e.g. "R760 (2x32c)"
+
+    name: str  # Display label, e.g. "R760 (2x32c)"
     cores_per_socket: int
     sockets: int
-    ram_gib: int        # Total host RAM in GiB
+    ram_gib: int  # Total host RAM in GiB
 
     @property
     def total_cores(self) -> int:
         return self.cores_per_socket * self.sockets
 
+
 @dataclass(frozen=True)
 class ComputeSizingResult:
     """Output of compute_sizing() — all host counts for a single host config."""
+
     host_config: HostConfig
     overcommit_ratio: float
     total_active_vcpus: int
     total_active_ram_gib: float
-    excluded_vm_count: int          # powered-off + templates
+    excluded_vm_count: int  # powered-off + templates
     # N+1 HA (standard)
     hosts_n1: int
     # vMSC per-site host count (None if datacenter data unavailable)
     hosts_vmsc_per_site: int | None
-    vmsc_sites: list[str]           # distinct datacenter values used
-    vmsc_warning: str               # "" or i18n key explaining why vMSC unavailable
+    vmsc_sites: list[str]  # distinct datacenter values used
+    vmsc_warning: str  # "" or i18n key explaining why vMSC unavailable
     # Active/Passive DR
     hosts_ap_primary: int
-    hosts_ap_secondary: int         # ceil(primary / 2) — 50% passive standby
+    hosts_ap_secondary: int  # ceil(primary / 2) — 50% passive standby
 ```
 
 ### Dell PowerEdge Presets (verified against Dell datasheets, MEDIUM confidence)
@@ -161,19 +165,19 @@ class ComputeSizingResult:
 
 DELL_POWEREDGE_PRESETS: list[HostConfig] = [
     # Intel Xeon Scalable (5th Gen) — 2-socket
-    HostConfig(name="R760 (2x28c / 512 GiB)",   cores_per_socket=28, sockets=2, ram_gib=512),
-    HostConfig(name="R760 (2x32c / 512 GiB)",   cores_per_socket=32, sockets=2, ram_gib=512),
+    HostConfig(name="R760 (2x28c / 512 GiB)", cores_per_socket=28, sockets=2, ram_gib=512),
+    HostConfig(name="R760 (2x32c / 512 GiB)", cores_per_socket=32, sockets=2, ram_gib=512),
     # Intel Xeon 6 P-core (6th Gen) — 2-socket
-    HostConfig(name="R770 (2x48c / 1024 GiB)",  cores_per_socket=48, sockets=2, ram_gib=1024),
-    HostConfig(name="R770 (2x64c / 1536 GiB)",  cores_per_socket=64, sockets=2, ram_gib=1536),
+    HostConfig(name="R770 (2x48c / 1024 GiB)", cores_per_socket=48, sockets=2, ram_gib=1024),
+    HostConfig(name="R770 (2x64c / 1536 GiB)", cores_per_socket=64, sockets=2, ram_gib=1536),
     # Intel Xeon Scalable — 4-socket
-    HostConfig(name="R860 (4x32c / 1024 GiB)",  cores_per_socket=32, sockets=4, ram_gib=1024),
-    HostConfig(name="R960 (4x32c / 1536 GiB)",  cores_per_socket=32, sockets=4, ram_gib=1536),
+    HostConfig(name="R860 (4x32c / 1024 GiB)", cores_per_socket=32, sockets=4, ram_gib=1024),
+    HostConfig(name="R960 (4x32c / 1536 GiB)", cores_per_socket=32, sockets=4, ram_gib=1536),
     # AMD EPYC 9005 (Genoa-X / 2-socket)
     HostConfig(name="R7725 (2x96c / 1536 GiB)", cores_per_socket=96, sockets=2, ram_gib=1536),
     # AMD EPYC 9005 AI/GPU server (XE7745 — also usable as dense vSphere host)
     HostConfig(name="XE7745 (2x64c / 1152 GiB)", cores_per_socket=64, sockets=2, ram_gib=1152),
-    HostConfig(name="Custom",                    cores_per_socket=28, sockets=2, ram_gib=512),
+    HostConfig(name="Custom", cores_per_socket=28, sockets=2, ram_gib=512),
 ]
 
 # NOTE on R7275 vs R7725: "R7275" is not a Dell product. The AMD EPYC 9005 2-socket
@@ -205,6 +209,7 @@ included as a preset because some customers use it for dense VM hosting.
 # Broadcom TechDocs VCF — Sizing Compute Resources for ESXi
 
 import math
+
 
 def _hosts_n1(total_vcpus: int, host_pcores: int, overcommit_ratio: float) -> int:
     """ESXi host count for N+1 HA.
@@ -264,6 +269,7 @@ def _vmsc_sites(df: pd.DataFrame) -> list[str]:
         return []
     return [v for v in df["datacenter"].dropna().unique() if str(v).strip()]
 
+
 def _vmsc_available(sites: list[str]) -> bool:
     return len(sites) >= 2
 ```
@@ -290,6 +296,7 @@ Session-backed inputs, re-render on change. No "Calculate" button — all inputs
 ```python
 # Pattern: session-backed reactive input
 # Source: src/store_predict/ui/pages/layout_page.py lines 26-44
+
 
 def _load_compute_config() -> dict[str, object]:
     """Read compute config from tab session, using defaults."""
@@ -407,6 +414,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import pandas as pd
 
+
 def compute_sizing(
     df: pd.DataFrame | None,
     host_config: HostConfig,
@@ -439,8 +447,8 @@ def compute_sizing(
     host_pcores = host_config.total_cores
 
     hosts_by_vcpu = _hosts_n1(total_vcpus, host_pcores, ratio)
-    hosts_by_ram  = _hosts_by_ram(total_ram_gib, host_config.ram_gib)
-    hosts_n1      = max(hosts_by_vcpu, hosts_by_ram)
+    hosts_by_ram = _hosts_by_ram(total_ram_gib, host_config.ram_gib)
+    hosts_n1 = max(hosts_by_vcpu, hosts_by_ram)
 
     # vMSC
     sites = _vmsc_sites(active)
@@ -451,7 +459,7 @@ def compute_sizing(
         hosts_vmsc_per_site = _hosts_n1(total_vcpus, host_pcores, ratio)
 
     # Active/Passive DR
-    hosts_ap_primary   = hosts_n1
+    hosts_ap_primary = hosts_n1
     hosts_ap_secondary = _hosts_ap_secondary(hosts_ap_primary)
 
     return ComputeSizingResult(
@@ -476,11 +484,10 @@ def compute_sizing(
 
 from nicegui import app, ui
 from store_predict.i18n import t
-from store_predict.pipeline.compute_sizing import (
-    DELL_POWEREDGE_PRESETS, HostConfig, compute_sizing
-)
+from store_predict.pipeline.compute_sizing import DELL_POWEREDGE_PRESETS, HostConfig, compute_sizing
 from store_predict.ui.layout import layout
 from store_predict.ui.state import load_session_data
+
 
 @ui.page("/compute")
 async def compute_page() -> None:
@@ -488,14 +495,16 @@ async def compute_page() -> None:
     df = load_session_data()
 
     if df is None or df.empty:
-        with layout("StorePredict - " + t("compute.title")), \
-             ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"), \
-             ui.card().classes("p-8 gap-4 items-center text-center"):
+        with (
+            layout("StorePredict - " + t("compute.title")),
+            ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"),
+            ui.card().classes("p-8 gap-4 items-center text-center"),
+        ):
             ui.icon("memory", size="3rem").classes("text-gray-400")
             ui.label(t("compute.no_data")).classes("text-xl text-gray-500")
-            ui.button(t("report.go_to_upload"),
-                      on_click=lambda: ui.navigate.to("/upload"),
-                      icon="arrow_forward").classes("bg-blue-700 text-white")
+            ui.button(
+                t("report.go_to_upload"), on_click=lambda: ui.navigate.to("/upload"), icon="arrow_forward"
+            ).classes("bg-blue-700 text-white")
         return
 
     # ... settings panel + refreshable results panel

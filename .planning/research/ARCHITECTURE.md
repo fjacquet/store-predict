@@ -73,15 +73,25 @@ src/store_predict/
 
 ```python
 CANONICAL_COLUMNS = [
-    "vm_name", "os_name",
-    "num_cpus", "memory_mib",              # Already extracted from both RVTools and LiveOptics
-    "provisioned_mib", "in_use_mib",
-    "datacenter", "cluster",
-    "is_template", "is_powered_on",
-    "source_format", "vm_description",
-    "peak_iops", "avg_iops",               # Per-VM IOPS — exists in schema, populated for LiveOptics
-    "peak_throughput_mbs", "avg_throughput_mbs",
-    "peak_latency_ms", "avg_read_latency_ms", "avg_write_latency_ms",
+    "vm_name",
+    "os_name",
+    "num_cpus",
+    "memory_mib",  # Already extracted from both RVTools and LiveOptics
+    "provisioned_mib",
+    "in_use_mib",
+    "datacenter",
+    "cluster",
+    "is_template",
+    "is_powered_on",
+    "source_format",
+    "vm_description",
+    "peak_iops",
+    "avg_iops",  # Per-VM IOPS — exists in schema, populated for LiveOptics
+    "peak_throughput_mbs",
+    "avg_throughput_mbs",
+    "peak_latency_ms",
+    "avg_read_latency_ms",
+    "avg_write_latency_ms",
     "iops_8k_equivalent",
 ]
 ```
@@ -180,30 +190,36 @@ review.py                          MODIFIED: pass has_performance_data flag to c
 **New column definitions (to add to vm_table.py):**
 
 ```python
-{
-    "field": "peak_iops",
-    "headerName": t("columns.peak_iops"),
-    "sortable": True,
-    "filter": "agNumberColumnFilter",
-    "hide": True,                  # Hidden by default; toggled via sidebar
-    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
-},
-{
-    "field": "avg_iops",
-    "headerName": t("columns.avg_iops"),
-    "sortable": True,
-    "filter": "agNumberColumnFilter",
-    "hide": True,
-    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
-},
-{
-    "field": "iops_8k_equivalent",
-    "headerName": t("columns.iops_8k_eq"),
-    "sortable": True,
-    "filter": "agNumberColumnFilter",
-    "hide": True,
-    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
-},
+(
+    {
+        "field": "peak_iops",
+        "headerName": t("columns.peak_iops"),
+        "sortable": True,
+        "filter": "agNumberColumnFilter",
+        "hide": True,  # Hidden by default; toggled via sidebar
+        ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
+    },
+)
+(
+    {
+        "field": "avg_iops",
+        "headerName": t("columns.avg_iops"),
+        "sortable": True,
+        "filter": "agNumberColumnFilter",
+        "hide": True,
+        ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
+    },
+)
+(
+    {
+        "field": "iops_8k_equivalent",
+        "headerName": t("columns.iops_8k_eq"),
+        "sortable": True,
+        "filter": "agNumberColumnFilter",
+        "hide": True,
+        ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
+    },
+)
 ```
 
 **AG Grid sidebar for column visibility (add to grid_options):**
@@ -249,21 +265,25 @@ review.py                          MODIFIED: pass has_performance_data flag to c
 **Adding CPU + memory columns (already in row_data from RVTools):**
 
 ```python
-{
-    "field": "num_cpus",
-    "headerName": t("columns.num_cpus"),
-    "sortable": True,
-    "filter": "agNumberColumnFilter",
-    "hide": True,
-},
-{
-    "field": "memory_mib",
-    "headerName": t("columns.memory_mib"),
-    "sortable": True,
-    "filter": "agNumberColumnFilter",
-    "hide": True,
-    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
-},
+(
+    {
+        "field": "num_cpus",
+        "headerName": t("columns.num_cpus"),
+        "sortable": True,
+        "filter": "agNumberColumnFilter",
+        "hide": True,
+    },
+)
+(
+    {
+        "field": "memory_mib",
+        "headerName": t("columns.memory_mib"),
+        "sortable": True,
+        "filter": "agNumberColumnFilter",
+        "hide": True,
+        ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : ''",
+    },
+)
 ```
 
 **Quick search implementation in `review.py`:**
@@ -306,22 +326,26 @@ def classify_vm(vm_name: str, os_name: str, description: str, registry: RuleRegi
 
 ```python
 # Priority 900+ — OS-only fallbacks (checked only when no name-based rule matched)
-ClassificationRule(
-    name="Windows Server OS fallback",
-    category="Virtual Machines",
-    subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
-    priority=900,
-    os_patterns=_regex_patterns(r"windows server", r"microsoft windows server"),
-    match_mode="any",
-),
-ClassificationRule(
-    name="Linux OS fallback",
-    category="Virtual Machines",
-    subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
-    priority=901,
-    os_patterns=_regex_patterns(r"red hat", r"centos", r"ubuntu", r"debian", r"suse", r"oracle linux"),
-    match_mode="any",
-),
+(
+    ClassificationRule(
+        name="Windows Server OS fallback",
+        category="Virtual Machines",
+        subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
+        priority=900,
+        os_patterns=_regex_patterns(r"windows server", r"microsoft windows server"),
+        match_mode="any",
+    ),
+)
+(
+    ClassificationRule(
+        name="Linux OS fallback",
+        category="Virtual Machines",
+        subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
+        priority=901,
+        os_patterns=_regex_patterns(r"red hat", r"centos", r"ubuntu", r"debian", r"suse", r"oracle linux"),
+        match_mode="any",
+    ),
+)
 ```
 
 **Files modified:**
@@ -355,35 +379,42 @@ This module scans the session VM DataFrame for issues in three categories:
 from dataclasses import dataclass
 from enum import StrEnum
 
+
 class Severity(StrEnum):
-    ERROR = "error"      # Must fix — affects sizing validity
+    ERROR = "error"  # Must fix — affects sizing validity
     WARNING = "warning"  # Should review — may affect accuracy
-    INFO = "info"        # Advisory — best practice note
+    INFO = "info"  # Advisory — best practice note
+
 
 class CheckCategory(StrEnum):
     DATA_QUALITY = "data_quality"
     SIZING_RISK = "sizing_risk"
     BEST_PRACTICE = "best_practice"
 
+
 @dataclass(frozen=True)
 class HealthFinding:
     """A single finding from a health check."""
-    check_id: str           # Stable identifier, e.g. "zero_provisioned_storage"
+
+    check_id: str  # Stable identifier, e.g. "zero_provisioned_storage"
     severity: Severity
     category: CheckCategory
-    title: str              # Short label for display
-    detail: str             # Full explanation
-    affected_vms: list[str] # VM names affected (empty for aggregate checks)
-    count: int              # Number of affected items
+    title: str  # Short label for display
+    detail: str  # Full explanation
+    affected_vms: list[str]  # VM names affected (empty for aggregate checks)
+    count: int  # Number of affected items
+
 
 @dataclass(frozen=True)
 class HealthCheckResult:
     """All findings from running health checks on a dataset."""
+
     findings: list[HealthFinding]
     total_vms: int
     errors: int
     warnings: int
     infos: int
+
 
 def run_health_checks(row_data: list[dict[str, Any]]) -> HealthCheckResult:
     """Run all health checks and return consolidated findings."""
@@ -460,41 +491,48 @@ This module takes aggregate compute totals and returns host count recommendation
 
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class HostConfig:
     """A Dell server host configuration option."""
-    model: str                  # e.g. "PowerEdge R760"
-    sockets: int                # e.g. 2
-    cores_per_socket: int       # e.g. 28
-    total_vcpus: int            # sockets * cores_per_socket * ht_factor
-    ram_gib: int                # e.g. 512
+
+    model: str  # e.g. "PowerEdge R760"
+    sockets: int  # e.g. 2
+    cores_per_socket: int  # e.g. 28
+    total_vcpus: int  # sockets * cores_per_socket * ht_factor
+    ram_gib: int  # e.g. 512
+
 
 @dataclass(frozen=True)
 class ClusterSizingResult:
     """Host count recommendation for one host config."""
+
     host_config: HostConfig
-    host_count_cpu: int         # Hosts needed to satisfy vCPU demand
-    host_count_ram: int         # Hosts needed to satisfy RAM demand
-    recommended_host_count: int # max(cpu, ram) + HA spare
-    with_ha_spare: int          # recommended + 1 for N+1 HA
-    vmsc_host_count: int        # vMSC: 2x recommended (active/active stretched)
-    ap_host_count: int          # Active/Passive: recommended + 1 site standby
-    vcpu_utilization_pct: float # vCPU fill factor at recommended count
+    host_count_cpu: int  # Hosts needed to satisfy vCPU demand
+    host_count_ram: int  # Hosts needed to satisfy RAM demand
+    recommended_host_count: int  # max(cpu, ram) + HA spare
+    with_ha_spare: int  # recommended + 1 for N+1 HA
+    vmsc_host_count: int  # vMSC: 2x recommended (active/active stretched)
+    ap_host_count: int  # Active/Passive: recommended + 1 site standby
+    vcpu_utilization_pct: float  # vCPU fill factor at recommended count
     ram_utilization_pct: float  # RAM fill factor at recommended count
-    notes: str                  # Any notable conditions
+    notes: str  # Any notable conditions
+
 
 @dataclass(frozen=True)
 class ComputeSizingResult:
     """Full compute sizing output."""
+
     total_vcpus: int
     total_ram_gib: float
     avg_vcpus_per_vm: float
     avg_ram_gib_per_vm: float
     vm_count: int
-    has_compute_data: bool      # False for LiveOptics imports lacking vCPU/RAM
+    has_compute_data: bool  # False for LiveOptics imports lacking vCPU/RAM
     sizing_options: list[ClusterSizingResult]
-    overcommit_ratio: float     # vCPU:pCPU ratio used (default 4:1)
-    ram_overcommit_ratio: float # RAM ratio (default 1.0 — no RAM overcommit)
+    overcommit_ratio: float  # vCPU:pCPU ratio used (default 4:1)
+    ram_overcommit_ratio: float  # RAM ratio (default 1.0 — no RAM overcommit)
+
 
 def compute_sizing(
     total_vcpus: int,

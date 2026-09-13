@@ -98,13 +98,14 @@ tests/
 from __future__ import annotations
 from dataclasses import dataclass, field
 
+
 @dataclass(frozen=True)
 class PlacementConstraints:
-    max_ds_capacity_mib: float = 4 * 1024 * 1024   # 4 TiB in MiB
+    max_ds_capacity_mib: float = 4 * 1024 * 1024  # 4 TiB in MiB
     max_vms_per_ds: int = 25
     iops_budget_per_ds: float = 100_000.0
-    snapshot_reserve_pct: float = 15.0              # 0-100
-    growth_margin_pct: float = 20.0                 # 0-100
+    snapshot_reserve_pct: float = 15.0  # 0-100
+    growth_margin_pct: float = 20.0  # 0-100
 
     @property
     def usable_ratio(self) -> float:
@@ -127,9 +128,11 @@ class PlacementConstraints:
 ```python
 from dataclasses import dataclass, field
 
+
 @dataclass
 class _DatastoreBuilder:
     """Mutable state during BFD placement. NOT frozen — accumulates VMs."""
+
     name: str
     raw_capacity_mib: float
     usable_capacity_mib: float
@@ -149,8 +152,9 @@ class _DatastoreBuilder:
         self.total_iops += vm.peak_iops
 
     def to_recommendation(self) -> DatastoreRecommendation:
-        utilization_pct = (self.used_capacity_mib / self.usable_capacity_mib * 100.0
-                           if self.usable_capacity_mib > 0 else 0.0)
+        utilization_pct = (
+            self.used_capacity_mib / self.usable_capacity_mib * 100.0 if self.usable_capacity_mib > 0 else 0.0
+        )
         return DatastoreRecommendation(
             name=self.name,
             raw_capacity_mib=self.raw_capacity_mib,
@@ -236,6 +240,7 @@ def _bfd_place(
 ```python
 import math
 
+
 def _uniform_strategy(
     vms: list[VMCalculation],
     constraints: PlacementConstraints,
@@ -281,8 +286,9 @@ def _uniform_strategy(
 
 ```python
 _ISOLATION_WORKLOADS = frozenset({"Database/SAP HANA(S4)", "Email"})
-_ISOLATION_CAPACITY_THRESHOLD_MIB = 2 * 1024 * 1024   # 2 TiB
+_ISOLATION_CAPACITY_THRESHOLD_MIB = 2 * 1024 * 1024  # 2 TiB
 _ISOLATION_IOPS_THRESHOLD = 5_000.0
+
 
 def _is_mission_critical(vm: VMCalculation) -> bool:
     """Return True if VM must be isolated to its own dedicated datastore."""
@@ -293,6 +299,7 @@ def _is_mission_critical(vm: VMCalculation) -> bool:
     if vm.peak_iops > _ISOLATION_IOPS_THRESHOLD:
         return True
     return False
+
 
 def _isolate_vms(
     vms: list[VMCalculation],
@@ -353,10 +360,7 @@ def _compute_metrics(datastores: list[DatastoreRecommendation]) -> LayoutMetrics
     iops_values = [ds.total_iops for ds in datastores]
 
     # Isolation score: ratio of datastores with single workload type
-    single_workload_ds = sum(
-        1 for ds in datastores
-        if len({v.workload_category for v in ds.assigned_vms}) <= 1
-    )
+    single_workload_ds = sum(1 for ds in datastores if len({v.workload_category for v in ds.assigned_vms}) <= 1)
     isolation_score = single_workload_ds / ds_count if ds_count > 0 else 0.0
 
     # Snapshot granularity rating: based on avg VM density
@@ -380,10 +384,7 @@ def _compute_metrics(datastores: list[DatastoreRecommendation]) -> LayoutMetrics
         max_vm_density=max(vm_densities),
         total_iops_placed=sum(iops_values),
         max_iops_single_ds=max(iops_values, default=0.0),
-        iops_headroom_pct=(
-            (1.0 - max(iops_values, default=0.0) / 100_000.0) * 100.0
-            if iops_values else 100.0
-        ),
+        iops_headroom_pct=((1.0 - max(iops_values, default=0.0) / 100_000.0) * 100.0 if iops_values else 100.0),
         isolation_score=isolation_score,
         snapshot_granularity_rating=snapshot_granularity,
     )
@@ -410,6 +411,7 @@ DEFAULT_IOPS_BY_WORKLOAD: dict[str, float] = {
     "Unknown (Reducible)/Unknown (Reducible)": 50.0,
 }
 _DEFAULT_IOPS_FALLBACK = 50.0
+
 
 def _apply_default_iops(vm: VMCalculation) -> VMCalculation:
     """Return a new VMCalculation with estimated IOPS when no performance data."""
@@ -511,6 +513,7 @@ def _apply_default_iops(vm: VMCalculation) -> VMCalculation:
 class DatastoreRecommendation:
     assigned_vms: list[VMCalculation] = []  # ValueError
 
+
 # Correct
 @dataclass(frozen=True)
 class DatastoreRecommendation:
@@ -577,7 +580,7 @@ class DatastoreRecommendation:
 ```python
 @dataclass(frozen=True)
 class LayoutProposal:
-    strategy_name: str                          # "consolidation" | "performance" | "uniform"
+    strategy_name: str  # "consolidation" | "performance" | "uniform"
     datastores: tuple[DatastoreRecommendation, ...]
     metrics: LayoutMetrics
 ```
@@ -599,9 +602,9 @@ class LayoutMetrics:
     total_iops_placed: float
     max_iops_single_ds: float
     iops_headroom_pct: float
-    isolation_score: float                      # 0.0-1.0
-    snapshot_granularity_rating: str            # "fine" | "medium" | "coarse"
-    oversized_vm_count: int = 0                 # VMs larger than max DS capacity
+    isolation_score: float  # 0.0-1.0
+    snapshot_granularity_rating: str  # "fine" | "medium" | "coarse"
+    oversized_vm_count: int = 0  # VMs larger than max DS capacity
 ```
 
 ---

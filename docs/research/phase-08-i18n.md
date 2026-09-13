@@ -24,6 +24,7 @@ _i18n.set("filename_format", "{locale}.{format}")
 _i18n.set("load_path", [str(Path(__file__).parent / "locales")])
 _i18n.set("fallback", "en")
 
+
 def t(key: str, **kwargs: object) -> str:
     locale = app.storage.tab.get("locale", "fr")
     return _i18n.t(key, locale=locale, **kwargs)

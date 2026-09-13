@@ -113,14 +113,16 @@ def generate_report_xlsx(
     wb = xlsxwriter.Workbook(buf, {"in_memory": True})
 
     # formats
-    header_fmt = wb.add_format({
-        "bold": True,
-        "bg_color": _BRAND_BLUE,
-        "font_color": _BRAND_WHITE,
-        "border": 1,
-        "align": "center",
-        "valign": "vcenter",
-    })
+    header_fmt = wb.add_format(
+        {
+            "bold": True,
+            "bg_color": _BRAND_BLUE,
+            "font_color": _BRAND_WHITE,
+            "border": 1,
+            "align": "center",
+            "valign": "vcenter",
+        }
+    )
     bold_fmt = wb.add_format({"bold": True})
     number_fmt = wb.add_format({"num_format": "0.0", "align": "right"})
     gib_fmt = wb.add_format({"num_format": '0.00 "GiB"', "align": "right"})
@@ -169,13 +171,15 @@ def _write_summary_sheet(wb, summary, header_fmt, bold_fmt, gib_fmt, number_fmt)
 # Source: mirrors existing _on_download in src/store_predict/ui/pages/report.py
 def _on_download_excel(summary: object, project_name: str) -> None:
     from store_predict.pipeline.calculation import CalculationSummary
+
     assert isinstance(summary, CalculationSummary)
     xlsx_bytes = generate_report_xlsx(summary, project_name, locale=get_locale())
     safe_name = sanitize_filename(project_name)
     date_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
     filename = f"StorePredict_{safe_name}_{date_str}.xlsx"
-    ui.download(xlsx_bytes, filename=filename,
-                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    ui.download(
+        xlsx_bytes, filename=filename, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 ```
 
 ### Pattern 4: Locale handling in service
@@ -185,7 +189,7 @@ def _on_download_excel(summary: object, project_name: str) -> None:
 
 ```python
 def generate_report_xlsx(summary, project_name, locale="fr"):
-    _i18n.set("locale", locale)   # Must be first, before any t() calls
+    _i18n.set("locale", locale)  # Must be first, before any t() calls
     ...
 ```
 
@@ -285,7 +289,7 @@ wb = xlsxwriter.Workbook(buf, {"in_memory": True})
 ws = wb.add_worksheet("Sheet 1")
 ws.write(0, 0, "Hello")
 wb.close()
-xlsx_bytes = buf.getvalue()   # NOT buf.read()
+xlsx_bytes = buf.getvalue()  # NOT buf.read()
 ```
 
 ### Header Format (Brand Colors)
@@ -293,14 +297,16 @@ xlsx_bytes = buf.getvalue()   # NOT buf.read()
 ```python
 # Source: https://xlsxwriter.readthedocs.io/format.html (verified)
 # Brand color #1e3a5f matches existing PDF brand color in pdf_report.py
-header_fmt = wb.add_format({
-    "bold": True,
-    "bg_color": "#1e3a5f",
-    "font_color": "#FFFFFF",
-    "border": 1,
-    "align": "center",
-    "valign": "vcenter",
-})
+header_fmt = wb.add_format(
+    {
+        "bold": True,
+        "bg_color": "#1e3a5f",
+        "font_color": "#FFFFFF",
+        "border": 1,
+        "align": "center",
+        "valign": "vcenter",
+    }
+)
 ```
 
 ### Freeze Header Row + Autofit
@@ -309,15 +315,20 @@ header_fmt = wb.add_format({
 # Source: https://xlsxwriter.readthedocs.io/worksheet.html (verified)
 # freeze_panes(row, col): rows 0..row-1 and cols 0..col-1 are frozen
 ws.freeze_panes(1, 0)  # freeze row 0 (header); no column freeze
-ws.autofit()           # call AFTER all writes
+ws.autofit()  # call AFTER all writes
 ```
 
 ### write_row for Header
 
 ```python
 # Source: https://xlsxwriter.readthedocs.io/worksheet.html (verified)
-headers = [t("excel.col_vm_name"), t("excel.col_workload"), t("excel.col_drr"),
-           t("excel.col_provisioned_gib"), t("excel.col_required_gib")]
+headers = [
+    t("excel.col_vm_name"),
+    t("excel.col_workload"),
+    t("excel.col_drr"),
+    t("excel.col_provisioned_gib"),
+    t("excel.col_required_gib"),
+]
 ws.write_row(0, 0, headers, header_fmt)
 ```
 

@@ -114,11 +114,11 @@ class Severity(StrEnum):
 class HealthFinding:
     """A single health concern with severity and context."""
 
-    check_id: str           # e.g. "data_quality.zero_provisioned"
+    check_id: str  # e.g. "data_quality.zero_provisioned"
     severity: Severity
-    title: str              # i18n key — caller passes t("health.zero_provisioned.title")
-    detail: str             # i18n key with optional substitutions
-    affected_count: int     # Number of VMs triggering this finding
+    title: str  # i18n key — caller passes t("health.zero_provisioned.title")
+    detail: str  # i18n key with optional substitutions
+    affected_count: int  # Number of VMs triggering this finding
     affected_vms: tuple[str, ...]  # Sample VM names (max 5, for display)
 
 
@@ -152,6 +152,7 @@ class HealthCheckResult:
 # Source: layout_engine.py pattern (generate_all_proposals signature)
 import pandas as pd
 
+
 def run_health_checks(df: pd.DataFrame) -> HealthCheckResult:
     """Run all health checks on the session DataFrame.
 
@@ -181,7 +182,7 @@ def run_health_checks(df: pd.DataFrame) -> HealthCheckResult:
 
     # VMware best practice checks
     all_findings.extend(_check_no_cluster(active))
-    all_findings.extend(_check_hw_version(active))    # only if hw_version data present
+    all_findings.extend(_check_hw_version(active))  # only if hw_version data present
     all_findings.extend(_check_tools_status(active))  # only if tools_status data present
 
     return HealthCheckResult(
@@ -200,6 +201,7 @@ def run_health_checks(df: pd.DataFrame) -> HealthCheckResult:
 # Source: layout_engine.py internal function pattern (_consolidation_strategy, etc.)
 _LARGE_VM_THRESHOLD_MIB = 1024 * 1024  # 1 TiB
 
+
 def _check_large_unknown_vms(df: pd.DataFrame) -> list[HealthFinding]:
     """Flag Unknown VMs larger than 1 TiB provisioned storage.
 
@@ -207,20 +209,22 @@ def _check_large_unknown_vms(df: pd.DataFrame) -> list[HealthFinding]:
     if the VM is actually a database, the real DRR could be much higher.
     """
     unknown = df[
-        (df["workload_category"].str.startswith("Unknown")) &
-        (pd.to_numeric(df["provisioned_mib"], errors="coerce").fillna(0) >= _LARGE_VM_THRESHOLD_MIB)
+        (df["workload_category"].str.startswith("Unknown"))
+        & (pd.to_numeric(df["provisioned_mib"], errors="coerce").fillna(0) >= _LARGE_VM_THRESHOLD_MIB)
     ]
     if unknown.empty:
         return []
     names = tuple(unknown["vm_name"].head(5).tolist())
-    return [HealthFinding(
-        check_id="sizing_risk.large_unknown_vms",
-        severity=Severity.WARNING,
-        title="health.large_unknown_vms.title",
-        detail="health.large_unknown_vms.detail",
-        affected_count=len(unknown),
-        affected_vms=names,
-    )]
+    return [
+        HealthFinding(
+            check_id="sizing_risk.large_unknown_vms",
+            severity=Severity.WARNING,
+            title="health.large_unknown_vms.title",
+            detail="health.large_unknown_vms.detail",
+            affected_count=len(unknown),
+            affected_vms=names,
+        )
+    ]
 ```
 
 ### Pattern 4: `/concerns` Page Structure
@@ -234,6 +238,7 @@ from nicegui import app, ui
 from store_predict.ui.layout import layout
 from store_predict.ui.state import load_session_data
 from store_predict.pipeline.health_checks import run_health_checks, Severity
+
 
 @ui.page("/concerns")
 async def concerns_page() -> None:
@@ -270,8 +275,8 @@ async def concerns_page() -> None:
 # Add after existing columns (before row_index):
 CANONICAL_COLUMNS: list[str] = [
     # ... existing columns ...
-    "hw_version",       # int: vmx hardware level (0 = not available)
-    "tools_status",     # str: "toolsOk"|"toolsOld"|"toolsNotInstalled"|"toolsNotRunning"|""
+    "hw_version",  # int: vmx hardware level (0 = not available)
+    "tools_status",  # str: "toolsOk"|"toolsOld"|"toolsNotInstalled"|"toolsNotRunning"|""
     "row_index",
 ]
 
@@ -294,9 +299,7 @@ RVTOOLS_ALIASES: dict[str, list[str]] = {
 
 # hw_version: integer vmx level, 0 if not available
 if col_map.get("hw_version"):
-    result["hw_version"] = (
-        pd.to_numeric(df[col_map["hw_version"]], errors="coerce").fillna(0).astype(int)
-    )
+    result["hw_version"] = pd.to_numeric(df[col_map["hw_version"]], errors="coerce").fillna(0).astype(int)
 else:
     result["hw_version"] = 0
 
@@ -456,12 +459,12 @@ from store_predict.pipeline.health_checks_models import (
     Severity,
 )
 
-_POWERED_OFF_RATIO_THRESHOLD = 0.30   # 30% powered-off → Info finding
-_UNKNOWN_RATIO_THRESHOLD = 0.25       # 25% Unknown → Warning finding
-_LARGE_VM_THRESHOLD_MIB = 1024 * 1024 # 1 TiB
-_IOPS_BUDGET_PER_DS = 100_000.0       # Standard Dell datastore IOPS budget
-_OLD_HW_VERSION = 17                  # vHW 17 = ESXi 7.0 — minimum recommended
-_VERY_OLD_HW_VERSION = 14             # vHW 14 = ESXi 6.7 — critical threshold
+_POWERED_OFF_RATIO_THRESHOLD = 0.30  # 30% powered-off → Info finding
+_UNKNOWN_RATIO_THRESHOLD = 0.25  # 25% Unknown → Warning finding
+_LARGE_VM_THRESHOLD_MIB = 1024 * 1024  # 1 TiB
+_IOPS_BUDGET_PER_DS = 100_000.0  # Standard Dell datastore IOPS budget
+_OLD_HW_VERSION = 17  # vHW 17 = ESXi 7.0 — minimum recommended
+_VERY_OLD_HW_VERSION = 14  # vHW 14 = ESXi 6.7 — critical threshold
 
 
 def run_health_checks(df: pd.DataFrame | None) -> HealthCheckResult:
@@ -511,26 +514,30 @@ def _check_hw_version(df: pd.DataFrame) -> list[HealthFinding]:
 
     very_old = has_data[hw[has_data.index] < _VERY_OLD_HW_VERSION]
     if not very_old.empty:
-        return [HealthFinding(
-            check_id="best_practice.very_old_hw_version",
-            severity=Severity.CRITICAL,
-            title="health.very_old_hw_version.title",
-            detail="health.very_old_hw_version.detail",
-            affected_count=len(very_old),
-            affected_vms=tuple(very_old["vm_name"].head(5).tolist()),
-        )]
+        return [
+            HealthFinding(
+                check_id="best_practice.very_old_hw_version",
+                severity=Severity.CRITICAL,
+                title="health.very_old_hw_version.title",
+                detail="health.very_old_hw_version.detail",
+                affected_count=len(very_old),
+                affected_vms=tuple(very_old["vm_name"].head(5).tolist()),
+            )
+        ]
 
     old = has_data[(hw[has_data.index] >= _VERY_OLD_HW_VERSION) & (hw[has_data.index] < _OLD_HW_VERSION)]
     findings = []
     if not old.empty:
-        findings.append(HealthFinding(
-            check_id="best_practice.old_hw_version",
-            severity=Severity.WARNING,
-            title="health.old_hw_version.title",
-            detail="health.old_hw_version.detail",
-            affected_count=len(old),
-            affected_vms=tuple(old["vm_name"].head(5).tolist()),
-        ))
+        findings.append(
+            HealthFinding(
+                check_id="best_practice.old_hw_version",
+                severity=Severity.WARNING,
+                title="health.old_hw_version.title",
+                detail="health.old_hw_version.detail",
+                affected_count=len(old),
+                affected_vms=tuple(old["vm_name"].head(5).tolist()),
+            )
+        )
     return findings
 ```
 

@@ -148,6 +148,7 @@ LIGHT_BLUE = "#40A8D8"
 GREY = "#6C757D"
 LIGHT_GREY = "#CED4DA"
 
+
 def echart_sankey_options(summary: CalculationSummary) -> dict:
     """Return ECharts options dict for Provisioned→Required Sankey."""
     nodes = [{"name": "Provisioned", "itemStyle": {"color": DELL_BLUE}}]
@@ -155,50 +156,57 @@ def echart_sankey_options(summary: CalculationSummary) -> dict:
 
     for grp in summary.workload_groups:
         nodes.append({"name": grp.category, "itemStyle": {"color": LIGHT_GREY}})
-        links.append({
-            "source": "Provisioned",
-            "target": grp.category,
-            "value": round(grp.total_provisioned_mib / 1024, 1),
-        })
+        links.append(
+            {
+                "source": "Provisioned",
+                "target": grp.category,
+                "value": round(grp.total_provisioned_mib / 1024, 1),
+            }
+        )
 
     required_node = {"name": "Required", "itemStyle": {"color": LIGHT_BLUE}}
     nodes.append(required_node)
     for grp in summary.workload_groups:
-        links.append({
-            "source": grp.category,
-            "target": "Required",
-            "value": round(grp.total_required_mib / 1024, 1),
-        })
+        links.append(
+            {
+                "source": grp.category,
+                "target": "Required",
+                "value": round(grp.total_required_mib / 1024, 1),
+            }
+        )
 
     return {
         "tooltip": {"trigger": "item", "triggerOn": "mousemove"},
-        "series": [{
-            "type": "sankey",
-            "layout": "none",
-            "data": nodes,
-            "links": links,
-            "lineStyle": {"color": "gradient", "curveness": 0.5},
-            "emphasis": {"focus": "adjacency"},
-        }],
+        "series": [
+            {
+                "type": "sankey",
+                "layout": "none",
+                "data": nodes,
+                "links": links,
+                "lineStyle": {"color": "gradient", "curveness": 0.5},
+                "emphasis": {"focus": "adjacency"},
+            }
+        ],
     }
 
 
 def echart_pie_options(summary: CalculationSummary) -> dict:
     """Return ECharts options dict for workload category capacity pie."""
     data = [
-        {"value": round(grp.total_provisioned_mib / 1024, 1), "name": grp.category}
-        for grp in summary.workload_groups
+        {"value": round(grp.total_provisioned_mib / 1024, 1), "name": grp.category} for grp in summary.workload_groups
     ]
     return {
         "tooltip": {"trigger": "item"},
         "legend": {"orient": "vertical", "left": "left"},
-        "series": [{
-            "type": "pie",
-            "radius": ["40%", "70%"],  # donut
-            "data": data,
-            "itemStyle": {"color": DELL_BLUE},
-            "emphasis": {"itemStyle": {"shadowBlur": 10}},
-        }],
+        "series": [
+            {
+                "type": "pie",
+                "radius": ["40%", "70%"],  # donut
+                "data": data,
+                "itemStyle": {"color": DELL_BLUE},
+                "emphasis": {"itemStyle": {"shadowBlur": 10}},
+            }
+        ],
     }
 
 
@@ -207,11 +215,13 @@ def echart_drr_bar_options(summary: CalculationSummary) -> dict:
     categories = [grp.category for grp in summary.workload_groups]
     values = [round(grp.avg_drr, 2) for grp in summary.workload_groups]
     return {
-        "xAxis": {"type": "category", "data": categories,
-                  "axisLabel": {"rotate": 30, "overflow": "truncate", "width": 80}},
+        "xAxis": {
+            "type": "category",
+            "data": categories,
+            "axisLabel": {"rotate": 30, "overflow": "truncate", "width": 80},
+        },
         "yAxis": {"type": "value", "name": "DRR"},
-        "series": [{"type": "bar", "data": values,
-                    "itemStyle": {"color": DELL_BLUE}}],
+        "series": [{"type": "bar", "data": values, "itemStyle": {"color": DELL_BLUE}}],
         "tooltip": {"trigger": "axis"},
     }
 
@@ -224,14 +234,15 @@ def echart_before_after_options(summary: CalculationSummary) -> dict:
     return {
         "legend": {},
         "tooltip": {"trigger": "axis"},
-        "xAxis": {"type": "category", "data": categories,
-                  "axisLabel": {"rotate": 30, "overflow": "truncate", "width": 80}},
+        "xAxis": {
+            "type": "category",
+            "data": categories,
+            "axisLabel": {"rotate": 30, "overflow": "truncate", "width": 80},
+        },
         "yAxis": {"type": "value", "name": "GiB"},
         "series": [
-            {"name": "Provisioned", "type": "bar", "data": provisioned,
-             "itemStyle": {"color": DELL_BLUE}},
-            {"name": "Required", "type": "bar", "data": required,
-             "itemStyle": {"color": LIGHT_BLUE}},
+            {"name": "Provisioned", "type": "bar", "data": provisioned, "itemStyle": {"color": DELL_BLUE}},
+            {"name": "Required", "type": "bar", "data": required, "itemStyle": {"color": LIGHT_BLUE}},
         ],
     }
 ```
@@ -270,6 +281,7 @@ DELL_BLUE_RL = colors.HexColor("#007DB8")
 LIGHT_BLUE_RL = colors.HexColor("#40A8D8")
 GREY_RL = colors.HexColor("#6C757D")
 
+
 def make_drr_bar_drawing(summary: CalculationSummary, width: float = 400, height: float = 180) -> Drawing:
     d = Drawing(width, height)
     bc = VerticalBarChart()
@@ -295,8 +307,7 @@ def make_pie_drawing(summary: CalculationSummary, width: float = 250, height: fl
     pc.data = [grp.total_provisioned_mib for grp in summary.workload_groups]
     pc.labels = [grp.category[:15] for grp in summary.workload_groups]
     # Dell blue + grey tones for slices
-    grey_tones = [colors.HexColor(c) for c in
-                  ["#007DB8", "#40A8D8", "#6C757D", "#ADB5BD", "#CED4DA", "#DEE2E6"]]
+    grey_tones = [colors.HexColor(c) for c in ["#007DB8", "#40A8D8", "#6C757D", "#ADB5BD", "#CED4DA", "#DEE2E6"]]
     for i in range(len(pc.data)):
         pc.slices[i].fillColor = grey_tones[i % len(grey_tones)]
     d.add(pc)
@@ -311,12 +322,14 @@ def make_pie_drawing(summary: CalculationSummary, width: float = 250, height: fl
 # Source: matplotlib.sankey API docs + Phase 10 logo pattern (pdf_report.py _draw_header)
 # Import is ISOLATED to this module to avoid matplotlib startup cost for non-PDF paths
 
+
 def make_sankey_image_flowable(
     summary: CalculationSummary,
     width_pt: float = 500,
     height_pt: float = 200,
 ) -> "Image":
     import matplotlib
+
     matplotlib.use("Agg")  # Non-interactive backend — MUST be set before pyplot import
     import matplotlib.pyplot as plt
     from matplotlib.sankey import Sankey
@@ -357,8 +370,7 @@ def make_sankey_image_flowable(
     diagrams[0].text.set_fontweight("bold")
 
     buf = BytesIO()
-    fig.savefig(buf, format="png", dpi=150, bbox_inches="tight",
-                facecolor="white", transparent=False)
+    fig.savefig(buf, format="png", dpi=150, bbox_inches="tight", facecolor="white", transparent=False)
     plt.close(fig)
     buf.seek(0)
     return Image(buf, width=width_pt, height=height_pt)
@@ -392,10 +404,11 @@ story.append(Spacer(1, 8))
 # Full-width before/after bar
 story.append(make_before_after_bar_drawing(summary, width=500, height=160))
 
+
 # Pass onLaterPages to apply header to page 2
 def on_later_pages(canvas: Canvas, doc: SimpleDocTemplate) -> None:
-    _draw_header(canvas, doc, project_name, report_title,
-                 dell_logo_preprocessed, company_logo_preprocessed)
+    _draw_header(canvas, doc, project_name, report_title, dell_logo_preprocessed, company_logo_preprocessed)
+
 
 doc.build(story, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 ```
@@ -480,13 +493,11 @@ Verified patterns from official sources:
 from nicegui import ui
 
 chart = ui.echart(
-    options={
-        "series": [{"type": "sankey", "data": nodes, "links": links}]
-    },
-    on_point_click=None,   # optional: Handler[EChartPointClickEventArguments]
-    on_click=None,         # optional: Handler[EChartComponentClickEventArguments]
-    renderer="canvas",     # or "svg"
-    theme=None,            # dict or URL string
+    options={"series": [{"type": "sankey", "data": nodes, "links": links}]},
+    on_point_click=None,  # optional: Handler[EChartPointClickEventArguments]
+    on_click=None,  # optional: Handler[EChartComponentClickEventArguments]
+    renderer="canvas",  # or "svg"
+    theme=None,  # dict or URL string
 )
 
 # Post-creation update (options is a property returning _props['options'])
@@ -499,24 +510,26 @@ chart.update()  # inherited from Element base class — triggers re-render
 # Source: Apache ECharts docs + NiceGUI echart discussions #3974
 {
     "tooltip": {"trigger": "item", "triggerOn": "mousemove"},
-    "series": [{
-        "type": "sankey",
-        "layout": "none",         # manual node positioning (default for simple flows)
-        "data": [                  # nodes list
-            {"name": "Provisioned", "itemStyle": {"color": "#007DB8"}},
-            {"name": "SQL",          "itemStyle": {"color": "#CED4DA"}},
-            {"name": "Required",     "itemStyle": {"color": "#40A8D8"}},
-        ],
-        "links": [                 # directed edges
-            {"source": "Provisioned", "target": "SQL",      "value": 500},
-            {"source": "SQL",         "target": "Required", "value": 100},
-        ],
-        "lineStyle": {
-            "color": "gradient",   # inherits gradient from source->target node colors
-            "curveness": 0.5,
-        },
-        "emphasis": {"focus": "adjacency"},
-    }],
+    "series": [
+        {
+            "type": "sankey",
+            "layout": "none",  # manual node positioning (default for simple flows)
+            "data": [  # nodes list
+                {"name": "Provisioned", "itemStyle": {"color": "#007DB8"}},
+                {"name": "SQL", "itemStyle": {"color": "#CED4DA"}},
+                {"name": "Required", "itemStyle": {"color": "#40A8D8"}},
+            ],
+            "links": [  # directed edges
+                {"source": "Provisioned", "target": "SQL", "value": 500},
+                {"source": "SQL", "target": "Required", "value": 100},
+            ],
+            "lineStyle": {
+                "color": "gradient",  # inherits gradient from source->target node colors
+                "curveness": 0.5,
+            },
+            "emphasis": {"focus": "adjacency"},
+        }
+    ],
 }
 ```
 
@@ -525,15 +538,18 @@ chart.update()  # inherited from Element base class — triggers re-render
 # Source: ReportLab docs ch5_platypus, programcreek PageBreak examples
 from reportlab.platypus import PageBreak, SimpleDocTemplate
 
-story = [...]          # page 1 content
+story = [...]  # page 1 content
 story.append(PageBreak())
-story.append(...)      # page 2 content
+story.append(...)  # page 2 content
+
 
 def on_first_page(canvas, doc):
     _draw_header(canvas, doc, ...)
 
+
 def on_later_pages(canvas, doc):
-    _draw_header(canvas, doc, ...)   # same header on all pages
+    _draw_header(canvas, doc, ...)  # same header on all pages
+
 
 doc.build(story, onFirstPage=on_first_page, onLaterPages=on_later_pages)
 ```
@@ -549,19 +565,20 @@ d = Drawing(200, 160)
 pc = Pie()
 pc.x, pc.y = 50, 15
 pc.width, pc.height = 120, 120
-pc.data = [300, 150, 75]                    # provisioned_mib per category
+pc.data = [300, 150, 75]  # provisioned_mib per category
 pc.labels = ["SQL", "VDI", "Exchange"]
 pc.slices[0].fillColor = colors.HexColor("#007DB8")
 pc.slices[1].fillColor = colors.HexColor("#6C757D")
 pc.slices[2].fillColor = colors.HexColor("#ADB5BD")
 d.add(pc)
-story.append(d)       # Drawing IS a Platypus Flowable
+story.append(d)  # Drawing IS a Platypus Flowable
 ```
 
 ### matplotlib Sankey → BytesIO PNG
 ```python
 # Source: matplotlib.sankey API docs (matplotlib.org/stable/gallery/specialty_plots/sankey_basics.html)
 import matplotlib
+
 matplotlib.use("Agg")  # BEFORE pyplot import
 import matplotlib.pyplot as plt
 from matplotlib.sankey import Sankey
@@ -572,9 +589,9 @@ ax.set_axis_off()
 
 sankey = Sankey(ax=ax, scale=0.01, unit="GiB", format="%.0f")
 sankey.add(
-    flows=[1000, -300, -700],      # positive = input, negative = output
+    flows=[1000, -300, -700],  # positive = input, negative = output
     labels=["Provisioned", "SQL", "Required"],
-    orientations=[0, 1, -1],       # right, up, down
+    orientations=[0, 1, -1],  # right, up, down
     patchlabel="DRR",
     facecolor="#007DB8",
 )
@@ -587,6 +604,7 @@ buf.seek(0)
 
 # Embed in Platypus story
 from reportlab.platypus import Image
+
 story.append(Image(buf, width=500, height=200))
 ```
 

@@ -20,6 +20,7 @@ spinner = ui.spinner(size="xl").props("color=primary")
 spinner.visible = False
 upload_widget = ui.upload(on_upload=_handle_upload, auto_upload=True)
 
+
 async def _handle_upload(e):
     upload_widget.disable()
     spinner.visible = True
@@ -58,6 +59,7 @@ notif.spinner = False
 
 ```python
 from nicegui import run
+
 df = await run.io_bound(ingest_file, tmp_path)
 ```
 

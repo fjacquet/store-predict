@@ -45,23 +45,25 @@ metrics:
 
 **New rule (priority 298) — Veritas / NetBackup:**
 ```python
-ClassificationRule(
-    name="Veritas / NetBackup",
-    category="VM Replication",
-    subcategory="Veeam, Zerto, RP4VM",
-    priority=298,
-    vm_name_patterns=_patterns("VERITAS", "NETBACKUP", "NBU"),
-),
+(
+    ClassificationRule(
+        name="Veritas / NetBackup",
+        category="VM Replication",
+        subcategory="Veeam, Zerto, RP4VM",
+        priority=298,
+        vm_name_patterns=_patterns("VERITAS", "NETBACKUP", "NBU"),
+    ),
+)
 ```
 
 **File Archive rule (priority 360) — added BACKUP:**
 ```python
-vm_name_patterns=_patterns("ARCHIVE", "BACKUP"),
+vm_name_patterns = (_patterns("ARCHIVE", "BACKUP"),)
 ```
 
 **MySQL/NoSQL rule (priority 101) — added REDIS:**
 ```python
-vm_name_patterns=_patterns("MYSQL", "NOSQL", "MARIADB", "FILEMAKER", "CLARIS", "SQLITE", "REDIS"),
+vm_name_patterns = (_patterns("MYSQL", "NOSQL", "MARIADB", "FILEMAKER", "CLARIS", "SQLITE", "REDIS"),)
 ```
 
 **Logging Analytics rule (priority 400) — added 5 monitoring tools:**

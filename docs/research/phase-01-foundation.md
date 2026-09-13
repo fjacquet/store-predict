@@ -120,9 +120,7 @@ class DRRTable:
 
     def __init__(self, entries: list[DRREntry]) -> None:
         self._entries = entries
-        self._lookup: dict[tuple[str, str], float] = {
-            (e.category, e.subcategory): e.ratio for e in entries
-        }
+        self._lookup: dict[tuple[str, str], float] = {(e.category, e.subcategory): e.ratio for e in entries}
 
     @classmethod
     def from_csv(cls, path: Path) -> DRRTable:
@@ -196,6 +194,7 @@ class FileFormat(Enum):
 @dataclass(frozen=True)
 class VMRecord:
     """Normalized VM record from any input format."""
+
     vm_name: str
     os_name: str
     provisioned_mib: float
@@ -475,10 +474,12 @@ def test_missing_category_returns_default(drr_table: DRRTable) -> None:
 
 def test_conservative_ratio_returns_minimum(drr_table: DRRTable) -> None:
     """Multi-workload uses the lowest (most conservative) DRR."""
-    ratio = drr_table.get_conservative_ratio([
-        ("Database", "Oracle"),       # DRR = 5
-        ("Database", "DB2"),          # DRR = 1.5
-    ])
+    ratio = drr_table.get_conservative_ratio(
+        [
+            ("Database", "Oracle"),  # DRR = 5
+            ("Database", "DB2"),  # DRR = 1.5
+        ]
+    )
     assert ratio == 1.5
 
 

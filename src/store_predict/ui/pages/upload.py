@@ -121,6 +121,12 @@ async def upload_page() -> None:
                     ui.notify(t("session.restore_error", reason=str(exc)), type="negative")
                 return
 
+            if restored is None:
+                # io_bound returns None if the call was cancelled or the app is shutting down.
+                with upload_widget:
+                    ui.notify(t("error.unexpected"), type="negative")
+                return
+
             with upload_widget:
                 # Store original file bytes for future re-save
                 app.storage.tab["_session_original_bytes"] = restored.pop("_restored_original_bytes", b"")
@@ -232,7 +238,13 @@ async def upload_page() -> None:
                         sem_notif.type = "warning"
                         sem_notif.spinner = False
 
-            df = await run.io_bound(classify_dataframe, df, registry, semantic)
+            classified_df = await run.io_bound(classify_dataframe, df, registry, semantic)
+            if classified_df is None:
+                # io_bound returns None if the call was cancelled or the app is shutting down.
+                with upload_widget:
+                    ui.notify(t("error.unexpected"), type="negative")
+                return
+            df = classified_df
 
             if semantic is not None:
                 sem_count = int((df["classification_confidence"] == "semantic").sum())
@@ -298,6 +310,13 @@ async def upload_page() -> None:
                     path2 = Path(str(pending[1]["path"]))
                     df = await run.io_bound(ingest_two_files, path1, path2)
 
+                if df is None:
+                    # io_bound returns None if the call was cancelled or the app is shutting down.
+                    with upload_widget:
+                        ui.notify(t("error.unexpected"), type="negative")
+                    return
+
+                if len(pending) != 1:
                     # Show merge summary notification
                     stats = df.attrs.get("merge_stats", {})
                     if stats:

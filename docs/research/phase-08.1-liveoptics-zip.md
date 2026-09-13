@@ -36,9 +36,7 @@ if total_uncompressed > 50 * 1024 * 1024:
 Use `re.search` (not `re.match`) because ZIP members may have directory prefixes like `exports/LiveOptics_...xlsx`. `re.match` would fail to match such paths.
 
 ```python
-_LIVEOPTICS_PATTERN = re.compile(
-    r"LiveOptics_\d+_VMWARE_\d{2}_\d{2}_\d{4}\.xlsx"
-)
+_LIVEOPTICS_PATTERN = re.compile(r"LiveOptics_\d+_VMWARE_\d{2}_\d{2}_\d{4}\.xlsx")
 matches = [name for name in zf.namelist() if _LIVEOPTICS_PATTERN.search(name)]
 ```
 

@@ -94,9 +94,7 @@ src/store_predict/i18n/locales/
 from nicegui import ui
 from store_predict.i18n import t
 
-ui.slider(min=0, max=30, step=1, value=15) \
-    .classes("w-full") \
-    .tooltip(t("tooltip.snapshot_reserve"))
+ui.slider(min=0, max=30, step=1, value=15).classes("w-full").tooltip(t("tooltip.snapshot_reserve"))
 ```
 
 ### Pattern 2: Slot Template F-String Injection (HIGH confidence)
@@ -111,7 +109,7 @@ from store_predict.i18n import t
 vms_assigned_label = t("ds.vm_list")  # new key: "Assigned VMs" / "VMs assignées"
 table.add_slot(
     "body",
-    f'''
+    f"""
     <q-tr v-show="props.expand" :props="props">
       <q-td colspan="100%" class="bg-gray-50">
         <div class="p-2">
@@ -120,7 +118,7 @@ table.add_slot(
         </div>
       </q-td>
     </q-tr>
-    ''',
+    """,
 )
 ```
 
@@ -198,10 +196,16 @@ links = [{"source": provisioned_label, "target": grp.category, ...}]
 # Source: nicegui.io/documentation/tooltip + layout_page.py pattern
 from store_predict.i18n import t
 
-max_vms_slider = ui.slider(
-    min=5, max=50, step=1,
-    value=constraints.max_vms_per_ds,
-).classes("w-full").props("label-always")
+max_vms_slider = (
+    ui.slider(
+        min=5,
+        max=50,
+        step=1,
+        value=constraints.max_vms_per_ds,
+    )
+    .classes("w-full")
+    .props("label-always")
+)
 max_vms_slider.tooltip(t("tooltip.max_vms_per_ds"))
 ```
 
@@ -213,8 +217,7 @@ from nicegui import ui
 from store_predict.i18n import t
 
 with ui.column().classes("gap-0 min-w-28"):
-    ui.label(label).classes("text-xs text-gray-500")  \
-        .tooltip(t(f"tooltip.{field_key}"))
+    ui.label(label).classes("text-xs text-gray-500").tooltip(t(f"tooltip.{field_key}"))
     ui.label(value).classes("text-sm font-mono")
 ```
 
@@ -227,7 +230,7 @@ from store_predict.i18n import t
 vms_label = t("ds.vm_list")  # "Assigned VMs" (EN) / "VMs assignées" (FR)
 table.add_slot(
     "body",
-    f'''
+    f"""
     <q-tr v-show="props.expand" :props="props">
       <q-td colspan="100%" class="bg-gray-50">
         <div class="p-2">
@@ -238,7 +241,7 @@ table.add_slot(
         </div>
       </q-td>
     </q-tr>
-    ''',
+    """,
 )
 ```
 
