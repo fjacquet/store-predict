@@ -51,6 +51,16 @@ RUN set -eux; \
 # (/usr/local/bin/python3.13) and onnxruntime's .so files resolve identically.
 FROM docker.io/library/python:3.13-slim
 
+# Refresh Debian's own packages before shipping. `python:3.13-slim` is a
+# floating tag: its OS layer is whatever Debian security snapshot was
+# current the last time Docker Hub rebuilt it, which lags actual Debian
+# security releases by days to weeks. The release CVE gate (grype,
+# severity-cutoff high, only-fixed) caught this directly — libc6, perl-base,
+# gzip, libpcre2-8-0 and libsqlite3-0 all had Debian security fixes
+# (deb13u1..u4) already published upstream that this layer just hadn't
+# picked up yet.
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 # Non-root user created before any files land — no chown -R layer needed.
 RUN useradd --uid 1000 --create-home --shell /bin/bash appuser
 
