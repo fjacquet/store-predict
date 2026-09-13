@@ -82,17 +82,19 @@ async def _update_grid_preserving_state(grid: ui.aggrid, row_data: list[dict]) -
 ```python
 # Source: https://www.ag-grid.com/javascript-data-grid/row-selection-multi-row/
 # NiceGUI 3.7.1 ships AG Grid 32.2.2+ which supports this
-grid = ui.aggrid({
-    "columnDefs": column_defs,
-    "rowData": row_data,
-    "rowSelection": {
-        "mode": "multiRow",
-        "headerCheckbox": True,
-        "enableClickSelection": True,
-    },
-    "pagination": True,
-    "paginationPageSize": 50,
-})
+grid = ui.aggrid(
+    {
+        "columnDefs": column_defs,
+        "rowData": row_data,
+        "rowSelection": {
+            "mode": "multiRow",
+            "headerCheckbox": True,
+            "enableClickSelection": True,
+        },
+        "pagination": True,
+        "paginationPageSize": 50,
+    }
+)
 ```
 
 ### Pattern 3: Optional Performance Columns with Graceful Fallback

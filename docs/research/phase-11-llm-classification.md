@@ -18,13 +18,14 @@ Phase 11 adds an optional LLM fallback for VMs that the rules engine cannot clas
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class LLMConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="LLM_", case_sensitive=False)
 
     enabled: bool = False
     model: str = "openai/gpt-4o-mini"
     api_key: SecretStr = SecretStr("")
-    api_base: str | None = None        # Ollama: http://host.docker.internal:11434
+    api_base: str | None = None  # Ollama: http://host.docker.internal:11434
     timeout: int = 30
 ```
 
@@ -38,8 +39,7 @@ Use `asyncio.wait_for` (not litellm's `timeout=` param, which is unreliable acro
 response = await asyncio.wait_for(
     litellm.acompletion(
         model=config.model,
-        messages=[{"role": "system", "content": system_prompt},
-                  {"role": "user", "content": user_prompt}],
+        messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
         api_key=config.get_api_key() or None,
         api_base=config.api_base,
         max_tokens=30,
@@ -61,7 +61,7 @@ _CB_FAIL_MAX = 3
 _CB_COOLDOWN = 60.0
 
 if time.monotonic() < _cb_open_until:
-    return None   # circuit open — skip call
+    return None  # circuit open — skip call
 
 # on failure:
 _cb_fail_count += 1

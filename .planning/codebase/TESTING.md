@@ -63,6 +63,7 @@ from store_predict.pipeline.classification import (
     classify_dataframe,
 )
 
+
 class TestRuleMatching:
     """Individual pattern matching tests."""
 
@@ -112,6 +113,7 @@ def drr_table(sample_drr_path: Path) -> DRRTable:
     """DRRTable loaded from the real DRR.csv."""
     return DRRTable.from_csv(sample_drr_path)
 
+
 @pytest.fixture
 def make_summary() -> Callable[[], CalculationSummary]:
     """Factory fixture that returns a callable producing a minimal CalculationSummary.
@@ -119,6 +121,7 @@ def make_summary() -> Callable[[], CalculationSummary]:
     Returns a zero-argument factory so tests can call ``make_summary()`` to
     get a fresh CalculationSummary with realistic data.
     """
+
     def _factory() -> CalculationSummary:
         vm_calcs = [
             VMCalculation(
@@ -133,6 +136,7 @@ def make_summary() -> Callable[[], CalculationSummary]:
         ]
         # ... build complete summary
         return CalculationSummary(...)
+
     return _factory
 ```
 
@@ -213,8 +217,9 @@ def test_detect_unsupported_extension(self, tmp_path: Path) -> None:
     with pytest.raises(IngestionError, match="Unsupported file type"):
         detect_format(txt_file)
 
+
 def test_csv_binary_content_rejected(self) -> None:
-    content = b"\xFF\xFE\x00\x00" + b"\x00" * 100
+    content = b"\xff\xfe\x00\x00" + b"\x00" * 100
     with pytest.raises(IngestionError, match="valid CSV"):
         validate_upload(content, "broken.csv")
 ```
@@ -226,6 +231,7 @@ def test_none_input_returns_no_data(self) -> None:
     assert result.has_data is False
     assert result.findings == ()
     assert result.total_vms_checked == 0
+
 
 def test_empty_dataframe_returns_no_data(self) -> None:
     result = run_health_checks(pd.DataFrame())
@@ -252,6 +258,7 @@ def _row(
         "in_use_mib": in_use_mib,
         "drr": drr,
     }
+
 
 # Usage
 rows = [_row(provisioned_mib=10000, drr=5.0)]

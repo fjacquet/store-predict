@@ -67,11 +67,11 @@ for vm in vm_calcs:
 @dataclass(frozen=True)
 class WorkloadGroupResult:
     category: str
-    drr: float          # NEW: the DRR value for this specific group
+    drr: float  # NEW: the DRR value for this specific group
     vm_count: int
     total_provisioned_mib: float
     total_in_use_mib: float
-    avg_drr: float      # keep for backward compat (equals drr when grouped by drr)
+    avg_drr: float  # keep for backward compat (equals drr when grouped by drr)
     total_required_mib: float
 ```
 
@@ -135,7 +135,7 @@ Alternative simpler approach: always show `category` as-is in the row, but the r
 ClassificationRule(
     name="Veritas / NetBackup",
     category="VM Replication",
-    subcategory="Veeam, Zerto, RP4VM",   # closest DRR.csv entry
+    subcategory="Veeam, Zerto, RP4VM",  # closest DRR.csv entry
     priority=298,
     vm_name_patterns=_patterns("VERITAS", "NETBACKUP", "NBU"),
 )
@@ -285,7 +285,7 @@ for key in sorted(groups):
     workload_groups.append(
         WorkloadGroupResult(
             category=category,
-            drr=drr,          # new field
+            drr=drr,  # new field
             vm_count=len(vms),
             total_provisioned_mib=grp_provisioned,
             total_in_use_mib=grp_in_use,
@@ -299,13 +299,15 @@ for key in sorted(groups):
 
 ```python
 # pipeline/classification.py, inside build_default_rules(), Tier 3 around priority 298
-ClassificationRule(
-    name="Veritas / NetBackup",
-    category="VM Replication",
-    subcategory="Veeam, Zerto, RP4VM",
-    priority=298,
-    vm_name_patterns=_patterns("VERITAS", "NETBACKUP", "NBU"),
-),
+(
+    ClassificationRule(
+        name="Veritas / NetBackup",
+        category="VM Replication",
+        subcategory="Veeam, Zerto, RP4VM",
+        priority=298,
+        vm_name_patterns=_patterns("VERITAS", "NETBACKUP", "NBU"),
+    ),
+)
 ```
 
 ### DPI upgrade (Wave C — one-line fix)

@@ -123,9 +123,7 @@ except UnicodeDecodeError as err:
 - Include rationale for complex functions
 - Example:
   ```python
-  def classify_dataframe(
-      df: pd.DataFrame, rules: RuleRegistry
-  ) -> pd.DataFrame:
+  def classify_dataframe(df: pd.DataFrame, rules: RuleRegistry) -> pd.DataFrame:
       """Classify all VMs in a DataFrame using the rule registry.
 
       Args:

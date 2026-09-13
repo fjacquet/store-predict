@@ -27,6 +27,7 @@ class _ComputeConfig(TypedDict):
     custom_sockets: int
     custom_ram_gib: int
 
+
 def _load_compute_config() -> _ComputeConfig: ...
 def _resolve_host_config(cfg: _ComputeConfig) -> HostConfig: ...
 ```

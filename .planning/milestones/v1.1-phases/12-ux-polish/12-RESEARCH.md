@@ -87,12 +87,17 @@ spinner.visible = False
 progress = ui.linear_progress(value=0).props("indeterminate").classes("w-full")
 progress.visible = False
 
-upload_widget = ui.upload(
-    label=t("upload.drop_label"),
-    on_upload=_handle_upload,
-    auto_upload=True,
-    max_file_size=50_000_000,
-).props('accept=".xlsx,.csv,.zip"').classes("w-full")
+upload_widget = (
+    ui.upload(
+        label=t("upload.drop_label"),
+        on_upload=_handle_upload,
+        auto_upload=True,
+        max_file_size=50_000_000,
+    )
+    .props('accept=".xlsx,.csv,.zip"')
+    .classes("w-full")
+)
+
 
 # In _handle_upload():
 async def _handle_upload(e: object) -> None:
@@ -152,7 +157,10 @@ if llm_cfg.enabled:
 
 ```python
 # Source: NiceGUI Discussion #1864, #560
-pdf_btn = ui.button(t("report.download_pdf"), on_click=lambda: _on_download_guarded(pdf_btn, summary, project_name), icon="download").classes("bg-blue-700 text-white")
+pdf_btn = ui.button(
+    t("report.download_pdf"), on_click=lambda: _on_download_guarded(pdf_btn, summary, project_name), icon="download"
+).classes("bg-blue-700 text-white")
+
 
 async def _on_download_guarded(btn: ui.button, summary: object, project_name: str) -> None:
     btn.disable()
@@ -185,7 +193,9 @@ For the no-data state on review/report pages, replace the plain `ui.label` + `ui
 with ui.card().classes("p-8 items-center gap-4 text-center"):
     ui.icon("cloud_upload", size="4rem").classes("text-blue-400")
     ui.label(t("review.no_data")).classes("text-xl text-gray-500")
-    ui.button(t("report.go_to_upload"), on_click=lambda: ui.navigate.to("/upload"), icon="arrow_forward").classes("bg-blue-700 text-white")
+    ui.button(t("report.go_to_upload"), on_click=lambda: ui.navigate.to("/upload"), icon="arrow_forward").classes(
+        "bg-blue-700 text-white"
+    )
 ```
 
 ### Pattern 5: Blocking Ingestion in Thread Pool
@@ -289,7 +299,7 @@ Verified patterns from official sources and codebase inspection:
 ```python
 # Source: NiceGUI docs ui.spinner + Discussion #816
 spinner = ui.spinner(size="xl")
-spinner.visible = False   # hidden initially
+spinner.visible = False  # hidden initially
 
 # In async handler:
 spinner.visible = True
@@ -303,14 +313,14 @@ finally:
 
 ```python
 # Source: NiceGUI docs ui.notify — four types in use in this project
-ui.notify(t("..."), type="positive")   # success
-ui.notify(t("..."), type="negative")   # error
-ui.notify(t("..."), type="warning")    # non-fatal warning
-ui.notify(t("..."), type="info")       # informational
+ui.notify(t("..."), type="positive")  # success
+ui.notify(t("..."), type="negative")  # error
+ui.notify(t("..."), type="warning")  # non-fatal warning
+ui.notify(t("..."), type="info")  # informational
 
 # Optional parameters (use sparingly for UX consistency)
-ui.notify(t("..."), type="negative", close_button=True, timeout=0)   # persistent error
-ui.notify(t("..."), type="positive", timeout=3000)                    # 3s auto-dismiss
+ui.notify(t("..."), type="negative", close_button=True, timeout=0)  # persistent error
+ui.notify(t("..."), type="positive", timeout=3000)  # 3s auto-dismiss
 ```
 
 ### Persistent Notification Update (LLM Pattern)
@@ -349,6 +359,7 @@ async def _on_download_guarded() -> None:
         _on_download(summary, project_name)
     finally:
         pdf_btn.enable()
+
 
 pdf_btn = ui.button(t("report.download_pdf"), on_click=_on_download_guarded, icon="download")
 ```

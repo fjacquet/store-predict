@@ -87,14 +87,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 import pandas as pd
 
+
 @dataclass(frozen=True)
 class ClusterSizingRow:
     """Per-cluster sizing result for the breakdown table."""
+
     cluster_name: str
     vm_count: int
     total_vcpus: int
     total_ram_gib: float
     hosts_needed: int  # N+1 HA, same formula as global
+
 
 def compute_cluster_breakdown(
     df: pd.DataFrame | None,
@@ -127,13 +130,15 @@ def compute_cluster_breakdown(
         hv = _hosts_n1(total_vcpus, host_config.total_cores, ratio)
         hr = _hosts_by_ram(total_ram_gib, host_config.ram_gib)
         hosts = max(hv, hr)
-        rows.append(ClusterSizingRow(
-            cluster_name=str(cluster_name),
-            vm_count=len(group),
-            total_vcpus=total_vcpus,
-            total_ram_gib=total_ram_gib,
-            hosts_needed=hosts,
-        ))
+        rows.append(
+            ClusterSizingRow(
+                cluster_name=str(cluster_name),
+                vm_count=len(group),
+                total_vcpus=total_vcpus,
+                total_ram_gib=total_ram_gib,
+                hosts_needed=hosts,
+            )
+        )
     return rows
 ```
 
@@ -160,13 +165,15 @@ def _cluster_rows_with_total(
         for r in cluster_rows
     ]
     # Grand total row
-    rows.append({
-        "cluster": t_fn("compute.cluster_total"),
-        "vm_count": str(sum(r.vm_count for r in cluster_rows)),
-        "vcpus": str(sum(r.total_vcpus for r in cluster_rows)),
-        "ram_gib": f"{sum(r.total_ram_gib for r in cluster_rows):.1f}",
-        "hosts": str(sum(r.hosts_needed for r in cluster_rows)),
-    })
+    rows.append(
+        {
+            "cluster": t_fn("compute.cluster_total"),
+            "vm_count": str(sum(r.vm_count for r in cluster_rows)),
+            "vcpus": str(sum(r.total_vcpus for r in cluster_rows)),
+            "ram_gib": f"{sum(r.total_ram_gib for r in cluster_rows):.1f}",
+            "hosts": str(sum(r.hosts_needed for r in cluster_rows)),
+        }
+    )
     return rows
 ```
 
@@ -208,7 +215,7 @@ def _check_hw_version_per_cluster(df: pd.DataFrame) -> list[HealthFinding]:
     emit a finding scoped to that cluster.
     Uses same sentinel guard: hw_version == 0 means data not available.
     """
-    hw = pd.to_numeric(df.get("hw_version", pd.Series([0]*len(df))), errors="coerce").fillna(0).astype(int)
+    hw = pd.to_numeric(df.get("hw_version", pd.Series([0] * len(df))), errors="coerce").fillna(0).astype(int)
     if (hw > 0).sum() == 0:
         return []
 
@@ -216,7 +223,9 @@ def _check_hw_version_per_cluster(df: pd.DataFrame) -> list[HealthFinding]:
     cluster_col = df["cluster"].fillna("").astype(str).str.strip().replace("", "(No Cluster)")
 
     for cluster_name, group in df.groupby(cluster_col, sort=True):
-        group_hw = pd.to_numeric(group.get("hw_version", pd.Series([0]*len(group))), errors="coerce").fillna(0).astype(int)
+        group_hw = (
+            pd.to_numeric(group.get("hw_version", pd.Series([0] * len(group))), errors="coerce").fillna(0).astype(int)
+        )
         # ... same critical/warning logic as existing _check_hw_version but
         # with cluster=str(cluster_name) in the HealthFinding constructor
     return findings

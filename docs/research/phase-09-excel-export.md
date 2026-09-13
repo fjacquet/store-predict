@@ -19,7 +19,7 @@ buf = io.BytesIO()
 wb = xlsxwriter.Workbook(buf, {"in_memory": True})
 # ... build sheets ...
 wb.close()
-return buf.getvalue()   # correct; buf.read() would return b""
+return buf.getvalue()  # correct; buf.read() would return b""
 ```
 
 ### Service Module Shape Mirrors pdf_report.py
@@ -33,8 +33,8 @@ Split sheet construction into private `_write_*_sheet()` helpers to keep the mai
 ```python
 def _write_summary_sheet(wb, summary, header_fmt, bold_fmt, gib_fmt, number_fmt):
     ws = wb.add_worksheet(t("excel.sheet_summary"))
-    ws.freeze_panes(1, 0)      # freeze header row
-    ws.autofit()               # call AFTER writing all data
+    ws.freeze_panes(1, 0)  # freeze header row
+    ws.autofit()  # call AFTER writing all data
 ```
 
 Call `ws.autofit()` after writing all data — it calculates column widths from cell contents at call time.

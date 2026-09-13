@@ -16,6 +16,7 @@ Use `python-i18n[YAML]` with a thin `t()` wrapper that sets the process-global l
 ```python
 def t(key: str, **kwargs: object) -> str:
     from store_predict.i18n.locale import get_locale
+
     locale = get_locale()
     i18n.set("locale", locale)
     return str(i18n.t(key, **kwargs))

@@ -70,8 +70,10 @@ def parse_rvtools(path: Path) -> pd.DataFrame:
         IngestionError: If file cannot be parsed or required columns missing.
     """
 
+
 def parse_liveoptics_xlsx(path: Path) -> pd.DataFrame:
     """Parse LiveOptics xlsx VMs tab into normalized DataFrame."""
+
 
 def parse_liveoptics_csv(path: Path) -> pd.DataFrame:
     """Parse LiveOptics CSV into normalized DataFrame."""
@@ -129,6 +131,7 @@ LIVEOPTICS_ALIASES: dict[str, list[str]] = {
     "cluster": ["Cluster"],
 }
 
+
 def resolve_columns(df: pd.DataFrame, aliases: dict[str, list[str]]) -> dict[str, str]:
     """Map canonical names to actual column names found in the DataFrame.
 
@@ -143,15 +146,15 @@ def resolve_columns(df: pd.DataFrame, aliases: dict[str, list[str]]) -> dict[str
 
 ```python
 CANONICAL_COLUMNS = [
-    "vm_name",          # str
-    "os_name",          # str
+    "vm_name",  # str
+    "os_name",  # str
     "provisioned_mib",  # float64
-    "in_use_mib",       # float64
-    "datacenter",       # str (empty string if unavailable)
-    "cluster",          # str (empty string if unavailable)
-    "is_template",      # bool
-    "is_powered_on",    # bool
-    "source_format",    # str (FileFormat.value)
+    "in_use_mib",  # float64
+    "datacenter",  # str (empty string if unavailable)
+    "cluster",  # str (empty string if unavailable)
+    "is_template",  # bool
+    "is_powered_on",  # bool
+    "source_format",  # str (FileFormat.value)
 ]
 ```
 
@@ -239,6 +242,7 @@ def ingest_file(path: Path) -> pd.DataFrame:
 import pandas as pd
 from pathlib import Path
 
+
 def parse_rvtools(path: Path) -> pd.DataFrame:
     # Read only the vInfo sheet
     df = pd.read_excel(path, sheet_name="vInfo", engine="openpyxl")
@@ -275,17 +279,19 @@ def parse_liveoptics_xlsx(path: Path) -> pd.DataFrame:
 
     col_map = resolve_columns(df, LIVEOPTICS_ALIASES)
 
-    result = pd.DataFrame({
-        "vm_name": df[col_map["vm_name"]],
-        "os_name": df[col_map["os_name"]].fillna(""),
-        "provisioned_mib": pd.to_numeric(df[col_map["provisioned_mib"]], errors="coerce").fillna(0.0),
-        "in_use_mib": pd.to_numeric(df[col_map["in_use_mib"]], errors="coerce").fillna(0.0),
-        "datacenter": df[col_map["datacenter"]].fillna(""),
-        "cluster": df[col_map["cluster"]].fillna(""),
-        "is_template": df[col_map["is_template"]].fillna(False).astype(bool),
-        "is_powered_on": df[col_map["powerstate"]].str.lower() == "poweredon",
-        "source_format": FileFormat.LIVEOPTICS_XLSX.value,
-    })
+    result = pd.DataFrame(
+        {
+            "vm_name": df[col_map["vm_name"]],
+            "os_name": df[col_map["os_name"]].fillna(""),
+            "provisioned_mib": pd.to_numeric(df[col_map["provisioned_mib"]], errors="coerce").fillna(0.0),
+            "in_use_mib": pd.to_numeric(df[col_map["in_use_mib"]], errors="coerce").fillna(0.0),
+            "datacenter": df[col_map["datacenter"]].fillna(""),
+            "cluster": df[col_map["cluster"]].fillna(""),
+            "is_template": df[col_map["is_template"]].fillna(False).astype(bool),
+            "is_powered_on": df[col_map["powerstate"]].str.lower() == "poweredon",
+            "source_format": FileFormat.LIVEOPTICS_XLSX.value,
+        }
+    )
     return result
 ```
 
@@ -320,13 +326,11 @@ def detect_format(path: Path) -> FileFormat:
         df_head.columns = df_head.columns.str.strip()
         if "VM Name" in df_head.columns or "VM OS" in df_head.columns:
             return FileFormat.LIVEOPTICS_CSV
-        raise IngestionError(
-            "CSV file does not match LiveOptics format. "
-            "Expected columns: VM Name, VM OS, etc."
-        )
+        raise IngestionError("CSV file does not match LiveOptics format. Expected columns: VM Name, VM OS, etc.")
 
     if suffix == ".xlsx":
         import openpyxl
+
         wb = openpyxl.load_workbook(path, read_only=True)
         sheets = wb.sheetnames
         wb.close()
@@ -336,13 +340,11 @@ def detect_format(path: Path) -> FileFormat:
         if "VMs" in sheets:
             return FileFormat.LIVEOPTICS_XLSX
         raise IngestionError(
-            f"XLSX file has unrecognized sheets: {sheets[:5]}. "
-            "Expected 'vInfo' (RVTools) or 'VMs' (LiveOptics)."
+            f"XLSX file has unrecognized sheets: {sheets[:5]}. Expected 'vInfo' (RVTools) or 'VMs' (LiveOptics)."
         )
 
     raise IngestionError(
-        f"Unsupported file type: {suffix}. "
-        "Please upload .xlsx (RVTools or LiveOptics) or .csv (LiveOptics)."
+        f"Unsupported file type: {suffix}. Please upload .xlsx (RVTools or LiveOptics) or .csv (LiveOptics)."
     )
 ```
 
@@ -420,9 +422,11 @@ Per project convention: NO unittest.mock. Use real sample files as fixtures.
 def rvtools_path() -> Path:
     return Path(__file__).parent.parent / "samples" / "rvtools.xlsx"
 
+
 @pytest.fixture
 def liveoptics_xlsx_path() -> Path:
     return Path(__file__).parent.parent / "samples" / "live-optics.xlsx"
+
 
 # For CSV testing, export a CSV from the LiveOptics xlsx or create a minimal fixture
 ```

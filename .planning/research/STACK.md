@@ -266,6 +266,7 @@ All v4.0 features use existing packages + Python stdlib (`math`, `re`, `dataclas
 ```python
 import math
 
+
 def hosts_required(
     total_vcpus: int,
     total_ram_gib: float,

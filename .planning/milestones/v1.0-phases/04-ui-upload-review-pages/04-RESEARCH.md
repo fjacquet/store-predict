@@ -79,10 +79,12 @@ src/store_predict/
 from nicegui import app
 import pandas as pd
 
+
 def save_dataframe(df: pd.DataFrame) -> None:
     """Store classified DataFrame in tab-scoped session."""
     app.storage.tab["vm_data"] = df.to_dict(orient="records")
     app.storage.tab["project_name"] = app.storage.tab.get("project_name", "")
+
 
 def load_dataframe() -> pd.DataFrame | None:
     """Retrieve DataFrame from session, or None if not uploaded yet."""
@@ -103,33 +105,61 @@ def load_dataframe() -> pd.DataFrame | None:
 from nicegui import ui
 
 categories = [
-    "Database", "HealthCare", "File", "VDI",
-    "Logging - Analytics", "Email", "Containers",
-    "Virtual Machines", "VM Replication", "Boot from SAN",
-    "Web Servers", "Unknown (Reducible)", "Custom DRR",
+    "Database",
+    "HealthCare",
+    "File",
+    "VDI",
+    "Logging - Analytics",
+    "Email",
+    "Containers",
+    "Virtual Machines",
+    "VM Replication",
+    "Boot from SAN",
+    "Web Servers",
+    "Unknown (Reducible)",
+    "Custom DRR",
 ]
 
-grid = ui.aggrid({
-    "columnDefs": [
-        {"field": "vm_name", "headerName": "VM Name", "sortable": True,
-         "filter": "agTextColumnFilter", "floatingFilter": True},
-        {"field": "os_name", "headerName": "OS", "sortable": True,
-         "filter": "agTextColumnFilter", "floatingFilter": True},
-        {"field": "workload_category", "headerName": "Workload",
-         "editable": True, "singleClickEdit": True,
-         "cellEditor": "agSelectCellEditor",
-         "cellEditorParams": {"values": categories}},
-        {"field": "drr", "headerName": "DRR", "sortable": True,
-         "filter": "agNumberColumnFilter"},
-        {"field": "provisioned_mib", "headerName": "Provisioned (MiB)",
-         "sortable": True, "filter": "agNumberColumnFilter"},
-    ],
-    "rowData": row_data,
-    "pagination": True,
-    "paginationPageSize": 50,
-    "rowSelection": {"mode": "singleRow"},
-    "stopEditingWhenCellsLoseFocus": True,
-}).on("cellValueChanged", handle_cell_change)
+grid = ui.aggrid(
+    {
+        "columnDefs": [
+            {
+                "field": "vm_name",
+                "headerName": "VM Name",
+                "sortable": True,
+                "filter": "agTextColumnFilter",
+                "floatingFilter": True,
+            },
+            {
+                "field": "os_name",
+                "headerName": "OS",
+                "sortable": True,
+                "filter": "agTextColumnFilter",
+                "floatingFilter": True,
+            },
+            {
+                "field": "workload_category",
+                "headerName": "Workload",
+                "editable": True,
+                "singleClickEdit": True,
+                "cellEditor": "agSelectCellEditor",
+                "cellEditorParams": {"values": categories},
+            },
+            {"field": "drr", "headerName": "DRR", "sortable": True, "filter": "agNumberColumnFilter"},
+            {
+                "field": "provisioned_mib",
+                "headerName": "Provisioned (MiB)",
+                "sortable": True,
+                "filter": "agNumberColumnFilter",
+            },
+        ],
+        "rowData": row_data,
+        "pagination": True,
+        "paginationPageSize": 50,
+        "rowSelection": {"mode": "singleRow"},
+        "stopEditingWhenCellsLoseFocus": True,
+    }
+).on("cellValueChanged", handle_cell_change)
 ```
 
 ### Pattern 3: Awaitable Multi-Select Dialog
@@ -142,9 +172,9 @@ grid = ui.aggrid({
 # Source: NiceGUI dialog docs + daelon.dev dialog pattern
 from nicegui import ui
 
+
 class WorkloadDialog(ui.dialog):
-    def __init__(self, vm_name: str, current_workloads: list[str],
-                 all_options: list[dict]) -> None:
+    def __init__(self, vm_name: str, current_workloads: list[str], all_options: list[dict]) -> None:
         super().__init__()
         with self, ui.card().classes("w-96"):
             ui.label(f"Workloads for {vm_name}").classes("text-lg font-bold")
@@ -157,6 +187,7 @@ class WorkloadDialog(ui.dialog):
             with ui.row().classes("w-full justify-end"):
                 ui.button("Cancel", on_click=lambda: self.submit(None))
                 ui.button("Apply", on_click=lambda: self.submit(self.select.value))
+
 
 # Usage in review page:
 async def on_row_click(e):
@@ -177,12 +208,11 @@ async def on_row_click(e):
 # Source: NiceGUI dark_mode docs + GitHub discussion #5394
 from nicegui import app, ui
 
+
 def add_dark_mode_toggle() -> None:
     """Add dark/light toggle to header, persisted in user storage."""
     dark = ui.dark_mode().bind_value(app.storage.user, "dark_mode")
-    ui.switch("Dark Mode").bind_value(app.storage.user, "dark_mode").props(
-        "color=white"
-    )
+    ui.switch("Dark Mode").bind_value(app.storage.user, "dark_mode").props("color=white")
 ```
 
 ### Pattern 5: Upload Handler with Pipeline Integration
@@ -201,11 +231,10 @@ from store_predict.pipeline.classification import classify_dataframe, RuleRegist
 from store_predict.services.drr_table import DRRTable
 from store_predict.config import DRR_CSV_PATH
 
+
 async def handle_upload(e) -> None:
     """Process uploaded file through ingestion + classification pipeline."""
-    with tempfile.NamedTemporaryFile(
-        suffix=Path(e.name).suffix, delete=False
-    ) as tmp:
+    with tempfile.NamedTemporaryFile(suffix=Path(e.name).suffix, delete=False) as tmp:
         tmp.write(e.content.read())
         tmp_path = Path(tmp.name)
     try:
@@ -298,6 +327,7 @@ async def handle_upload(e) -> None:
 # Source: NiceGUI docs + existing layout pattern
 from nicegui import app, ui
 from store_predict.ui.layout import layout
+
 
 @ui.page("/upload")
 def upload_page() -> None:
@@ -396,18 +426,13 @@ column_defs = [
 # Source: NiceGUI reactive binding pattern
 from nicegui import ui
 
+
 def build_summary_stats(row_data: list[dict]) -> None:
     """Display real-time summary statistics cards."""
     total_vms = len(row_data)
     total_provisioned = sum(r.get("provisioned_mib", 0) for r in row_data)
-    avg_drr = (
-        sum(r.get("drr", 5.0) for r in row_data) / total_vms
-        if total_vms > 0
-        else 0
-    )
-    total_effective = (
-        sum(r.get("provisioned_mib", 0) / r.get("drr", 5.0) for r in row_data)
-    )
+    avg_drr = sum(r.get("drr", 5.0) for r in row_data) / total_vms if total_vms > 0 else 0
+    total_effective = sum(r.get("provisioned_mib", 0) / r.get("drr", 5.0) for r in row_data)
 
     with ui.row().classes("w-full gap-4"):
         with ui.card().classes("flex-1 p-4"):

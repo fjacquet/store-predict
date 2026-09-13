@@ -115,6 +115,7 @@ def _load_constraints() -> PlacementConstraints:
         growth_margin_pct=float(app.storage.tab.get("layout_growth_pct", 20.0)),
     )
 
+
 def _save_constraints(c: PlacementConstraints) -> None:
     app.storage.tab["layout_max_ds_mib"] = c.max_ds_capacity_mib
     app.storage.tab["layout_max_vms"] = c.max_vms_per_ds
@@ -183,8 +184,8 @@ with ui.expansion(
 # Source: nicegui.io/documentation/tabs
 with ui.tabs() as strategy_tabs:
     consol_tab = ui.tab(t("strategy.consolidation"), icon="compress")
-    perf_tab   = ui.tab(t("strategy.performance"), icon="speed")
-    unif_tab   = ui.tab(t("strategy.uniform"), icon="balance")
+    perf_tab = ui.tab(t("strategy.performance"), icon="speed")
+    unif_tab = ui.tab(t("strategy.uniform"), icon="balance")
 
 with ui.tab_panels(strategy_tabs, value=consol_tab).classes("w-full"):
     with ui.tab_panel(consol_tab):
@@ -227,13 +228,13 @@ Use `ui.table` with `add_slot('body', ...)` and `add_slot('header', ...)`. The e
 # Source: nicegui.io/documentation/table
 def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> None:
     columns = [
-        {"name": "expand",    "label": "",             "field": "name"},
-        {"name": "name",      "label": t("ds.name"),   "field": "name",     "align": "left"},
-        {"name": "raw_cap",   "label": t("ds.raw_cap"),"field": "raw_cap",  "align": "right"},
-        {"name": "used",      "label": t("ds.used"),   "field": "used",     "align": "right"},
-        {"name": "util_pct",  "label": t("ds.util"),   "field": "util_pct", "align": "right"},
-        {"name": "vm_count",  "label": t("ds.vms"),    "field": "vm_count", "align": "right"},
-        {"name": "iops",      "label": t("ds.iops"),   "field": "iops",     "align": "right"},
+        {"name": "expand", "label": "", "field": "name"},
+        {"name": "name", "label": t("ds.name"), "field": "name", "align": "left"},
+        {"name": "raw_cap", "label": t("ds.raw_cap"), "field": "raw_cap", "align": "right"},
+        {"name": "used", "label": t("ds.used"), "field": "used", "align": "right"},
+        {"name": "util_pct", "label": t("ds.util"), "field": "util_pct", "align": "right"},
+        {"name": "vm_count", "label": t("ds.vms"), "field": "vm_count", "align": "right"},
+        {"name": "iops", "label": t("ds.iops"), "field": "iops", "align": "right"},
         {"name": "workloads", "label": t("ds.workloads"), "field": "workloads", "align": "left"},
     ]
     rows = [
@@ -252,13 +253,18 @@ def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> N
     ]
 
     table = ui.table(columns=columns, rows=rows, row_key="name").classes("w-full")
-    table.add_slot('header', r'''
+    table.add_slot(
+        "header",
+        r"""
         <q-tr :props="props">
             <q-th auto-width />
             <q-th v-for="col in props.cols" :key="col.name" :props="props">{{ col.label }}</q-th>
         </q-tr>
-    ''')
-    table.add_slot('body', r'''
+    """,
+    )
+    table.add_slot(
+        "body",
+        r"""
         <q-tr :props="props">
             <q-td auto-width>
                 <q-btn size="sm" color="primary" round dense
@@ -278,7 +284,8 @@ def _build_datastore_table(datastores: tuple[DatastoreRecommendation, ...]) -> N
                 </div>
             </q-td>
         </q-tr>
-    ''')
+    """,
+    )
 ```
 
 ### Pattern 7: Capacity Bar in Table (REQ-009)
@@ -291,14 +298,17 @@ Two viable approaches — choose based on planner:
 ```python
 # Color-code the util_pct cell based on value using Tailwind via slot
 # util_pct < 60 → green, 60-80 → yellow, >80 → red
-table.add_slot('body-cell-util_pct', r'''
+table.add_slot(
+    "body-cell-util_pct",
+    r"""
     <q-td :props="props">
         <span :class="props.row.util_pct_raw > 80 ? 'text-red-600 font-bold' :
                       props.row.util_pct_raw > 60 ? 'text-yellow-600' : 'text-green-600'">
             {{ props.value }}
         </span>
     </q-td>
-''')
+""",
+)
 ```
 
 **Option B: Progress bar in dedicated column** (more visual, more complexity)
@@ -316,9 +326,9 @@ def _recommend_strategy(proposals: list[LayoutProposal]) -> str:
     """Return strategy_name of the recommended proposal."""
     # Performance strategy is preferred for mixed workload; consolidation for homogeneous
     # Simple heuristic: highest isolation_score wins; ties broken by fewer datastores
-    scored = sorted(proposals,
-                    key=lambda p: (-p.metrics.isolation_score, p.metrics.total_ds_count))
+    scored = sorted(proposals, key=lambda p: (-p.metrics.isolation_score, p.metrics.total_ds_count))
     return scored[0].strategy_name
+
 
 # Render visual indicator next to strategy name in comparison table header
 # or as a badge: ui.badge("Recommended", color="green") next to the tab label
@@ -332,6 +342,7 @@ When any Advanced Settings control fires `on_change`, re-run `generate_all_propo
 # Source: review.py:152-156 (_rebuild_stats pattern)
 results_container = ui.column().classes("w-full")
 
+
 def _rebuild_layout(container: ui.column, vm_data: list, constraints: PlacementConstraints) -> None:
     summary = calculate(vm_data)
     proposals = generate_all_proposals(summary, constraints)
@@ -339,6 +350,7 @@ def _rebuild_layout(container: ui.column, vm_data: list, constraints: PlacementC
     with container:
         _build_comparison_table(proposals)
         _build_strategy_tabs(proposals)
+
 
 def _on_settings_change(event, field: str, container: ui.column, vm_data: list) -> None:
     app.storage.tab[f"layout_{field}"] = event.value
@@ -489,7 +501,7 @@ async def layout_page() -> None:
 # Source: src/store_predict/ui/layout.py — add one line
 # BEFORE: ui.link(t("layout.report"), "/report").classes(...)
 # AFTER:
-ui.link(t("layout.report"),  "/report"). classes("text-white no-underline hover:underline")
+ui.link(t("layout.report"), "/report").classes("text-white no-underline hover:underline")
 ui.link(t("layout.layout"), "/layout").classes("text-white no-underline hover:underline")
 ```
 
@@ -498,11 +510,11 @@ ui.link(t("layout.layout"), "/layout").classes("text-white no-underline hover:un
 ```python
 # Source: state.py patterns (app.storage.tab key naming)
 LAYOUT_SESSION_KEYS = {
-    "max_ds_mib": "layout_max_ds_mib",       # int, default 4*1024*1024
-    "max_vms":    "layout_max_vms",            # int, default 25
-    "iops_budget":"layout_iops_budget",        # float, default 100_000.0
-    "snapshot_pct":"layout_snapshot_pct",      # float, default 15.0
-    "growth_pct": "layout_growth_pct",         # float, default 20.0
+    "max_ds_mib": "layout_max_ds_mib",  # int, default 4*1024*1024
+    "max_vms": "layout_max_vms",  # int, default 25
+    "iops_budget": "layout_iops_budget",  # float, default 100_000.0
+    "snapshot_pct": "layout_snapshot_pct",  # float, default 15.0
+    "growth_pct": "layout_growth_pct",  # float, default 20.0
 }
 ```
 
@@ -513,6 +525,7 @@ LAYOUT_SESSION_KEYS = {
 def _fmt_tib(mib: float) -> str:
     """Format MiB as TiB with 2 decimal places."""
     return f"{mib / (1024 * 1024):.2f} TiB"
+
 
 def _fmt_gib(mib: float) -> str:
     """Format MiB as GiB with 1 decimal place."""
@@ -551,7 +564,7 @@ app.storage.tab["vm_data"]          # list[dict] — from upload/review pages
 
 ```python
 # Source: src/store_predict/pipeline/layout_models.py:91-98
-max_ds_capacity_mib: float = 4 * 1024 * 1024   # 4 TiB
+max_ds_capacity_mib: float = 4 * 1024 * 1024  # 4 TiB
 max_vms_per_ds: int = 25
 iops_budget_per_ds: float = 100_000.0
 snapshot_reserve_pct: float = 15.0
@@ -574,7 +587,7 @@ max_vm_density: int
 total_iops_placed: float
 max_iops_single_ds: float
 iops_headroom_pct: float
-isolation_score: float          # 0.0-1.0
+isolation_score: float  # 0.0-1.0
 snapshot_granularity_rating: str  # "fine" | "medium" | "coarse"
 oversized_vm_count: int
 ```
@@ -583,7 +596,7 @@ oversized_vm_count: int
 
 ```python
 # Source: src/store_predict/pipeline/layout_models.py:111-124
-name: str                           # e.g. "DS_CONSOL_01"
+name: str  # e.g. "DS_CONSOL_01"
 raw_capacity_mib: float
 usable_capacity_mib: float
 assigned_vms: tuple[VMCalculation, ...]  # Iterate for drill-down
@@ -591,7 +604,7 @@ used_capacity_mib: float
 utilization_pct: float
 total_iops: float
 vm_count: int
-workload_types: frozenset[str]      # For display: sorted(workload_types)
+workload_types: frozenset[str]  # For display: sorted(workload_types)
 ```
 
 ---

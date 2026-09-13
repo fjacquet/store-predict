@@ -97,8 +97,10 @@ src/store_predict/i18n/locales/
 # Source: AG Grid docs https://www.ag-grid.com/javascript-data-grid/filter-quick/
 # + NiceGUI run_grid_method pattern from review.py
 
+
 async def _on_quick_filter(e: Any, grid: ui.aggrid) -> None:
     await grid.run_grid_method("setGridOption", "quickFilterText", e.value)
+
 
 ui.input(
     placeholder=t("review.search_placeholder"),
@@ -126,17 +128,19 @@ ui.input(
 # setColumnsVisible is Community edition, part of ColumnApiModule (auto-included)
 
 OPTIONAL_COLUMNS = [
-    ("num_cpus",    "columns.num_cpus"),
-    ("memory_mib",  "columns.memory_mib"),
-    ("avg_iops",    "columns.avg_iops"),
-    ("peak_iops",   "columns.peak_iops"),
+    ("num_cpus", "columns.num_cpus"),
+    ("memory_mib", "columns.memory_mib"),
+    ("avg_iops", "columns.avg_iops"),
+    ("peak_iops", "columns.peak_iops"),
 ]
 
 with ui.row().classes("items-center gap-4 flex-wrap"):
     ui.label(t("review.show_columns")).classes("text-sm font-medium text-gray-600")
     for field, i18n_key in OPTIONAL_COLUMNS:
+
         async def _toggle(e: Any, f: str = field) -> None:
             await grid.run_grid_method("setColumnsVisible", [f], e.value)
+
         ui.checkbox(t(i18n_key), value=False, on_change=_toggle).classes("text-sm")
 ```
 
@@ -189,38 +193,46 @@ for row in row_data:
 # Source: AG Grid column properties docs (Community edition)
 # https://www.ag-grid.com/javascript-data-grid/column-properties/#reference-display-hide
 
-{
-    "field": "num_cpus",
-    "headerName": t("columns.num_cpus"),
-    "hide": True,
-    "sortable": True,
-    "filter": "agNumberColumnFilter",
-    ":valueFormatter": "params => params.value != null ? params.value.toLocaleString() : '—'",
-},
-{
-    "field": "memory_mib",
-    "headerName": t("columns.memory_mib"),
-    "hide": True,
-    "sortable": True,
-    "filter": "agNumberColumnFilter",
-    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
-},
-{
-    "field": "avg_iops",
-    "headerName": t("columns.avg_iops"),
-    "hide": True,
-    "sortable": True,
-    "filter": "agNumberColumnFilter",
-    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
-},
-{
-    "field": "peak_iops",
-    "headerName": t("columns.peak_iops"),
-    "hide": True,
-    "sortable": True,
-    "filter": "agNumberColumnFilter",
-    ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
-},
+(
+    {
+        "field": "num_cpus",
+        "headerName": t("columns.num_cpus"),
+        "hide": True,
+        "sortable": True,
+        "filter": "agNumberColumnFilter",
+        ":valueFormatter": "params => params.value != null ? params.value.toLocaleString() : '—'",
+    },
+)
+(
+    {
+        "field": "memory_mib",
+        "headerName": t("columns.memory_mib"),
+        "hide": True,
+        "sortable": True,
+        "filter": "agNumberColumnFilter",
+        ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
+    },
+)
+(
+    {
+        "field": "avg_iops",
+        "headerName": t("columns.avg_iops"),
+        "hide": True,
+        "sortable": True,
+        "filter": "agNumberColumnFilter",
+        ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
+    },
+)
+(
+    {
+        "field": "peak_iops",
+        "headerName": t("columns.peak_iops"),
+        "hide": True,
+        "sortable": True,
+        "filter": "agNumberColumnFilter",
+        ":valueFormatter": "params => params.value != null ? Math.round(params.value).toLocaleString() : '—'",
+    },
+)
 ```
 
 ### Anti-Patterns to Avoid
@@ -313,6 +325,7 @@ filter_input = (
     .tooltip(t("tooltip.quick_filter"))
 )
 
+
 async def _on_quick_filter(e: Any, grid: ui.aggrid) -> None:
     """Apply AG Grid quickFilterText on each keystroke."""
     await grid.run_grid_method("setGridOption", "quickFilterText", e.value or "")
@@ -325,17 +338,19 @@ async def _on_quick_filter(e: Any, grid: ui.aggrid) -> None:
 # NiceGUI ui.checkbox + run_grid_method pattern
 
 TOGGLEABLE_COLUMNS: list[tuple[str, str]] = [
-    ("num_cpus",   "columns.num_cpus"),
+    ("num_cpus", "columns.num_cpus"),
     ("memory_mib", "columns.memory_mib"),
-    ("avg_iops",   "columns.avg_iops"),
-    ("peak_iops",  "columns.peak_iops"),
+    ("avg_iops", "columns.avg_iops"),
+    ("peak_iops", "columns.peak_iops"),
 ]
 
 with ui.expansion(t("review.column_panel_title"), icon="view_column").classes("w-full"):
     with ui.row().classes("items-center gap-6 flex-wrap p-2"):
         for field, key in TOGGLEABLE_COLUMNS:
+
             async def _toggle_col(e: Any, f: str = field) -> None:
                 await grid.run_grid_method("setColumnsVisible", [f], e.value)
+
             ui.checkbox(t(key), value=False, on_change=_toggle_col)
 ```
 
@@ -344,6 +359,7 @@ with ui.expansion(t("review.column_panel_title"), icon="view_column").classes("w
 ```python
 # Source: live codebase ingestion.py:128
 # Add row_index AFTER template filter + reset_index
+
 
 def ingest_file(path: Path) -> pd.DataFrame:
     ...
@@ -406,6 +422,7 @@ return result[CANONICAL_COLUMNS]
 
 ```python
 # Source: live review.py:305 — switch vm_name lookup to row_index
+
 
 async def _handle_cell_change(e, row_data, drr_table, grid, stats_container):
     args = e.args

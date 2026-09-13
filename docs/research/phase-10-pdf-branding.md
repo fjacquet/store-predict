@@ -20,9 +20,11 @@ from reportlab.lib.utils import ImageReader
 reader = ImageReader(BytesIO(logo_bytes))
 canvas.drawImage(
     reader,
-    x=width - 90, y=height - 43,
-    width=80, height=36,
-    mask='auto',
+    x=width - 90,
+    y=height - 43,
+    width=80,
+    height=36,
+    mask="auto",
     preserveAspectRatio=True,
 )
 ```
@@ -33,6 +35,7 @@ Always normalize any incoming logo bytes to RGBA PNG via Pillow before passing t
 
 ```python
 from PIL import Image as PilImage
+
 
 def _preprocess_logo(raw_bytes: bytes) -> bytes:
     with PilImage.open(BytesIO(raw_bytes)) as img:
@@ -53,6 +56,7 @@ Validate uploaded logos by magic bytes before Pillow processing. Reject files ov
 _PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 _JPEG_MAGIC = b"\xff\xd8\xff"
 _MAX_LOGO_BYTES = 200 * 1024
+
 
 def validate_logo(content: bytes, filename: str) -> None:
     if len(content) > _MAX_LOGO_BYTES:
@@ -75,6 +79,7 @@ Store user-uploaded logo bytes as a base64 string in `app.storage.tab`. Decode a
 
 ```python
 import base64
+
 app.storage.tab["company_logo_b64"] = base64.b64encode(logo_bytes).decode()
 # At PDF generation:
 raw = base64.b64decode(app.storage.tab.get("company_logo_b64", ""))

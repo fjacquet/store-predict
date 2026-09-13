@@ -54,13 +54,13 @@ from dataclasses import dataclass, field
 class ClassificationRule:
     """A single classification rule for matching VMs to workload categories."""
 
-    name: str                          # Human-readable rule name, e.g., "Microsoft SQL"
-    category: str                      # DRR category, e.g., "Database"
-    subcategory: str                   # DRR subcategory, e.g., "Microsoft SQL"
-    priority: int                      # Lower = higher priority (evaluated first)
+    name: str  # Human-readable rule name, e.g., "Microsoft SQL"
+    category: str  # DRR category, e.g., "Database"
+    subcategory: str  # DRR subcategory, e.g., "Microsoft SQL"
+    priority: int  # Lower = higher priority (evaluated first)
     vm_name_patterns: tuple[re.Pattern[str], ...] = ()  # Match against VM name
-    os_patterns: tuple[re.Pattern[str], ...] = ()       # Match against OS field
-    match_mode: str = "any"            # "any" = vm_name OR os, "all" = both required
+    os_patterns: tuple[re.Pattern[str], ...] = ()  # Match against OS field
+    match_mode: str = "any"  # "any" = vm_name OR os, "all" = both required
 
     def matches(self, vm_name: str, os_name: str) -> bool:
         """Check if this rule matches the given VM name and OS."""
@@ -97,8 +97,8 @@ class ClassificationResult:
 
     category: str
     subcategory: str
-    rule_name: str          # Which rule matched (for FR-3.4 confidence indicator)
-    confidence: str         # "rule_match" | "os_fallback" | "default"
+    rule_name: str  # Which rule matched (for FR-3.4 confidence indicator)
+    confidence: str  # "rule_match" | "os_fallback" | "default"
 
 
 class RuleRegistry:
@@ -116,8 +116,11 @@ class RuleRegistry:
                     category=rule.category,
                     subcategory=rule.subcategory,
                     rule_name=rule.name,
-                    confidence="rule_match" if rule.priority < 900 else
-                               "os_fallback" if rule.priority < 1000 else "default",
+                    confidence="rule_match"
+                    if rule.priority < 900
+                    else "os_fallback"
+                    if rule.priority < 1000
+                    else "default",
                 )
         # Should never reach here if default rule exists
         return ClassificationResult(
@@ -173,6 +176,7 @@ def classify_dataframe(
 def _patterns(*keywords: str) -> tuple[re.Pattern[str], ...]:
     """Create case-insensitive substring-matching patterns."""
     return tuple(re.compile(re.escape(kw), re.IGNORECASE) for kw in keywords)
+
 
 def _regex_patterns(*expressions: str) -> tuple[re.Pattern[str], ...]:
     """Create case-insensitive regex patterns (for non-literal matching)."""
@@ -452,6 +456,7 @@ Note: "PostgreSQL" subcategory is clean (DRRTable.from_csv() strips the embedded
 ```python
 # Source: derived from samples/DRR.csv categories + analysis of 610 sample VMs
 
+
 def build_default_rules() -> list[ClassificationRule]:
     """Build the default classification rule set covering all DRR categories."""
     return [
@@ -485,7 +490,6 @@ def build_default_rules() -> list[ClassificationRule]:
             vm_name_patterns=_patterns("PGSQL", "POSTGRES", "POSTGRESQL"),
         ),
         # ... (continue for all 28 categories)
-
         # === Tier 5: OS Fallback (priority 900-949) ===
         ClassificationRule(
             name="Windows Server (OS fallback)",
@@ -499,11 +503,8 @@ def build_default_rules() -> list[ClassificationRule]:
             category="Virtual Machines",
             subcategory="VMware / Hyper-V / KVM - No Database, File nor Email",
             priority=910,
-            os_patterns=_regex_patterns(
-                r"linux|ubuntu|centos|debian|red hat|suse|alma|rocky|oracle linux"
-            ),
+            os_patterns=_regex_patterns(r"linux|ubuntu|centos|debian|red hat|suse|alma|rocky|oracle linux"),
         ),
-
         # === Tier 6: Default (priority 999) ===
         ClassificationRule(
             name="default",
@@ -544,14 +545,11 @@ classified_df = classify_dataframe(df, registry)
 # Test that every rule's category/subcategory exists in DRRTable
 def test_rule_categories_exist_in_drr(drr_table: DRRTable) -> None:
     """Every rule must reference a valid DRR category/subcategory."""
-    drr_categories = {
-        (e.category, e.subcategory) for e in drr_table.entries
-    }
+    drr_categories = {(e.category, e.subcategory) for e in drr_table.entries}
     for rule in build_default_rules():
         key = (rule.category, rule.subcategory)
         assert key in drr_categories, (
-            f"Rule '{rule.name}' references ({rule.category}, {rule.subcategory}) "
-            f"which does not exist in DRR table"
+            f"Rule '{rule.name}' references ({rule.category}, {rule.subcategory}) which does not exist in DRR table"
         )
 ```
 
@@ -562,12 +560,8 @@ def test_rule_categories_exist_in_drr(drr_table: DRRTable) -> None:
 def test_all_drr_categories_covered(drr_table: DRRTable) -> None:
     """Every DRR category/subcategory must have at least one rule."""
     registry = RuleRegistry(build_default_rules())
-    rule_categories = {
-        (r.category, r.subcategory) for r in registry._rules
-    }
-    drr_categories = {
-        (e.category, e.subcategory) for e in drr_table.entries
-    }
+    rule_categories = {(r.category, r.subcategory) for r in registry._rules}
+    drr_categories = {(e.category, e.subcategory) for e in drr_table.entries}
     uncovered = drr_categories - rule_categories
     # Allow "Custom DRR" to be uncovered (user-assigned only)
     uncovered.discard(("Custom DRR", "Custom DRR"))

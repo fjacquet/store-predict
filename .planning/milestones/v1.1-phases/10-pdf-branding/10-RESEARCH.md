@@ -95,6 +95,7 @@ src/store_predict/
 from io import BytesIO
 from reportlab.lib.utils import ImageReader
 
+
 def _draw_header(
     canvas: Canvas,
     doc: SimpleDocTemplate,
@@ -118,11 +119,11 @@ def _draw_header(
         logo_w = 80  # scale width — actual ratio enforced by Pillow preprocessing
         canvas.drawImage(
             reader,
-            width - logo_w - 10,   # right margin
+            width - logo_w - 10,  # right margin
             height - bar_height + 7,  # vertical center
             width=logo_w,
             height=logo_h,
-            mask='auto',
+            mask="auto",
             preserveAspectRatio=True,
         )
 
@@ -135,7 +136,7 @@ def _draw_header(
             height - bar_height + 7,
             width=80,
             height=36,
-            mask='auto',
+            mask="auto",
             preserveAspectRatio=True,
         )
 
@@ -164,6 +165,7 @@ def _draw_header(
 from PIL import Image as PilImage
 from io import BytesIO
 
+
 def _preprocess_logo(raw_bytes: bytes) -> bytes:
     """Normalize any image to RGBA PNG for safe ReportLab embedding.
 
@@ -190,8 +192,9 @@ def _preprocess_logo(raw_bytes: bytes) -> bytes:
 # Magic bytes validation (no external library needed)
 _PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 _JPEG_MAGIC = b"\xff\xd8\xff"
-_MAX_LOGO_BYTES = 200 * 1024       # 200 KB — keeps tab storage safe
-_MAX_LOGO_DIMENSION = 2000         # pixels — reject absurd resolution
+_MAX_LOGO_BYTES = 200 * 1024  # 200 KB — keeps tab storage safe
+_MAX_LOGO_DIMENSION = 2000  # pixels — reject absurd resolution
+
 
 def validate_logo(content: bytes, filename: str) -> None:
     """Validate logo file format and dimensions.
@@ -205,7 +208,7 @@ def validate_logo(content: bytes, filename: str) -> None:
     if ext not in ("png", "jpg", "jpeg"):
         raise IngestionError(f"Logo must be PNG or JPEG, got .{ext}")
     if len(content) > _MAX_LOGO_BYTES:
-        raise IngestionError(f"Logo file too large (max 200 KB, got {len(content)//1024} KB)")
+        raise IngestionError(f"Logo file too large (max 200 KB, got {len(content) // 1024} KB)")
     if ext == "png" and not content.startswith(_PNG_MAGIC):
         raise IngestionError("File does not appear to be a valid PNG image")
     if ext in ("jpg", "jpeg") and not content.startswith(_JPEG_MAGIC):
@@ -213,6 +216,7 @@ def validate_logo(content: bytes, filename: str) -> None:
 
     # Dimension check via Pillow
     from PIL import Image as PilImage
+
     with PilImage.open(BytesIO(content)) as img:
         w, h = img.size
         if w > _MAX_LOGO_DIMENSION or h > _MAX_LOGO_DIMENSION:
@@ -228,6 +232,7 @@ def validate_logo(content: bytes, filename: str) -> None:
 # Source: NiceGUI docs (nicegui.io/documentation/upload) + storage discussion #3052
 import base64
 from nicegui import app, ui
+
 
 async def _handle_logo_upload(e: object) -> None:
     content: bytes = e.content.read()  # type: ignore[attr-defined]
@@ -259,10 +264,14 @@ def generate_report_pdf(
 
     def on_first_page(canvas: Canvas, doc: SimpleDocTemplate) -> None:
         _draw_header(
-            canvas, doc, project_name, report_title,
+            canvas,
+            doc,
+            project_name,
+            report_title,
             dell_logo_bytes=dell_logo_preprocessed,
             company_logo_bytes=company_logo_preprocessed,
         )
+
     ...
 ```
 
@@ -339,6 +348,7 @@ Verified patterns from official sources:
 from importlib.resources import files
 import store_predict.data as _data_pkg
 
+
 def _load_dell_logo() -> bytes | None:
     """Load Dell partner logo shipped as package data."""
     try:
@@ -353,6 +363,7 @@ Alternatively (simpler, already used in codebase pattern):
 ```python
 # Source: config.py pattern already in use for DRR_CSV_PATH
 DELL_LOGO_PATH = Path(__file__).resolve().parent / "data" / "dell_logo.png"
+
 
 def _load_dell_logo() -> bytes | None:
     try:
@@ -369,6 +380,7 @@ from PIL import Image as PilImage
 from io import BytesIO
 from reportlab.lib.utils import ImageReader
 
+
 def _preprocess_logo(raw_bytes: bytes) -> bytes:
     """Normalize to RGBA PNG for black-background-safe ReportLab embedding."""
     with PilImage.open(BytesIO(raw_bytes)) as img:
@@ -378,9 +390,10 @@ def _preprocess_logo(raw_bytes: bytes) -> bytes:
         img.save(buf, format="PNG")
         return buf.getvalue()
 
+
 # Usage in _draw_header:
 reader = ImageReader(BytesIO(_preprocess_logo(logo_bytes)))
-canvas.drawImage(reader, x, y, width=w, height=h, mask='auto', preserveAspectRatio=True)
+canvas.drawImage(reader, x, y, width=w, height=h, mask="auto", preserveAspectRatio=True)
 ```
 
 ### Logo Upload UI on Report Page
@@ -391,18 +404,20 @@ canvas.drawImage(reader, x, y, width=w, height=h, mask='auto', preserveAspectRat
 import base64
 from nicegui import app, ui
 
+
 def _build_logo_upload_section() -> None:
     ui.label(t("report.upload_logo")).classes("text-sm font-semibold")
     ui.upload(
         label=t("report.logo_upload_label"),
         on_upload=_handle_logo_upload,
         auto_upload=True,
-        max_file_size=200_000,   # 200 KB hard limit
+        max_file_size=200_000,  # 200 KB hard limit
     ).props('accept=".png,.jpg,.jpeg"').classes("w-full")
 
+
 async def _handle_logo_upload(e: object) -> None:
-    content: bytes = e.content.read()   # type: ignore[attr-defined]
-    filename: str = e.name              # type: ignore[attr-defined]
+    content: bytes = e.content.read()  # type: ignore[attr-defined]
+    filename: str = e.name  # type: ignore[attr-defined]
     try:
         validate_logo(content, filename)
         app.storage.tab["company_logo_b64"] = base64.b64encode(content).decode("ascii")

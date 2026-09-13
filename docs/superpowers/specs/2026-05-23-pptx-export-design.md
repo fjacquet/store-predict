@@ -53,8 +53,7 @@ def generate_report_pptx(
     locale: str = "fr",
     company_logo_bytes: bytes | None = None,
     health_result: HealthCheckResult | None = None,
-) -> bytes:
-    ...
+) -> bytes: ...
 ```
 
 Responsibilities:

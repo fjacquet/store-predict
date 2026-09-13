@@ -38,7 +38,7 @@ Use explicit `args` lists on all AG Grid event registrations:
 
 ```python
 grid.on("cellValueChanged", handler, args=["colId", "data", "newValue"])
-grid.on("rowClicked",       handler, args=["data", "rowIndex"])
+grid.on("rowClicked", handler, args=["data", "rowIndex"])
 ```
 
 This is the primary fix. The venv patch provides defense-in-depth but must not be

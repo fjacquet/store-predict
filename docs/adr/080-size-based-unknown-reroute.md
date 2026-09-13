@@ -40,10 +40,12 @@ Threshold and DRR are constants in `pipeline/classification.py` for easy tuning:
 
 ```python
 LARGE_VM_THRESHOLD_MIB: int = 100 * 1024  # 100 GiB
-_UNKNOWN_SUBCATEGORIES: frozenset[str] = frozenset({
-    "VMware / Hyper-V / KVM - No Database, File nor Email",
-    "Unknown (Reducible)",
-})
+_UNKNOWN_SUBCATEGORIES: frozenset[str] = frozenset(
+    {
+        "VMware / Hyper-V / KVM - No Database, File nor Email",
+        "Unknown (Reducible)",
+    }
+)
 ```
 
 ## Consequences

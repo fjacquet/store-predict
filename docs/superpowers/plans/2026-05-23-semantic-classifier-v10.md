@@ -485,7 +485,9 @@ def test_self_learning_shifts_ambiguous_match() -> None:
 
 
 def test_verdict_is_frozen() -> None:
-    v = SemanticVerdict(category="Database", subcategory="Microsoft SQL", route_name="Database|Microsoft SQL", score=0.8)
+    v = SemanticVerdict(
+        category="Database", subcategory="Microsoft SQL", route_name="Database|Microsoft SQL", score=0.8
+    )
     with pytest.raises((AttributeError, Exception)):
         v.score = 0.1  # type: ignore[misc]
 ```
@@ -1187,6 +1189,7 @@ from store_predict.services.semantic_config import SemanticConfig
 
 # ...
 
+
 @pytest.fixture(scope="module")
 def classified_customer_df():  # type: ignore[no-untyped-def]
     if not CUSTOMER_FILE.exists():
@@ -1210,9 +1213,7 @@ def test_unknown_rate_not_regressed(classified_customer_df) -> None:  # type: ig
     pull most of those into real categories."""
     total = len(classified_customer_df)
     n_default = int((classified_customer_df["classification_confidence"] == "default").sum())
-    assert n_default <= 300, (
-        f"Unknown/default rate too high: {n_default}/{total}\n{_summary(classified_customer_df)}"
-    )
+    assert n_default <= 300, f"Unknown/default rate too high: {n_default}/{total}\n{_summary(classified_customer_df)}"
 ```
 
 Keep `test_default_confidence_low`, `test_sap_hana_bucket`, `test_email_bucket`, `test_ddve_bucket_nutanix`, `test_powerflex_routes_to_containers` as-is. In `test_v900_large_databearing_takes_unknown_volume`, the size-reroute still applies (now to `semantic`/`default` confidence) — leave assertions, they remain valid.
