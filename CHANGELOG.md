@@ -2,6 +2,27 @@
 
 All notable changes to StorePredict are documented here.
 
+## [Unreleased]
+
+### Changed
+
+- Security workflow gains a weekly schedule and a manual trigger.
+
+## [11.3.1] - 2026-10-02
+
+### Security
+
+- **Runtime image refreshes Debian packages.** The runtime stage now runs `apt-get upgrade` so the floating `python:3.13-slim` base no longer ships with security fixes (libc6, perl-base, gzip, libpcre2-8-0, libsqlite3-0) that the release CVE gate flags as already fixed upstream.
+- Dependency advisories resolved: `tornado`, `pymdown-extensions`, and `mkdocs-material` 9.7.6 → 9.7.7 (GHSA-xvg9-69gf-fjrf).
+
+### Fixed
+
+- NiceGUI 3.16 types `run.io_bound` as `R | None` (it returns `None` when the call is cancelled or the app is shutting down). The upload and report pages now guard each call site and show an error notification instead of failing on a `None` result.
+
+### Changed
+
+- `uv.lock` fully refreshed (`uv lock --upgrade`), including NiceGUI 3.13 → 3.16 and mypy 2.3.1.
+
 ## [11.0.3] - 2026-05-26
 
 ### Fixed
