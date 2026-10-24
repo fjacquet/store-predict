@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "store-predict"
-version = "11.1.0"
+version = "11.3.3"
 description = "Dell PowerStore DRR sizing tool"
 requires-python = ">=3.13"
 dependencies = [
@@ -52,6 +52,9 @@ override-dependencies = [
     "filelock>=4.2.1,<5",  # litellm caps filelock<4; 4.2.1 fixes GHSA-v4x8-3wr5-3wq8, GHSA-9vhv-jxww-xfm5,
                            # GHSA-567q-5qvw-pf92. Dependents use FileLock, SoftFileLock, BaseFileLock, Timeout
                            # only. Drop once litellm allows filelock>=4.2.1.
+    "pillow>=13.0.0,<14",  # fastembed (<=0.9.0) caps pillow<13; 13.0.0 fixes 41 advisories. Pillow is only
+                           # imported by fastembed's image models; we use the text FastEmbedEncoder.
+                           # Drop once fastembed allows pillow>=13.
 ]
 # Without a floor, `uv lock --upgrade` trades litellm (via semantic-router) back to
 # 1.97.0 to escape the filelock<4 and botocore python-dateutil<3 caps.
