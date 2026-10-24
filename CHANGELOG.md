@@ -4,6 +4,19 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [11.3.3] - 2026-10-24
+
+### Security
+
+- **`make vuln` and the Security workflow now actually scan.** `uvx osv-scanner` never resolved
+  (osv-scanner is a Go binary, not on PyPI) and `|| true` hid the failure, so no CI run had ever
+  scanned `uv.lock`. `make vuln` now runs `osv-scanner scan source --recursive .` and fails on
+  findings; fjacquet/ci v1.6.0 installs a pinned, checksum-verified binary in CI.
+- `pillow` 12.3.0 → 13.0.0 for 41 advisories (5 critical), through a uv `override-dependencies`:
+  fastembed (up to 0.9.0) caps `pillow<13`, but only its image models import Pillow and
+  StorePredict uses the text `FastEmbedEncoder`, checked by encoding with BAAI/bge-small-en-v1.5.
+  This unblocks the release image scan that failed v11.3.2.
+
 ## [11.3.2] - 2026-10-24
 
 ### Security
