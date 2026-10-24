@@ -4,8 +4,18 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [11.3.2] - 2026-10-24
+
+### Security
+
+- **Still open:** `pillow` 12.3.0 (41 advisories, fix is 13.0.0). `fastembed` caps `pillow<13` up to
+  its latest release 0.9.0, and `pyproject.toml` pins `fastembed<0.9`.
+
 ### Changed
 
+- `uv lock --upgrade` refresh: `certifi` 2026.10.23, `litellm` 1.106.3.
+- `litellm>=1.103.2` floor in `constraint-dependencies`, and `filelock>=4.2.1,<5` override: without them
+  the refresh traded litellm back to 1.97.0 to escape its `filelock<4` and botocore `python-dateutil<3` caps.
 - Security workflow gains a weekly schedule and a manual trigger.
 
 ## [11.3.1] - 2026-10-02
