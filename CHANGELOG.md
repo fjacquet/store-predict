@@ -4,6 +4,14 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [11.3.2] - 2026-10-24
+
+### Security
+
+- `uv lock --upgrade` refresh: `certifi` 2026.10.23 and `filelock` 4.2.4.
+- `pillow` stays on 12.3.0 (41 advisories, fix is 13.0.0): `fastembed` caps `pillow<13`, up to and
+  including its latest release 0.9.0. Remains open until fastembed lifts the cap.
+
 ### Changed
 
 - Security workflow gains a weekly schedule and a manual trigger.
