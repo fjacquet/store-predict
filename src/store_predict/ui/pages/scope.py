@@ -7,7 +7,7 @@ from typing import Any
 from nicegui import app, ui
 
 from store_predict.i18n import t
-from store_predict.ui.layout import layout
+from store_predict.ui.layout import client_ready, layout
 from store_predict.ui.state import (
     get_scope_selection,
     load_session_data,
@@ -23,7 +23,8 @@ def _unique_non_empty(values: list[Any]) -> list[str]:
 @ui.page("/scope")
 async def scope_page() -> None:
     """Scope selection -- let user pick datacenter(s)/cluster(s) before review."""
-    await ui.context.client.connected()
+    if not await client_ready():
+        return
     df = load_session_data()
 
     if df is None:

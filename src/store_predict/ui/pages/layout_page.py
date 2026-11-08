@@ -14,7 +14,7 @@ from store_predict.pipeline.layout_engine import generate_all_proposals
 from store_predict.pipeline.layout_models import DatastoreRecommendation, LayoutProposal, PlacementConstraints
 from store_predict.services.excel_report import generate_report_xlsx
 from store_predict.services.pdf_report import sanitize_filename
-from store_predict.ui.layout import layout
+from store_predict.ui.layout import client_ready, layout
 
 _MIB_PER_TIB = 1024 * 1024  # datastore sizes are expressed in TiB (labelled "TB" in the UI)
 _DS_SIZE_PRESETS_TIB = (2, 4, 8, 16, 32, 64)
@@ -637,7 +637,8 @@ def _build_settings_panel(
 @ui.page("/layout")
 async def layout_page() -> None:
     """Layout recommendations page with three datastore strategies."""
-    await ui.context.client.connected()
+    if not await client_ready():
+        return
 
     from store_predict.ui.state import load_filtered_session_data
 

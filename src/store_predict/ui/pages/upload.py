@@ -14,6 +14,7 @@ from nicegui import app, background_tasks, run, ui
 if TYPE_CHECKING:
     import pandas as pd
 
+from store_predict.chunk_upload import TEMP_PREFIX, purge_stale_temp_files, register_token, unregister_token
 from store_predict.config import DRR_CSV_PATH
 from store_predict.i18n import t
 from store_predict.logging_config import hash_name
@@ -30,7 +31,7 @@ from store_predict.pipeline.validation import validate_upload
 from store_predict.pipeline.zip_extraction import extract_liveoptics_from_zip
 from store_predict.services.drr_table import DRRTable
 from store_predict.services.semantic_config import get_semantic_config
-from store_predict.ui.layout import layout
+from store_predict.ui.layout import client_ready, layout
 from store_predict.ui.state import (
     add_pending_file,
     clear_pending_files,
@@ -45,9 +46,13 @@ logger = logging.getLogger(__name__)
 @ui.page("/upload")
 async def upload_page() -> None:
     """Upload page -- accept RVTools/LiveOptics files and run the sizing pipeline."""
-    await ui.context.client.connected()
+    if not await client_ready():
+        return
     # Unique token per page-load routes chunked uploads to this session's queue.
     upload_token = str(uuid.uuid4())
+    register_token(upload_token)
+    purge_stale_temp_files()  # cheap; keeps abandoned uploads from piling up between restarts
+    ui.context.client.on_delete(lambda: unregister_token(upload_token))
     with (
         layout("StorePredict - Upload"),
         ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6"),
@@ -166,6 +171,7 @@ async def upload_page() -> None:
                     content, filename = extract_liveoptics_from_zip(content)
                     tmp_path.unlink(missing_ok=True)
                     with tempfile.NamedTemporaryFile(
+                        prefix=TEMP_PREFIX,
                         suffix=Path(filename).suffix,
                         delete=False,
                     ) as tmp:
@@ -187,10 +193,12 @@ async def upload_page() -> None:
                     _refresh_chips()
 
             except IngestionError as exc:
+                tmp_path.unlink(missing_ok=True)
                 logger.warning("Upload validation failed for file=%s: %s", hash_name(original_filename), exc)
                 with upload_widget:
                     ui.notify(str(exc), type="negative", timeout=0)
             except Exception:
+                tmp_path.unlink(missing_ok=True)
                 logger.exception("Unexpected error handling assembled upload: file=%s", hash_name(original_filename))
                 with upload_widget:
                     ui.notify(t("error.unexpected"), type="negative", timeout=0)

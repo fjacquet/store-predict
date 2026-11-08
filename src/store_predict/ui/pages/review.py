@@ -14,7 +14,7 @@ from store_predict.ui.components.confidence_filter import build_confidence_filte
 from store_predict.ui.components.summary_stats import build_summary_stats
 from store_predict.ui.components.vm_table import create_vm_table
 from store_predict.ui.components.workload_dialog import WorkloadDialog
-from store_predict.ui.layout import layout
+from store_predict.ui.layout import client_ready, layout
 from store_predict.ui.state import (
     clear_session_data,
     get_project_name,
@@ -69,7 +69,8 @@ async def _on_quick_filter(e: Any, grid: ui.aggrid) -> None:
 @ui.page("/review")
 async def review_page() -> None:
     """Review classified VMs with editable workload assignments."""
-    await ui.context.client.connected()
+    if not await client_ready():
+        return
     df = load_filtered_session_data()
     if df is None:
         with (

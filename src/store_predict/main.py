@@ -19,7 +19,7 @@ import store_predict.ui.pages.report
 import store_predict.ui.pages.review
 import store_predict.ui.pages.scope
 import store_predict.ui.pages.upload  # noqa: F401
-from store_predict.chunk_upload import register_routes
+from store_predict.chunk_upload import purge_stale_temp_files, register_routes
 from store_predict.config import APP_PORT, APP_TITLE
 from store_predict.i18n import t
 from store_predict.logging_config import setup_logging
@@ -50,11 +50,12 @@ def _resolve_storage_secret() -> tuple[str, bool]:
 @ui.page("/")
 async def index_page() -> None:
     """Landing page for StorePredict."""
-    from store_predict.ui.layout import layout
+    from store_predict.ui.layout import client_ready, layout
 
     # Await the client so app.storage.tab (and thus the chosen locale) is readable;
     # without this the landing page always renders in the default language.
-    await ui.context.client.connected()
+    if not await client_ready():
+        return
     with layout(), ui.column().classes("w-full max-w-2xl mx-auto p-8 gap-6 items-center"):
         ui.label(APP_TITLE).classes("text-5xl sp-display").style("color:var(--sp-ink)")
         ui.label(t("home.subtitle")).classes("text-xl").style("color:var(--sp-muted)")
@@ -74,6 +75,7 @@ def main() -> None:
     # Increase spool size so 2 MB chunks stay in RAM during multipart parsing.
     MultiPartParser.spool_max_size = 4 * 1024 * 1024  # 4 MB
     register_routes()
+    purge_stale_temp_files()
     if _PUBLIC_DIR.is_dir():
         app.add_static_files("/public", str(_PUBLIC_DIR))
     storage_secret, is_dev = _resolve_storage_secret()

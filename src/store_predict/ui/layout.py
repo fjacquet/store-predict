@@ -28,6 +28,18 @@ _NAV_LINKS: tuple[tuple[str, str], ...] = (
 )
 
 
+async def client_ready() -> bool:
+    """Wait for the websocket; False if NiceGUI deleted the client meanwhile.
+
+    A bot that never opens the websocket gets its client pruned (~60 s) and
+    ``connected()`` then returns anyway. Building elements on that dead client
+    leaks them and their bindings forever, so callers must stop when False.
+    """
+    client = ui.context.client
+    await client.connected()
+    return not client.is_deleted
+
+
 @contextmanager
 def layout(title: str = "StorePredict") -> Iterator[None]:
     """Shared page layout with header, navigation and locale/dark mode toggles."""
