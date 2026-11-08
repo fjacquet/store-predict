@@ -25,6 +25,10 @@ All notable changes to StorePredict are documented here.
   files older than 6 h (abandoned uploads) are purged at startup and on each upload
   page load.
 
+### Changed
+
+- Tab storage (uploaded bytes + VM list) now expires after 1 day instead of NiceGUI's 30-day default.
+
 ## [11.3.3] - 2026-10-24
 
 ### Security

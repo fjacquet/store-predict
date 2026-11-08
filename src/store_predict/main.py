@@ -76,6 +76,8 @@ def main() -> None:
     MultiPartParser.spool_max_size = 4 * 1024 * 1024  # 4 MB
     register_routes()
     purge_stale_temp_files()
+    # Tab storage holds the full upload bytes + VM list; NiceGUI's 30-day default is a RAM leak.
+    app.storage.max_tab_storage_age = 24 * 3600
     if _PUBLIC_DIR.is_dir():
         app.add_static_files("/public", str(_PUBLIC_DIR))
     storage_secret, is_dev = _resolve_storage_secret()
