@@ -4,6 +4,8 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+## [11.3.4] - 2026-11-08
+
 ### Fixed
 
 - **NiceGUI binding leak (CPU 40-45 % after days of uptime).** Pages awaited
