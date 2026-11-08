@@ -5,7 +5,7 @@ from __future__ import annotations
 from nicegui import ui
 
 from store_predict.i18n import t
-from store_predict.ui.layout import layout
+from store_predict.ui.layout import client_ready, layout
 
 PRESIZION_URL = "https://fjacquet.github.io/presizion/"
 PRESIZION_REPO = "https://github.com/fjacquet/presizion"
@@ -14,7 +14,8 @@ PRESIZION_REPO = "https://github.com/fjacquet/presizion"
 @ui.page("/compute")
 async def compute_page() -> None:
     """Compute Sizing page — link to PreSizion project."""
-    await ui.context.client.connected()
+    if not await client_ready():
+        return
 
     with (
         layout("StorePredict - " + t("compute.title")),

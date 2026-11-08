@@ -4,6 +4,31 @@ All notable changes to StorePredict are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- **NiceGUI binding leak (CPU 40-45 % after days of uptime).** Pages awaited
+  `client.connected()` and kept building the UI even when NiceGUI had already
+  pruned the never-connected client (bots without websocket). The orphan
+  elements and their bindings were never freed (38 k active links) and raised
+  `user storage ... should be created before accessing it`. Pages now bail out
+  through `client_ready()` when the client is deleted.
+
+### Security
+
+- **Hardened the chunked upload endpoint.** `/api/upload/{token}` now only accepts
+  tokens issued to a live upload page (403 otherwise), rejects any upload over
+  50 MB (413), and assembles files off the event loop. Previously any client could
+  stream unbounded chunks into server RAM.
+- **`docker-compose.yml` no longer falls back to a public `STORAGE_SECRET`.** It
+  refuses to start when the variable is unset; `.env.example` ships an empty value.
+- **Temp uploads are cleaned up.** Failed validations delete their temp file, and
+  files older than 6 h (abandoned uploads) are purged at startup and on each upload
+  page load.
+
+### Changed
+
+- Tab storage (uploaded bytes + VM list) now expires after 1 day instead of NiceGUI's 30-day default.
+
 ## [11.3.3] - 2026-10-24
 
 ### Security

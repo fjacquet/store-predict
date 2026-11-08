@@ -10,6 +10,7 @@ upload page timer can pick it up sequentially.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import tempfile
 import time
@@ -26,6 +27,33 @@ from store_predict.logging_config import hash_name
 logger = logging.getLogger(__name__)
 
 _STALE_SECONDS = 300  # purge incomplete uploads after 5 minutes
+MAX_UPLOAD_BYTES = 50_000_000  # mirrors the browser-side max_file_size in the upload widget
+TEMP_PREFIX = "sp_upload_"
+_TEMP_MAX_AGE_SECONDS = 6 * 3600
+
+# Upload tokens issued to live /upload pages. Anything else is a bot: reject it.
+_tokens: set[str] = set()
+
+
+def register_token(token: str) -> None:
+    """Allow chunk uploads for *token* (called when the upload page is built)."""
+    _tokens.add(token)
+
+
+def unregister_token(token: str) -> None:
+    """Stop accepting uploads for *token* (called when the page's client is deleted)."""
+    _tokens.discard(token)
+
+
+def purge_stale_temp_files() -> None:
+    """Delete our own temp files older than 6 h (abandoned or failed uploads hold customer data)."""
+    cutoff = time.time() - _TEMP_MAX_AGE_SECONDS
+    for p in Path(tempfile.gettempdir()).glob(f"{TEMP_PREFIX}*"):
+        try:
+            if p.is_file() and p.stat().st_mtime < cutoff:
+                p.unlink()
+        except OSError:
+            logger.warning("Could not purge stale temp file")
 
 
 @dataclass
@@ -65,6 +93,9 @@ def _receive_chunk(token: str, filename: str, data: bytes, start: int, total_siz
         entry = _store[store_key]
         entry.chunks[start] = data
         received = sum(len(c) for c in entry.chunks.values())
+        if received > MAX_UPLOAD_BYTES:
+            del _store[store_key]
+            raise ValueError("upload exceeds size limit")
         max_end = max(s + len(c) for s, c in entry.chunks.items())
         # Assemble when all bytes received OR last chunk reaches the declared end.
         if received < total_size and max_end < total_size:
@@ -81,7 +112,7 @@ def _receive_chunk(token: str, filename: str, data: bytes, start: int, total_siz
         del _store[store_key]
 
     suffix = Path(filename).suffix
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
+    with tempfile.NamedTemporaryFile(prefix=TEMP_PREFIX, suffix=suffix, delete=False) as f:
         f.write(assembled)
         logger.info("Upload assembled: tid=%s file=%s size=%d", token, hash_name(filename), total_size)
         return Path(f.name)
@@ -89,6 +120,8 @@ def _receive_chunk(token: str, filename: str, data: bytes, start: int, total_siz
 
 async def _handle_chunk(request: Request, token: str) -> JSONResponse:
     """Receive a chunk (or complete file) and enqueue completed uploads."""
+    if token not in _tokens:
+        return JSONResponse({"error": "unknown upload token"}, status_code=403)
     try:
         form = await request.form()
         upload_file: UploadFile | None = next(
@@ -112,6 +145,9 @@ async def _handle_chunk(request: Request, token: str) -> JSONResponse:
             start = 0
             total_size = len(data)
 
+        if start < 0 or total_size <= 0 or total_size > MAX_UPLOAD_BYTES or len(data) > MAX_UPLOAD_BYTES:
+            return JSONResponse({"error": "invalid or oversized upload"}, status_code=413)
+
         logger.debug(
             "Chunk received: tid=%s file=%s start=%d total=%d data_len=%d range=%r",
             token,
@@ -121,7 +157,8 @@ async def _handle_chunk(request: Request, token: str) -> JSONResponse:
             len(data),
             content_range,
         )
-        assembled = _receive_chunk(token, filename, data, start, total_size)
+        # Off the event loop: joining and writing up to 50 MB would block every other client.
+        assembled = await asyncio.to_thread(_receive_chunk, token, filename, data, start, total_size)
         if assembled is not None:
             from nicegui import app
 
@@ -133,6 +170,8 @@ async def _handle_chunk(request: Request, token: str) -> JSONResponse:
 
         return JSONResponse({"status": "ok"})
 
+    except ValueError:
+        return JSONResponse({"error": "invalid or oversized upload"}, status_code=413)
     except Exception:
         logger.exception("Error handling upload chunk for tid=%s", token)
         return JSONResponse({"error": "upload failed"}, status_code=500)

@@ -27,7 +27,7 @@ from store_predict.services.pdf_report import (
     validate_logo,
 )
 from store_predict.services.pptx_report import generate_report_pptx
-from store_predict.ui.layout import layout
+from store_predict.ui.layout import client_ready, layout
 from store_predict.ui.state import get_scope_selection, load_filtered_session_data
 
 
@@ -48,7 +48,8 @@ def _scope_filename_suffix() -> str:
 @ui.page("/report")
 async def report_page() -> None:
     """Display calculation summary, workload breakdown, and PDF download."""
-    await ui.context.client.connected()
+    if not await client_ready():
+        return
 
     df = load_filtered_session_data()
     project_name: str = str(app.storage.tab.get("project_name", ""))

@@ -7,7 +7,7 @@ from nicegui import ui
 from store_predict.i18n import t
 from store_predict.pipeline.health_checks import HealthCheckResult, HealthFinding, Severity, run_health_checks
 from store_predict.services.concerns_export import generate_concerns_csv, generate_concerns_pdf
-from store_predict.ui.layout import layout
+from store_predict.ui.layout import client_ready, layout
 from store_predict.ui.state import load_filtered_session_data
 
 # ---------------------------------------------------------------------------
@@ -146,7 +146,8 @@ async def concerns_page() -> None:
     HealthCheckResult is NOT cached in session — recomputed on every visit so
     that workload edits from the Review page are immediately reflected.
     """
-    await ui.context.client.connected()
+    if not await client_ready():
+        return
 
     df = load_filtered_session_data()
 

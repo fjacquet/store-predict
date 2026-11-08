@@ -7,7 +7,7 @@ services:
       - path: .env
         required: false
     environment:
-      - STORAGE_SECRET=${STORAGE_SECRET:-change-me-in-production}
+      - STORAGE_SECRET=${STORAGE_SECRET:?STORAGE_SECRET must be set (see .env.example)}
       # LLM Classification Fallback (optional, disabled by default)
       - LLM_ENABLED=${LLM_ENABLED:-false}
       - LLM_MODEL=${LLM_MODEL:-mistralai/mistral-small-3.1-24b-instruct}
