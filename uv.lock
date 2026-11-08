@@ -3581,7 +3581,7 @@ wheels = [
 
 [[package]]
 name = "store-predict"
-version = "11.3.3"
+version = "11.3.4"
 source = { editable = "." }
 dependencies = [
     { name = "fastembed" },
