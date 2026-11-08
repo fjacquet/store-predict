@@ -14,7 +14,7 @@ Open your browser at [http://localhost:8080](http://localhost:8080).
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `STORAGE_SECRET` | (auto-generated) | Secret key for session storage. Set this in production for persistent sessions. |
+| `STORAGE_SECRET` | (none, required) | Secret key for session storage. The app and `docker-compose.yml` refuse to start without it. Generate one with `python -c "import secrets; print(secrets.token_urlsafe(32))"`. For local development, `STORE_PREDICT_DEV=1` mints an ephemeral one. |
 
 ## Local Development
 
